@@ -22,4 +22,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		EMainPlayerStates m_CurState;
+
+	class AMainPlayer* m_MainPlayer;
 };

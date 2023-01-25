@@ -67,6 +67,8 @@ public:
 
 	bool m_bIsRun;
 	EMainPlayerStates m_CurState;
+	bool m_bIsCombat;
+
 	int m_DebugInt = 0;
 	int m_DebugInt2 = 0;
 };

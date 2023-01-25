@@ -19,7 +19,8 @@ AMainPlayer::AMainPlayer() :
 	m_RunSpeed(700.0f),
 	m_CurSpeed(0.0f),
 	m_bIsRun(false),
-	m_CurState(EMainPlayerStates::Attack)
+	m_CurState(EMainPlayerStates::Attack),
+	m_bIsCombat(true)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -179,9 +180,6 @@ void AMainPlayer::initControlSetting()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
-
-
-
 }
 
 void AMainPlayer::printLog()
