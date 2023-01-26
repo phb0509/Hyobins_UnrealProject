@@ -17,6 +17,7 @@ public:
 
 	UMainPlayerAnim();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	
 
 public:
 

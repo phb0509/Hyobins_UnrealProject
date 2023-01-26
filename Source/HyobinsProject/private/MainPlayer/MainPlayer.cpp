@@ -65,16 +65,9 @@ void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	// SpringArm의 길이와 회전 값이 목표 값까지 서서히 변경되도록 제어.
-	if (IsValid(m_SpringArm))
-	{
-		m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, m_ArmLengthTo, DeltaTime, m_ArmLengthSpeed);
-		m_DebugInt = 10;
-	}
-	else
-	{
-		m_DebugInt = 20;
-	}
+	checkIsValidComponants();
+
+	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, m_ArmLengthTo, DeltaTime, m_ArmLengthSpeed);
 
 	// 로그 
 	printLog();
@@ -180,6 +173,12 @@ void AMainPlayer::initControlSetting()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+}
+
+void AMainPlayer::checkIsValidComponants()
+{
+	checkf(IsValid(m_SpringArm), TEXT("SpringArm is not Valid"));
+	checkf(IsValid(m_TargetCamera), TEXT("TargetCamera is not Valid"));
 }
 
 void AMainPlayer::printLog()

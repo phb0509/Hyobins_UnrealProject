@@ -44,6 +44,7 @@ protected:
 
 private:
 	void initControlSetting();
+	void checkIsValidComponants();
 	void printLog();
 
 

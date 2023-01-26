@@ -15,7 +15,7 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	//GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Red, FString::Printf(TEXT("m_Speed : %f"), m_Speed));
+	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Red, FString::Printf(TEXT("animInstance Log")));
 
 	m_MainPlayer = Cast<AMainPlayer>(TryGetPawnOwner());
 
