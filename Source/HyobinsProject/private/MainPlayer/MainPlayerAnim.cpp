@@ -6,7 +6,11 @@
 #include "Utility/EnumTypes.h"
 
 UMainPlayerAnim::UMainPlayerAnim():
-	m_CurState(EMainPlayerStates::Idle)
+	m_CurSpeed(0.0f),
+	m_bIsCombated(true),
+	m_bIsPressingShift(false),
+	m_bIsWalking(false),
+	m_bIsRunning(false)
 {
 	
 }
@@ -15,8 +19,16 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Red, FString::Printf(TEXT("animInstance Log")));
+	if (!m_MainPlayer.IsValid())
+	{
+		m_MainPlayer = Cast<AMainPlayer>(TryGetPawnOwner());
+	}
+	else
+	{
+		m_CurSpeed = m_MainPlayer->GetVelocity().Size();
+		m_bIsCombated = m_MainPlayer->GetIsCombat();
+		m_bIsPressingShift = m_MainPlayer->GetIsPressingShift();
+	}
 
-	m_MainPlayer = Cast<AMainPlayer>(TryGetPawnOwner());
-
+	//GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Red, FString::Printf(TEXT("MainPlayerAnimInstance_CurState : %d"), m_CurState));
 }

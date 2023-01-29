@@ -17,12 +17,29 @@ public:
 
 	UMainPlayerAnim();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-	
+
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		EMainPlayerStates m_CurState;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+	//	EMainPlayerStates m_CurState;
 
-	class AMainPlayer* m_MainPlayer;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		float m_CurSpeed;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsCombated;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsPressingShift;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsWalking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsRunning;
+
+private:
+	TWeakObjectPtr<class AMainPlayer> m_MainPlayer;
+
 };

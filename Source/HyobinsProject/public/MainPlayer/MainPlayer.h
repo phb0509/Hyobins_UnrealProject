@@ -32,11 +32,22 @@ public:
 	void InputVertical(float value);
 
 	// ActionMappings
-	void OnBeginRun();
-	void OnEndRun();
+	void TriggerPressedShift();
+	void TriggerReleasedShift();
+	void TriggerPressedMoveWSAD();
+	void TriggerReleasedMoveWSAD();
 
-	UFUNCTION(BlueprintCallable, Category = "FSM")
-		EMainPlayerStates GetFSMState() { return m_CurState; }
+	//UFUNCTION(BlueprintCallable, Category = "FSM")
+	//	EMainPlayerStates GetFSMState() { return m_CurState; }
+
+	// Get
+	bool GetIsCombat() { return m_bIsCombated; }
+	bool GetIsPressingShift() { return m_bIsPressingShift; }
+	bool GetIsWalking() { return m_bIsWalking; }
+	bool GetIsRunning() { return m_bIsRunning; }
+
+	// Set
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -45,31 +56,29 @@ protected:
 private:
 	void initControlSetting();
 	void checkIsValidComponants();
+	void updateState();
 	void printLog();
-
 
 public:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 		class USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
-												   // 자신과의 지정된 거리 안에 유지되도록 처리한다.
+												// 자신과의 지정된 거리 안에 유지되도록 처리한다.
 
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 		class UCameraComponent* m_TargetCamera;
 
+private:
 	float m_ArmLengthTo;
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
 	float m_ArmRotationSpeed;
 	float m_WalkSpeed;
 	float m_RunSpeed;
-
-	UPROPERTY(EditAnywhere, Category = PlayerSetting)
-		float m_CurSpeed;
-
-	bool m_bIsRun;
-	EMainPlayerStates m_CurState;
-	bool m_bIsCombat;
-
-	int m_DebugInt = 0;
-	int m_DebugInt2 = 0;
+	float m_MovdDeltaSecondsOffset;
+	float m_RotationDeltaSecondsOffset;
+	//EMainPlayerStates m_CurState;
+	bool m_bIsPressingShift;
+	bool m_bIsCombated;
+	bool m_bIsWalking;
+	bool m_bIsRunning;
 };

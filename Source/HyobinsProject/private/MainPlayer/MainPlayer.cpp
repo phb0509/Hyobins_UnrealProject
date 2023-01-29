@@ -10,17 +10,20 @@
 #include "Utility/EnumTypes.h" 
 
 
-AMainPlayer::AMainPlayer() : 
-	m_ArmLengthTo(0.0f),
-	m_ArmRotationTo(FRotator::ZeroRotator),
-	m_ArmLengthSpeed(0.0f),
+
+AMainPlayer::AMainPlayer() :
+	m_ArmLengthTo(450.0f),
+	m_ArmRotationTo(10.0f),
+	m_ArmLengthSpeed(3.0f),
 	m_ArmRotationSpeed(0.0f),
 	m_WalkSpeed(300.0f),
 	m_RunSpeed(700.0f),
-	m_CurSpeed(0.0f),
-	m_bIsRun(false),
-	m_CurState(EMainPlayerStates::Attack),
-	m_bIsCombat(true)
+	m_MovdDeltaSecondsOffset(20000.0f),
+	m_RotationDeltaSecondsOffset(50.0f),
+	m_bIsPressingShift(false),
+	m_bIsCombated(true),
+	m_bIsWalking(false),
+	m_bIsRunning(false)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -42,7 +45,7 @@ AMainPlayer::AMainPlayer() :
 
 	//애니메이션 모드 설정
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	ConstructorHelpers::FClassFinder<UAnimInstance>
+	static ConstructorHelpers::FClassFinder<UAnimInstance>
 		MainPlayer_AnimInstance(TEXT("AnimBlueprint'/Game/Blueprints/ABP_MainPlayer.ABP_MainPlayer_C'"));
 
 	if (MainPlayer_AnimInstance.Succeeded())
@@ -64,13 +67,18 @@ void AMainPlayer::BeginPlay()
 void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	checkIsValidComponants();
 
+	checkIsValidComponants();
+	updateState();
 	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, m_ArmLengthTo, DeltaTime, m_ArmLengthSpeed);
 
 	// 로그 
 	printLog();
+}
+
+void AMainPlayer::updateState()
+{
+
 }
 
 // Called to bind functionality to input
@@ -85,8 +93,10 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &AMainPlayer::InputVertical); // 전,후 (W,S)
 
 	// ActionMappings
-	PlayerInputComponent->BindAction(TEXT("Run"), IE_Pressed, this, &AMainPlayer::OnBeginRun);
-	PlayerInputComponent->BindAction(TEXT("Run"), IE_Released, this, &AMainPlayer::OnEndRun);
+	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Pressed, this, &AMainPlayer::TriggerPressedShift);
+	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedShift);
+	PlayerInputComponent->BindAction(TEXT("MoveWSAD"), IE_Pressed, this, &AMainPlayer::TriggerPressedMoveWSAD);
+	PlayerInputComponent->BindAction(TEXT("MoveWSAD"), IE_Released, this, &AMainPlayer::TriggerReleasedMoveWSAD);
 }
 
 void AMainPlayer::PostInitializeComponents()
@@ -96,56 +106,53 @@ void AMainPlayer::PostInitializeComponents()
 
 void AMainPlayer::Turn(float value)
 {
-	AddControllerYawInput(value);
+	AddControllerYawInput(value * GetWorld()->GetDeltaSeconds() * m_RotationDeltaSecondsOffset);
 }
 
 void AMainPlayer::LookUp(float value)
 {
-	AddControllerPitchInput(value);
+	AddControllerPitchInput(value * GetWorld()->GetDeltaSeconds() * m_RotationDeltaSecondsOffset);
 }
 
 void AMainPlayer::InputHorizontal(float value)
 {
-	AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), value);
+	AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 }
 
 void AMainPlayer::InputVertical(float value)
 {
-	AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), value);
+	AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 }
 
-void AMainPlayer::OnBeginRun()
+void AMainPlayer::TriggerPressedShift()
 {
-	m_bIsRun = true;
+	m_bIsPressingShift = true;
 	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
 }
 
-void AMainPlayer::OnEndRun()
+void AMainPlayer::TriggerReleasedShift()
 {
-	m_bIsRun = false;
+	m_bIsPressingShift = false;
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+}
+
+void AMainPlayer::TriggerPressedMoveWSAD()
+{
+
+}
+
+void AMainPlayer::TriggerReleasedMoveWSAD()
+{
+	
 }
 
 void AMainPlayer::initControlSetting()
 {
-	m_ArmLengthSpeed = 3.0f;
-	m_ArmRotationSpeed = 10.0f;
-	m_ArmLengthTo = 450.0f;
-
 	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	m_SpringArm->SetupAttachment(RootComponent);
 	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
 	m_SpringArm->TargetArmLength = 600;
 
-	if (IsValid(m_SpringArm))
-	{
-		m_DebugInt2 = 11111;
-	}
-	else
-	{
-		m_DebugInt2 = 000000;
-	}
-	
 	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
 	m_TargetCamera->SetupAttachment(m_SpringArm);
 
@@ -189,9 +196,5 @@ void AMainPlayer::printLog()
 
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("location : %f  %f  %f"), location.X, location.Y, location.X));
 	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.X));
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("velocity Length : %f"), size));
-	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is Run? : %d"), m_bIsRun));
-	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("curState : %d"), GetFSMState()));
-	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("Tick springArm is Valid : %d"), m_DebugInt));
-	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("init springArm is Valid : %d"), m_DebugInt2));
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("velocity Length(speed) : %f"), size));
 }
