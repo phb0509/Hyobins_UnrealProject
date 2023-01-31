@@ -57,8 +57,10 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	void initControlSetting();
+	void initComponents();
 	void initSwordCollision();
+	void initSpringArm();
+	void initTargetCamera();
 	void checkIsValidComponants();
 	void updateState();
 	void printLog();

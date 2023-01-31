@@ -32,11 +32,7 @@ AMainPlayer::AMainPlayer() :
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
-	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
-	
-
-	initControlSetting();
+	initComponents();
 
 	// 메쉬 로드.
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
@@ -185,26 +181,14 @@ void AMainPlayer::TriggerPressedMouseLeftBtn()
 
 }
 
-void AMainPlayer::initControlSetting()
+void AMainPlayer::initComponents()
 {
+	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
+	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
+
 	initSwordCollision();
-
-	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	m_SpringArm->SetupAttachment(RootComponent);
-	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
-	m_SpringArm->TargetArmLength = 600;
-
-	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
-	m_TargetCamera->SetupAttachment(m_SpringArm);
-
-	// 스프링암의 회전 값을 컨트롤 회전 값과 동일하게 맞춰준다.
-	m_SpringArm->bUsePawnControlRotation = true;
-	m_SpringArm->bInheritPitch = true;
-	m_SpringArm->bInheritRoll = true;
-	m_SpringArm->bInheritYaw = true;
-
-	// true로 할 경우, 카메라와 캐릭터사이에 장애물이 있을 경우, 줌 기능을 활성화 해준다.
-	m_SpringArm->bDoCollisionTest = true;
+	initSpringArm();
+	initTargetCamera();
 
 	// true로 할 경우, 컨트롤러의 회전방향으로 캐릭터를 회전시켜줌.
 	bUseControllerRotationYaw = false;
@@ -217,15 +201,14 @@ void AMainPlayer::initControlSetting()
 	// 실제로 캐릭터의 회전 방향이 "딱딱 떨어지는" 느낌을 준다.
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
-	// 회전을 부드럽게 만들어 주기 위해 RotationRate 를 조정한다.
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);
+	// 회전을 부드럽게 만들어 주기 위해 RotationRate 를 조정한다. 값이 낮을수록 카메라 회전시 캐릭터가 한박자 느리게 회전.
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
 
 void AMainPlayer::initSwordCollision()
 {
-	//FTransform collisionTransform = { {0.279196f,1.998782f,87.925328f}, {-2.0f, 0.0f, 90.0f}, {0.5f,0.5f,1.0f} };
 	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
 
 	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
@@ -239,6 +222,29 @@ void AMainPlayer::initSwordCollision()
 	m_SwordCollision->SetCapsuleRadius(10.0f);
 	m_SwordCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AMainPlayer::initSpringArm()
+{
+	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	m_SpringArm->SetupAttachment(RootComponent);
+	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
+	m_SpringArm->TargetArmLength = 600;
+
+	// 스프링암의 회전 값을 컨트롤 회전 값과 동일하게 맞춰준다.
+	m_SpringArm->bUsePawnControlRotation = true;
+	m_SpringArm->bInheritPitch = true;
+	m_SpringArm->bInheritRoll = true;
+	m_SpringArm->bInheritYaw = true;
+
+	// true로 할 경우, 카메라와 캐릭터사이에 장애물이 있을 경우, 줌 기능을 활성화 해준다.
+	m_SpringArm->bDoCollisionTest = true;
+}
+
+void AMainPlayer::initTargetCamera()
+{
+	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
+	m_TargetCamera->SetupAttachment(m_SpringArm);
 }
 
 void AMainPlayer::checkIsValidComponants()
