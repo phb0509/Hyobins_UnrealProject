@@ -27,11 +27,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		float m_CurSpeed;
 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsCombated;
+		bool m_bIsIdle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		bool m_bIsPressingShift;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsCombated;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		bool m_bIsWalking;
@@ -39,7 +43,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		bool m_bIsRunning;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsInAir;
+
 private:
-	TWeakObjectPtr<class AMainPlayer> m_MainPlayer;
+	TWeakObjectPtr<class AMainPlayer> m_AMainPlayer;
 
 };

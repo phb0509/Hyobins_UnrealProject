@@ -36,15 +36,18 @@ public:
 	void TriggerReleasedShift();
 	void TriggerPressedMoveWSAD();
 	void TriggerReleasedMoveWSAD();
+	void TriggerPressedMouseLeftBtn();
 
 	//UFUNCTION(BlueprintCallable, Category = "FSM")
 	//	EMainPlayerStates GetFSMState() { return m_CurState; }
 
-	// Get
-	bool GetIsCombat() { return m_bIsCombated; }
+	// Get 자동 inline 처리.
+	bool GetIsIdle() { return m_bIsIdle; }
 	bool GetIsPressingShift() { return m_bIsPressingShift; }
+	bool GetIsCombat() { return m_bIsCombated; }
 	bool GetIsWalking() { return m_bIsWalking; }
 	bool GetIsRunning() { return m_bIsRunning; }
+	bool GetIsInAir() { return m_bIsInAir; }
 
 	// Set
 
@@ -72,13 +75,16 @@ private:
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
 	float m_ArmRotationSpeed;
+	float m_CurSpeed;
 	float m_WalkSpeed;
 	float m_RunSpeed;
 	float m_MovdDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 	//EMainPlayerStates m_CurState;
+	bool m_bIsIdle;
 	bool m_bIsPressingShift;
 	bool m_bIsCombated;
 	bool m_bIsWalking;
 	bool m_bIsRunning;
+	bool m_bIsInAir;
 };

@@ -16,14 +16,17 @@ AMainPlayer::AMainPlayer() :
 	m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
 	m_ArmRotationSpeed(0.0f),
+	m_CurSpeed(0.0f),
 	m_WalkSpeed(300.0f),
-	m_RunSpeed(700.0f),
+	m_RunSpeed(900.0f),
 	m_MovdDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
+	m_bIsIdle(true),
 	m_bIsPressingShift(false),
 	m_bIsCombated(true),
 	m_bIsWalking(false),
-	m_bIsRunning(false)
+	m_bIsRunning(false),
+	m_bIsInAir(false)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -52,6 +55,7 @@ AMainPlayer::AMainPlayer() :
 	{
 		GetMesh()->SetAnimInstanceClass(MainPlayer_AnimInstance.Class);
 	}
+
 }
 
 // Called when the game starts or when spawned
@@ -78,6 +82,34 @@ void AMainPlayer::Tick(float DeltaTime)
 
 void AMainPlayer::updateState()
 {
+	m_CurSpeed = GetVelocity().Size();
+	m_bIsInAir = GetMovementComponent()->IsFalling();
+
+	if (!m_bIsInAir)
+	{
+		if (m_CurSpeed < 0.1)
+		{
+			m_bIsIdle = true;
+			m_bIsWalking = false;
+			m_bIsRunning = false;
+		}
+		else if (m_CurSpeed > 0.1 && m_CurSpeed <= m_WalkSpeed)
+		{
+			m_bIsIdle = false;
+			m_bIsWalking = true;
+			m_bIsRunning = false;
+		}
+		else if (m_CurSpeed > m_WalkSpeed && m_CurSpeed <= m_RunSpeed)
+		{
+			m_bIsIdle = false;
+			m_bIsWalking = false;
+			m_bIsRunning = true;
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
+	}
 
 }
 
@@ -143,7 +175,7 @@ void AMainPlayer::TriggerPressedMoveWSAD()
 
 void AMainPlayer::TriggerReleasedMoveWSAD()
 {
-	
+
 }
 
 void AMainPlayer::initControlSetting()
@@ -192,9 +224,8 @@ void AMainPlayer::printLog()
 {
 	FVector location = GetActorLocation();
 	FVector velocity = GetVelocity();
-	float size = velocity.Size();
 
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("location : %f  %f  %f"), location.X, location.Y, location.X));
 	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.X));
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("velocity Length(speed) : %f"), size));
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("velocity Length(speed) : %f"), m_CurSpeed));
 }
