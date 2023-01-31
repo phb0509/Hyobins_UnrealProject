@@ -7,6 +7,7 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
+
 #include "Utility/EnumTypes.h" 
 
 
@@ -33,6 +34,7 @@ AMainPlayer::AMainPlayer() :
 
 	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
+	
 
 	initControlSetting();
 
@@ -178,8 +180,15 @@ void AMainPlayer::TriggerReleasedMoveWSAD()
 
 }
 
+void AMainPlayer::TriggerPressedMouseLeftBtn()
+{
+
+}
+
 void AMainPlayer::initControlSetting()
 {
+	initSwordCollision();
+
 	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	m_SpringArm->SetupAttachment(RootComponent);
 	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
@@ -209,9 +218,27 @@ void AMainPlayer::initControlSetting()
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
 	// 회전을 부드럽게 만들어 주기 위해 RotationRate 를 조정한다.
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f);
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+}
+
+void AMainPlayer::initSwordCollision()
+{
+	//FTransform collisionTransform = { {0.279196f,1.998782f,87.925328f}, {-2.0f, 0.0f, 90.0f}, {0.5f,0.5f,1.0f} };
+	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
+
+	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
+	// location.x, location.y, location. z
+	// scale.x,scale.y,scale.z
+
+	m_SwordCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollision"));
+	m_SwordCollision->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
+	m_SwordCollision->SetWorldTransform(collisionTransform);
+	m_SwordCollision->SetCapsuleHalfHeight(50.0f);
+	m_SwordCollision->SetCapsuleRadius(10.0f);
+	m_SwordCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMainPlayer::checkIsValidComponants()

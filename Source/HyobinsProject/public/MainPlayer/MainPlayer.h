@@ -58,6 +58,7 @@ protected:
 
 private:
 	void initControlSetting();
+	void initSwordCollision();
 	void checkIsValidComponants();
 	void updateState();
 	void printLog();
@@ -69,6 +70,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 		class UCameraComponent* m_TargetCamera;
+
+	UPROPERTY(VisibleAnywhere, Category = Collision)
+		class UCapsuleComponent* m_SwordCollision;
 
 private:
 	float m_ArmLengthTo;
