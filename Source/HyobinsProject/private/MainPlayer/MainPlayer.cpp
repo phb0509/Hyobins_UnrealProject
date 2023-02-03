@@ -3,6 +3,7 @@
 
 //#include "MainPlayer.h"
 #include "MainPlayer/MainPlayer.h"
+#include "MainPlayer/MainPlayerAnim.h"
 #include <GameFramework/SpringArmComponent.h.>
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Camera/CameraComponent.h>
@@ -28,8 +29,12 @@ AMainPlayer::AMainPlayer() :
 	m_bIsWalking(false),
 	m_bIsRunning(false),
 	m_bIsInAir(false),
+	m_bIsHit(false),
 	m_bIsAttacking(false),
-	m_bIsHit(false)
+	m_bCanNextCombo(false),
+	m_bIsComboInputOn(false),
+	m_CurNormalAttackCombo(0),
+	m_NormalAttackMaxCombo(4)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -56,6 +61,7 @@ AMainPlayer::AMainPlayer() :
 		GetMesh()->SetAnimInstanceClass(MainPlayer_AnimInstance.Class);
 	}
 
+	attackEndComboState();
 }
 
 // Called when the game starts or when spawned
@@ -113,6 +119,44 @@ void AMainPlayer::updateState()
 
 }
 
+void AMainPlayer::normalAttack()
+{
+	if (m_bIsAttacking)
+	{
+		if (m_bCanNextCombo)
+		{
+			m_bIsComboInputOn = true;
+		}
+	}
+	else
+	{
+		attackStartComboState();
+		m_ABPAnimInstance->PlayNormalAttackMontage();
+		m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
+		m_bIsAttacking = true;
+	}
+}
+
+void AMainPlayer::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	m_bIsAttacking = false;
+	attackEndComboState();
+}
+
+void AMainPlayer::attackStartComboState()
+{
+	m_bCanNextCombo = true;
+	m_bIsComboInputOn = false;
+	m_CurNormalAttackCombo = FMath::Clamp<int32>(m_CurNormalAttackCombo + 1, 1, m_NormalAttackMaxCombo);
+}
+
+void AMainPlayer::attackEndComboState()
+{
+	m_bIsComboInputOn = false;
+	m_bCanNextCombo = false;
+	m_CurNormalAttackCombo = 0;
+}
+
 // Called to bind functionality to input
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -136,6 +180,25 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 void AMainPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	m_ABPAnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
+
+	m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
+
+	m_ABPAnimInstance->OnNextAttackCheck.AddLambda([this]() -> void
+	{
+		m_bCanNextCombo = false;
+
+		if (m_bIsComboInputOn)
+		{
+			attackStartComboState();
+			m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
+		}
+	});
+}
+
+void AMainPlayer::Jump()
+{
 }
 
 void AMainPlayer::Turn(float value)
@@ -150,12 +213,18 @@ void AMainPlayer::LookUp(float value)
 
 void AMainPlayer::InputHorizontal(float value)
 {
-	AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+	if (!m_bIsAttacking)
+	{
+		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+	}
 }
 
 void AMainPlayer::InputVertical(float value)
 {
-	AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+	if (!m_bIsAttacking)
+	{
+		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+	}
 }
 
 void AMainPlayer::TriggerPressedShift()
@@ -182,12 +251,12 @@ void AMainPlayer::TriggerReleasedMoveWSAD()
 
 void AMainPlayer::TriggerPressedLeftMouseButton()
 {
-	m_bIsAttacking = true;
+	normalAttack();
 }
 
 void AMainPlayer::TriggerReleasedLeftMouseButton()
 {
-	//m_bIsAttacking = false;
+	
 }
 
 void AMainPlayer::initComponents()
@@ -230,7 +299,6 @@ void AMainPlayer::initSwordCollision()
 	m_SwordCollision->SetCapsuleHalfHeight(50.0f);
 	m_SwordCollision->SetCapsuleRadius(10.0f);
 	m_SwordCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	
 	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

@@ -23,7 +23,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
 	virtual void PostInitializeComponents() override;
+	virtual void Jump() override;
 
 	// AxisMappings
 	void Turn(float value);
@@ -66,6 +68,15 @@ private:
 	void initTargetCamera();
 	void checkIsValidComponants();
 	void updateState();
+
+	void normalAttack();
+
+	UFUNCTION()
+		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	void attackStartComboState();
+	void attackEndComboState();
+
 	void printLog();
 
 public:
@@ -96,6 +107,23 @@ private:
 	bool m_bIsWalking;
 	bool m_bIsRunning;
 	bool m_bIsInAir;	
-	bool m_bIsAttacking;
 	bool m_bIsHit;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		bool m_bIsAttacking;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		bool m_bCanNextCombo;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		bool m_bIsComboInputOn;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		int32 m_CurNormalAttackCombo;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		int32 m_NormalAttackMaxCombo;
+
+	UPROPERTY()
+		class UMainPlayerAnim* m_ABPAnimInstance;
 };

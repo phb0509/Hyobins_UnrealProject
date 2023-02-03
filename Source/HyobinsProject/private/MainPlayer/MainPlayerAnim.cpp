@@ -16,7 +16,13 @@ UMainPlayerAnim::UMainPlayerAnim():
 	m_bIsAttacking(false),
 	m_bIsHit(false)
 {
-	
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> attackMontage
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AMBP_ComboAttack1.AMBP_ComboAttack1'"));
+
+	if (attackMontage.Succeeded())
+	{
+		m_NormalAttackMontage = attackMontage.Object;
+	}
 }
 
 void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -45,21 +51,25 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 void UMainPlayerAnim::PlayNormalAttackMontage()
 {
+	Montage_Play(m_NormalAttackMontage, 1.0f);
 }
 
-void UMainPlayerAnim::JumpToNormalAttackMontageSection(int32 NewSection)
+void UMainPlayerAnim::JumpToNormalAttackMontageSection(int32 newSection)
 {
+	Montage_JumpToSection(GetNormalAttackMontageSectionName(newSection), m_NormalAttackMontage);
 }
 
-void UMainPlayerAnim::AnimNotify_AttackHitCheck()
+void UMainPlayerAnim::AnimNotify_checkAttackHit()
 {
+	OnAttackHitCheck.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_NextAttackCheck()
+void UMainPlayerAnim::AnimNotify_checkNextAttack()
 {
+	OnNextAttackCheck.Broadcast();
 }
 
-FName UMainPlayerAnim::GetNormalAttackMontageSectionName(int32 Section)
+FName UMainPlayerAnim::GetNormalAttackMontageSectionName(int32 section)
 {
-	return FName();
+	return FName(*FString::Printf(TEXT("Attack%d"), section));
 }

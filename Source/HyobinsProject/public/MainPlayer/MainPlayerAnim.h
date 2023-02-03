@@ -24,16 +24,16 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	void PlayNormalAttackMontage();
-	void JumpToNormalAttackMontageSection(int32 NewSection);
+	void JumpToNormalAttackMontageSection(int32 newSection);
 
 private:
 	UFUNCTION()
-		void AnimNotify_AttackHitCheck();
+		void AnimNotify_checkAttackHit(); // Notify를 실행시키는 함수.
 
 	UFUNCTION()
-		void AnimNotify_NextAttackCheck();
+		void AnimNotify_checkNextAttack();
 
-	FName GetNormalAttackMontageSectionName(int32 Section);
+	FName GetNormalAttackMontageSectionName(int32 section);
 
 public:
 
@@ -42,7 +42,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		float m_CurSpeed;
-
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		bool m_bIsIdle;
@@ -68,7 +67,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		bool m_bIsHit;
 
-	FOnNextAttackCheckDelegate OnNextAttackCheck;
+	// 델리게이트.
+	FOnNextAttackCheckDelegate OnNextAttackCheck; 
 	FOnAttackHitCheckDelegate  OnAttackHitCheck;
 
 private:
