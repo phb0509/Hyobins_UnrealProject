@@ -27,7 +27,9 @@ AMainPlayer::AMainPlayer() :
 	m_bIsCombated(true),
 	m_bIsWalking(false),
 	m_bIsRunning(false),
-	m_bIsInAir(false)
+	m_bIsInAir(false),
+	m_bIsAttacking(false),
+	m_bIsHit(false)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -127,6 +129,8 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedShift);
 	PlayerInputComponent->BindAction(TEXT("MoveWSAD"), IE_Pressed, this, &AMainPlayer::TriggerPressedMoveWSAD);
 	PlayerInputComponent->BindAction(TEXT("MoveWSAD"), IE_Released, this, &AMainPlayer::TriggerReleasedMoveWSAD);
+	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
+	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 }
 
 void AMainPlayer::PostInitializeComponents()
@@ -176,9 +180,14 @@ void AMainPlayer::TriggerReleasedMoveWSAD()
 
 }
 
-void AMainPlayer::TriggerPressedMouseLeftBtn()
+void AMainPlayer::TriggerPressedLeftMouseButton()
 {
+	m_bIsAttacking = true;
+}
 
+void AMainPlayer::TriggerReleasedLeftMouseButton()
+{
+	//m_bIsAttacking = false;
 }
 
 void AMainPlayer::initComponents()
@@ -221,6 +230,7 @@ void AMainPlayer::initSwordCollision()
 	m_SwordCollision->SetCapsuleHalfHeight(50.0f);
 	m_SwordCollision->SetCapsuleRadius(10.0f);
 	m_SwordCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	
 	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

@@ -36,7 +36,8 @@ public:
 	void TriggerReleasedShift();
 	void TriggerPressedMoveWSAD();
 	void TriggerReleasedMoveWSAD();
-	void TriggerPressedMouseLeftBtn();
+	void TriggerPressedLeftMouseButton();
+	void TriggerReleasedLeftMouseButton();
 
 	//UFUNCTION(BlueprintCallable, Category = "FSM")
 	//	EMainPlayerStates GetFSMState() { return m_CurState; }
@@ -48,6 +49,8 @@ public:
 	bool GetIsWalking() { return m_bIsWalking; }
 	bool GetIsRunning() { return m_bIsRunning; }
 	bool GetIsInAir() { return m_bIsInAir; }
+	bool GetIsAttacking() { return m_bIsAttacking; }
+	bool GetIsHit() { return m_bIsHit; }
 
 	// Set
 
@@ -92,5 +95,7 @@ private:
 	bool m_bIsCombated;
 	bool m_bIsWalking;
 	bool m_bIsRunning;
-	bool m_bIsInAir;
+	bool m_bIsInAir;	
+	bool m_bIsAttacking;
+	bool m_bIsHit;
 };

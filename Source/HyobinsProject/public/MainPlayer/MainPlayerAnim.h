@@ -8,6 +8,11 @@
 
 enum class EMainPlayerStates : uint8;
 
+
+DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate);
+
+
 UCLASS()
 class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstance
 {
@@ -18,6 +23,17 @@ public:
 	UMainPlayerAnim();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	void PlayNormalAttackMontage();
+	void JumpToNormalAttackMontageSection(int32 NewSection);
+
+private:
+	UFUNCTION()
+		void AnimNotify_AttackHitCheck();
+
+	UFUNCTION()
+		void AnimNotify_NextAttackCheck();
+
+	FName GetNormalAttackMontageSectionName(int32 Section);
 
 public:
 
@@ -46,7 +62,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
 		bool m_bIsInAir;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsAttacking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
+		bool m_bIsHit;
+
+	FOnNextAttackCheckDelegate OnNextAttackCheck;
+	FOnAttackHitCheckDelegate  OnAttackHitCheck;
+
 private:
 	TWeakObjectPtr<class AMainPlayer> m_AMainPlayer;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		UAnimMontage* m_NormalAttackMontage;
 
 };
