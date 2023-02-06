@@ -109,6 +109,8 @@ private:
 	bool m_bIsInAir;	
 	bool m_bIsHit;
 
+	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bIsAttacking;
 

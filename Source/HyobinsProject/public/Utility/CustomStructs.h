@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Utility/EnumTypes.h"
 #include "CustomStructs.generated.h"
 
 
@@ -20,6 +21,15 @@ struct FAttackInfoStruct
 	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) // 포인터변수의 경우, 댕글링포인터 방지하기위해 UPROPERTY 꼭 붙이기
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite) // 포인터변수의 경우, 댕글링포인터 방지하기위해 UPROPERTY 꼭 붙이기
 	float damage;
+	bool bIsDot; 
+	bool bHasCrowdControl;
+	ECrowdControlType crowdControlType; // CC기 종류
+	float crowdControlTime; // CC기 지속시간
+
+	bool bHasKnockBack; 
+	float knockBackTime; // 경직시간 -> 피격체의 힛트모션 재생시간과 대응
+	float knockBackDistance; // 밀려지는 정도
 };
+
