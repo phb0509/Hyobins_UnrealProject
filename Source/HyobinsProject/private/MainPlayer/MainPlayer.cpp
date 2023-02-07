@@ -40,27 +40,10 @@ AMainPlayer::AMainPlayer() :
 	PrimaryActorTick.bCanEverTick = true;
 	
 	initComponents();
-
-	// 메쉬 로드.
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
-		tempMesh(TEXT("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'"));
-
-	if (tempMesh.Succeeded())
-	{
-		GetMesh()->SetSkeletalMesh(tempMesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
-	}
-
-	//애니메이션 모드 설정
-	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	static ConstructorHelpers::FClassFinder<UAnimInstance>
-		MainPlayer_AnimInstance(TEXT("AnimBlueprint'/Game/Blueprints/ABP_MainPlayer.ABP_MainPlayer_C'"));
-
-	if (MainPlayer_AnimInstance.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(MainPlayer_AnimInstance.Class);
-	}
-
+	loadMesh();
+	loadAnimInstance();
+	initSwordCollision();
+	initAttackInformations();
 	attackEndComboState();
 }
 
@@ -264,7 +247,6 @@ void AMainPlayer::initComponents()
 	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
 
-	initSwordCollision();
 	initSpringArm();
 	initTargetCamera();
 
@@ -302,6 +284,32 @@ void AMainPlayer::initSwordCollision()
 	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void AMainPlayer::loadMesh()
+{
+	// 메쉬 로드.
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
+		tempMesh(TEXT("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'"));
+
+	if (tempMesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(tempMesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
+	}
+}
+
+void AMainPlayer::loadAnimInstance()
+{
+	//애니메이션 모드 설정
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	static ConstructorHelpers::FClassFinder<UAnimInstance>
+		MainPlayer_AnimInstance(TEXT("AnimBlueprint'/Game/Blueprints/ABP_MainPlayer.ABP_MainPlayer_C'"));
+
+	if (MainPlayer_AnimInstance.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(MainPlayer_AnimInstance.Class);
+	}
+}
+
 void AMainPlayer::initSpringArm()
 {
 	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -323,6 +331,11 @@ void AMainPlayer::initTargetCamera()
 {
 	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
 	m_TargetCamera->SetupAttachment(m_SpringArm);
+}
+
+void AMainPlayer::initAttackInformations()
+{
+	m_AttackInformations.Add("NormalAttack", { 20.0f,false,false,ECrowdControlType::None,0.0f,false,0.5f,10.0f });
 }
 
 void AMainPlayer::checkIsValidComponants()

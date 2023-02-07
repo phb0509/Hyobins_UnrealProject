@@ -15,23 +15,20 @@ class HYOBINSPROJECT_API AMonster : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AMonster();
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//virtual void initAttackInformations() = 0;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 private:
-
+	
 
 protected:
 	float m_MaxHP;
 	float m_CurHP;
 	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+
+	float m_PatrolRange;
 };

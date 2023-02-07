@@ -19,7 +19,6 @@ class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstance
 	GENERATED_BODY()
 
 public:
-
 	UMainPlayerAnim();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
