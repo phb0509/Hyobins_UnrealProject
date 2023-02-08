@@ -11,14 +11,14 @@ AMeleeMinion::AMeleeMinion()
 	initComponents();
 	loadMesh();
 	loadAnimInstance();
-	initSwordCollision();
+	initCollisions();
 	initAttackInformations();
 }
 
 
 void AMeleeMinion::initComponents()
 {
-	initSwordCollision();
+	initCollisions();
 }
 
 void AMeleeMinion::loadMesh()
@@ -38,7 +38,7 @@ void AMeleeMinion::loadAnimInstance()
 {
 }
 
-void AMeleeMinion::initSwordCollision()
+void AMeleeMinion::initCollisions()
 {
 }
 

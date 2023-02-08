@@ -42,7 +42,7 @@ AMainPlayer::AMainPlayer() :
 	initComponents();
 	loadMesh();
 	loadAnimInstance();
-	initSwordCollision();
+	initCollisions();
 	initAttackInformations();
 	attackEndComboState();
 }
@@ -244,9 +244,6 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 
 void AMainPlayer::initComponents()
 {
-	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
-	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
-
 	initSpringArm();
 	initTargetCamera();
 
@@ -267,8 +264,13 @@ void AMainPlayer::initComponents()
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
 
-void AMainPlayer::initSwordCollision()
+void AMainPlayer::initCollisions()
 {
+	// RootCapsuleComponent
+	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
+	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
+
+	// SwordCollision
 	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
 
 	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)

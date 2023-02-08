@@ -56,7 +56,7 @@ protected:
 
 private:
 	void initComponents();
-	void initSwordCollision();
+	void initCollisions();
 	void loadMesh();
 	void loadAnimInstance();
 	void initSpringArm();

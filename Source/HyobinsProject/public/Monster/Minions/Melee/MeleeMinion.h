@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Monster/Monster.h"
+
 #include "MeleeMinion.generated.h"
 
 /**
@@ -21,6 +22,6 @@ private:
 	void initComponents();
 	void loadMesh();
 	void loadAnimInstance();
-	void initSwordCollision();
+	void initCollisions();
 	void initAttackInformations();
 };

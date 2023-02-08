@@ -17,7 +17,6 @@ public:
 	AMonster();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	//virtual void initAttackInformations() = 0;
 
 protected:
 	virtual void BeginPlay() override;
