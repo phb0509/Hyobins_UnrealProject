@@ -21,7 +21,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-private:
+protected:
+	void loadMesh(FString path);
+	void loadAnimInstance(FString path);
+
 	
 
 protected:

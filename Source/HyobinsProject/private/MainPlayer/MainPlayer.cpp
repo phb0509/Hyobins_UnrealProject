@@ -289,8 +289,12 @@ void AMainPlayer::initCollisions()
 void AMainPlayer::loadMesh()
 {
 	// 메쉬 로드.
+
+	//FString TestText = FText::FromString(TestString);
+
+	FString temp = "SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'";
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
-		tempMesh(TEXT("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'"));
+		tempMesh(*temp);
 
 	if (tempMesh.Succeeded())
 	{

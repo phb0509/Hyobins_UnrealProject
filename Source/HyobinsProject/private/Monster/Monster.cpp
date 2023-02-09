@@ -18,6 +18,8 @@ void AMonster::BeginPlay()
 	
 }
 
+
+
 // Called every frame
 void AMonster::Tick(float DeltaTime)
 {
@@ -30,6 +32,12 @@ void AMonster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-
 }
 
+void AMonster::loadMesh(FString path)
+{
+}
+
+void AMonster::loadAnimInstance(FString path)
+{
+}

@@ -20,8 +20,6 @@ public:
 
 private:
 	void initComponents();
-	void loadMesh();
-	void loadAnimInstance();
 	void initCollisions();
 	void initAttackInformations();
 };
