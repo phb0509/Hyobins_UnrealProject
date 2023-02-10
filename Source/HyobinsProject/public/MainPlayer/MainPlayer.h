@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Utility/CharacterBase.h"
 #include "Utility/CustomStructs.h"
 #include "MainPlayer.generated.h"
 
 enum class EMainPlayerStates : uint8;
 
 UCLASS()
-class HYOBINSPROJECT_API AMainPlayer : public ACharacter
+class HYOBINSPROJECT_API AMainPlayer : public ACharacterBase
 {
 	GENERATED_BODY()
 
@@ -57,8 +57,6 @@ protected:
 private:
 	void initComponents();
 	void initCollisions();
-	void loadMesh();
-	void loadAnimInstance();
 	void initSpringArm();
 	void initTargetCamera();
 	void initAttackInformations();
@@ -105,7 +103,7 @@ private:
 	bool m_bIsInAir;	
 	bool m_bIsHit;
 
-	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+	
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bIsAttacking;

@@ -4,24 +4,33 @@
 #include "Monster/Minions/Melee/MeleeMinion.h"
 
 
-
-
 AMeleeMinion::AMeleeMinion()
 {
 	initComponents();
-	//loadMesh();
-	//loadAnimInstance();
 	initCollisions();
 	initAttackInformations();
 }
 
 
+void AMeleeMinion::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void AMeleeMinion::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
+void AMeleeMinion::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 void AMeleeMinion::initComponents()
 {
 	initCollisions();
 }
-
-
 
 void AMeleeMinion::initCollisions()
 {

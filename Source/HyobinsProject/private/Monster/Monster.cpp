@@ -11,33 +11,7 @@ AMonster::AMonster()
 
 }
 
-// Called when the game starts or when spawned
-void AMonster::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
 
 
 
-// Called every frame
-void AMonster::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-}
-
-// Called to bind functionality to input
-void AMonster::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void AMonster::loadMesh(FString path)
-{
-}
-
-void AMonster::loadAnimInstance(FString path)
-{
-}

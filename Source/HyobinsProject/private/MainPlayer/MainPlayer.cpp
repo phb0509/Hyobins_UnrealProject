@@ -40,8 +40,8 @@ AMainPlayer::AMainPlayer() :
 	PrimaryActorTick.bCanEverTick = true;
 	
 	initComponents();
-	loadMesh();
-	loadAnimInstance();
+	Super::LoadMesh("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'");
+	Super::LoadAnimInstance("AnimBlueprint'/Game/Blueprints/ABP_MainPlayer.ABP_MainPlayer_C'");
 	initCollisions();
 	initAttackInformations();
 	attackEndComboState();
@@ -284,36 +284,6 @@ void AMainPlayer::initCollisions()
 	m_SwordCollision->SetCapsuleRadius(10.0f);
 	m_SwordCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
-void AMainPlayer::loadMesh()
-{
-	// 메쉬 로드.
-
-	//FString TestText = FText::FromString(TestString);
-
-	FString temp = "SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'";
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
-		tempMesh(*temp);
-
-	if (tempMesh.Succeeded())
-	{
-		GetMesh()->SetSkeletalMesh(tempMesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
-	}
-}
-
-void AMainPlayer::loadAnimInstance()
-{
-	//애니메이션 모드 설정
-	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-	static ConstructorHelpers::FClassFinder<UAnimInstance>
-		MainPlayer_AnimInstance(TEXT("AnimBlueprint'/Game/Blueprints/ABP_MainPlayer.ABP_MainPlayer_C'"));
-
-	if (MainPlayer_AnimInstance.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(MainPlayer_AnimInstance.Class);
-	}
 }
 
 void AMainPlayer::initSpringArm()
