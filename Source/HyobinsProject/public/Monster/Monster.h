@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Utility/CustomStructs.h"
 #include "Utility/CharacterBase.h"
 #include "Monster.generated.h"
 
@@ -13,7 +12,6 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AMonster();
 
 	
@@ -21,5 +19,5 @@ public:
 protected:
 	TMap<FString, FAttackInfoStruct> m_AttackInformations;
 
-	float m_PatrolRange;
+	
 };

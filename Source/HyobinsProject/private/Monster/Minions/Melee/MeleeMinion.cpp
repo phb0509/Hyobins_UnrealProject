@@ -6,6 +6,10 @@
 
 AMeleeMinion::AMeleeMinion()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
+	//Super::LoadMesh("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'");
+	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	initComponents();
 	initCollisions();
 	initAttackInformations();

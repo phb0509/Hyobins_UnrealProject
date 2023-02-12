@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Utility/CharacterBase.h"
-#include "Utility/CustomStructs.h"
 #include "MainPlayer.generated.h"
 
 enum class EMainPlayerStates : uint8;

@@ -41,7 +41,7 @@ AMainPlayer::AMainPlayer() :
 	
 	initComponents();
 	Super::LoadMesh("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'");
-	Super::LoadAnimInstance("AnimBlueprint'/Game/Blueprints/ABP_MainPlayer.ABP_MainPlayer_C'");
+	Super::LoadAnimInstance("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'");
 	initCollisions();
 	initAttackInformations();
 	attackEndComboState();

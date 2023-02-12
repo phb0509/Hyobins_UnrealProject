@@ -6,9 +6,6 @@
 #include "Monster/Monster.h"
 #include "MeleeMinion.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class HYOBINSPROJECT_API AMeleeMinion : public AMonster
 {
@@ -18,6 +15,7 @@ public:
 	AMeleeMinion();
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
+
 protected:
 	virtual void BeginPlay() override;
 
