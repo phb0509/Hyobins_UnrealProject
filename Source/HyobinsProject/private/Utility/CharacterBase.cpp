@@ -14,11 +14,11 @@ ACharacterBase::ACharacterBase() :
 void ACharacterBase::LoadMesh(FString assetPath)
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
-		tempMesh(*assetPath);
+		mesh(*assetPath);
 
-	if (tempMesh.Succeeded())
+	if (mesh.Succeeded())
 	{
-		GetMesh()->SetSkeletalMesh(tempMesh.Object);
+		GetMesh()->SetSkeletalMesh(mesh.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
 	}
 }
@@ -28,10 +28,10 @@ void ACharacterBase::LoadAnimInstance(FString assetPath)
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
 	static ConstructorHelpers::FClassFinder<UAnimInstance>
-		MainPlayer_AnimInstance(*assetPath);
+		animInstance(*assetPath);
 
-	if (MainPlayer_AnimInstance.Succeeded())
+	if (animInstance.Succeeded())
 	{
-		GetMesh()->SetAnimInstanceClass(MainPlayer_AnimInstance.Class);
+		GetMesh()->SetAnimInstanceClass(animInstance.Class);
 	}
 }

@@ -13,5 +13,11 @@ UCLASS()
 class HYOBINSPROJECT_API AMeleeMinionAIController : public AAIController
 {
 	GENERATED_BODY()
+
+public:
+	AMeleeMinionAIController();
+
+protected:
+	virtual void BeginPlay() override;
 	
 };

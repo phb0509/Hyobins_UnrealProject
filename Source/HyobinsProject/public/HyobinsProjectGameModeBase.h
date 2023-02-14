@@ -16,4 +16,6 @@ class HYOBINSPROJECT_API AHyobinsProjectGameModeBase : public AGameModeBase
 	
 public:
 	AHyobinsProjectGameModeBase();
+
+	//virtual void PostLogin(APlayerController* newPlayer) override;
 };

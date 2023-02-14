@@ -7,6 +7,11 @@
 
 AHyobinsProjectGameModeBase::AHyobinsProjectGameModeBase()
 {
-
+	//DefaultPawnClass = AMainPlayer::StaticClass();
+	//PlayerControllerClass = AMainPlayerController::StaticClass();
 
 }
+
+//void AHyobinsProjectGameModeBase::PostLogin(APlayerController* newPlayer)
+//{
+//}
