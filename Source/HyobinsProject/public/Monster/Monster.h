@@ -14,10 +14,10 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase
 public:
 	AMonster();
 
-	
 
 protected:
 	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+
 
 	
 };

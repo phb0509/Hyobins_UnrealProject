@@ -8,7 +8,7 @@ AMonster::AMonster()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
-	
+	//m_BehaviorTree->BlackboardAsset;
 }
 
 

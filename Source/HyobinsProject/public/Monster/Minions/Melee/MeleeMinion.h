@@ -19,7 +19,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-
 private:
 	void initComponents();
 	void initCollisions();
