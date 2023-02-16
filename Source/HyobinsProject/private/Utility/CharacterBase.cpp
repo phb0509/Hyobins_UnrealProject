@@ -2,13 +2,14 @@
 
 
 #include "Utility/CharacterBase.h"
-
+#include "Utility/AIControllerBase.h"
 
 ACharacterBase::ACharacterBase() :
 	m_MaxHP(100.0f),
 	m_CurHP(m_MaxHP)
 {
-
+	AIControllerClass = AAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void ACharacterBase::LoadMesh(FString assetPath)

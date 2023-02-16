@@ -6,9 +6,6 @@
 #include "AIController.h"
 #include "MeleeMinionAIController.generated.h"
 
-class UBehaviorTreeComponent;
-class UBlackboardComponent;
-
 
 UCLASS()
 class HYOBINSPROJECT_API AMeleeMinionAIController : public AAIController
@@ -28,10 +25,10 @@ protected:
 
 private:
 	UPROPERTY(transient) // 해당 속성을 직렬화에서 제외시키는 것이 좋다.
-		UBlackboardComponent* m_Blackboard;
+		class UBlackboardComponent* m_Blackboard;
 
 	UPROPERTY(transient)
-		UBehaviorTreeComponent* m_BehaviorTree;
+		class UBehaviorTreeComponent* m_BehaviorTree;
 
 
 };
