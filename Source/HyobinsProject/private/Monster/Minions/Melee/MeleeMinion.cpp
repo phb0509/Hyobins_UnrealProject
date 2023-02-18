@@ -2,12 +2,13 @@
 
 
 #include "Monster/Minions/Melee/MeleeMinion.h"
-#include "Utility/AIControllerBase.h"
+#include "Monster/Minions/Melee/MeleeMinionAIController.h"
+
 
 AMeleeMinion::AMeleeMinion()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	AIControllerClass = AAIControllerBase::StaticClass();
+	AIControllerClass = AMeleeMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
@@ -22,10 +23,6 @@ AMeleeMinion::AMeleeMinion()
 void AMeleeMinion::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//FVector curLocation = GetActorLocation();
-	//SetActorLocation(FVector(curLocation.X + 10.0f, 0.0f, 0.0f));
-	
 }
 
 void AMeleeMinion::PostInitializeComponents()

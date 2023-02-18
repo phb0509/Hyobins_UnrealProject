@@ -8,9 +8,10 @@ ACharacterBase::ACharacterBase() :
 	m_MaxHP(100.0f),
 	m_CurHP(m_MaxHP)
 {
-	
-	/*AIControllerClass = AAIControllerBase::StaticClass();
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;*/
+	//AIControllerClass = AAIControllerBase::StaticClass();
+	//AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 }
 
 void ACharacterBase::LoadMesh(FString assetPath)
@@ -27,8 +28,6 @@ void ACharacterBase::LoadMesh(FString assetPath)
 
 void ACharacterBase::LoadAnimInstance(FString assetPath)
 {
-	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-
 	static ConstructorHelpers::FClassFinder<UAnimInstance>
 		animInstance(*assetPath);
 

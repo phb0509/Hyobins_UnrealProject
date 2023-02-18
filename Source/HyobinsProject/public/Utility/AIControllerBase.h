@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardData.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "AIControllerBase.generated.h"
 
 /**
@@ -17,13 +20,11 @@ class HYOBINSPROJECT_API AAIControllerBase : public AAIController
 public:
 	AAIControllerBase();
 
-	virtual void BeginPlay() override;
-	virtual void OnPossess(APawn* pawn) override;
+protected:
+	void LoadBehaviorTree(FString assetPath);
+	void LoadBlackBoard(FString assetPath);
 
-	static const FName HomePosKey;
-	static const FName PatrolPosKey;
-
-private:
+protected:
 	UPROPERTY()
 		class UBehaviorTree* m_BehaviorTree;
 	UPROPERTY()
