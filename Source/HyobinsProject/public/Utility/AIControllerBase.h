@@ -16,6 +16,8 @@ class HYOBINSPROJECT_API AAIControllerBase : public AAIController
 	
 public:
 	AAIControllerBase();
+
+	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 
 	static const FName HomePosKey;
@@ -26,4 +28,6 @@ private:
 		class UBehaviorTree* m_BehaviorTree;
 	UPROPERTY()
 		class UBlackboardData* m_BlackboardData;
+	UPROPERTY()
+		class UBehaviorTreeComponent* m_BehaviorTreeComponent;
 };

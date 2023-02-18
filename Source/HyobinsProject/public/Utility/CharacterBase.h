@@ -24,6 +24,7 @@ protected:
 protected:
 	float m_MaxHP;
 	float m_CurHP;
+	FName m_Name;
 
 	TMap<FString, FAttackInfoStruct> m_AttackInformations;
 	
