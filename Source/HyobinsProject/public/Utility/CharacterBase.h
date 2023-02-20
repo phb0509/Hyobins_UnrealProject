@@ -28,6 +28,6 @@ protected:
 	float m_CurHP;
 	FName m_Name;
 
-	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+	TMap<FName, FAttackInfoStruct> m_AttackInformations;
 	
 };

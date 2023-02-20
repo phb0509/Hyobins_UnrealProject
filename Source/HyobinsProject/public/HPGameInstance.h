@@ -28,7 +28,7 @@ public:
 		bool bHasCrowdControl;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		FString crowdControlType;
+		FName crowdControlType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 		float crowdControlTime;
@@ -53,10 +53,6 @@ public:
 	UHPGameInstance();
 
 	virtual void Init() override;
-	void InitAttackInformations(IN FString assetPath, OUT TMap<FString, FAttackInfoStruct>& attackInformationStruct);
-	constexpr int32 ConvertStringToConstInt(FString string);
+	void InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
 
-private:
-	/*UPROPERTY()
-		class UDataTable* m_HBAttackInformationDataTable;*/
 };

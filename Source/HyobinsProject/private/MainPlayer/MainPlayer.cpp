@@ -310,14 +310,10 @@ void AMainPlayer::initTargetCamera()
 
 void AMainPlayer::initAttackInformations()
 {
-	//m_AttackInformations.Add("NormalAttack", { 20.0f,false,false,ECrowdControlType::None,0.0f,false,0.5f,10.0f });
-
 	FString dataPath = "DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'";
 
 	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	HPGameInstance->InitAttackInformations(dataPath, m_AttackInformations);
-
-
 }
 
 void AMainPlayer::checkIsValidComponants()
