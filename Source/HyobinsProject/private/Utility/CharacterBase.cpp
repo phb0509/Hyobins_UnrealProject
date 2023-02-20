@@ -8,9 +8,6 @@ ACharacterBase::ACharacterBase() :
 	m_MaxHP(100.0f),
 	m_CurHP(m_MaxHP)
 {
-	//AIControllerClass = AAIControllerBase::StaticClass();
-	//AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 }
 
