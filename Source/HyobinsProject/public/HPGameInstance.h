@@ -54,6 +54,7 @@ public:
 
 	virtual void Init() override;
 	void InitAttackInformations(IN FString assetPath, OUT TMap<FString, FAttackInfoStruct>& attackInformationStruct);
+	constexpr int32 ConvertStringToConstInt(FString string);
 
 private:
 	/*UPROPERTY()

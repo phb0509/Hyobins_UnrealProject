@@ -7,8 +7,8 @@
 
 UHPGameInstance::UHPGameInstance()
 {
-	FString CharacterDataPath = TEXT("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
-	static ConstructorHelpers::FObjectFinder<UDataTable> DT_PlayerAttackInformations(*CharacterDataPath);
+	/*FString CharacterDataPath = TEXT("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_PlayerAttackInformations(*CharacterDataPath);*/
 	//m_HBAttackInformationDataTable = DT_PlayerAttackInformations.Object;
 }
 
@@ -27,14 +27,51 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FStr
 
 	//m_AttackInformations.Add("NormalAttack", { 20.0f,false,false,ECrowdControlType::None,0.0f,false,0.5f,10.0f });
 
-	static ConstructorHelpers::FObjectFinder<UDataTable> DT_AttackInformations(*assetPath);
+	//float damage;
+	//bool bIsDot;
+	//bool bHasCrowdControl;
+	//ECrowdControlType crowdControlType; // CC기 종류
+	//float crowdControlTime; // CC기 지속시간
 
-	if (DT_AttackInformations.Succeeded())
+	//bool bHasKnockBack;
+	//float knockBackTime; // 경직시간 -> 피격체의 힛트모션 재생시간과 대응
+	//float knockBackDistance; // 밀려지는 정도
+
+	static ConstructorHelpers::FObjectFinder<UDataTable> DT_Object(*assetPath);
+
+	if (DT_Object.Succeeded())
 	{
-		UDataTable* temp = DT_AttackInformations.Object;
+		UDataTable* DT_AttackInformations = DT_Object.Object;
 
-		temp->
+		TArray<FName> rowNames = DT_AttackInformations->GetRowNames();
+
+		for (auto& rowName : rowNames)
+		{
+			FHPAttackInformationData data =
+				*(DT_AttackInformations->FindRow<FHPAttackInformationData>(rowName, rowName.ToString()));
+
+			//ECrowdControlType tempType = data.crowdControlType;
+
+			
+
+			int a = 0;
+			//float damage;
+			//bool bIsDot;
+			//bool bHasCrowdControl;
+			//ECrowdControlType crowdControlType; // CC기 종류
+			//float crowdControlTime; // CC기 지속시간
+
+			//bool bHasKnockBack;
+			//float knockBackTime; // 경직시간 -> 피격체의 힛트모션 재생시간과 대응
+			//float knockBackDistance; // 밀려지는 정도
+
+			
+		
+		}
 	}
-	
+}
 
+constexpr int32 UHPGameInstance::ConvertStringToConstInt(FString string)
+{
+	return **string ? static_cast<int32>(**string) + 33 * ConvertStringToConstInt(*string + 1) : 5381;
 }

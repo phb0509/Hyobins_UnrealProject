@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Utility/CustomStructs.h"
+#include "Kismet/GameplayStatics.h"
+#include "HPGameInstance.h"
 #include "CharacterBase.generated.h"
 
 UCLASS()
