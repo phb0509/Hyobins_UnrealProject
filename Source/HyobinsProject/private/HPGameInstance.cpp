@@ -13,6 +13,16 @@ void UHPGameInstance::Init()
 	Super::Init();
 }
 
+void UHPGameInstance::Shutdown()
+{
+	Super::Shutdown();
+}
+
+void UHPGameInstance::StartGameInstance()
+{
+	Super::StartGameInstance();
+}
+
 void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations)
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_Object(*assetPath);

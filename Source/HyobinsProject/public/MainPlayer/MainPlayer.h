@@ -15,9 +15,9 @@ class HYOBINSPROJECT_API AMainPlayer : public ACharacterBase
 
 public:
 	AMainPlayer();
+	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void PostInitializeComponents() override;
 	virtual void Jump() override;
 
 	// AxisMappings
@@ -29,8 +29,6 @@ public:
 	// ActionMappings
 	void TriggerPressedShift();
 	void TriggerReleasedShift();
-	void TriggerPressedMoveWSAD();
-	void TriggerReleasedMoveWSAD();
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
 
@@ -44,7 +42,7 @@ public:
 	bool GetIsWalking() { return m_bIsWalking; }
 	bool GetIsRunning() { return m_bIsRunning; }
 	bool GetIsInAir() { return m_bIsInAir; }
-	bool GetIsAttacking() { return m_bIsAttacking; }
+	bool GetIsAttacking() { return m_bIsNormalAttacking; }
 	bool GetIsHit() { return m_bIsHit; }
 
 	// Set
@@ -63,12 +61,12 @@ private:
 	void updateState();
 
 	void normalAttack();
-
+	void updateNormalAttackStateOnStart();
+	void updateNormalAttackStateOnEnd();
 	UFUNCTION()
 		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	void attackStartComboState();
-	void attackEndComboState();
+	void OnCalledCheckNextAttackNotify();
 
 	void printLog();
 
@@ -105,13 +103,13 @@ private:
 	
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		bool m_bIsAttacking;
+		bool m_bIsNormalAttacking;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bCanNextCombo;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		bool m_bIsComboInputOn;
+		bool m_bIsInputOnNextCombo;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		int32 m_CurNormalAttackCombo;

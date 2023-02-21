@@ -59,7 +59,7 @@ void UMainPlayerAnim::JumpToNormalAttackMontageSection(int32 newSection)
 	Montage_JumpToSection(GetNormalAttackMontageSectionName(newSection), m_NormalAttackMontage);
 }
 
-void UMainPlayerAnim::AnimNotify_checkAttackHit()
+void UMainPlayerAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
 	OnAttackHitCheck.Broadcast();
 }

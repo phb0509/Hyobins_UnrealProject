@@ -29,9 +29,9 @@ AMainPlayer::AMainPlayer() :
 	m_bIsRunning(false),
 	m_bIsInAir(false),
 	m_bIsHit(false),
-	m_bIsAttacking(false),
+	m_bIsNormalAttacking(false),
 	m_bCanNextCombo(false),
-	m_bIsComboInputOn(false),
+	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
 	m_NormalAttackMaxCombo(4)
 {
@@ -43,7 +43,17 @@ AMainPlayer::AMainPlayer() :
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'");
 	initCollisions();
 	initAttackInformations();
-	attackEndComboState();
+	updateNormalAttackStateOnEnd();
+}
+
+void AMainPlayer::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	m_ABPAnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
+
+	m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
+	m_ABPAnimInstance->OnNextAttackCheck.AddUObject(this, &AMainPlayer::OnCalledCheckNextAttackNotify);
 }
 
 // Called when the game starts or when spawned
@@ -96,45 +106,56 @@ void AMainPlayer::updateState()
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
 	}
 
 }
 
 void AMainPlayer::normalAttack()
 {
-	if (m_bIsAttacking)
+	if (m_bIsNormalAttacking) 
 	{
 		if (m_bCanNextCombo)
 		{
-			m_bIsComboInputOn = true;
+			m_bIsInputOnNextCombo = true;
 		}
 	}
 	else
 	{
-		attackStartComboState();
+		updateNormalAttackStateOnStart();
 		m_ABPAnimInstance->PlayNormalAttackMontage();
-		m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
-		m_bIsAttacking = true;
+		m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
+		m_bIsNormalAttacking = true;
 	}
 }
 
-void AMainPlayer::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void AMainPlayer::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었거나, 공격 도중 키입력이 더이상 없거나
 {
-	m_bIsAttacking = false;
-	attackEndComboState();
+	m_bIsNormalAttacking = false;
+	updateNormalAttackStateOnEnd();
 }
 
-void AMainPlayer::attackStartComboState()
+void AMainPlayer::OnCalledCheckNextAttackNotify()
+{
+	m_bCanNextCombo = false;
+
+	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되면
+	{
+		updateNormalAttackStateOnStart();
+		m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
+	}
+}
+
+void AMainPlayer::updateNormalAttackStateOnStart() // 각 구간의 기본공격(연속공격이니까) 수행 후, 상태값 업데이트.
 {
 	m_bCanNextCombo = true;
-	m_bIsComboInputOn = false;
+	m_bIsInputOnNextCombo = false;
 	m_CurNormalAttackCombo = FMath::Clamp<int32>(m_CurNormalAttackCombo + 1, 1, m_NormalAttackMaxCombo);
 }
 
-void AMainPlayer::attackEndComboState()
+void AMainPlayer::updateNormalAttackStateOnEnd() // 기본공격이 아예 끝난 후(끝까지 재생 or 키입력x), 상태값 업데이트.
 {
-	m_bIsComboInputOn = false;
+	m_bIsInputOnNextCombo = false;
 	m_bCanNextCombo = false;
 	m_CurNormalAttackCombo = 0;
 }
@@ -153,31 +174,11 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// ActionMappings
 	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Pressed, this, &AMainPlayer::TriggerPressedShift);
 	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedShift);
-	PlayerInputComponent->BindAction(TEXT("MoveWSAD"), IE_Pressed, this, &AMainPlayer::TriggerPressedMoveWSAD);
-	PlayerInputComponent->BindAction(TEXT("MoveWSAD"), IE_Released, this, &AMainPlayer::TriggerReleasedMoveWSAD);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 }
 
-void AMainPlayer::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
 
-	m_ABPAnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-
-	m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
-
-	m_ABPAnimInstance->OnNextAttackCheck.AddLambda([this]() -> void
-	{
-		m_bCanNextCombo = false;
-
-		if (m_bIsComboInputOn)
-		{
-			attackStartComboState();
-			m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
-		}
-	});
-}
 
 void AMainPlayer::Jump()
 {
@@ -195,7 +196,7 @@ void AMainPlayer::LookUp(float value)
 
 void AMainPlayer::InputHorizontal(float value)
 {
-	if (!m_bIsAttacking)
+	if (!m_bIsNormalAttacking)
 	{
 		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
@@ -203,7 +204,7 @@ void AMainPlayer::InputHorizontal(float value)
 
 void AMainPlayer::InputVertical(float value)
 {
-	if (!m_bIsAttacking)
+	if (!m_bIsNormalAttacking)
 	{
 		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
@@ -219,16 +220,6 @@ void AMainPlayer::TriggerReleasedShift()
 {
 	m_bIsPressingShift = false;
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
-}
-
-void AMainPlayer::TriggerPressedMoveWSAD()
-{
-
-}
-
-void AMainPlayer::TriggerReleasedMoveWSAD()
-{
-
 }
 
 void AMainPlayer::TriggerPressedLeftMouseButton()
@@ -327,7 +318,7 @@ void AMainPlayer::printLog()
 	FVector location = GetActorLocation();
 	FVector velocity = GetVelocity();
 
-	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("location : %f  %f  %f"), location.X, location.Y, location.X));
-	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.X));
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("velocity Length(speed) : %f"), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("location : %f  %f  %f"), location.X, location.Y, location.X));
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.X));
+	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("velocity Length(speed) : %f"), m_CurSpeed));
 }

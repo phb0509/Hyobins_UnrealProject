@@ -53,6 +53,9 @@ public:
 	UHPGameInstance();
 
 	virtual void Init() override;
+	virtual void Shutdown() override;
+	virtual void StartGameInstance() override;
+
 	void InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
 
 };
