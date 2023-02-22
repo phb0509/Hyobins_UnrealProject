@@ -14,10 +14,10 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase
 public:
 	AMonster();
 
+	float GetPatrolRange() { return m_PatrolRange; }
 
 protected:
 	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+	float m_PatrolRange;
 
-
-	
 };

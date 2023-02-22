@@ -4,7 +4,8 @@
 #include "Monster/Monster.h"
 
 // Sets default values
-AMonster::AMonster()
+AMonster::AMonster() :
+	m_PatrolRange(3000.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
