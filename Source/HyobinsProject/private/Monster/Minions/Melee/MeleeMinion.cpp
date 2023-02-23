@@ -5,7 +5,7 @@
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
 
 
-AMeleeMinion::AMeleeMinion()
+AMeleeMinion::AMeleeMinion() 
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMeleeMinionAIController::StaticClass();
@@ -14,6 +14,7 @@ AMeleeMinion::AMeleeMinion()
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	m_Name = FName("MeleeMinion");
 
+	m_PatrolRange = 1500.0f;
 	//initComponents();
 	//initCollisions();
 	//initAttackInformations();

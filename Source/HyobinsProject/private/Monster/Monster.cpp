@@ -5,7 +5,7 @@
 
 // Sets default values
 AMonster::AMonster() :
-	m_PatrolRange(3000.0f)
+	m_PatrolRange(1000.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	
