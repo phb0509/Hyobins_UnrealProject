@@ -10,6 +10,8 @@ AMeleeMinionAIController::AMeleeMinionAIController()
 {
 	LoadBehaviorTree("BehaviorTree'/Game/MonsterAsset/Minion/BT_MeleeMinion.BT_MeleeMinion'");
 	LoadBlackBoard("BlackboardData'/Game/MonsterAsset/Minion/BB_MeleeMinion.BB_MeleeMinion'");
+
+	initPerceptionSystem();
 }
 
 void AMeleeMinionAIController::BeginPlay()
@@ -27,11 +29,26 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
 
-	UE_LOG(LogTemp, Warning, TEXT("OnPosses!!!"));
-
 	if (UseBlackboard(m_BlackboardData, BlackboardComponent))
 	{
 		Blackboard->SetValueAsVector(HomePosKey, pawn->GetActorLocation());
-		UE_LOG(LogTemp, Warning, TEXT("if UseBlackboard.... in true"));
 	}
+}
+
+void AMeleeMinionAIController::initPerceptionSystem()
+{
+	m_SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AI Perception")));
+	
+	m_SightConfig->SightRadius = m_SightRadius;
+	m_SightConfig->LoseSightRadius = m_LoseSightRadius;
+	m_SightConfig->PeripheralVisionAngleDegrees = m_PeripheralVisionHalfAngle;
+
+	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+
+	GetPerceptionComponent()->SetDominantSense(*m_SightConfig->GetSenseImplementation());
+	//GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeEnemyAIController::OnTargetDetected);
+	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
 }

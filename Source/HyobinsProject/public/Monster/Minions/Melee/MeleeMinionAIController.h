@@ -20,6 +20,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 
+	void initPerceptionSystem();
+
+
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
 

@@ -32,6 +32,4 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMeleeMinionAIController::PatrolPosKey, NextPatrol.Location);
 	}
-
-	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("nextPatrol: %f  %f  %f"), NextPatrol.Location.X, NextPatrol.Location.Y, NextPatrol.Location.Z));
 }

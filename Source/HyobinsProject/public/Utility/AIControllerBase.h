@@ -7,6 +7,10 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Perception/AIPerceptionTypes.h"
+#include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AIPerceptionComponent.h"
 #include "AIControllerBase.generated.h"
 
 /**
@@ -26,9 +30,16 @@ protected:
 
 protected:
 	UPROPERTY()
-		class UBehaviorTree* m_BehaviorTree;
+		UBehaviorTree* m_BehaviorTree;
 	UPROPERTY()
-		class UBlackboardData* m_BlackboardData;
+		UBlackboardData* m_BlackboardData;
 	UPROPERTY()
-		class UBehaviorTreeComponent* m_BehaviorTreeComponent;
+		UBehaviorTreeComponent* m_BehaviorTreeComponent;
+	UPROPERTY()
+		UAISenseConfig_Sight* m_SightConfig;
+
+	float m_SightRadius; // 인지최대거리
+	float m_LoseSightRadius; // 이미 본 타깃을 시야에서 놓치게 되는 시야최대거리. (시야상실반경)
+	float m_PeripheralVisionHalfAngle; // FieldOfView
+
 };
