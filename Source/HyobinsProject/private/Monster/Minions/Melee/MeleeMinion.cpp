@@ -14,7 +14,7 @@ AMeleeMinion::AMeleeMinion()
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	m_Name = FName("MeleeMinion");
 
-	m_PatrolRange = 1500.0f;
+	m_PatrolRange = 500.0f;
 	//initComponents();
 	//initCollisions();
 	//initAttackInformations();

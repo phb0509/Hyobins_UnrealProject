@@ -6,10 +6,15 @@
 AAIControllerBase::AAIControllerBase() :
 	m_SightRadius(300.0f),
 	m_LoseSightRadius(400.0f),
-	m_PeripheralVisionHalfAngle(45.0f)
+	m_PeripheralVisionHalfAngle(90.0f),
+	m_AISightAge(5.0f),
+	m_AILastSeenLocation(900.0f)
 {
 	m_BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
 	checkf(IsValid(m_BehaviorTreeComponent), TEXT("m_BehaviorTreeComponent is not Valid"));
+
+	/*m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerceptionComponent");
+	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));*/
 }
 
 void AAIControllerBase::LoadBehaviorTree(FString assetPath)

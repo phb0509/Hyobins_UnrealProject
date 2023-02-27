@@ -7,7 +7,7 @@
 
 UMeleeMinionAnim::UMeleeMinionAnim()
 {
-	
+
 }
 
 void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)
