@@ -37,7 +37,6 @@ protected:
 		UBehaviorTreeComponent* m_BehaviorTreeComponent;
 	UPROPERTY()
 		UAIPerceptionComponent* m_AIPerceptionComponent;
-
 	UPROPERTY()
 		UAISenseConfig_Sight* m_SightConfig;
 

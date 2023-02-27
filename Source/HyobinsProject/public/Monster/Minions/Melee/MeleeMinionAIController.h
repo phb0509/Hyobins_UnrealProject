@@ -20,6 +20,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 
+	UFUNCTION()
 	void CheckIsTarget(AActor* actor, FAIStimulus const Stimulus);
 
 private:

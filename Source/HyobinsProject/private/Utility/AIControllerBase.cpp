@@ -13,8 +13,8 @@ AAIControllerBase::AAIControllerBase() :
 	m_BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
 	checkf(IsValid(m_BehaviorTreeComponent), TEXT("m_BehaviorTreeComponent is not Valid"));
 
-	/*m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerceptionComponent");
-	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));*/
+	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerceptionComponent_CreatedC++");
+	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
 }
 
 void AAIControllerBase::LoadBehaviorTree(FString assetPath)
