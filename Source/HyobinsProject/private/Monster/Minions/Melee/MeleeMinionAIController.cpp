@@ -7,7 +7,7 @@
 
 const FName AMeleeMinionAIController::HomePosKey(TEXT("HomePos"));
 const FName AMeleeMinionAIController::PatrolPosKey(TEXT("PatrolPos"));
-const FName AMeleeMinionAIController::TargetKey(TEXT("Target"));
+const FName AMeleeMinionAIController::PlayerKey(TEXT("Target"));
 
 AMeleeMinionAIController::AMeleeMinionAIController()
 {
@@ -67,23 +67,54 @@ void AMeleeMinionAIController::initPerceptionSystem()
 
 	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
 	//GetPerceptionComponent()->SetDominantSense(*m_SightConfig->GetSenseImplementation()); // 어떤걸 우선순위로 센싱할지 정함.
-	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
+	//GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
+	GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
 	
 }
 
-void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const Stimulus)
+void AMeleeMinionAIController::UpdatePerception(const TArray<AActor*>& Actors)
 {
-	GEngine->AddOnScreenDebugMessage(14, 1.f, FColor::Green, FString::Printf(TEXT("Call the CheckIsTarget Function!!")));
-	if (auto const target = Cast<AMainPlayer>(actor)) // 탐지한 객체가 타겟(플레이어)라면
+	checkf(IsValid(Blackboard), TEXT("Blackboard is not Valid"));
+
+	int size = Actors.Num();
+
+	for (int i = 0; i < size; ++i)
 	{
-		//성공적으로 감지하면 블랙보드에 true값을 넣어준다.
-		//Blackboard->SetValueAsBool(bb_keys::can_see_player, Stimulus.WasSuccessfullySensed());
+		AMainPlayer* player = Cast<AMainPlayer>(Actors[i]);
 
-		
+		if (player != nullptr) // player 감지성공한다면
+		{
+			player = Cast<AMainPlayer>(Blackboard->GetValueAsObject(PlayerKey)); // '블랙보드'에 기록되있는 값 체크.
 
-		//Blackboard->SetValueAsObject(TargetKey, target);
-		Blackboard->SetValueAsBool("IsDetect", Stimulus.WasSuccessfullySensed());
+			if (player == nullptr) // null이다. 즉, 범위안에 플레이어가 없던 상태에서 플레이어가 감지됐다? -> 플레이어가 범위안으로 들어왔다는 뜻.
+			{
+				Blackboard->SetValueAsObject(PlayerKey, Actors[i]);
+			}
+			else // null이 아니다. 즉, 범위안에 플레이어가 있던 상태에서 이벤트가 발생했다? -> 플레이어가 범위 밖으로 나감
+			{
+				Blackboard->SetValueAsObject(PlayerKey, nullptr);
+			}
+		}
 	}
-
-	
 }
+
+
+//void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const Stimulus)
+//{
+//	GEngine->AddOnScreenDebugMessage(14, 1.f, FColor::Green, FString::Printf(TEXT("Call the CheckIsTarget Function!!")));
+//	if (auto const target = Cast<AMainPlayer>(actor)) // 탐지한 객체가 타겟(플레이어)라면
+//	{
+//		//성공적으로 감지하면 블랙보드에 true값을 넣어준다.
+//		//Blackboard->SetValueAsBool(TargetKey, Stimulus.WasSuccessfullySensed());
+//
+//		//Stimulus.
+//
+//		Blackboard->SetValueAsObject(PlayerKey, target);
+//		//Blackboard->SetValueAsBool("IsDetect", Stimulus.WasSuccessfullySensed());
+//		//Blackboard->SetValueAsBool("IsDetect", true);
+//	}
+//	else
+//	{
+//		Blackboard->SetValueAsObject(PlayerKey, nullptr);
+//	}
+//}

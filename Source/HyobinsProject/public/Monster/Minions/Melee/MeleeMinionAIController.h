@@ -20,8 +20,11 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 
+	/*UFUNCTION()
+		void CheckIsTarget(AActor* actor, FAIStimulus const Stimulus);*/
+
 	UFUNCTION()
-	void CheckIsTarget(AActor* actor, FAIStimulus const Stimulus);
+		void UpdatePerception(const TArray<AActor*>& Actors);
 
 private:
 	void initPerceptionSystem();
@@ -30,5 +33,5 @@ private:
 public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
-	static const FName TargetKey;
+	static const FName PlayerKey;
 };
