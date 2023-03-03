@@ -5,11 +5,10 @@
 
 // Sets default values
 AMonster::AMonster() :
-	m_PatrolRange(1000.0f)
+	m_PatrolRange(1000.0f),
+	m_NormalAttackRange(30.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
-	//m_BehaviorTree->BlackboardAsset;
 }
 
 

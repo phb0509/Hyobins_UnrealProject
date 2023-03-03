@@ -7,7 +7,8 @@
 
 const FName AMeleeMinionAIController::HomePosKey(TEXT("HomePos"));
 const FName AMeleeMinionAIController::PatrolPosKey(TEXT("PatrolPos"));
-const FName AMeleeMinionAIController::PlayerKey(TEXT("Target"));
+const FName AMeleeMinionAIController::PlayerKey(TEXT("Player"));
+const FName AMeleeMinionAIController::InNormalAttackRangeKey(TEXT("InNormalAttackRange"));
 
 AMeleeMinionAIController::AMeleeMinionAIController()
 {
@@ -29,6 +30,7 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 	Super::OnPossess(pawn);
 
 	UBlackboardComponent* BlackboardComponent = Blackboard;
+	m_Owner = pawn;
 
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
 
@@ -52,69 +54,94 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
 	SetPerceptionComponent(*m_AIPerceptionComponent);
 
-	
 	m_SightConfig->SightRadius = m_SightRadius;
 	m_SightConfig->LoseSightRadius = m_LoseSightRadius;
 	m_SightConfig->PeripheralVisionAngleDegrees = m_PeripheralVisionHalfAngle;
 	//m_SightConfig->SetMaxAge(m_AISightAge);
 	//m_SightConfig->AutoSuccessRangeFromLastSeenLocation = m_AILastSeenLocation;
 
-	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true;
-	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true; // 적
+	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = true; // 중립
+	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true; // 아군
 
 	//m_SightConfig->AutoSuccessRangeFromLastSeenLocation;
 
 	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
 	//GetPerceptionComponent()->SetDominantSense(*m_SightConfig->GetSenseImplementation()); // 어떤걸 우선순위로 센싱할지 정함.
-	//GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
-	GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
+	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
+	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
+	//AAIController::SetGenericTeamId(FGenericTeamId(1));
 	
 }
 
-void AMeleeMinionAIController::UpdatePerception(const TArray<AActor*>& Actors)
+
+
+void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const Stimulus)
 {
-	checkf(IsValid(Blackboard), TEXT("Blackboard is not Valid"));
+	//GEngine->AddOnScreenDebugMessage(14, 1.f, FColor::Green, FString::Printf(TEXT("Call the CheckIsTarget Function!!")));
 
-	int size = Actors.Num();
 
-	for (int i = 0; i < size; ++i)
+	//if (auto const target = Cast<AMainPlayer>(actor)) // 탐지한 객체가 타겟(플레이어)라면
+	//{
+	//	//성공적으로 감지하면 블랙보드에 true값을 넣어준다.
+	//	//Blackboard->SetValueAsBool(TargetKey, Stimulus.WasSuccessfullySensed());
+
+	//	//Stimulus.
+
+	//	Blackboard->SetValueAsObject(PlayerKey, target);
+	//	//Blackboard->SetValueAsBool("IsDetect", Stimulus.WasSuccessfullySensed());
+	//	//Blackboard->SetValueAsBool("IsDetect", true);
+	//}
+	//else
+	//{
+	//	Blackboard->SetValueAsObject(PlayerKey, nullptr);
+	//}
+	
+	if (m_Owner.IsValid())
 	{
-		AMainPlayer* player = Cast<AMainPlayer>(Actors[i]);
+		ACharacterBase* owner = Cast<ACharacterBase>(m_Owner);
 
-		if (player != nullptr) // player 감지성공한다면
-		{
-			player = Cast<AMainPlayer>(Blackboard->GetValueAsObject(PlayerKey)); // '블랙보드'에 기록되있는 값 체크.
+		FString temp = owner->GetName() + " sensing " + Cast<ACharacterBase>(actor)->GetName();
 
-			if (player == nullptr) // null이다. 즉, 범위안에 플레이어가 없던 상태에서 플레이어가 감지됐다? -> 플레이어가 범위안으로 들어왔다는 뜻.
-			{
-				Blackboard->SetValueAsObject(PlayerKey, Actors[i]);
-			}
-			else // null이 아니다. 즉, 범위안에 플레이어가 있던 상태에서 이벤트가 발생했다? -> 플레이어가 범위 밖으로 나감
-			{
-				Blackboard->SetValueAsObject(PlayerKey, nullptr);
-			}
-		}
+		UE_LOG(LogTemp, Log, TEXT("%s"), *temp);
+		//FString::Printf(TEXT("%s", , ID, GetActorLocation().X);
 	}
 }
 
 
-//void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const Stimulus)
+
+//void AMeleeMinionAIController::UpdatePerception(const TArray<AActor*>& Actors)
 //{
-//	GEngine->AddOnScreenDebugMessage(14, 1.f, FColor::Green, FString::Printf(TEXT("Call the CheckIsTarget Function!!")));
-//	if (auto const target = Cast<AMainPlayer>(actor)) // 탐지한 객체가 타겟(플레이어)라면
-//	{
-//		//성공적으로 감지하면 블랙보드에 true값을 넣어준다.
-//		//Blackboard->SetValueAsBool(TargetKey, Stimulus.WasSuccessfullySensed());
+//	GEngine->AddOnScreenDebugMessage(14, 1.f, FColor::Green, FString::Printf(TEXT("Call the UpdatePerception Function!!")));
 //
-//		//Stimulus.
+//	checkf(IsValid(Blackboard), TEXT("Blackboard is not Valid"));
 //
-//		Blackboard->SetValueAsObject(PlayerKey, target);
-//		//Blackboard->SetValueAsBool("IsDetect", Stimulus.WasSuccessfullySensed());
-//		//Blackboard->SetValueAsBool("IsDetect", true);
-//	}
-//	else
+//	int size = Actors.Num();
+//
+//	for (int i = 0; i < size; ++i)
 //	{
-//		Blackboard->SetValueAsObject(PlayerKey, nullptr);
+//		AMainPlayer* player = Cast<AMainPlayer>(Actors[i]);
+//
+//		player->GetController();
+//
+//		if (player != nullptr) // player 감지성공한다면
+//		{
+//			player = Cast<AMainPlayer>(Blackboard->GetValueAsObject(PlayerKey)); // '블랙보드'에 기록되있는 값 체크.
+//
+//			if (player == nullptr) // null이다. 즉, 범위안에 플레이어가 없던 상태에서 플레이어가 감지됐다? -> 플레이어가 범위안으로 들어왔다는 뜻.
+//			{
+//				// 플레이어가 인지됐을 때 수행할 로직작성
+//				Blackboard->SetValueAsObject(PlayerKey, Actors[i]);
+//				m_SightConfig->PeripheralVisionAngleDegrees = 180.0f;
+//				GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
+//			}
+//			else // null이 아니다. 즉, 범위안에 플레이어가 있던 상태에서 이벤트가 발생했다? -> 플레이어가 범위 밖으로 나감
+//			{
+//				// 플레이어가 인지범위 밖으로 나갔을 때 수행할 로직작성
+//				Blackboard->SetValueAsObject(PlayerKey, nullptr);
+//				m_SightConfig->PeripheralVisionAngleDegrees = m_PeripheralVisionHalfAngle;
+//				GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
+//			}
+//		}
 //	}
 //}

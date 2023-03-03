@@ -4,6 +4,7 @@
 #include "Monster/Minions/Melee/MeleeMinion.h"
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
 
+int AMeleeMinion::tagCount(0);
 
 AMeleeMinion::AMeleeMinion() 
 {
@@ -12,7 +13,8 @@ AMeleeMinion::AMeleeMinion()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
-	m_Name = FName("MeleeMinion");
+
+	m_Name = "MeleeMinion" + FString::FromInt(tagCount++);
 
 	m_PatrolRange = 500.0f;
 	//initComponents();

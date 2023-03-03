@@ -17,6 +17,7 @@ class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 public:
 	ACharacterBase();
 
+	FString GetName() { return m_Name; }
 	
 protected:
 	void LoadMesh(FString assetPath);
@@ -26,7 +27,7 @@ protected:
 protected:
 	float m_MaxHP;
 	float m_CurHP;
-	FName m_Name;
+	FString m_Name;
 
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
 	

@@ -15,9 +15,11 @@ public:
 	AMonster();
 
 	float GetPatrolRange() { return m_PatrolRange; }
+	float GetNormalAttackRange() { return m_NormalAttackRange; }
 
 protected:
 	TMap<FString, FAttackInfoStruct> m_AttackInformations;
 	float m_PatrolRange;
+	float m_NormalAttackRange;
 
 };

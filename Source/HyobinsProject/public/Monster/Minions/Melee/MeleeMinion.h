@@ -16,6 +16,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 
+	static int tagCount;
+
 protected:
 	virtual void BeginPlay() override;
 
