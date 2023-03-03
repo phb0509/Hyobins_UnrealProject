@@ -48,7 +48,7 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_SightRadius = 600.0f;
 	m_LoseSightRadius = 700.0f;
 	m_PeripheralVisionHalfAngle = 90.0f;
-	m_AILastSeenLocation = 600.0f;
+	m_AILastSeenLocation = 0.0f;
 	m_AISightAge = 0.0f;
 
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
@@ -57,17 +57,16 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_SightConfig->SightRadius = m_SightRadius;
 	m_SightConfig->LoseSightRadius = m_LoseSightRadius;
 	m_SightConfig->PeripheralVisionAngleDegrees = m_PeripheralVisionHalfAngle;
-	//m_SightConfig->SetMaxAge(m_AISightAge);
-	//m_SightConfig->AutoSuccessRangeFromLastSeenLocation = m_AILastSeenLocation;
+	m_SightConfig->SetMaxAge(m_AISightAge);
+	m_SightConfig->AutoSuccessRangeFromLastSeenLocation = m_AILastSeenLocation; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
+																				// 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
 
 	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true; // 적
 	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = true; // 중립
 	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true; // 아군
 
-	//m_SightConfig->AutoSuccessRangeFromLastSeenLocation;
-
 	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
-	//GetPerceptionComponent()->SetDominantSense(*m_SightConfig->GetSenseImplementation()); // 어떤걸 우선순위로 센싱할지 정함.
+	GetPerceptionComponent()->SetDominantSense(*m_SightConfig->GetSenseImplementation()); // 어떤걸 우선순위로 센싱할지 정함.
 	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
 	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
 	//AAIController::SetGenericTeamId(FGenericTeamId(1));
@@ -103,8 +102,23 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 
 		FString temp = owner->GetName() + " sensing " + Cast<ACharacterBase>(actor)->GetName();
 
+		switch (Stimulus.Type)
+		{
+		case 0: // react to sight stimulus
+		{
+			temp += " Using SightPerception";
+		}
+			
+		case 1: // react to hearing;
+		{
+			temp += " Using HearingPerception";
+		}
+			
+		default:
+			break;
+		}
+
 		UE_LOG(LogTemp, Log, TEXT("%s"), *temp);
-		//FString::Printf(TEXT("%s", , ID, GetActorLocation().X);
 	}
 }
 
