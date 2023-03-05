@@ -13,6 +13,7 @@
 
 
 AMainPlayer::AMainPlayer() :
+	m_TeamID(FGenericTeamId(4)),
 	m_ArmLengthTo(450.0f),
 	m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
@@ -178,11 +179,10 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 }
 
-
-
 void AMainPlayer::Jump()
 {
 }
+
 
 void AMainPlayer::Turn(float value)
 {

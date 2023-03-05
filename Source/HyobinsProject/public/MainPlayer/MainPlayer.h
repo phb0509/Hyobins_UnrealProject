@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Utility/CharacterBase.h"
+#include "GenericTeamAgentInterface.h"
 #include "MainPlayer.generated.h"
 
 enum class EMainPlayerStates : uint8;
 
 UCLASS()
-class HYOBINSPROJECT_API AMainPlayer : public ACharacterBase
+class HYOBINSPROJECT_API AMainPlayer : public ACharacterBase, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -19,6 +20,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
+	virtual FGenericTeamId GetGenericTeamId() const override { return m_TeamID; }
 
 	// AxisMappings
 	void Turn(float value);
@@ -82,6 +84,8 @@ public:
 		class UCapsuleComponent* m_SwordCollision;
 
 private:
+	FGenericTeamId m_TeamID;
+
 	float m_ArmLengthTo;
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;

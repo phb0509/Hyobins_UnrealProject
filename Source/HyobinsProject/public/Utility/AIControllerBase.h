@@ -40,6 +40,7 @@ protected:
 	UPROPERTY()
 		UAISenseConfig_Sight* m_SightConfig;
 
+	FGenericTeamId m_TeamID;
 	float m_SightRadius; // 인지최대거리
 	float m_LoseSightRadius; // 이미 본 타깃을 시야에서 놓치게 되는 시야최대거리. (시야상실반경)
 	float m_PeripheralVisionHalfAngle; // FieldOfView
