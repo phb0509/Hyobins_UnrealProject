@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/PlayerController.h"
 #include "Utility/CharacterBase.h"
 #include "GenericTeamAgentInterface.h"
 #include "MainPlayer.generated.h"
@@ -20,7 +21,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
-	virtual FGenericTeamId GetGenericTeamId() const override { return m_TeamID; }
+	virtual FGenericTeamId GetGenericTeamId() const override 
+	{ 
+		UE_LOG(LogTemp, Log, TEXT("Call the MainPlayer::GetTeamAttitudeTowards"));
+		return m_TeamID; 
+	}
 
 	// AxisMappings
 	void Turn(float value);

@@ -2,7 +2,6 @@
 
 
 #include "Utility/CharacterBase.h"
-#include "Utility/AIControllerBase.h"
 
 ACharacterBase::ACharacterBase() :
 	m_MaxHP(100.0f),
