@@ -11,16 +11,19 @@ UHPGameInstance::UHPGameInstance()
 void UHPGameInstance::Init()
 {
 	Super::Init();
+	UE_LOG(LogTemp, Warning, TEXT("Call the HPGameInstance::Init!"));
 }
 
 void UHPGameInstance::Shutdown()
 {
 	Super::Shutdown();
+	UE_LOG(LogTemp, Warning, TEXT("Call the HPGameInstance::Shutdown!"));
 }
 
 void UHPGameInstance::StartGameInstance()
 {
 	Super::StartGameInstance();
+	UE_LOG(LogTemp, Warning, TEXT("Call the HPGameInstance::StartGameInstance!"));
 }
 
 void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations)

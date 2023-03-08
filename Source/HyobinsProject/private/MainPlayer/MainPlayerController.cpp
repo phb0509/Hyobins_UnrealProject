@@ -18,7 +18,7 @@ void AMainPlayerController::PostInitializeComponents()
 void AMainPlayerController::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
-	UE_LOG(LogTemp, Warning, TEXT("MainPlayer OnPossess!"));
+	UE_LOG(LogTemp, Warning, TEXT("Call the MainPlayer::OnPossess!"));
 }
 
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const

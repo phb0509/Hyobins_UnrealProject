@@ -4,6 +4,7 @@
 
 
 AAIControllerBase::AAIControllerBase() :
+	m_TeamID(FGenericTeamId(0)),
 	m_SightRadius(300.0f),
 	m_LoseSightRadius(400.0f),
 	m_PeripheralVisionHalfAngle(90.0f),

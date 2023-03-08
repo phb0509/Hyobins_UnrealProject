@@ -182,13 +182,12 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 void AMainPlayer::PossessedBy(AController* newController)
 {
 	Super::PossessedBy(newController);
-	UE_LOG(LogTemp, Warning, TEXT("Call The MainPlayer::PossessedBy"));
+	UE_LOG(LogTemp, Warning, TEXT("Call the MainPlayer::PossessedBy!"));
 }
 
 void AMainPlayer::Jump()
 {
 }
-
 
 void AMainPlayer::Turn(float value)
 {

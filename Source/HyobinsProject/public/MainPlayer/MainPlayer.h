@@ -91,8 +91,6 @@ public:
 		class UCapsuleComponent* m_SwordCollision;
 
 private:
-	//FGenericTeamId m_TeamID;
-
 	float m_ArmLengthTo;
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;

@@ -39,4 +39,5 @@ public:
 
 private:
 	TWeakObjectPtr<APawn> m_Owner;
+	//priority_queue<int> pq;
 };

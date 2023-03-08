@@ -12,6 +12,7 @@ const FName AMeleeMinionAIController::InNormalAttackRangeKey(TEXT("InNormalAttac
 
 AMeleeMinionAIController::AMeleeMinionAIController()
 {
+	m_TeamID = FGenericTeamId(4);
 	LoadBehaviorTree("BehaviorTree'/Game/MonsterAsset/Minion/BT_MeleeMinion.BT_MeleeMinion'");
 	LoadBlackBoard("BlackboardData'/Game/MonsterAsset/Minion/BB_MeleeMinion.BB_MeleeMinion'");
 
@@ -40,67 +41,68 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 	}
 }
 
-ETeamAttitude::Type AMeleeMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const
-{
-	if (APawn const* OtherPawn = Cast<APawn>(&Other))
-	{
-		if (auto const TeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController()))
-		{
-			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(4))
-			{
-				return ETeamAttitude::Friendly;
-			}
-			else
-			{
-				return ETeamAttitude::Hostile; // 적
-			}
-		}
-	}
-	return ETeamAttitude::Neutral; // 중립
-}
-
-
-
-
-
 void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const Stimulus)
 {
-	//if (auto const target = Cast<AMainPlayer>(actor)) // 탐지한 객체가 타겟(플레이어)라면
-	//{
-	//	//성공적으로 감지하면 블랙보드에 true값을 넣어준다.
-	//	//Blackboard->SetValueAsBool(TargetKey, Stimulus.WasSuccessfullySensed());
-
-	//	//Stimulus.
-
-	//	Blackboard->SetValueAsObject(PlayerKey, target);
-	//	//Blackboard->SetValueAsBool("IsDetect", Stimulus.WasSuccessfullySensed());
-	//	//Blackboard->SetValueAsBool("IsDetect", true);
-	//}
-	//else
-	//{
-	//	Blackboard->SetValueAsObject(PlayerKey, nullptr);
-	//}
-	
-
-	//if (GetTeamAttitudeTowards(actor) == )
-
 	if (m_Owner.IsValid())
 	{
 		ACharacterBase* owner = Cast<ACharacterBase>(m_Owner);
+		ACharacterBase* perceivedCharacter = Cast<ACharacterBase>(actor);
+		
+		int teamType = GetTeamAttitudeTowards(*actor);
+		FString teamTypeName = "";
 
-		FString temp = owner->GetName() + " sensing " + Cast<ACharacterBase>(actor)->GetName();
+		switch (teamType)
+		{
+		case 0:  // 동료
+		{
+			teamTypeName = "Friendly::";
+		}
+			break;
+		case 1:  // 중립
+		{
+			teamTypeName = "Neutral::";
+		}
+			break;
+		case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
+		{
+			AMainPlayer* player = Cast<AMainPlayer>(perceivedCharacter);
+			if (player != nullptr)
+			{
+				// 플레이어에 대한 이벤트처리.
+
+				AMainPlayer* playerOnBlackBoard = Cast<AMainPlayer>(Blackboard->GetValueAsObject(PlayerKey));
+
+				if (playerOnBlackBoard == nullptr)
+				{
+					Blackboard->SetValueAsObject(PlayerKey, player);
+				}
+				else
+				{
+					Blackboard->SetValueAsObject(PlayerKey, nullptr);
+				}
+			}
+
+			teamTypeName = "Enemy::";
+		}
+			break;
+		default:
+			break;
+		}
+
+		// 로그출력
+		FString logString = "'" + owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
 
 		switch (Stimulus.Type)
 		{
 		case 0: // react to sight stimulus
 		{
-			temp += " Using SightPerception";
+			logString += " Using 'SightPerception'";
 			break;
 		}
 			
 		case 1: // react to hearing;
 		{
-			temp += " Using HearingPerception";
+			logString += " Using 'HearingPerception'";
 			break;
 		}
 			
@@ -108,7 +110,7 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 			break;
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("%s"), *temp);
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *logString);
 	}
 }
 
@@ -141,6 +143,24 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	GetPerceptionComponent()->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
 	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
 	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
-	AAIController::SetGenericTeamId(FGenericTeamId(4));
+	AAIController::SetGenericTeamId(m_TeamID);
+}
 
+ETeamAttitude::Type AMeleeMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const
+{
+	if (APawn const* OtherPawn = Cast<APawn>(&Other))
+	{
+		if (auto const TeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController()))
+		{
+			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(4))
+			{
+				return ETeamAttitude::Friendly; // 동료
+			}
+			else
+			{
+				return ETeamAttitude::Hostile; // 적
+			}
+		}
+	}
+	return ETeamAttitude::Neutral; // 중립
 }
