@@ -24,7 +24,7 @@ void AAIControllerBase::LoadBehaviorTree(FString assetPath)
 	if (BTObject.Succeeded())
 	{
 		m_BehaviorTree = BTObject.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BTObject"));
+		//UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BTObject"));
 	}
 
 	checkf(IsValid(m_BehaviorTree), TEXT("m_BehaviorTree is not Valid"));
@@ -37,7 +37,7 @@ void AAIControllerBase::LoadBlackBoard(FString assetPath)
 	if (BBObject.Succeeded())
 	{
 		m_BlackboardData = BBObject.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BBObject"));
+		//UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BBObject"));
 	}
 
 	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));

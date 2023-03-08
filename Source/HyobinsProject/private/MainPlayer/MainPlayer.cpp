@@ -13,7 +13,6 @@
 
 
 AMainPlayer::AMainPlayer() :
-	m_TeamID(FGenericTeamId(4)),
 	m_ArmLengthTo(450.0f),
 	m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
@@ -39,6 +38,7 @@ AMainPlayer::AMainPlayer() :
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
+	m_Name = "MainPlayer";
 	initComponents();
 	Super::LoadMesh("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'");
@@ -177,6 +177,12 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedShift);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
+}
+
+void AMainPlayer::PossessedBy(AController* newController)
+{
+	Super::PossessedBy(newController);
+	UE_LOG(LogTemp, Warning, TEXT("Call The MainPlayer::PossessedBy"));
 }
 
 void AMainPlayer::Jump()

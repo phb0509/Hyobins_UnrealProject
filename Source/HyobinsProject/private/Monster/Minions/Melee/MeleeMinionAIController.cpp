@@ -46,8 +46,7 @@ ETeamAttitude::Type AMeleeMinionAIController::GetTeamAttitudeTowards(const AActo
 	{
 		if (auto const TeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController()))
 		{
-			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(0)
-				|| TeamAgent->GetGenericTeamId() == FGenericTeamId(1))
+			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(4))
 			{
 				return ETeamAttitude::Friendly;
 			}
@@ -58,9 +57,6 @@ ETeamAttitude::Type AMeleeMinionAIController::GetTeamAttitudeTowards(const AActo
 		}
 	}
 	return ETeamAttitude::Neutral; // 중립
-
-
-	UE_LOG(LogTemp, Log, TEXT("Call the GetTeamAttitudeTowards"));
 }
 
 
@@ -98,13 +94,13 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 		{
 		case 0: // react to sight stimulus
 		{
-			temp += "Using SightPerception";
+			temp += " Using SightPerception";
 			break;
 		}
 			
 		case 1: // react to hearing;
 		{
-			temp += "Using HearingPerception";
+			temp += " Using HearingPerception";
 			break;
 		}
 			
@@ -139,13 +135,12 @@ void AMeleeMinionAIController::initPerceptionSystem()
 
 	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true; // 적
 	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = false; // 중립
-	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = false; // 아군
+	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true; // 아군
 
 	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
-	//GetPerceptionComponent()->SetDominantSense(*m_SightConfig->GetSenseImplementation()); // 어떤걸 우선순위로 센싱할지 정함.
 	GetPerceptionComponent()->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
 	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
 	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
-	AAIController::SetGenericTeamId(FGenericTeamId(1));
+	AAIController::SetGenericTeamId(FGenericTeamId(4));
 
 }

@@ -13,5 +13,7 @@ AHyobinsProjectGameModeBase::AHyobinsProjectGameModeBase()
 
 void AHyobinsProjectGameModeBase::PostLogin(APlayerController* newPlayer)
 {
+	UE_LOG(LogTemp, Warning, TEXT("PostLogin Begin"));
 	Super::PostLogin(newPlayer);
+	UE_LOG(LogTemp, Warning, TEXT("PostLogin End"));
 }

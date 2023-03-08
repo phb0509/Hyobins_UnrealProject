@@ -3,15 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
 #include "Utility/CharacterBase.h"
-#include "GenericTeamAgentInterface.h"
 #include "MainPlayer.generated.h"
 
 enum class EMainPlayerStates : uint8;
 
 UCLASS()
-class HYOBINSPROJECT_API AMainPlayer : public ACharacterBase, public IGenericTeamAgentInterface
+class HYOBINSPROJECT_API AMainPlayer : public ACharacterBase
 {
 	GENERATED_BODY()
 
@@ -20,12 +18,16 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PossessedBy(AController* newController) override;
 	virtual void Jump() override;
-	virtual FGenericTeamId GetGenericTeamId() const override 
-	{ 
-		UE_LOG(LogTemp, Log, TEXT("Call the MainPlayer::GetTeamAttitudeTowards"));
-		return m_TeamID; 
-	}
+
+
+
+	//virtual FGenericTeamId GetGenericTeamId() const override 
+	//{ 
+	//	UE_LOG(LogTemp, Log, TEXT("Call the MainPlayer::GetTeamAttitudeTowards"));
+	//	return m_TeamID; 
+	//}
 
 	// AxisMappings
 	void Turn(float value);
@@ -89,7 +91,7 @@ public:
 		class UCapsuleComponent* m_SwordCollision;
 
 private:
-	FGenericTeamId m_TeamID;
+	//FGenericTeamId m_TeamID;
 
 	float m_ArmLengthTo;
 	FRotator m_ArmRotationTo;
