@@ -34,10 +34,10 @@ private:
 public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
-	static const FName PlayerKey;
-	static const FName InNormalAttackRangeKey;
+	static const FName EnemyKey;
+
 
 private:
-	TWeakObjectPtr<APawn> m_Owner;
+	TWeakObjectPtr<class ACharacterBase> m_Owner;
 	//priority_queue<int> pq;
 };

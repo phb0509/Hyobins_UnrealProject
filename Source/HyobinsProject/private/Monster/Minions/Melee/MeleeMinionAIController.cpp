@@ -7,8 +7,7 @@
 
 const FName AMeleeMinionAIController::HomePosKey(TEXT("HomePos"));
 const FName AMeleeMinionAIController::PatrolPosKey(TEXT("PatrolPos"));
-const FName AMeleeMinionAIController::PlayerKey(TEXT("Player"));
-const FName AMeleeMinionAIController::InNormalAttackRangeKey(TEXT("InNormalAttackRange"));
+const FName AMeleeMinionAIController::EnemyKey(TEXT("Enemy"));
 
 AMeleeMinionAIController::AMeleeMinionAIController()
 {
@@ -31,7 +30,8 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 	Super::OnPossess(pawn);
 
 	UBlackboardComponent* BlackboardComponent = Blackboard;
-	m_Owner = pawn;
+
+	m_Owner = Cast<ACharacterBase>(pawn);
 
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
 
@@ -45,13 +45,12 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 {
 	if (m_Owner.IsValid())
 	{
-		ACharacterBase* owner = Cast<ACharacterBase>(m_Owner);
 		ACharacterBase* perceivedCharacter = Cast<ACharacterBase>(actor);
 		
 		int teamType = GetTeamAttitudeTowards(*actor);
 		FString teamTypeName = "";
 
-		switch (teamType)
+		switch (teamType) // 인지한 객체의 팀에 따른 이벤트처리.
 		{
 		case 0:  // 동료
 		{
@@ -66,19 +65,18 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 		case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
 		{
 			AMainPlayer* player = Cast<AMainPlayer>(perceivedCharacter);
-			if (player != nullptr)
-			{
-				// 플레이어에 대한 이벤트처리.
 
-				AMainPlayer* playerOnBlackBoard = Cast<AMainPlayer>(Blackboard->GetValueAsObject(PlayerKey));
+			if (player != nullptr) // 플레이어에 대한 이벤트처리.
+			{
+				AMainPlayer* playerOnBlackBoard = Cast<AMainPlayer>(Blackboard->GetValueAsObject(EnemyKey));
 
 				if (playerOnBlackBoard == nullptr)
 				{
-					Blackboard->SetValueAsObject(PlayerKey, player);
+					Blackboard->SetValueAsObject(EnemyKey, player);
 				}
 				else
 				{
-					Blackboard->SetValueAsObject(PlayerKey, nullptr);
+					Blackboard->SetValueAsObject(EnemyKey, nullptr);
 				}
 			}
 
@@ -90,7 +88,7 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 		}
 
 		// 로그출력
-		FString logString = "'" + owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
+		FString logString = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
 
 		switch (Stimulus.Type)
 		{
