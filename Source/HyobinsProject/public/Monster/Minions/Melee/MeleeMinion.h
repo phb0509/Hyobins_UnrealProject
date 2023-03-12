@@ -6,6 +6,9 @@
 #include "Monster/Monster.h"
 #include "MeleeMinion.generated.h"
 
+enum class ENormalMinionStates : uint8;
+
+
 UCLASS()
 class HYOBINSPROJECT_API AMeleeMinion : public AMonster
 {
@@ -16,6 +19,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 
+	ENormalMinionStates GetState() { return m_CurState; }
+	float GetNormalAttackRange() { return m_NormalAttackRange; }
+
 	static int tagCount;
 
 protected:
@@ -25,4 +31,8 @@ private:
 	void initComponents();
 	void initCollisions();
 	void initAttackInformations();
+
+private:
+	ENormalMinionStates m_CurState;
+	float m_NormalAttackRange;
 };

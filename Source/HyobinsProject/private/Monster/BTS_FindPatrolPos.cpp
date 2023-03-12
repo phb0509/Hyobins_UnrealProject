@@ -30,6 +30,6 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 
 	if (NavSystem->GetRandomPointInNavigableRadius(Origin, monster->GetPatrolRange(), NextPatrol))
 	{
-		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMeleeMinionAIController::PatrolPosKey, NextPatrol.Location);
+		OwnerComp.GetBlackboardComponent()->SetValueAsVector("PatrolPos", NextPatrol.Location);
 	}
 }

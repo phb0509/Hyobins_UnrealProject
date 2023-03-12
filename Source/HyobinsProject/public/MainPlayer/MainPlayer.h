@@ -21,14 +21,6 @@ public:
 	virtual void PossessedBy(AController* newController) override;
 	virtual void Jump() override;
 
-
-
-	//virtual FGenericTeamId GetGenericTeamId() const override 
-	//{ 
-	//	UE_LOG(LogTemp, Log, TEXT("Call the MainPlayer::GetTeamAttitudeTowards"));
-	//	return m_TeamID; 
-	//}
-
 	// AxisMappings
 	void Turn(float value);
 	void LookUp(float value);
@@ -68,10 +60,10 @@ private:
 	void initAttackInformations();
 	void checkIsValidComponants();
 	void updateState();
-
 	void normalAttack();
 	void updateNormalAttackStateOnStart();
 	void updateNormalAttackStateOnEnd();
+
 	UFUNCTION()
 		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 

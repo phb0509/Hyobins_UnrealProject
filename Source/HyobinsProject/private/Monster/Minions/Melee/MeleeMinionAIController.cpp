@@ -2,8 +2,7 @@
 
 
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
-#include "MainPlayer/MainPlayer.h"
-
+#include "Monster/Minions/Melee/MeleeMinion.h"
 
 const FName AMeleeMinionAIController::HomePosKey(TEXT("HomePos"));
 const FName AMeleeMinionAIController::PatrolPosKey(TEXT("PatrolPos"));
@@ -31,7 +30,7 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 
 	UBlackboardComponent* BlackboardComponent = Blackboard;
 
-	m_Owner = Cast<ACharacterBase>(pawn);
+	m_Owner = Cast<AMeleeMinion>(pawn);
 
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
 
@@ -46,69 +45,70 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 	if (m_Owner.IsValid())
 	{
 		ACharacterBase* perceivedCharacter = Cast<ACharacterBase>(actor);
-		
-		int teamType = GetTeamAttitudeTowards(*actor);
-		FString teamTypeName = "";
 
-		switch (teamType) // 인지한 객체의 팀에 따른 이벤트처리.
+		if (perceivedCharacter != nullptr)
 		{
-		case 0:  // 동료
-		{
-			teamTypeName = "Friendly::";
-		}
-			break;
-		case 1:  // 중립
-		{
-			teamTypeName = "Neutral::";
-		}
-			break;
-		case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
-		{
-			AMainPlayer* player = Cast<AMainPlayer>(perceivedCharacter);
+			int teamType = GetTeamAttitudeTowards(*actor);
+			FString teamTypeName = "";
 
-			if (player != nullptr) // 플레이어에 대한 이벤트처리.
+			switch (teamType) // 인지한 객체의 팀에 따른 이벤트처리.
 			{
-				AMainPlayer* playerOnBlackBoard = Cast<AMainPlayer>(Blackboard->GetValueAsObject(EnemyKey));
+			case 0:  // 동료
+			{
+				teamTypeName = "Friendly::";
+			}
+			break;
 
-				if (playerOnBlackBoard == nullptr)
+			case 1:  // 중립
+			{
+				teamTypeName = "Neutral::";
+			}
+			break;
+
+			case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
+			{
+				ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(EnemyKey));
+
+				if (enemyOnBlackBoard == nullptr)
 				{
-					Blackboard->SetValueAsObject(EnemyKey, player);
+					Blackboard->SetValueAsObject(EnemyKey, perceivedCharacter);
 				}
 				else
 				{
 					Blackboard->SetValueAsObject(EnemyKey, nullptr);
 				}
+
+				teamTypeName = "Enemy::";
+			}
+			break;
+
+			default:
+				break;
 			}
 
-			teamTypeName = "Enemy::";
-		}
-			break;
-		default:
-			break;
-		}
+			// 로그출력
+			FString logString = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
 
-		// 로그출력
-		FString logString = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
+			switch (Stimulus.Type)
+			{
+			case 0: // react to sight stimulus
+			{
+				logString += " Using 'SightPerception'";
+				break;
+			}
 
-		switch (Stimulus.Type)
-		{
-		case 0: // react to sight stimulus
-		{
-			logString += " Using 'SightPerception'";
-			break;
-		}
-			
-		case 1: // react to hearing;
-		{
-			logString += " Using 'HearingPerception'";
-			break;
-		}
-			
-		default:
-			break;
-		}
+			case 1: // react to hearing;
+			{
+				logString += " Using 'HearingPerception'";
+				break;
+			}
 
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *logString);
+			default:
+				break;
+			}
+
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *logString);
+		}
 	}
 }
 

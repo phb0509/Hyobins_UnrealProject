@@ -6,7 +6,8 @@
 
 int AMeleeMinion::tagCount(0);
 
-AMeleeMinion::AMeleeMinion() 
+AMeleeMinion::AMeleeMinion() :
+	m_CurState(ENormalMinionStates::Patrol)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMeleeMinionAIController::StaticClass();

@@ -3,17 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
 #include "EnumTypes.generated.h"
 
-/**
- * 
- */
-class HYOBINSPROJECT_API EnumTypes
-{
-public:
-	EnumTypes();
-	~EnumTypes();
-};
 
 UENUM(BlueprintType)
 enum class EMainPlayerStates : uint8
@@ -27,10 +19,10 @@ enum class EMainPlayerStates : uint8
 };
 
 UENUM(BlueprintType)
-enum class EMinionStates : uint8
+enum class ENormalMinionStates : uint8
 {
-	Idle	UMETA(DisplayName = "Idle"),
-	Walk	UMETA(DisplayName = "Walk"),
+	Patrol  UMETA(DisplayName = "Patrol"),
+	Chase   UMETA(DisplayName = "Chase"),
 	Attack	UMETA(DisplayName = "Attack"),
 	Hit		UMETA(DisplayName = "Hit"),
 	Die     UMETA(DisplayName = "Die")
@@ -44,4 +36,27 @@ enum class ECrowdControlType : uint8
 	Bind	UMETA(DisplayName = "Bind"),
 	Stun	UMETA(DisplayName = "Stun"),
 	Airborne UMETA(DisplayName = "Airborne")
+};
+
+UCLASS()
+class HYOBINSPROJECT_API AEnumTypes : public AActor
+{
+	GENERATED_BODY()
+	
+public:	
+	// Sets default values for this actor's properties
+	AEnumTypes();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+public:
+	UPROPERTY(EditAnywhere)
+		ENormalMinionStates m_NormalMinionStates;
+
 };
