@@ -3,7 +3,12 @@
 
 #include "Monster/Monster.h"
 
-// Sets default values
+
+const FName AMonster::HomePosKey(TEXT("HomePos"));
+const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
+const FName AMonster::EnemyKey(TEXT("Enemy"));
+const FName AMonster::CurStateKey(TEXT("CurState"));
+
 AMonster::AMonster() :
 	m_PatrolRange(1000.0f),
 	m_NormalAttackRange(30.0f)

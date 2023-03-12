@@ -58,4 +58,7 @@ public:
 
 	void InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
 
+private:
+	TMap<FName, UEnum*> m_Enums;
+
 };

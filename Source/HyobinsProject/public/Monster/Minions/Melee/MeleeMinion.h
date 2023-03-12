@@ -8,7 +8,6 @@
 
 enum class ENormalMinionStates : uint8;
 
-
 UCLASS()
 class HYOBINSPROJECT_API AMeleeMinion : public AMonster
 {
@@ -20,6 +19,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	ENormalMinionStates GetState() { return m_CurState; }
+	void SetState(ENormalMinionStates state) { m_CurState = state; }
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
 
 	static int tagCount;

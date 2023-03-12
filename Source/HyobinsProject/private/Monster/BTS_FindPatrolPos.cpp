@@ -25,7 +25,7 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 
 	checkf(IsValid(NavSystem), TEXT("NavSystem is not Valid"));
 
-	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AMeleeMinionAIController::HomePosKey);
+	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector("HomePos");
 	FNavLocation NextPatrol;
 
 	if (NavSystem->GetRandomPointInNavigableRadius(Origin, monster->GetPatrolRange(), NextPatrol))

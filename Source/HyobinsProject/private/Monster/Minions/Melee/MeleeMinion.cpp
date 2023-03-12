@@ -7,7 +7,8 @@
 int AMeleeMinion::tagCount(0);
 
 AMeleeMinion::AMeleeMinion() :
-	m_CurState(ENormalMinionStates::Patrol)
+	m_CurState(ENormalMinionStates::Patrol),
+	m_NormalAttackRange(30.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMeleeMinionAIController::StaticClass();

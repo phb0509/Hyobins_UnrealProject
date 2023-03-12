@@ -4,9 +4,7 @@
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
 #include "Monster/Minions/Melee/MeleeMinion.h"
 
-const FName AMeleeMinionAIController::HomePosKey(TEXT("HomePos"));
-const FName AMeleeMinionAIController::PatrolPosKey(TEXT("PatrolPos"));
-const FName AMeleeMinionAIController::EnemyKey(TEXT("Enemy"));
+
 
 AMeleeMinionAIController::AMeleeMinionAIController()
 {
@@ -36,7 +34,7 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 
 	if (UseBlackboard(m_BlackboardData, BlackboardComponent))
 	{
-		Blackboard->SetValueAsVector(HomePosKey, pawn->GetActorLocation());
+		Blackboard->SetValueAsVector(AMonster::HomePosKey, pawn->GetActorLocation());
 	}
 }
 
@@ -67,15 +65,15 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 
 			case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
 			{
-				ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(EnemyKey));
+				ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
 
 				if (enemyOnBlackBoard == nullptr)
 				{
-					Blackboard->SetValueAsObject(EnemyKey, perceivedCharacter);
+					Blackboard->SetValueAsObject(AMonster::EnemyKey, perceivedCharacter);
 				}
 				else
 				{
-					Blackboard->SetValueAsObject(EnemyKey, nullptr);
+					Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);
 				}
 
 				teamTypeName = "Enemy::";

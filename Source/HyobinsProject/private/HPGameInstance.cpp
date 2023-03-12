@@ -6,6 +6,7 @@
 
 UHPGameInstance::UHPGameInstance()
 {
+	m_Enums.Add("ENormalMinionStates", FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true));
 }
 
 void UHPGameInstance::Init()
