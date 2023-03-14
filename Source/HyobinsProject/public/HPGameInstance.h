@@ -57,6 +57,7 @@ public:
 	virtual void StartGameInstance() override;
 
 	void InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
+	int32 GetIndexByEnumName(FName& enumClassName, FName& enumTypeName);
 
 private:
 	TMap<FName, UEnum*> m_Enums;

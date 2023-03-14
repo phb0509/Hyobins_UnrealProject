@@ -6,7 +6,7 @@
 
 UHPGameInstance::UHPGameInstance()
 {
-	m_Enums.Add("ENormalMinionStates", FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true));
+	m_Enums.Add("ENormalMinionStates", FindObject<UEnum>(ANY_PACKAGE, TEXT("ENormalMinionStates"), true));
 }
 
 void UHPGameInstance::Init()
@@ -55,4 +55,9 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FNam
 			attackInformations.Add(attackName, { data.damage,data.bIsDot,data.bHasCrowdControl,crowdControlType,data.crowdControlTime,data.bHasKnockBack,data.knockBackTime,data.knockBackDistance });
 		}
 	}
+}
+
+int32 UHPGameInstance::GetIndexByEnumName(FName& enumClassName, FName& enumTypeName)
+{
+	return m_Enums[enumClassName]->GetIndexByName(enumTypeName);
 }
