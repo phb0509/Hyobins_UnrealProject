@@ -32,4 +32,5 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector("PatrolPos", NextPatrol.Location);
 	}
+	UE_LOG(LogTemp, Warning, TEXT("Call FindPath"));
 }

@@ -27,7 +27,7 @@ public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
 	static const FName EnemyKey;
-	static const FName CurStateKey;
-	//static UEnum* m_StatesEnum;
+	static const FName StateKey;
+
 
 };

@@ -9,7 +9,6 @@
 
 UBTS_UpdateMeleeMinionState::UBTS_UpdateMeleeMinionState()
 {
-	bNotifyBecomeRelevant = true;
 	NodeName = TEXT("UpdateMeleeMinionState");
 }
 
@@ -25,11 +24,14 @@ void UBTS_UpdateMeleeMinionState::OnBecomeRelevant(UBehaviorTreeComponent& Owner
 	if (distanceToEnemy > meleeMinion->GetNormalAttackRange()) // 공격범위 밖이면
 	{
 		meleeMinion->SetState(ENormalMinionStates::Chase); // 공격할 수 있는 거리 될 때까지 추적.
+		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::Chase));
 	}
 	else
 	{
 		meleeMinion->SetState(ENormalMinionStates::Attack);
+		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::Attack));
 	}
 
-	
+	//OwnerComp.GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, ENormalMinionStates::Attack);
+	UE_LOG(LogTemp, Warning, TEXT("Call UpdateMeleeMinionState"));
 }

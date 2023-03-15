@@ -7,7 +7,7 @@
 const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
 const FName AMonster::EnemyKey(TEXT("Enemy"));
-const FName AMonster::CurStateKey(TEXT("CurState"));
+const FName AMonster::StateKey(TEXT("State"));
 
 AMonster::AMonster() :
 	m_PatrolRange(1000.0f),
