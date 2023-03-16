@@ -16,18 +16,25 @@ public:
 
 	float GetPatrolRange() { return m_PatrolRange; }
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
+	float GetCurSpeed() { return m_CurSpeed; }
+	bool GetIsIdle() { return m_bIsIdle; }
+	bool GetIsWalking() { return m_bIsWalking; }
+	bool GetIsAttacking() { return m_bIsAttacking; }
 
-protected:
-	TMap<FString, FAttackInfoStruct> m_AttackInformations;
-	float m_PatrolRange;
-	float m_NormalAttackRange;
-	
-	
+
 public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
 	static const FName EnemyKey;
 	static const FName StateKey;
 
+
+protected:
+	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+	float m_PatrolRange;
+	float m_NormalAttackRange;
+	bool m_bIsAttacking;
+
+	
 
 };

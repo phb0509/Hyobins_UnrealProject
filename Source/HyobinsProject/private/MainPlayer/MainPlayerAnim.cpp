@@ -29,21 +29,21 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (!m_AMainPlayer.IsValid())
+	if (!m_Owner.IsValid())
 	{
-		m_AMainPlayer = Cast<AMainPlayer>(TryGetPawnOwner());
+		m_Owner = Cast<AMainPlayer>(TryGetPawnOwner());
 	}
 	else
 	{
-		m_CurSpeed = m_AMainPlayer->GetVelocity().Size();
-		m_bIsIdle = m_AMainPlayer->GetIsIdle();
-		m_bIsPressingShift = m_AMainPlayer->GetIsPressingShift();
-		m_bIsCombated = m_AMainPlayer->GetIsCombat();
-		m_bIsWalking = m_AMainPlayer->GetIsWalking();
-		m_bIsRunning = m_AMainPlayer->GetIsRunning();
-		m_bIsInAir = m_AMainPlayer->GetIsInAir();
-		m_bIsAttacking = m_AMainPlayer->GetIsAttacking();
-		m_bIsHit = m_AMainPlayer->GetIsHit();
+		m_CurSpeed = m_Owner->GetCurSpeed();
+		m_bIsIdle = m_Owner->GetIsIdle();
+		m_bIsPressingShift = m_Owner->GetIsPressingShift();
+		m_bIsCombated = m_Owner->GetIsCombat();
+		m_bIsWalking = m_Owner->GetIsWalking();
+		m_bIsRunning = m_Owner->GetIsRunning();
+		m_bIsInAir = m_Owner->GetIsInAir();
+		m_bIsAttacking = m_Owner->GetIsAttacking();
+		m_bIsHit = m_Owner->GetIsHit();
 	}
 
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Red, FString::Printf(TEXT("Is Attacking??? : %d"), m_bIsAttacking));

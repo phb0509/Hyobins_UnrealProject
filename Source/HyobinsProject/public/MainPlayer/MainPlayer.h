@@ -33,16 +33,11 @@ public:
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
 
-	//UFUNCTION(BlueprintCallable, Category = "FSM")
-	//	EMainPlayerStates GetFSMState() { return m_CurState; }
-
-	// Get 磊悼 inline 贸府.
-	bool GetIsIdle() { return m_bIsIdle; }
+	// Get  磊悼 inline 贸府等促.
+	
 	bool GetIsPressingShift() { return m_bIsPressingShift; }
 	bool GetIsCombat() { return m_bIsCombated; }
-	bool GetIsWalking() { return m_bIsWalking; }
 	bool GetIsRunning() { return m_bIsRunning; }
-	bool GetIsInAir() { return m_bIsInAir; }
 	bool GetIsAttacking() { return m_bIsNormalAttacking; }
 	bool GetIsHit() { return m_bIsHit; }
 
@@ -87,21 +82,14 @@ private:
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
 	float m_ArmRotationSpeed;
-	float m_CurSpeed;
-	float m_WalkSpeed;
 	float m_RunSpeed;
 	float m_MovdDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
-	//EMainPlayerStates m_CurState;
-	bool m_bIsIdle;
 	bool m_bIsPressingShift;
 	bool m_bIsCombated;
-	bool m_bIsWalking;
 	bool m_bIsRunning;
-	bool m_bIsInAir;	
 	bool m_bIsHit;
 
-	
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bIsNormalAttacking;
@@ -118,6 +106,5 @@ private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		int32 m_NormalAttackMaxCombo;
 
-	UPROPERTY()
-		class UMainPlayerAnim* m_ABPAnimInstance;
+	TWeakObjectPtr<class UMainPlayerAnim> m_ABPAnimInstance;
 };

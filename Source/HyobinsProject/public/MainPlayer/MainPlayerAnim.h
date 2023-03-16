@@ -34,46 +34,46 @@ private:
 
 	FName GetNormalAttackMontageSectionName(int32 section);
 
+
 public:
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-	//	EMainPlayerStates m_CurState;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		float m_CurSpeed;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsIdle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsPressingShift;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsCombated;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsWalking;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsRunning;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsInAir;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsAttacking;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = MainPlayerAnim)
-		bool m_bIsHit;
-
 	// µ®∏Æ∞‘¿Ã∆Æ.
-	FOnNextAttackCheckDelegate OnNextAttackCheck; 
+	FOnNextAttackCheckDelegate OnNextAttackCheck;
 	FOnAttackHitCheckDelegate  OnAttackHitCheck;
-
-private:
-	TWeakObjectPtr<class AMainPlayer> m_AMainPlayer;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		UAnimMontage* m_NormalAttackMontage;
+
+private:
+
+	TWeakObjectPtr<class AMainPlayer> m_Owner;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
+		float m_CurSpeed;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
+		bool m_bIsIdle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
+		bool m_bIsPressingShift;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
+		bool m_bIsCombated;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
+		bool m_bIsWalking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
+		bool m_bIsRunning;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
+		bool m_bIsInAir;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
+		bool m_bIsAttacking;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
+		bool m_bIsHit;
+
+
 
 };

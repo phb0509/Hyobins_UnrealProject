@@ -5,7 +5,13 @@
 
 ACharacterBase::ACharacterBase() :
 	m_MaxHP(100.0f),
-	m_CurHP(m_MaxHP)
+	m_CurHP(m_MaxHP),
+	m_Name(""),
+	m_CurSpeed(0.0f),
+	m_WalkSpeed(200.0f),
+	m_bIsIdle(true),
+	m_bIsWalking(false),
+	m_bIsInAir(false)
 {
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 }

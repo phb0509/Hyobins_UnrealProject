@@ -32,7 +32,11 @@ private:
 	void initCollisions();
 	void initAttackInformations();
 
+	void updateState();
+
 private:
 	ENormalMinionStates m_CurState;
-	float m_NormalAttackRange;
+
+	TWeakObjectPtr<class UMeleeMinionAnim> m_ABPAnimInstance;
+
 };

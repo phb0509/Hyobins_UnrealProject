@@ -17,17 +17,12 @@ AMainPlayer::AMainPlayer() :
 	m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
 	m_ArmRotationSpeed(0.0f),
-	m_CurSpeed(0.0f),
-	m_WalkSpeed(300.0f),
 	m_RunSpeed(900.0f),
 	m_MovdDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
-	m_bIsIdle(true),
 	m_bIsPressingShift(false),
 	m_bIsCombated(true),
-	m_bIsWalking(false),
 	m_bIsRunning(false),
-	m_bIsInAir(false),
 	m_bIsHit(false),
 	m_bIsNormalAttacking(false),
 	m_bCanNextCombo(false),
@@ -39,6 +34,8 @@ AMainPlayer::AMainPlayer() :
 	PrimaryActorTick.bCanEverTick = true;
 	
 	m_Name = "MainPlayer";
+	m_WalkSpeed = 300.0f;
+
 	initComponents();
 	Super::LoadMesh("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'");
