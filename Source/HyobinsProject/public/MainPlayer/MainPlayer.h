@@ -38,7 +38,7 @@ public:
 	bool GetIsPressingShift() { return m_bIsPressingShift; }
 	bool GetIsCombat() { return m_bIsCombated; }
 	bool GetIsRunning() { return m_bIsRunning; }
-	bool GetIsAttacking() { return m_bIsNormalAttacking; }
+	bool GetIsAttacking() { return m_bIsAttacking; }
 	bool GetIsHit() { return m_bIsHit; }
 
 	// Set
@@ -55,7 +55,7 @@ private:
 	void initAttackInformations();
 	void checkIsValidComponants();
 	void updateState();
-	void normalAttack();
+	void normalComboAttack();
 	void updateNormalAttackStateOnStart();
 	void updateNormalAttackStateOnEnd();
 
@@ -92,7 +92,7 @@ private:
 
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		bool m_bIsNormalAttacking;
+		bool m_bIsAttacking;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bCanNextCombo;

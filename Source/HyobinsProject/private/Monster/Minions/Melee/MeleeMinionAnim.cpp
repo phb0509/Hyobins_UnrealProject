@@ -12,7 +12,13 @@ UMeleeMinionAnim::UMeleeMinionAnim() :
 	m_bIsInAir(false),
 	m_bIsAttacking(false)
 {
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_NormalAttack1.AMBP_NormalAttack1'"));
 
+	if (normalAttackMontage.Succeeded())
+	{
+		m_NormalAttackMontage = normalAttackMontage.Object;
+	}
 }
 
 void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -35,4 +41,10 @@ void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 void UMeleeMinionAnim::PlayNormalAttackMontage()
 {
+	Montage_Play(m_NormalAttackMontage, 1.0f);
+}
+
+void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
+{
+	OnAttackHitCheck.Broadcast();
 }

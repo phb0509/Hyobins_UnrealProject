@@ -6,6 +6,9 @@
 #include "Animation/AnimInstance.h"
 #include "MeleeMinionAnim.generated.h"
 
+
+DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate);
+
 UCLASS()
 class HYOBINSPROJECT_API UMeleeMinionAnim : public UAnimInstance
 {
@@ -17,11 +20,16 @@ public:
 
 	void PlayNormalAttackMontage();
 
+	//Get
+	UAnimMontage* GetNormalAttackMontage() { return m_NormalAttackMontage; }
+
+private:
+	UFUNCTION()
+		void AnimNotify_checkAttackHit(); // Notify를 실행시키는 함수.
 
 
 public:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		UAnimMontage* m_NormalAttackMontage;
+	FOnAttackHitCheckDelegate  OnAttackHitCheck;
 
 private:
 	
@@ -41,4 +49,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
 		bool m_bIsAttacking;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		UAnimMontage* m_NormalAttackMontage;
 };

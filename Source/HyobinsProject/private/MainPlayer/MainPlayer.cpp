@@ -17,14 +17,14 @@ AMainPlayer::AMainPlayer() :
 	m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
 	m_ArmRotationSpeed(0.0f),
-	m_RunSpeed(900.0f),
+	m_RunSpeed(1300.0f),
 	m_MovdDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
 	m_bIsPressingShift(false),
 	m_bIsCombated(true),
 	m_bIsRunning(false),
 	m_bIsHit(false),
-	m_bIsNormalAttacking(false),
+	m_bIsAttacking(false),
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
@@ -109,9 +109,10 @@ void AMainPlayer::updateState()
 
 }
 
-void AMainPlayer::normalAttack()
+void AMainPlayer::normalComboAttack()
 {
-	if (m_bIsNormalAttacking) 
+
+	if (m_bIsAttacking) 
 	{
 		if (m_bCanNextCombo)
 		{
@@ -123,13 +124,13 @@ void AMainPlayer::normalAttack()
 		updateNormalAttackStateOnStart();
 		m_ABPAnimInstance->PlayNormalAttackMontage();
 		m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
-		m_bIsNormalAttacking = true;
+		m_bIsAttacking = true;
 	}
 }
 
 void AMainPlayer::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었거나, 공격 도중 키입력이 더이상 없거나
 {
-	m_bIsNormalAttacking = false;
+	m_bIsAttacking = false;
 	updateNormalAttackStateOnEnd();
 }
 
@@ -198,7 +199,7 @@ void AMainPlayer::LookUp(float value)
 
 void AMainPlayer::InputHorizontal(float value)
 {
-	if (!m_bIsNormalAttacking)
+	if (!m_bIsAttacking)
 	{
 		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
@@ -206,7 +207,7 @@ void AMainPlayer::InputHorizontal(float value)
 
 void AMainPlayer::InputVertical(float value)
 {
-	if (!m_bIsNormalAttacking)
+	if (!m_bIsAttacking)
 	{
 		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
@@ -226,7 +227,7 @@ void AMainPlayer::TriggerReleasedShift()
 
 void AMainPlayer::TriggerPressedLeftMouseButton()
 {
-	normalAttack();
+	normalComboAttack();
 }
 
 void AMainPlayer::TriggerReleasedLeftMouseButton()

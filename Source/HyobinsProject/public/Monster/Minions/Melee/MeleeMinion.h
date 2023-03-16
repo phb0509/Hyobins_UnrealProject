@@ -18,11 +18,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 
+	void NormalAttack();
+
+
 	ENormalMinionStates GetState() { return m_CurState; }
 	void SetState(ENormalMinionStates state) { m_CurState = state; }
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
 
-	static int tagCount;
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,6 +36,11 @@ private:
 
 	void updateState();
 
+	UFUNCTION()
+		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	
+public:
+	static int TagCount;
 private:
 	ENormalMinionStates m_CurState;
 
