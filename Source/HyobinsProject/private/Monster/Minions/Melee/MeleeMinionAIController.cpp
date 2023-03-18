@@ -117,7 +117,7 @@ void AMeleeMinionAIController::initPerceptionSystem()
 
 	m_SightRadius = 600.0f;
 	m_LoseSightRadius = 700.0f;
-	m_PeripheralVisionHalfAngle = 90.0f;
+	m_PeripheralVisionHalfAngle = 180.0f;
 	m_AILastSeenLocation = 0.0f;
 	m_AISightAge = 0.0f;
 
