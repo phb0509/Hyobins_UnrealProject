@@ -21,12 +21,13 @@ public:
 	void PlayNormalAttackMontage();
 
 	//Get
-	UAnimMontage* GetNormalAttackMontage() { return m_NormalAttackMontage; }
+	//UAnimMontage* GetNormalAttackMontage() { return m_NormalAttackMontage1; }
 
 private:
+	void loadMontages();
+
 	UFUNCTION()
 		void AnimNotify_checkAttackHit(); // Notify를 실행시키는 함수.
-
 
 public:
 	FOnAttackHitCheckDelegate  OnAttackHitCheck;
@@ -50,6 +51,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
 		bool m_bIsAttacking;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = AttackMontage, Meta = (AllowPrivateAccess = true))
+		TArray<UAnimMontage*> m_AttackMontages;
+
+	/*UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
+		UAnimMontage* m_NormalAttackMontage1;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		UAnimMontage* m_NormalAttackMontage;
+		UAnimMontage* m_NormalAttackMontage2;*/
 };

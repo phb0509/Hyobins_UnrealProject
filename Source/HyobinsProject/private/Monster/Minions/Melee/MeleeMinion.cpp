@@ -59,8 +59,8 @@ void AMeleeMinion::NormalAttack()
 	if (m_bIsAttacking) return;
 
 	m_bIsAttacking = true;
-	m_ABPAnimInstance->PlayNormalAttackMontage();
 
+	m_ABPAnimInstance->PlayNormalAttackMontage();
 }
 
 void AMeleeMinion::initComponents()

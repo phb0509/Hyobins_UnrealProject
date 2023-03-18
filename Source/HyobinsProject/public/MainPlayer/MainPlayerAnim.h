@@ -26,6 +26,7 @@ public:
 	void JumpToNormalAttackMontageSection(int32 newSection);
 
 private:
+
 	UFUNCTION()
 		void AnimNotify_checkAttackHit(); // Notify를 실행시키는 함수.
 

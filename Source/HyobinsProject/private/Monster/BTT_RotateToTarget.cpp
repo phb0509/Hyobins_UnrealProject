@@ -18,5 +18,9 @@ EBTNodeResult::Type UBTT_RotateToTarget::ExecuteTask(UBehaviorTreeComponent& Own
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 
+	FVector ToTarget = enemyOnBlackBoard->GetActorLocation() - owner->GetActorLocation();
+	FRotator LookAtRotation = FRotator(0.f, ToTarget.Rotation().Yaw, 0.f);
+	owner->SetActorRotation(LookAtRotation);
+
 	return EBTNodeResult::Succeeded;
 }

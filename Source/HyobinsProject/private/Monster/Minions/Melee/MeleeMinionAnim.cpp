@@ -12,16 +12,11 @@ UMeleeMinionAnim::UMeleeMinionAnim() :
 	m_bIsInAir(false),
 	m_bIsAttacking(false)
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_NormalAttack1.AMBP_NormalAttack1'"));
+	loadMontages();
 
-	if (normalAttackMontage.Succeeded())
-	{
-		m_NormalAttackMontage = normalAttackMontage.Object;
-	}
 }
 
-void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)
+void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)	
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
@@ -41,10 +36,39 @@ void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 void UMeleeMinionAnim::PlayNormalAttackMontage()
 {
-	Montage_Play(m_NormalAttackMontage, 0.5f); // 낮을수록 느리게 재생.
+	int32 randomIndex = FMath::RandRange(0, 2);
+
+	Montage_Play(m_AttackMontages[randomIndex], 1.0f); // 낮을수록 느리게 재생.
 }
 
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
 	OnAttackHitCheck.Broadcast();
+}
+
+void UMeleeMinionAnim::loadMontages()
+{
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage0
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_NormalAttack0.AMBP_NormalAttack0'"));
+
+	if (normalAttackMontage0.Succeeded())
+	{
+		m_AttackMontages.Add(normalAttackMontage0.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage1
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_NormalAttack1.AMBP_NormalAttack1'"));
+
+	if (normalAttackMontage1.Succeeded())
+	{
+		m_AttackMontages.Add(normalAttackMontage1.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> criticalAttack
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_CriticalAttack.AMBP_CriticalAttack'"));
+
+	if (criticalAttack.Succeeded())
+	{
+		m_AttackMontages.Add(criticalAttack.Object);
+	}
 }
