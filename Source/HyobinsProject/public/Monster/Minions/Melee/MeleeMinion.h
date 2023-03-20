@@ -33,7 +33,6 @@ private:
 	void initComponents();
 	void initCollisions();
 	void initAttackInformations();
-
 	void updateState();
 
 	UFUNCTION()
@@ -41,6 +40,7 @@ private:
 	
 public:
 	static int TagCount;
+
 private:
 	ENormalMinionStates m_CurState;
 

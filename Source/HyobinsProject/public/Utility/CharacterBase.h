@@ -24,7 +24,6 @@ public:
 	bool GetIsInAir() { return m_bIsInAir; }
 
 
-
 protected:
 	void LoadMesh(FString assetPath);
 	void LoadAnimInstance(FString assetPath);

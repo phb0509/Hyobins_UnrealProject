@@ -16,5 +16,6 @@ class HYOBINSPROJECT_API UBTT_RotateToTarget : public UBTTaskNode
 	
 public:
 	UBTT_RotateToTarget();
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

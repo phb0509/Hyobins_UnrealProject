@@ -24,17 +24,9 @@ public:
 	UFUNCTION()
 		void CheckIsTarget(AActor* actor, FAIStimulus const Stimulus);
 
-	/*UFUNCTION()
-		void UpdatePerception(const TArray<AActor*>& Actors);*/
 
 private:
 	void initPerceptionSystem();
-
-
-public:
-	//static const FName HomePosKey;
-	//static const FName PatrolPosKey;
-	//static const FName EnemyKey;
 
 
 private:

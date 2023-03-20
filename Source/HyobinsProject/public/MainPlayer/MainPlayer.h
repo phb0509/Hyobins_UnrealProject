@@ -90,7 +90,6 @@ private:
 	bool m_bIsRunning;
 	bool m_bIsHit;
 
-
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bIsAttacking;
 

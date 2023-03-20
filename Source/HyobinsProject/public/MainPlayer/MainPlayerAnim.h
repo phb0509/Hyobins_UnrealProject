@@ -26,7 +26,6 @@ public:
 	void JumpToNormalAttackMontageSection(int32 newSection);
 
 private:
-
 	UFUNCTION()
 		void AnimNotify_checkAttackHit(); // Notify를 실행시키는 함수.
 
@@ -45,7 +44,6 @@ public:
 		UAnimMontage* m_NormalAttackMontage;
 
 private:
-
 	TWeakObjectPtr<class AMainPlayer> m_Owner;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
@@ -74,7 +72,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
 		bool m_bIsHit;
-
 
 
 };

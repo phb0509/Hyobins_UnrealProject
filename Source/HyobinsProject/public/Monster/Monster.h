@@ -36,5 +36,4 @@ protected:
 	bool m_bIsAttacking;
 
 	
-
 };

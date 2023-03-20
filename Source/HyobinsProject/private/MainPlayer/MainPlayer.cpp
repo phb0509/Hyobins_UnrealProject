@@ -37,8 +37,10 @@ AMainPlayer::AMainPlayer() :
 	m_WalkSpeed = 300.0f;
 
 	initComponents();
+
 	Super::LoadMesh("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'");
+
 	initCollisions();
 	initAttackInformations();
 	updateNormalAttackStateOnEnd();
@@ -52,6 +54,17 @@ void AMainPlayer::PostInitializeComponents()
 
 	m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
 	m_ABPAnimInstance->OnNextAttackCheck.AddUObject(this, &AMainPlayer::OnCalledCheckNextAttackNotify);
+
+	if (GetCapsuleComponent() != nullptr)
+	{
+		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
+		GetCapsuleComponent()->SetCapsuleRadius(30.0f);
+		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Not Valid!"));
+	}
 }
 
 // Called when the game starts or when spawned
@@ -60,6 +73,7 @@ void AMainPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
+	
 }
 
 
@@ -260,8 +274,16 @@ void AMainPlayer::initComponents()
 void AMainPlayer::initCollisions()
 {
 	// RootCapsuleComponent
-	GetCapsuleComponent()->SetCapsuleHalfHeight(100.0f);
-	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
+	/*if (GetCapsuleComponent() != nullptr)
+	{
+		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
+		GetCapsuleComponent()->SetCapsuleRadius(30.0f);
+		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Not Valid!"));
+	}*/
 
 	// SwordCollision
 	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
@@ -275,8 +297,9 @@ void AMainPlayer::initCollisions()
 	m_SwordCollision->SetWorldTransform(collisionTransform);
 	m_SwordCollision->SetCapsuleHalfHeight(50.0f);
 	m_SwordCollision->SetCapsuleRadius(10.0f);
+
 	m_SwordCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
 }
 
 void AMainPlayer::initSpringArm()

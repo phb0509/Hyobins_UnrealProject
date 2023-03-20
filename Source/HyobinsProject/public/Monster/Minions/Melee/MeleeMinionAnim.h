@@ -20,8 +20,6 @@ public:
 
 	void PlayNormalAttackMontage();
 
-	//Get
-	//UAnimMontage* GetNormalAttackMontage() { return m_NormalAttackMontage1; }
 
 private:
 	void loadMontages();
@@ -33,7 +31,6 @@ public:
 	FOnAttackHitCheckDelegate  OnAttackHitCheck;
 
 private:
-	
 	TWeakObjectPtr<class AMeleeMinion> m_Owner;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
@@ -53,10 +50,4 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = AttackMontage, Meta = (AllowPrivateAccess = true))
 		TArray<UAnimMontage*> m_AttackMontages;
-
-	/*UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		UAnimMontage* m_NormalAttackMontage1;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		UAnimMontage* m_NormalAttackMontage2;*/
 };
