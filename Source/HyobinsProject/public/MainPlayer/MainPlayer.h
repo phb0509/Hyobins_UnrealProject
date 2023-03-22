@@ -33,6 +33,9 @@ public:
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
 
+	void CheckNormalAttackCollision();
+
+
 	// Get  자동 inline 처리된다.
 	
 	bool GetIsPressingShift() { return m_bIsPressingShift; }
@@ -75,9 +78,11 @@ public:
 		class UCameraComponent* m_TargetCamera;
 
 	UPROPERTY(VisibleAnywhere, Category = Collision)
-		class UCapsuleComponent* m_SwordCollision;
+		class UCapsuleComponent* m_SwordCollider;
 
 private:
+	TWeakObjectPtr<class UMainPlayerAnim> m_ABPAnimInstance;
+
 	float m_ArmLengthTo;
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
@@ -105,5 +110,7 @@ private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		int32 m_NormalAttackMaxCombo;
 
-	TWeakObjectPtr<class UMainPlayerAnim> m_ABPAnimInstance;
+	float m_NormalAttackRange;
+	float m_NormalAttackRadius;
+
 };

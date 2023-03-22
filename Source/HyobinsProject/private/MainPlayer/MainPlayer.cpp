@@ -9,7 +9,7 @@
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
 #include "Utility/EnumTypes.h" 
-
+#include "DrawDebugHelpers.h"
 
 
 AMainPlayer::AMainPlayer() :
@@ -28,7 +28,9 @@ AMainPlayer::AMainPlayer() :
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
-	m_NormalAttackMaxCombo(4)
+	m_NormalAttackMaxCombo(4),
+	m_NormalAttackRange(80.0f),
+	m_NormalAttackRadius(60.0f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -53,12 +55,13 @@ void AMainPlayer::PostInitializeComponents()
 	m_ABPAnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 
 	m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
-	m_ABPAnimInstance->OnNextAttackCheck.AddUObject(this, &AMainPlayer::OnCalledCheckNextAttackNotify);
+	m_ABPAnimInstance->OnNextNormalAttackCheck.AddUObject(this, &AMainPlayer::OnCalledCheckNextAttackNotify); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
+	m_ABPAnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::CheckNormalAttackCollision);
 
 	if (GetCapsuleComponent() != nullptr)
 	{
 		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
-		GetCapsuleComponent()->SetCapsuleRadius(30.0f);
+		GetCapsuleComponent()->SetCapsuleRadius(40.0f);
 		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
 	}
 	else
@@ -249,6 +252,51 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 	
 }
 
+void AMainPlayer::CheckNormalAttackCollision()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+
+	bool bResult = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		GetActorLocation()+300.0f,
+		GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
+		FCollisionShape::MakeSphere(m_NormalAttackRadius),
+		Params);
+
+
+#if ENABLE_DRAW_DEBUG
+
+	FVector TraceVec = GetActorForwardVector() * m_NormalAttackRange;
+	FVector Center = GetActorLocation() + TraceVec * 0.5f;
+	float HalfHeight = m_NormalAttackRange * 0.5f + m_NormalAttackRadius;
+	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
+	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
+	float DebugLifeTime = 5.0f;
+
+	DrawDebugCapsule(GetWorld(),
+		Center,
+		HalfHeight,
+		m_NormalAttackRadius,
+		CapsuleRot,
+		DrawColor,
+		false,
+		DebugLifeTime);
+#endif
+
+	if (bResult)
+	{
+		if (HitResult.GetActor() != nullptr)
+		{
+			FDamageEvent DamageEvent;
+			HitResult.GetActor()->TakeDamage(50.0f, DamageEvent, GetController(), this);
+		}
+	}
+	
+}
+
 void AMainPlayer::initComponents()
 {
 	initSpringArm();
@@ -273,18 +321,6 @@ void AMainPlayer::initComponents()
 
 void AMainPlayer::initCollisions()
 {
-	// RootCapsuleComponent
-	/*if (GetCapsuleComponent() != nullptr)
-	{
-		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
-		GetCapsuleComponent()->SetCapsuleRadius(30.0f);
-		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Not Valid!"));
-	}*/
-
 	// SwordCollision
 	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
 
@@ -292,14 +328,14 @@ void AMainPlayer::initCollisions()
 	// location.x, location.y, location. z
 	// scale.x,scale.y,scale.z
 
-	m_SwordCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollision"));
-	m_SwordCollision->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
-	m_SwordCollision->SetWorldTransform(collisionTransform);
-	m_SwordCollision->SetCapsuleHalfHeight(50.0f);
-	m_SwordCollision->SetCapsuleRadius(10.0f);
+	m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
+	m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
+	m_SwordCollider->SetWorldTransform(collisionTransform);
+	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
+	m_SwordCollider->SetCapsuleRadius(10.0f);
 
-	m_SwordCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	m_SwordCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
+	m_SwordCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
 }
 
 void AMainPlayer::initSpringArm()

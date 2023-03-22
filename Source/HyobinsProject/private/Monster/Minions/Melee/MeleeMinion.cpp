@@ -5,6 +5,7 @@
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
 #include "Monster/Minions/Melee/MeleeMinionAnim.h"
 #include <GameFramework/CharacterMovementComponent.h>
+#include <Components/CapsuleComponent.h>
 
 int AMeleeMinion::TagCount(0);
 
@@ -15,12 +16,22 @@ AMeleeMinion::AMeleeMinion() :
 	AIControllerClass = AMeleeMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+	m_Name = "MeleeMinion" + FString::FromInt(++TagCount);
+
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'");
 
-	m_Name = "MeleeMinion" + FString::FromInt(++TagCount);
-
 	m_PatrolRange = 500.0f;
+
+	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
+	m_HitCollider->SetupAttachment(RootComponent);
+	//m_HitCollider->SetWorldTransform(collisionTransform);
+	m_HitCollider->SetCapsuleHalfHeight(60.0f);
+	m_HitCollider->SetCapsuleRadius(60.0f);
+	m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
+	//m_HitCollider->SetCollisionObjectType(ECollisionChannel::);
+	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly); // 필요할때만 키기
+
 	//initComponents();
 	//initCollisions();
 	//initAttackInformations();
@@ -46,6 +57,13 @@ void AMeleeMinion::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is not Valid"));
 	}
+}
+
+float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	m_ABPAnimInstance->PlayOnHitMontage();
+	return FinalDamage;
 }
 
 void AMeleeMinion::Tick(float DeltaTime)
@@ -96,7 +114,7 @@ void AMeleeMinion::updateState()
 	}
 }
 
-void AMeleeMinion::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었거나, 공격 도중 키입력이 더이상 없거나
+void AMeleeMinion::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었을 경우 호출.
 {
 	m_bIsAttacking = false;
 	//updateNormalAttackStateOnEnd();

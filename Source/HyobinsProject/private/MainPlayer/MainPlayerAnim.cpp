@@ -51,7 +51,7 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 void UMainPlayerAnim::PlayNormalAttackMontage()
 {
-	Montage_Play(m_NormalAttackMontage, 1.0f);
+	Montage_Play(m_NormalAttackMontage, 1.2f);
 }
 
 void UMainPlayerAnim::JumpToNormalAttackMontageSection(int32 newSection)
@@ -59,14 +59,14 @@ void UMainPlayerAnim::JumpToNormalAttackMontageSection(int32 newSection)
 	Montage_JumpToSection(GetNormalAttackMontageSectionName(newSection), m_NormalAttackMontage);
 }
 
-void UMainPlayerAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
+void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
-	OnAttackHitCheck.Broadcast();
+	OnNormalAttackHitCheck.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_checkNextAttack()
+void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
 {
-	OnNextAttackCheck.Broadcast();
+	OnNextNormalAttackCheck.Broadcast();
 }
 
 FName UMainPlayerAnim::GetNormalAttackMontageSectionName(int32 section)

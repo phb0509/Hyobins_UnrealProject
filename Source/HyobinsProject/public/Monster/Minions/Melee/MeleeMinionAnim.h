@@ -19,6 +19,7 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	void PlayNormalAttackMontage();
+	void PlayOnHitMontage();
 
 
 private:
@@ -48,6 +49,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
 		bool m_bIsAttacking;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = AttackMontage, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = true))
 		TArray<UAnimMontage*> m_AttackMontages;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = true))
+		UAnimMontage* m_OnHitMontage;
 };

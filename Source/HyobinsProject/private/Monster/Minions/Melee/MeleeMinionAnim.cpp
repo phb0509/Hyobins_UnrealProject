@@ -41,6 +41,11 @@ void UMeleeMinionAnim::PlayNormalAttackMontage()
 	Montage_Play(m_AttackMontages[randomIndex], 1.0f); // 낮을수록 느리게 재생.
 }
 
+void UMeleeMinionAnim::PlayOnHitMontage()
+{
+	Montage_Play(m_OnHitMontage,0.2f);
+}
+
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
 	OnAttackHitCheck.Broadcast();
@@ -64,11 +69,19 @@ void UMeleeMinionAnim::loadMontages()
 		m_AttackMontages.Add(normalAttackMontage1.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> criticalAttack
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> criticalAttackMontage
 	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_CriticalAttack.AMBP_CriticalAttack'"));
 
-	if (criticalAttack.Succeeded())
+	if (criticalAttackMontage.Succeeded())
 	{
-		m_AttackMontages.Add(criticalAttack.Object);
+		m_AttackMontages.Add(criticalAttackMontage.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> onHitMontage
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_HitReact_Front.AMBP_HitReact_Front'"));
+
+	if (onHitMontage.Succeeded())
+	{
+		m_OnHitMontage = onHitMontage.Object;
 	}
 }

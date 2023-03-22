@@ -28,6 +28,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 private:
 	void initComponents();
@@ -45,5 +46,8 @@ private:
 	ENormalMinionStates m_CurState;
 
 	TWeakObjectPtr<class UMeleeMinionAnim> m_ABPAnimInstance;
+	
+	UPROPERTY(VisibleAnywhere, Category = Collision)
+		class UCapsuleComponent* m_HitCollider;
 
 };

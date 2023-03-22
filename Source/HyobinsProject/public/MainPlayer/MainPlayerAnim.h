@@ -9,8 +9,8 @@
 enum class EMainPlayerStates : uint8;
 
 
-DECLARE_MULTICAST_DELEGATE(FOnNextAttackCheckDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnNextNormalAttackCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnNormalAttackHitCheckDelegate);
 
 
 UCLASS()
@@ -27,18 +27,18 @@ public:
 
 private:
 	UFUNCTION()
-		void AnimNotify_checkAttackHit(); // Notify를 실행시키는 함수.
+		void AnimNotify_checkNormalAttackHit(); // Notify를 실행시키는 함수.
 
 	UFUNCTION()
-		void AnimNotify_checkNextAttack();
+		void AnimNotify_checkNextNormalAttack();
 
 	FName GetNormalAttackMontageSectionName(int32 section);
 
 
 public:
 	// 델리게이트.
-	FOnNextAttackCheckDelegate OnNextAttackCheck;
-	FOnAttackHitCheckDelegate  OnAttackHitCheck;
+	FOnNextNormalAttackCheckDelegate OnNextNormalAttackCheck;
+	FOnNormalAttackHitCheckDelegate  OnNormalAttackHitCheck;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		UAnimMontage* m_NormalAttackMontage;
