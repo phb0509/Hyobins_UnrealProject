@@ -29,8 +29,8 @@ AMainPlayer::AMainPlayer() :
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
 	m_NormalAttackMaxCombo(4),
-	m_NormalAttackRange(80.0f),
-	m_NormalAttackRadius(60.0f)
+	m_NormalAttackRange(200.0f),
+	m_NormalAttackRadius(200.0f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -254,12 +254,26 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 
 void AMainPlayer::CheckNormalAttackCollision()
 {
+	//FHitResult HitResult;
+	//FCollisionQueryParams Params(NAME_None, false, this);
+
+	//bool bResult = GetWorld()->SweepSingleByChannel(
+	//	HitResult,
+	//	GetActorLocation(),
+	//	GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange,
+	//	FQuat::Identity,
+	//	ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
+	//	FCollisionShape::MakeSphere(m_NormalAttackRadius),
+	//	Params);
+
+	TArray<FHitResult> detectedObjects;
+
 	FHitResult HitResult;
 	FCollisionQueryParams Params(NAME_None, false, this);
 
-	bool bResult = GetWorld()->SweepSingleByChannel(
-		HitResult,
-		GetActorLocation()+300.0f,
+	bool bResult = GetWorld()->SweepMultiByChannel(
+		detectedObjects,
+		GetActorLocation(),
 		GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange,
 		FQuat::Identity,
 		ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
@@ -286,15 +300,18 @@ void AMainPlayer::CheckNormalAttackCollision()
 		DebugLifeTime);
 #endif
 
+
 	if (bResult)
 	{
-		if (HitResult.GetActor() != nullptr)
+		for (auto& dectedObject : detectedObjects)
 		{
-			FDamageEvent DamageEvent;
-			HitResult.GetActor()->TakeDamage(50.0f, DamageEvent, GetController(), this);
+			if (dectedObject.GetActor() != nullptr)
+			{
+				FDamageEvent DamageEvent;
+				dectedObject.GetActor()->TakeDamage(50.0f, DamageEvent, GetController(), this);
+			}
 		}
 	}
-	
 }
 
 void AMainPlayer::initComponents()
