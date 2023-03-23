@@ -35,9 +35,5 @@ EBTNodeResult::Type UBTT_UpdateMeleeMinionState::ExecuteTask(UBehaviorTreeCompon
 		//UE_LOG(LogTemp, Warning, TEXT(" Attack :: distance To Enemy : %f"), distanceToEnemy);
 	}
 
-	//OwnerComp.GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, ENormalMinionStates::Attack);
-	//UE_LOG(LogTemp, Warning, TEXT("Call UpdateMeleeMinionState"));
-
-
 	return EBTNodeResult::Succeeded;
 }

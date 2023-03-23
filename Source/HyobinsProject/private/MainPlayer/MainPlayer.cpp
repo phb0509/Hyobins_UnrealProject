@@ -29,8 +29,8 @@ AMainPlayer::AMainPlayer() :
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
 	m_NormalAttackMaxCombo(4),
-	m_NormalAttackRange(200.0f),
-	m_NormalAttackRadius(200.0f)
+	m_NormalAttackRange(50.0f),
+	m_NormalAttackRadius(70.0f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -123,12 +123,10 @@ void AMainPlayer::updateState()
 	{
 		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
 	}
-
 }
 
 void AMainPlayer::normalComboAttack()
 {
-
 	if (m_bIsAttacking) 
 	{
 		if (m_bCanNextCombo)
@@ -254,18 +252,6 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 
 void AMainPlayer::CheckNormalAttackCollision()
 {
-	//FHitResult HitResult;
-	//FCollisionQueryParams Params(NAME_None, false, this);
-
-	//bool bResult = GetWorld()->SweepSingleByChannel(
-	//	HitResult,
-	//	GetActorLocation(),
-	//	GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange,
-	//	FQuat::Identity,
-	//	ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
-	//	FCollisionShape::MakeSphere(m_NormalAttackRadius),
-	//	Params);
-
 	TArray<FHitResult> detectedObjects;
 
 	FHitResult HitResult;
@@ -288,7 +274,7 @@ void AMainPlayer::CheckNormalAttackCollision()
 	float HalfHeight = m_NormalAttackRange * 0.5f + m_NormalAttackRadius;
 	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
 	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
-	float DebugLifeTime = 5.0f;
+	float DebugLifeTime = 3.0f;
 
 	DrawDebugCapsule(GetWorld(),
 		Center,
@@ -299,7 +285,6 @@ void AMainPlayer::CheckNormalAttackCollision()
 		false,
 		DebugLifeTime);
 #endif
-
 
 	if (bResult)
 	{

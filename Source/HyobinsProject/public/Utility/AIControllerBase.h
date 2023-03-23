@@ -28,6 +28,8 @@ protected:
 	void LoadBehaviorTree(FString assetPath);
 	void LoadBlackBoard(FString assetPath);
 
+	UBlackboardComponent* GetBlackBoard() { return Blackboard; }
+
 protected:
 	UPROPERTY()
 		UBehaviorTree* m_BehaviorTree;

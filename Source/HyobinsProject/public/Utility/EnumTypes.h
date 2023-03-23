@@ -25,7 +25,8 @@ enum class ENormalMinionStates : uint8
 	Chase   UMETA(DisplayName = "Chase"),
 	Attack	UMETA(DisplayName = "Attack"),
 	Hit		UMETA(DisplayName = "Hit"),
-	Die     UMETA(DisplayName = "Die")
+	Die     UMETA(DisplayName = "Die"),
+	End     UMETA(DisplayName = "End")
 };
 
 UENUM(BlueprintType)

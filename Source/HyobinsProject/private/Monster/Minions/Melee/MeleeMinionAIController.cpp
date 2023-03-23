@@ -27,10 +27,11 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 	Super::OnPossess(pawn);
 
 	UBlackboardComponent* BlackboardComponent = Blackboard;
-
+	
 	m_Owner = Cast<AMeleeMinion>(pawn);
 
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
+	
 
 	if (UseBlackboard(m_BlackboardData, BlackboardComponent))
 	{
@@ -85,19 +86,19 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 			}
 
 			// 로그출력
-			FString logString = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
+			FString log = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
 
 			switch (Stimulus.Type)
 			{
 			case 0: // react to sight stimulus
 			{
-				logString += " Using 'SightPerception'";
+				log += " Using 'SightPerception'";
 				break;
 			}
 
 			case 1: // react to hearing;
 			{
-				logString += " Using 'HearingPerception'";
+				log += " Using 'HearingPerception'";
 				break;
 			}
 
@@ -105,7 +106,7 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 				break;
 			}
 
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *logString);
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 		}
 	}
 }

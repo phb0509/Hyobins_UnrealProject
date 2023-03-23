@@ -22,7 +22,7 @@ public:
 
 
 	ENormalMinionStates GetState() { return m_CurState; }
-	void SetState(ENormalMinionStates state) { m_CurState = state; }
+	void SetState(ENormalMinionStates state);
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
 
 
@@ -37,7 +37,10 @@ private:
 	void updateState();
 
 	UFUNCTION()
-		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	void onNormalAttackMontageEnded();
+	void onHitMontageEnded();
 	
 public:
 	static int TagCount;
@@ -46,6 +49,7 @@ private:
 	ENormalMinionStates m_CurState;
 
 	TWeakObjectPtr<class UMeleeMinionAnim> m_ABPAnimInstance;
+	
 	
 	UPROPERTY(VisibleAnywhere, Category = Collision)
 		class UCapsuleComponent* m_HitCollider;

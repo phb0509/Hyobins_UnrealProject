@@ -43,7 +43,7 @@ void UMeleeMinionAnim::PlayNormalAttackMontage()
 
 void UMeleeMinionAnim::PlayOnHitMontage()
 {
-	Montage_Play(m_OnHitMontage,0.2f);
+	Montage_Play(m_OnHitMontage,0.5f);
 }
 
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.

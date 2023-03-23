@@ -17,6 +17,7 @@ AMeleeMinion::AMeleeMinion() :
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	m_Name = "MeleeMinion" + FString::FromInt(++TagCount);
+	ActorHasTag();
 
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'");
@@ -35,6 +36,7 @@ AMeleeMinion::AMeleeMinion() :
 	//initComponents();
 	//initCollisions();
 	//initAttackInformations();
+	
 }
 
 void AMeleeMinion::PostInitializeComponents()
@@ -47,10 +49,11 @@ void AMeleeMinion::BeginPlay()
 	Super::BeginPlay();
 
 	m_ABPAnimInstance = Cast<UMeleeMinionAnim>(GetMesh()->GetAnimInstance());
+	//m_AIController = Cast<AMeleeMinionAIController>(GetController());
 
 	if (m_ABPAnimInstance.IsValid())
 	{
-		m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnNormalAttackMontageEnded); // 공격몽타주 재생완료시 호출할 함수 바인딩.
+		m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 공격몽타주 재생완료시 호출할 함수 바인딩.
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is Valid"));
 	}
 	else
@@ -61,8 +64,15 @@ void AMeleeMinion::BeginPlay()
 
 float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	ACharacterBase* damageCauser = Cast<ACharacterBase>(DamageCauser);
+	FString log = m_Name + " is Attacked by a " + damageCauser->GetName();
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
+
 	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	m_ABPAnimInstance->PlayOnHitMontage();
+	SetState(ENormalMinionStates::Hit);
+	
+
 	return FinalDamage;
 }
 
@@ -79,6 +89,14 @@ void AMeleeMinion::NormalAttack()
 	m_bIsAttacking = true;
 
 	m_ABPAnimInstance->PlayNormalAttackMontage();
+}
+
+void AMeleeMinion::SetState(ENormalMinionStates state)
+{
+	m_CurState = state; 
+	AMeleeMinionAIController* owernAIController = Cast<AMeleeMinionAIController>(GetController());
+	owernAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+	
 }
 
 void AMeleeMinion::initComponents()
@@ -114,8 +132,28 @@ void AMeleeMinion::updateState()
 	}
 }
 
-void AMeleeMinion::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었을 경우 호출.
+void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었을 경우 호출.
+{
+	int curState = (uint8)m_CurState;
+
+	switch (curState)
+	{
+	case (uint8)ENormalMinionStates::Attack:
+		onNormalAttackMontageEnded();
+		break;
+	case (uint8)ENormalMinionStates::Hit:
+		onHitMontageEnded();
+		break;
+
+	}
+}
+
+void AMeleeMinion::onNormalAttackMontageEnded()
 {
 	m_bIsAttacking = false;
-	//updateNormalAttackStateOnEnd();
+}
+
+void AMeleeMinion::onHitMontageEnded()
+{
+	SetState(ENormalMinionStates::Patrol);
 }

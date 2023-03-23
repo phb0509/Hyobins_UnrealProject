@@ -43,3 +43,9 @@ void AAIControllerBase::LoadBlackBoard(FString assetPath)
 
 	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));
 }
+
+//UBlackboardComponent* AAIControllerBase::GetBlackBoard()
+//{
+//	UBlackboardComponent* temp = Cast< UBlackboardComponent>(Blackboard);
+//	return temp;
+//}
