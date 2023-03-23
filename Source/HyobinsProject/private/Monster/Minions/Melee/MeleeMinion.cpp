@@ -16,8 +16,7 @@ AMeleeMinion::AMeleeMinion() :
 	AIControllerClass = AMeleeMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	m_Name = "MeleeMinion" + FString::FromInt(++TagCount);
-	ActorHasTag();
+	Tags.Add(FName("MeleeMinion" + FString::FromInt(++TagCount)));
 
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'");
@@ -65,7 +64,7 @@ void AMeleeMinion::BeginPlay()
 float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	ACharacterBase* damageCauser = Cast<ACharacterBase>(DamageCauser);
-	FString log = m_Name + " is Attacked by a " + damageCauser->GetName();
+	FString log = Tags[0].ToString() + " is Attacked by a " + damageCauser->Tags[0].ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
 	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);

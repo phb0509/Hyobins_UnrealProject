@@ -86,7 +86,8 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 			}
 
 			// 로그출력
-			FString log = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
+			//FString log = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
+			FString log = "'" + m_Owner->Tags[0].ToString() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->Tags[0].ToString() + "'";
 
 			switch (Stimulus.Type)
 			{

@@ -17,7 +17,6 @@ class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 public:
 	ACharacterBase();
 
-	FString GetName() { return m_Name; }
 	float GetCurSpeed() { return m_CurSpeed; }
 	bool GetIsIdle() { return m_bIsIdle; }
 	bool GetIsWalking() { return m_bIsWalking; }
@@ -34,7 +33,6 @@ protected:
 
 	float m_MaxHP;
 	float m_CurHP;
-	FString m_Name;
 
 	float m_CurSpeed;
 	float m_WalkSpeed;
