@@ -53,6 +53,7 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FNam
 			}
 
 			FAttackInfoStruct temp;
+			temp.attackName = attackName;
 			temp.damage = data.damage;
 			temp.bIsDot = data.bIsDot;
 			temp.bHasCrowdControl = data.bHasCrowdControl;

@@ -70,7 +70,7 @@ float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 	
-	FString log = Tags[0].ToString() + " takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString();
+	FString log = Tags[0].ToString() + " takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
 	m_ABPAnimInstance->PlayOnHitMontage();

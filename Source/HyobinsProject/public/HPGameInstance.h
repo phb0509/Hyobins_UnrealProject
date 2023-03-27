@@ -16,7 +16,10 @@ struct FHPAttackInformationData : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-	FHPAttackInformationData() : damage(-1.0f), bIsDot(false), bHasCrowdControl(false), crowdControlType("None"), crowdControlTime(-1.0f), bHasKnockBack(false), knockBackTime(-1.0f), knockBackDistance(-1.0f) {}
+	FHPAttackInformationData() : attackName(""), damage(-1.0f), bIsDot(false), bHasCrowdControl(false), crowdControlType("None"), crowdControlTime(-1.0f), bHasKnockBack(false), knockBackTime(-1.0f), knockBackDistance(-1.0f) {}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+		FName attackName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 		float damage;
