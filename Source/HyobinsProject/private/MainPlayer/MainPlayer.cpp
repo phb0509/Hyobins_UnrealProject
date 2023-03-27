@@ -294,7 +294,8 @@ void AMainPlayer::CheckNormalAttackCollision()
 			if (dectedObject.GetActor() != nullptr)
 			{
 				FDamageEvent DamageEvent;
-				dectedObject.GetActor()->TakeDamage(50.0f, DamageEvent, GetController(), this);
+				dectedObject.GetActor()->TakeDamage(50.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+				
 			}
 		}
 	}

@@ -61,17 +61,21 @@ void AMeleeMinion::BeginPlay()
 	}
 }
 
+
 float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	ACharacterBase* damageCauser = Cast<ACharacterBase>(DamageCauser);
-	FString log = Tags[0].ToString() + " is Attacked by a " + damageCauser->Tags[0].ToString();
+	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
+	
+	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
+	
+	FString log = Tags[0].ToString() + " takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
-	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	m_ABPAnimInstance->PlayOnHitMontage();
 	SetState(ENormalMinionStates::Hit);
 	
-
 	return FinalDamage;
 }
 

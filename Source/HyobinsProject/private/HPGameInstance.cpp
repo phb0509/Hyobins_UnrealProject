@@ -52,7 +52,17 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FNam
 				crowdControlType = ECrowdControlType((uint8)Index);
 			}
 
-			attackInformations.Add(attackName, { data.damage,data.bIsDot,data.bHasCrowdControl,crowdControlType,data.crowdControlTime,data.bHasKnockBack,data.knockBackTime,data.knockBackDistance });
+			FAttackInfoStruct temp;
+			temp.damage = data.damage;
+			temp.bIsDot = data.bIsDot;
+			temp.bHasCrowdControl = data.bHasCrowdControl;
+			temp.crowdControlType = crowdControlType;
+			temp.crowdControlTime = data.crowdControlTime;
+			temp.bHasKnockBack = data.bHasKnockBack;
+			temp.knockBackTime = data.knockBackTime;
+			temp.knockBackDistance = data.knockBackDistance;
+
+			attackInformations.Add(attackName,temp);
 		}
 	}
 }

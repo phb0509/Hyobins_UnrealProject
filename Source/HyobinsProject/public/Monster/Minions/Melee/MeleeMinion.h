@@ -20,7 +20,6 @@ public:
 
 	void NormalAttack();
 
-
 	ENormalMinionStates GetState() { return m_CurState; }
 	void SetState(ENormalMinionStates state);
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
