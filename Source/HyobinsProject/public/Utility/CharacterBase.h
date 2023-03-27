@@ -33,9 +33,10 @@ protected:
 
 	float m_MaxHP;
 	float m_CurHP;
-
 	float m_CurSpeed;
 	float m_WalkSpeed;
+	float m_HitRecovery;
+
 	bool m_bIsIdle;
 	bool m_bIsWalking;
 	bool m_bIsInAir;

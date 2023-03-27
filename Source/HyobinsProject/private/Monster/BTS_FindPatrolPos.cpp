@@ -17,20 +17,21 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
-	AMonster* monster = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 
-	checkf(IsValid(monster), TEXT("monster is not Valid"));
+	checkf(IsValid(owner), TEXT("Monster is not Valid"));
 
-	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(monster->GetWorld());
+	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(owner->GetWorld());
 
 	checkf(IsValid(NavSystem), TEXT("NavSystem is not Valid"));
 
-	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector("HomePos");
+	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AMonster::HomePosKey);
 	FNavLocation NextPatrol;
 
-	if (NavSystem->GetRandomPointInNavigableRadius(Origin, monster->GetPatrolRange(), NextPatrol))
+	if (NavSystem->GetRandomPointInNavigableRadius(Origin, owner->GetPatrolRange(), NextPatrol))
 	{
-		OwnerComp.GetBlackboardComponent()->SetValueAsVector("PatrolPos", NextPatrol.Location);
+		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMonster::PatrolPosKey, NextPatrol.Location);
 	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Call FindPath"));
 }

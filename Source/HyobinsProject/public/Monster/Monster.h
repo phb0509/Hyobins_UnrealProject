@@ -6,6 +6,7 @@
 #include "Utility/CharacterBase.h"
 #include "Monster.generated.h"
 
+
 UCLASS()
 class HYOBINSPROJECT_API AMonster : public ACharacterBase
 {
@@ -13,6 +14,8 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase
 
 public:
 	AMonster();
+
+	virtual void SetStateToNextState(FString state) {}
 
 	float GetPatrolRange() { return m_PatrolRange; }
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
@@ -26,7 +29,10 @@ public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
 	static const FName EnemyKey;
+	static const FName HitRecoveryKey;
 	static const FName StateKey;
+	static const FName NextStateKey;
+
 
 
 protected:
@@ -35,5 +41,4 @@ protected:
 	float m_NormalAttackRange;
 	bool m_bIsAttacking;
 
-	
 };

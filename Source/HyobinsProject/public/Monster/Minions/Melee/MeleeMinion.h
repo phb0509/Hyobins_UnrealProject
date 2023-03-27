@@ -18,6 +18,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 
+	virtual void SetStateToNextState(FString state) override;
+
 	void NormalAttack();
 
 	ENormalMinionStates GetState() { return m_CurState; }
@@ -46,6 +48,7 @@ public:
 
 private:
 	ENormalMinionStates m_CurState;
+	ENormalMinionStates m_NextState;
 
 	TWeakObjectPtr<class UMeleeMinionAnim> m_ABPAnimInstance;
 	
