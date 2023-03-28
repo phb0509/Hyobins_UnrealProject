@@ -23,7 +23,7 @@ AMeleeMinion::AMeleeMinion() :
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'");
 
-	m_HitRecovery = 2.0f;
+	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
 
 	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));

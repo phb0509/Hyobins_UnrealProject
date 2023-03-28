@@ -32,7 +32,6 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
 	
-
 	if (UseBlackboard(m_BlackboardData, BlackboardComponent))
 	{
 		Blackboard->SetValueAsVector(AMonster::HomePosKey, pawn->GetActorLocation());
@@ -68,13 +67,21 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 			{
 				ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
 
-				if (enemyOnBlackBoard == nullptr)
+				if (enemyOnBlackBoard == nullptr) // 시야범위 안으로 적이 들어왔을 때
 				{
 					Blackboard->SetValueAsObject(AMonster::EnemyKey, perceivedCharacter);
 				}
-				else
+				else // 시야범위 밖으로 적이 나갔을 때 or 범위 안에있는데 다른 물체에 의해 가려졌을 경우
 				{
-					Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);
+					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::Attack)
+					{
+						// 타겟유지.
+					}
+					else
+					{
+						m_Owner->SetState(ENormalMinionStates::Patrol);
+						Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);
+					}
 				}
 
 				teamTypeName = "Enemy::";
@@ -86,12 +93,11 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 			}
 
 			// 로그출력
-			//FString log = "'" + m_Owner->GetName() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->GetName() + "'";
 			FString log = "'" + m_Owner->Tags[0].ToString() + "'" + " Sensing " + "'" + teamTypeName + perceivedCharacter->Tags[0].ToString() + "'";
 
 			switch (Stimulus.Type)
 			{
-			case 0: // react to sight stimulus
+			case 0: // react to sight;
 			{
 				log += " Using 'SightPerception'";
 				break;
@@ -117,8 +123,8 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	checkf(IsValid(m_SightConfig), TEXT("SightConfig is not Valid"));
 
-	m_SightRadius = 600.0f;
-	m_LoseSightRadius = 700.0f;
+	m_SightRadius = 1000.0f;
+	m_LoseSightRadius = 1100.0f;
 	m_PeripheralVisionHalfAngle = 180.0f;
 	m_AILastSeenLocation = 0.0f;
 	m_AISightAge = 0.0f;
