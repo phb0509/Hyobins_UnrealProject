@@ -15,7 +15,7 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase
 public:
 	AMonster();
 
-	virtual void SetStateToNextState(FString state) {}
+	virtual void SetStateToNextState(int state) {}
 
 	float GetPatrolRange() { return m_PatrolRange; }
 	float GetNormalAttackRange() { return m_NormalAttackRange; }

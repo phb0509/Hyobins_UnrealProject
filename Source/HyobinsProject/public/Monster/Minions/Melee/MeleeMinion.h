@@ -18,7 +18,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 
-	virtual void SetStateToNextState(FString state) override;
+	virtual void SetStateToNextState(int state) override;
 
 	void NormalAttack();
 
@@ -36,6 +36,7 @@ private:
 	void initCollisions();
 	void initAttackInformations();
 	void updateState();
+	void CheckOnHitTimer();
 
 	UFUNCTION()
 		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -52,8 +53,9 @@ private:
 
 	TWeakObjectPtr<class UMeleeMinionAnim> m_ABPAnimInstance;
 	
-	
 	UPROPERTY(VisibleAnywhere, Category = Collision)
 		class UCapsuleComponent* m_HitCollider;
+
+	
 
 };

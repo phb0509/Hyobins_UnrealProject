@@ -17,6 +17,7 @@ EBTNodeResult::Type UBTT_UpdateMeleeMinionState::ExecuteTask(UBehaviorTreeCompon
 
 	AMeleeMinion* owner = Cast<AMeleeMinion>(OwnerComp.GetAIOwner()->GetPawn());
 	ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
+	checkf(IsValid(owner), TEXT("Owner is not Valid"));
 
 	float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
 

@@ -9,6 +9,7 @@ ACharacterBase::ACharacterBase() :
 	m_CurSpeed(0.0f),
 	m_WalkSpeed(200.0f),
 	m_HitRecovery(1.0f),
+	m_OnHitTimer(1.0f),
 	m_bIsIdle(true),
 	m_bIsWalking(false),
 	m_bIsInAir(false)

@@ -5,6 +5,7 @@
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
 #include "Monster/Minions/Melee/MeleeMinionAnim.h"
 #include <GameFramework/CharacterMovementComponent.h>
+#include "TimerManager.h"
 #include <Components/CapsuleComponent.h>
 
 int AMeleeMinion::TagCount(0);
@@ -27,12 +28,10 @@ AMeleeMinion::AMeleeMinion() :
 
 	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
 	m_HitCollider->SetupAttachment(RootComponent);
-	//m_HitCollider->SetWorldTransform(collisionTransform);
 	m_HitCollider->SetCapsuleHalfHeight(60.0f);
 	m_HitCollider->SetCapsuleRadius(60.0f);
 	m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
-	//m_HitCollider->SetCollisionObjectType(ECollisionChannel::);
-	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly); // 필요할때만 키기
+	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	//initComponents();
 	//initCollisions();
@@ -45,10 +44,9 @@ void AMeleeMinion::PostInitializeComponents()
 	Super::PostInitializeComponents();
 }
 
-void AMeleeMinion::SetStateToNextState(FString state)
+void AMeleeMinion::SetStateToNextState(int state)
 {
 	SetState(ENormalMinionStates::Patrol);
-	UE_LOG(LogTemp, Warning, TEXT("VirtualFunction is Caleed!"));
 }
 
 void AMeleeMinion::BeginPlay()
@@ -56,7 +54,6 @@ void AMeleeMinion::BeginPlay()
 	Super::BeginPlay();
 
 	m_ABPAnimInstance = Cast<UMeleeMinionAnim>(GetMesh()->GetAnimInstance());
-	//m_AIController = Cast<AMeleeMinionAIController>(GetController());
 
 	if (m_ABPAnimInstance.IsValid())
 	{
@@ -74,7 +71,8 @@ float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
-	
+	checkf(IsValid(instigatorCharacter), TEXT("instigatorCharacter is not Valid"));
+	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 	
 	m_ABPAnimInstance->PlayOnHitMontage();
@@ -85,6 +83,17 @@ float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 
 	m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
 
+	// Timer Setting.
+
+	m_OnHitTimer = m_HitRecovery * attackInformation->knockBackTime;
+	
+	if (GetWorldTimerManager().IsTimerActive(m_OnHitTimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+	}
+
+	GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &AMeleeMinion::CheckOnHitTimer, m_OnHitTimer, true);
+	
 	// 로그.
 	FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
@@ -154,6 +163,14 @@ void AMeleeMinion::updateState()
 	}
 }
 
+void AMeleeMinion::CheckOnHitTimer()
+{
+	SetState(ENormalMinionStates::Patrol);
+
+	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+	UE_LOG(LogTemp, Warning, TEXT("Call TimerFunction!!!!!!!"));
+}
+
 void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었을 경우 호출.
 {
 	int curState = (uint8)m_CurState;
@@ -178,5 +195,5 @@ void AMeleeMinion::onNormalAttackMontageEnded()
 
 void AMeleeMinion::onHitMontageEnded()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnHitMontageEnde!!"));
+	//UE_LOG(LogTemp, Warning, TEXT("OnHitMontageEnde!!"));
 }

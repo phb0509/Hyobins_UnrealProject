@@ -30,12 +30,14 @@ protected:
 
 protected:
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
+	FTimerHandle m_OnHitTimerHandle;
 
 	float m_MaxHP;
 	float m_CurHP;
 	float m_CurSpeed;
 	float m_WalkSpeed;
 	float m_HitRecovery;
+	float m_OnHitTimer;
 
 	bool m_bIsIdle;
 	bool m_bIsWalking;
