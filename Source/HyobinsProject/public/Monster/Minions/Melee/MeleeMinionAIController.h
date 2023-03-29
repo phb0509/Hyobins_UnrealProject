@@ -15,7 +15,8 @@ class HYOBINSPROJECT_API AMeleeMinionAIController : public AAIControllerBase
 	GENERATED_BODY()
 
 public:
-	AMeleeMinionAIController();
+	//AMeleeMinionAIController();
+	AMeleeMinionAIController(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;

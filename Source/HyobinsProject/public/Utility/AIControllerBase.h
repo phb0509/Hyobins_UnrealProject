@@ -22,7 +22,8 @@ class HYOBINSPROJECT_API AAIControllerBase : public AAIController
 	GENERATED_BODY()
 	
 public:
-	AAIControllerBase();
+	//AAIControllerBase();
+	AAIControllerBase(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	void LoadBehaviorTree(FString assetPath);
