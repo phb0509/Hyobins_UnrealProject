@@ -57,7 +57,7 @@ void AMeleeMinion::BeginPlay()
 
 	if (m_ABPAnimInstance.IsValid())
 	{
-		m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 공격몽타주 재생완료시 호출할 함수 바인딩.
+		m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is Valid"));
 	}
 	else
@@ -74,17 +74,20 @@ float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEve
 	checkf(IsValid(instigatorCharacter), TEXT("instigatorCharacter is not Valid"));
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
-	
-	m_ABPAnimInstance->PlayOnHitMontage();
-	SetState(ENormalMinionStates::Hit);
+
+	m_CurHP -= attackInformation->damage;
+	m_ABPAnimInstance->PlayOnHitMontage(0);
+	m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
+	// 여기까지는 CharacterBase의 TakeDamage로 묶을 수 있다.
+
 
 	AMeleeMinionAIController* owernAIController = Cast<AMeleeMinionAIController>(GetController());
 	owernAIController->GetBlackboardComponent()->SetValueAsFloat(AMonster::HitRecoveryKey, m_HitRecovery * attackInformation->knockBackTime);
+	// 여기까지는 Monster의 TakeDamage로 묶을 수 있다. ownerAIController는 그냥 원시 AIController로 해도 상관없기 때문.
 
-	m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
+	SetState(ENormalMinionStates::Hit);
 
 	// Timer Setting.
-
 	m_OnHitTimer = m_HitRecovery * attackInformation->knockBackTime;
 	
 	if (GetWorldTimerManager().IsTimerActive(m_OnHitTimerHandle))
@@ -171,7 +174,7 @@ void AMeleeMinion::CheckOnHitTimer()
 	UE_LOG(LogTemp, Warning, TEXT("Call TimerFunction!!!!!!!"));
 }
 
-void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었을 경우 호출.
+void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 현재 재생중인 몽타주의 재생이 끝났을 시 호출.
 {
 	int curState = (uint8)m_CurState;
 
@@ -180,9 +183,9 @@ void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // �
 	case (uint8)ENormalMinionStates::Attack:
 		onNormalAttackMontageEnded();
 		break;
-	case (uint8)ENormalMinionStates::Hit:
+	/*case (uint8)ENormalMinionStates::Hit:
 		onHitMontageEnded();
-		break;
+		break;*/
 	default:
 		break;
 	}
@@ -196,4 +199,8 @@ void AMeleeMinion::onNormalAttackMontageEnded()
 void AMeleeMinion::onHitMontageEnded()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("OnHitMontageEnde!!"));
+}
+
+void AMeleeMinion::Die()
+{
 }

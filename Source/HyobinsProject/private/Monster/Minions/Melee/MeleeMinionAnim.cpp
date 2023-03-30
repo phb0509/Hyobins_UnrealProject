@@ -5,15 +5,10 @@
 #include "Monster/Minions/Melee/MeleeMinion.h"
 
 
-UMeleeMinionAnim::UMeleeMinionAnim() :
-	m_CurSpeed(0.0f),
-	m_bIsIdle(true),
-	m_bIsWalking(false),
-	m_bIsInAir(false),
-	m_bIsAttacking(false)
+UMeleeMinionAnim::UMeleeMinionAnim()
+
 {
 	loadMontages();
-
 }
 
 void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)	
@@ -41,10 +36,7 @@ void UMeleeMinionAnim::PlayNormalAttackMontage()
 	Montage_Play(m_AttackMontages[randomIndex], 1.0f); // 낮을수록 느리게 재생.
 }
 
-void UMeleeMinionAnim::PlayOnHitMontage()
-{
-	Montage_Play(m_OnHitMontage,1.0f);
-}
+
 
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
@@ -82,6 +74,14 @@ void UMeleeMinionAnim::loadMontages()
 
 	if (onHitMontage.Succeeded())
 	{
-		m_OnHitMontage = onHitMontage.Object;
+		m_OnHitMontages.Add(onHitMontage.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> deathMontage
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/Death.Death'"));
+
+	if (deathMontage.Succeeded())
+	{
+		m_DeathMontages.Add(deathMontage.Object);
 	}
 }

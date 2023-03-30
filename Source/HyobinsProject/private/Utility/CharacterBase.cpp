@@ -12,9 +12,10 @@ ACharacterBase::ACharacterBase() :
 	m_OnHitTimer(1.0f),
 	m_bIsIdle(true),
 	m_bIsWalking(false),
-	m_bIsInAir(false)
+	m_bIsInAir(false),
+	m_bIsSuperArmor(false)
 {
-	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint); // 블루프린트를 사용하겠다는 의미.
 }
 
 void ACharacterBase::LoadMesh(FString assetPath)
@@ -38,4 +39,6 @@ void ACharacterBase::LoadAnimInstance(FString assetPath)
 	{
 		GetMesh()->SetAnimInstanceClass(animInstance.Class);
 	}
+
+	//GetMesh()->GetAnimInstance()->
 }

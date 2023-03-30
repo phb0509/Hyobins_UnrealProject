@@ -355,7 +355,7 @@ void AMainPlayer::initSpringArm()
 	m_SpringArm->bInheritYaw = true;
 
 	// true로 할 경우, 카메라와 캐릭터사이에 장애물이 있을 경우, 줌 기능을 활성화 해준다.
-	m_SpringArm->bDoCollisionTest = true;
+	m_SpringArm->bDoCollisionTest = false;
 }
 
 void AMainPlayer::initTargetCamera()

@@ -27,6 +27,8 @@ protected:
 	void LoadMesh(FString assetPath);
 	void LoadAnimInstance(FString assetPath);
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override { return 0.0f; }
+	
 
 protected:
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
@@ -42,4 +44,5 @@ protected:
 	bool m_bIsIdle;
 	bool m_bIsWalking;
 	bool m_bIsInAir;
+	bool m_bIsSuperArmor;
 };

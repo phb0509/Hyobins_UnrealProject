@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
+//#include "Animation/AnimInstance.h"
+#include "Utility/AnimInstanceBase.h"
 #include "MeleeMinionAnim.generated.h"
 
 
 DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate);
 
 UCLASS()
-class HYOBINSPROJECT_API UMeleeMinionAnim : public UAnimInstance
+class HYOBINSPROJECT_API UMeleeMinionAnim : public UAnimInstanceBase
 {
 	GENERATED_BODY()
 	
@@ -19,7 +20,7 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	void PlayNormalAttackMontage();
-	void PlayOnHitMontage();
+
 
 
 private:
@@ -34,24 +35,5 @@ public:
 private:
 	TWeakObjectPtr<class AMeleeMinion> m_Owner;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		float m_CurSpeed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsIdle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsWalking;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsInAir;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsAttacking;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = true))
-		TArray<UAnimMontage*> m_AttackMontages;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = true))
-		UAnimMontage* m_OnHitMontage;
 };

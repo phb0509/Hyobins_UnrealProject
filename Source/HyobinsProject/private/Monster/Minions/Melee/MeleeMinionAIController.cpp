@@ -4,19 +4,6 @@
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
 #include "Monster/Minions/Melee/MeleeMinion.h"
 
-
-
-//AMeleeMinionAIController::AMeleeMinionAIController()
-//{
-//	m_TeamID = FGenericTeamId(4);
-//	LoadBehaviorTree("BehaviorTree'/Game/MonsterAsset/Minion/BT_MeleeMinion.BT_MeleeMinion'");
-//	LoadBlackBoard("BlackboardData'/Game/MonsterAsset/Minion/BB_MeleeMinion.BB_MeleeMinion'");
-//
-//	initPerceptionSystem();
-//
-//	UE_LOG(LogTemp, Warning, TEXT(" Call The AMeleeMinionAIController has not parameter"));
-//}
-
 AMeleeMinionAIController::AMeleeMinionAIController(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
 {

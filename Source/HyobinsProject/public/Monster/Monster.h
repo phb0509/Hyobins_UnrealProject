@@ -24,6 +24,8 @@ public:
 	bool GetIsWalking() { return m_bIsWalking; }
 	bool GetIsAttacking() { return m_bIsAttacking; }
 
+protected:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override { return 0.0f; }
 
 public:
 	static const FName HomePosKey;
@@ -34,9 +36,8 @@ public:
 	static const FName NextStateKey;
 
 
-
 protected:
-	TMap<FString, FAttackInfoStruct> m_AttackInformations;
+	//TMap<FString, FAttackInfoStruct> m_AttackInformations;
 	float m_PatrolRange;
 	float m_NormalAttackRange;
 	bool m_bIsAttacking;

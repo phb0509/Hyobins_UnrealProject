@@ -43,6 +43,7 @@ private:
 
 	void onNormalAttackMontageEnded();
 	void onHitMontageEnded();
+	void Die();
 	
 public:
 	static int TagCount;

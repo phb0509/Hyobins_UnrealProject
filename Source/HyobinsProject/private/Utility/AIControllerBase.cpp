@@ -1,28 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Utility/AIControllerBase.h"
-#include "Navigation/CrowdFollowingComponent.h"
-
-//AAIControllerBase::AAIControllerBase() :
-//	m_TeamID(FGenericTeamId(0)),
-//	m_SightRadius(300.0f),
-//	m_LoseSightRadius(400.0f),
-//	m_PeripheralVisionHalfAngle(90.0f),
-//	m_AISightAge(5.0f),
-//	m_AILastSeenLocation(900.0f)
-//{
-//	m_BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
-//	checkf(IsValid(m_BehaviorTreeComponent), TEXT("m_BehaviorTreeComponent is not Valid"));
-//
-//	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerceptionComponent_CreatedC++");
-//	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
-//
-//	UE_LOG(LogTemp, Warning, TEXT(" Call The AIControllerBase has not parameter"));
-//}
+//#include "Navigation/CrowdFollowingComponent.h"
 
 AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer) :
-	//Super(ObjectInitializer),
-	Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("DetourCrowdPathFollowingComponent"))),
+	Super(ObjectInitializer),
+	//Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))),
 	m_TeamID(FGenericTeamId(0)),
 	m_SightRadius(300.0f),
 	m_LoseSightRadius(400.0f),
@@ -38,7 +21,6 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 
 	UE_LOG(LogTemp, Warning, TEXT(" Call The AIControllerBase has parameter"));
 }
-
 
 void AAIControllerBase::LoadBehaviorTree(FString assetPath)
 {
