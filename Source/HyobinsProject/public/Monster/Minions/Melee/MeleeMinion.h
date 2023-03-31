@@ -33,27 +33,25 @@ protected:
 private:
 	void initComponents();
 	void initCollisions();
-	void initAttackInformations();
 	void updateState();
 	
-	UFUNCTION()
-		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
 	void onNormalAttackMontageEnded();
 	void onHitMontageEnded();
 	void Die();
-	
+
+	UFUNCTION()
+		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 public:
 	static int TagCount;
 
 private:
 	ENormalMinionStates m_CurState;
 
-	TWeakObjectPtr<class UMeleeMinionAnim> m_ABPAnimInstance;
+	TWeakObjectPtr<class UMeleeMinionAnim> m_AnimInstance;
+	TWeakObjectPtr<class AMeleeMinionAIController> m_AIController;
 	
 	UPROPERTY(VisibleAnywhere, Category = Collision)
 		class UCapsuleComponent* m_HitCollider;
 
 	
-
 };

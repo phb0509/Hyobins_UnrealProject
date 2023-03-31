@@ -25,35 +25,39 @@ AMeleeMinion::AMeleeMinion() :
 	m_PatrolRange = 500.0f;
 
 	initComponents();
-	//initAttackInformations();
 }
 
 void AMeleeMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-}
 
-void AMeleeMinion::BeginPlay()
-{
-	Super::BeginPlay();
+	m_AnimInstance = Cast<UMeleeMinionAnim>(GetMesh()->GetAnimInstance());
 
-	m_ABPAnimInstance = Cast<UMeleeMinionAnim>(GetMesh()->GetAnimInstance());
-
-	if (m_ABPAnimInstance.IsValid())
+	if (m_AnimInstance.IsValid())
 	{
-		m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
+		m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is Valid"));
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is not Valid"));
 	}
+
+	m_AIController = Cast<AMeleeMinionAIController>(GetController());
+	if (m_AIController.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is Valid"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
+	}
 }
 
-void AMeleeMinion::SetHitState()
+void AMeleeMinion::BeginPlay()
 {
-	m_ABPAnimInstance->PlayOnHitMontage(0);
-	SetState(ENormalMinionStates::Hit);
+	Super::BeginPlay();
+
 }
 
 void AMeleeMinion::Tick(float DeltaTime)
@@ -64,32 +68,23 @@ void AMeleeMinion::Tick(float DeltaTime)
 }
 void AMeleeMinion::NormalAttack()
 {
-	FString temp;
-
-	if (m_bIsAttacking) temp = "Attacking!!!";
-	else temp = "Not Attacking!!";
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *temp);
-
 	if (m_bIsAttacking) return;
 
 	m_bIsAttacking = true;
 
-	m_ABPAnimInstance->PlayNormalAttackMontage();
+	m_AnimInstance->PlayNormalAttackMontage();
 }
 
 void AMeleeMinion::SetState(ENormalMinionStates state)
 {
 	m_CurState = state;
-	AMeleeMinionAIController* owernAIController = Cast<AMeleeMinionAIController>(GetController());
-	owernAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+	m_AIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
-
-
-void AMeleeMinion::initAttackInformations()
+void AMeleeMinion::SetHitState()
 {
-
+	m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+	SetState(ENormalMinionStates::Hit);
 }
 
 void AMeleeMinion::OnHitTimerEnded()
@@ -124,7 +119,8 @@ void AMeleeMinion::onHitMontageEnded()
 
 void AMeleeMinion::Die()
 {
-
+	m_bIsDeath = true;
+	
 }
 
 void AMeleeMinion::initComponents()

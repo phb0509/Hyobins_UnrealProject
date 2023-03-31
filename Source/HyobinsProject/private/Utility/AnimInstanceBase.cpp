@@ -14,12 +14,3 @@ UAnimInstanceBase::UAnimInstanceBase() :
 
 }
 
-void UAnimInstanceBase::PlayOnHitMontage(int index)
-{
-	Montage_Play(m_OnHitMontages[index], 1.0f);
-}
-
-void UAnimInstanceBase::PlayDeathMontage(int index)
-{
-	Montage_Play(m_DeathMontages[index], 1.0f);
-}

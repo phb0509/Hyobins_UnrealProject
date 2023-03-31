@@ -29,9 +29,10 @@ public:
 protected:
 	void LoadMesh(FString assetPath);
 	void LoadAnimInstance(FString assetPath);
+	void initAttackInformations(FString path);
 
 	virtual void SetHitState() {};
-	void Die();
+	virtual void Die();
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	
@@ -55,4 +56,5 @@ protected:
 	bool m_bIsAttacking;
 	bool m_bIsInAir;
 	bool m_bIsSuperArmor;
+	bool m_bIsDeath;
 };

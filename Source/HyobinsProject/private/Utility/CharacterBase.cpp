@@ -16,7 +16,8 @@ ACharacterBase::ACharacterBase() :
 	m_bIsRunning(false),
 	m_bIsAttacking(false),
 	m_bIsInAir(false),
-	m_bIsSuperArmor(false)
+	m_bIsSuperArmor(false),
+	m_bIsDeath(false)
 {
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint); // 블루프린트를 사용하겠다는 의미.
 }
@@ -42,6 +43,14 @@ void ACharacterBase::LoadAnimInstance(FString assetPath)
 	{
 		GetMesh()->SetAnimInstanceClass(animInstance.Class);
 	}
+}
+
+void ACharacterBase::initAttackInformations(FString path)
+{
+	//FString dataPath = "DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'";
+
+	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	HPGameInstance->InitAttackInformations(path, m_AttackInformations);
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -86,12 +95,10 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void ACharacterBase::OnHitTimerEnded()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Call the ACharacterBase::OnHitTimerEnded"));
-
 	this->OnHitTimerEnded();
 }
 
 void ACharacterBase::Die()
 {
-
+	this->Die();
 }

@@ -19,10 +19,7 @@ AMeleeMinionAIController::AMeleeMinionAIController(const FObjectInitializer& Obj
 void AMeleeMinionAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	RunBehaviorTree(m_BehaviorTree);
-	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
-	
-	
+
 }
 
 void AMeleeMinionAIController::OnPossess(APawn* pawn)

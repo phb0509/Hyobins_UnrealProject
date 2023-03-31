@@ -20,6 +20,22 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
 }
 
+void AAIControllerBase::BeginPlay()
+{
+	Super::BeginPlay();
+	RunBehaviorTree(m_BehaviorTree);
+	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
+}
+
+
+void AAIControllerBase::StopBehaviorTree()
+{
+}
+
+void AAIControllerBase::PlayBehaviorTree()
+{
+}
+
 void AAIControllerBase::LoadBehaviorTree(FString assetPath)
 {
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject

@@ -43,7 +43,7 @@ AMainPlayer::AMainPlayer() :
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'");
 
 	initCollisions();
-	initAttackInformations();
+	initAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
 	updateNormalAttackStateOnEnd();
 }
 
@@ -51,11 +51,11 @@ void AMainPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	m_ABPAnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
+	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 
-	m_ABPAnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
-	m_ABPAnimInstance->OnNextNormalAttackCheck.AddUObject(this, &AMainPlayer::OnCalledCheckNextAttackNotify); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
-	m_ABPAnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::CheckNormalAttackCollision);
+	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
+	m_AnimInstance->OnNextNormalAttackCheck.AddUObject(this, &AMainPlayer::OnCalledCheckNextAttackNotify); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
+	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::CheckNormalAttackCollision);
 
 	if (GetCapsuleComponent() != nullptr)
 	{
@@ -136,8 +136,8 @@ void AMainPlayer::normalComboAttack()
 	else
 	{
 		updateNormalAttackStateOnStart();
-		m_ABPAnimInstance->PlayNormalAttackMontage();
-		m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
+		m_AnimInstance->PlayNormalAttackMontage();
+		m_AnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
 		m_bIsAttacking = true;
 	}
 }
@@ -155,7 +155,7 @@ void AMainPlayer::OnCalledCheckNextAttackNotify()
 	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되면
 	{
 		updateNormalAttackStateOnStart();
-		m_ABPAnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
+		m_AnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
 	}
 }
 
@@ -362,13 +362,7 @@ void AMainPlayer::initTargetCamera()
 	m_TargetCamera->SetupAttachment(m_SpringArm);
 }
 
-void AMainPlayer::initAttackInformations()
-{
-	FString dataPath = "DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'";
 
-	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	HPGameInstance->InitAttackInformations(dataPath, m_AttackInformations);
-}
 
 void AMainPlayer::checkIsValidComponants()
 {

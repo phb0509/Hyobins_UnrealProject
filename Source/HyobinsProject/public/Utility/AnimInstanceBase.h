@@ -17,8 +17,11 @@ class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
 public:
 	UAnimInstanceBase();
 	
-	virtual void PlayOnHitMontage(int index);
-	virtual void PlayDeathMontage(int index);
+	TArray<UAnimMontage*> GetAttackMontages() { return m_AttackMontages; }
+	TArray<UAnimMontage*> GetOnHitMontages() { return m_OnHitMontages; }
+	TArray<UAnimMontage*> GetDeathMontages() { return m_DeathMontages; }
+
+	
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)

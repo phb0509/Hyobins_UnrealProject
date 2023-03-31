@@ -55,7 +55,7 @@ private:
 	void initCollisions();
 	void initSpringArm();
 	void initTargetCamera();
-	void initAttackInformations();
+	
 	void checkIsValidComponants();
 	void updateState();
 	void normalComboAttack();
@@ -81,7 +81,7 @@ public:
 		class UCapsuleComponent* m_SwordCollider;
 
 private:
-	TWeakObjectPtr<class UMainPlayerAnim> m_ABPAnimInstance;
+	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;
 
 	float m_ArmLengthTo;
 	FRotator m_ArmRotationTo;
