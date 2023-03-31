@@ -87,16 +87,11 @@ private:
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
 	float m_ArmRotationSpeed;
-	float m_RunSpeed;
 	float m_MovdDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 	bool m_bIsPressingShift;
 	bool m_bIsCombated;
-	bool m_bIsRunning;
 	bool m_bIsHit;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		bool m_bIsAttacking;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bCanNextCombo;

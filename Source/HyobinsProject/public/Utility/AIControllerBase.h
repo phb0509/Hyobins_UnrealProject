@@ -15,23 +15,25 @@
 #include "AIControllerBase.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class HYOBINSPROJECT_API AAIControllerBase : public AAIController
 {
 	GENERATED_BODY()
-	
+
 public:
 	//AAIControllerBase();
 	AAIControllerBase(const FObjectInitializer& ObjectInitializer);
-	
+
 
 protected:
 	void LoadBehaviorTree(FString assetPath);
 	void LoadBlackBoard(FString assetPath);
 
 	UBlackboardComponent* GetBlackBoard() { return Blackboard; }
+	//UBehaviorTree* GetBehaviorTree() { return m_BehaviorTree; }
+	//UBehaviorTreeComponent GetBehaviorTreeComponent() { return AIMODULE_BehaviorTreeComponent_generated_h; }
 
 protected:
 	UPROPERTY()

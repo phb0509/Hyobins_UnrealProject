@@ -17,27 +17,25 @@ public:
 	AMeleeMinion();
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
-
-	virtual void SetStateToNextState(int state) override;
+	virtual void OnHitTimerEnded() override;
 
 	void NormalAttack();
 
 	ENormalMinionStates GetState() { return m_CurState; }
-	void SetState(ENormalMinionStates state);
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
-
+	void SetState(ENormalMinionStates state);
 
 protected:
 	virtual void BeginPlay() override;
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void SetHitState() override;
+	
 
 private:
 	void initComponents();
 	void initCollisions();
 	void initAttackInformations();
 	void updateState();
-	void CheckOnHitTimer();
-
+	
 	UFUNCTION()
 		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
@@ -50,7 +48,6 @@ public:
 
 private:
 	ENormalMinionStates m_CurState;
-	ENormalMinionStates m_NextState;
 
 	TWeakObjectPtr<class UMeleeMinionAnim> m_ABPAnimInstance;
 	

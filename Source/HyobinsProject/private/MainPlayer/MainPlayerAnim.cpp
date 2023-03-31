@@ -5,16 +5,9 @@
 #include "MainPlayer/MainPlayer.h"
 #include "Utility/EnumTypes.h"
 
-UMainPlayerAnim::UMainPlayerAnim():
-	m_CurSpeed(0.0f),
-	m_bIsIdle(true),
+UMainPlayerAnim::UMainPlayerAnim() :
 	m_bIsPressingShift(false),
-	m_bIsCombated(true),
-	m_bIsWalking(false),
-	m_bIsRunning(false),
-	m_bIsInAir(false),
-	m_bIsAttacking(false),
-	m_bIsHit(false)
+	m_bIsCombated(true)
 {
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> attackMontage
 	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AMBP_ComboAttack1.AMBP_ComboAttack1'"));
@@ -42,11 +35,7 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		m_bIsWalking = m_Owner->GetIsWalking();
 		m_bIsRunning = m_Owner->GetIsRunning();
 		m_bIsInAir = m_Owner->GetIsInAir();
-		m_bIsAttacking = m_Owner->GetIsAttacking();
-		m_bIsHit = m_Owner->GetIsHit();
 	}
-
-	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Red, FString::Printf(TEXT("Is Attacking??? : %d"), m_bIsAttacking));
 }
 
 void UMainPlayerAnim::PlayNormalAttackMontage()

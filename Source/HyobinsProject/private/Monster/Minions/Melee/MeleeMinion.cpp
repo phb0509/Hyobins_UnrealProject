@@ -5,14 +5,12 @@
 #include "Monster/Minions/Melee/MeleeMinionAIController.h"
 #include "Monster/Minions/Melee/MeleeMinionAnim.h"
 #include <GameFramework/CharacterMovementComponent.h>
-#include "TimerManager.h"
 #include <Components/CapsuleComponent.h>
 
 int AMeleeMinion::TagCount(0);
 
 AMeleeMinion::AMeleeMinion() :
-	m_CurState(ENormalMinionStates::Patrol),
-	m_NextState(ENormalMinionStates::Patrol)
+	m_CurState(ENormalMinionStates::Patrol)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMeleeMinionAIController::StaticClass();
@@ -26,27 +24,13 @@ AMeleeMinion::AMeleeMinion() :
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
 
-	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
-	m_HitCollider->SetupAttachment(RootComponent);
-	m_HitCollider->SetCapsuleHalfHeight(60.0f);
-	m_HitCollider->SetCapsuleRadius(60.0f);
-	m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
-	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-	//initComponents();
-	//initCollisions();
+	initComponents();
 	//initAttackInformations();
-	
 }
 
 void AMeleeMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-}
-
-void AMeleeMinion::SetStateToNextState(int state)
-{
-	SetState(ENormalMinionStates::Patrol);
 }
 
 void AMeleeMinion::BeginPlay()
@@ -66,42 +50,10 @@ void AMeleeMinion::BeginPlay()
 	}
 }
 
-float AMeleeMinion::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void AMeleeMinion::SetHitState()
 {
-	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
-	checkf(IsValid(instigatorCharacter), TEXT("instigatorCharacter is not Valid"));
-	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
-	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
-
-	m_CurHP -= attackInformation->damage;
 	m_ABPAnimInstance->PlayOnHitMontage(0);
-	m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
-	// 여기까지는 CharacterBase의 TakeDamage로 묶을 수 있다.
-
-
-	AMeleeMinionAIController* owernAIController = Cast<AMeleeMinionAIController>(GetController());
-	owernAIController->GetBlackboardComponent()->SetValueAsFloat(AMonster::HitRecoveryKey, m_HitRecovery * attackInformation->knockBackTime);
-	// 여기까지는 Monster의 TakeDamage로 묶을 수 있다. ownerAIController는 그냥 원시 AIController로 해도 상관없기 때문.
-
 	SetState(ENormalMinionStates::Hit);
-
-	// Timer Setting.
-	m_OnHitTimer = m_HitRecovery * attackInformation->knockBackTime;
-	
-	if (GetWorldTimerManager().IsTimerActive(m_OnHitTimerHandle))
-	{
-		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-	}
-
-	GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &AMeleeMinion::CheckOnHitTimer, m_OnHitTimer, true);
-	
-	// 로그.
-	FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
-
-	return FinalDamage;
 }
 
 void AMeleeMinion::Tick(float DeltaTime)
@@ -128,9 +80,51 @@ void AMeleeMinion::NormalAttack()
 
 void AMeleeMinion::SetState(ENormalMinionStates state)
 {
-	m_CurState = state; 
+	m_CurState = state;
 	AMeleeMinionAIController* owernAIController = Cast<AMeleeMinionAIController>(GetController());
 	owernAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+}
+
+
+
+void AMeleeMinion::initAttackInformations()
+{
+
+}
+
+void AMeleeMinion::OnHitTimerEnded()
+{
+	SetState(ENormalMinionStates::Patrol);
+	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+}
+
+void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 현재 재생중인 몽타주의 재생이 끝났을 시 호출.
+{
+	int curState = (uint8)m_CurState;
+
+	switch (curState)
+	{
+	case (uint8)ENormalMinionStates::NormalAttack:
+		onNormalAttackMontageEnded();
+		break;
+	default:
+		break;
+	}
+}
+
+void AMeleeMinion::onNormalAttackMontageEnded()
+{
+	m_bIsAttacking = false;
+}
+
+void AMeleeMinion::onHitMontageEnded()
+{
+	
+}
+
+void AMeleeMinion::Die()
+{
+
 }
 
 void AMeleeMinion::initComponents()
@@ -140,11 +134,14 @@ void AMeleeMinion::initComponents()
 
 void AMeleeMinion::initCollisions()
 {
+	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
+	m_HitCollider->SetupAttachment(RootComponent);
+	m_HitCollider->SetCapsuleHalfHeight(60.0f);
+	m_HitCollider->SetCapsuleRadius(60.0f);
+	m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
+	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
-void AMeleeMinion::initAttackInformations()
-{
-}
 
 void AMeleeMinion::updateState()
 {
@@ -158,49 +155,10 @@ void AMeleeMinion::updateState()
 			m_bIsIdle = true;
 			m_bIsWalking = false;
 		}
-		else 
+		else
 		{
 			m_bIsIdle = false;
 			m_bIsWalking = true;
 		}
 	}
-}
-
-void AMeleeMinion::CheckOnHitTimer()
-{
-	SetState(ENormalMinionStates::Patrol);
-
-	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-	UE_LOG(LogTemp, Warning, TEXT("Call TimerFunction!!!!!!!"));
-}
-
-void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 현재 재생중인 몽타주의 재생이 끝났을 시 호출.
-{
-	int curState = (uint8)m_CurState;
-
-	switch (curState)
-	{
-	case (uint8)ENormalMinionStates::Attack:
-		onNormalAttackMontageEnded();
-		break;
-	/*case (uint8)ENormalMinionStates::Hit:
-		onHitMontageEnded();
-		break;*/
-	default:
-		break;
-	}
-}
-
-void AMeleeMinion::onNormalAttackMontageEnded()
-{
-	m_bIsAttacking = false;
-}
-
-void AMeleeMinion::onHitMontageEnded()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("OnHitMontageEnde!!"));
-}
-
-void AMeleeMinion::Die()
-{
 }

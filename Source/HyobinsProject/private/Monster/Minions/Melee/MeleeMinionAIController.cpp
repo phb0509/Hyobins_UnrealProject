@@ -21,6 +21,8 @@ void AMeleeMinionAIController::BeginPlay()
 	Super::BeginPlay();
 	RunBehaviorTree(m_BehaviorTree);
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
+	
+	
 }
 
 void AMeleeMinionAIController::OnPossess(APawn* pawn)
@@ -74,7 +76,7 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 				}
 				else // 시야범위 밖으로 적이 나갔을 때 or 범위 안에있는데 다른 물체에 의해 가려졌을 경우
 				{
-					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::Attack)
+					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::NormalAttack)
 					{
 						// 타겟유지.
 					}

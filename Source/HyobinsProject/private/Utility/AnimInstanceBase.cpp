@@ -8,8 +8,8 @@ UAnimInstanceBase::UAnimInstanceBase() :
 	m_CurSpeed(0.0f),
 	m_bIsIdle(true),
 	m_bIsWalking(false),
-	m_bIsInAir(false),
-	m_bIsAttacking(false)
+	m_bIsRunning(false),
+	m_bIsInAir(false)
 {
 
 }

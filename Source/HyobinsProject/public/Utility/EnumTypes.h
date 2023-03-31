@@ -21,12 +21,12 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class ENormalMinionStates : uint8
 {
-	Patrol  UMETA(DisplayName = "Patrol"),
-	Chase   UMETA(DisplayName = "Chase"),
-	Attack	UMETA(DisplayName = "Attack"),
-	Hit		UMETA(DisplayName = "Hit"),
-	Die     UMETA(DisplayName = "Die"),
-	End     UMETA(DisplayName = "End")
+	Patrol			UMETA(DisplayName = "Patrol"),
+	Chase			UMETA(DisplayName = "Chase"),
+	NormalAttack	UMETA(DisplayName = "NormalAttack"),
+	Hit				UMETA(DisplayName = "Hit"),
+	Die				UMETA(DisplayName = "Die"),
+	End				UMETA(DisplayName = "End")
 };
 
 UENUM(BlueprintType)

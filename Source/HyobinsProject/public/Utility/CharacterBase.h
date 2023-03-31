@@ -20,16 +20,23 @@ public:
 	float GetCurSpeed() { return m_CurSpeed; }
 	bool GetIsIdle() { return m_bIsIdle; }
 	bool GetIsWalking() { return m_bIsWalking; }
+	bool GetIsRunning() { return m_bIsRunning; }
+	bool GetIsAttacking() { return m_bIsAttacking; }
 	bool GetIsInAir() { return m_bIsInAir; }
 
+	virtual void OnHitTimerEnded();
 
 protected:
 	void LoadMesh(FString assetPath);
 	void LoadAnimInstance(FString assetPath);
 
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override { return 0.0f; }
-	
+	virtual void SetHitState() {};
+	void Die();
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
+	
+	
 protected:
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
 	FTimerHandle m_OnHitTimerHandle;
@@ -38,11 +45,14 @@ protected:
 	float m_CurHP;
 	float m_CurSpeed;
 	float m_WalkSpeed;
+	float m_RunSpeed;
 	float m_HitRecovery;
 	float m_OnHitTimer;
 
 	bool m_bIsIdle;
 	bool m_bIsWalking;
+	bool m_bIsRunning;
+	bool m_bIsAttacking;
 	bool m_bIsInAir;
 	bool m_bIsSuperArmor;
 };

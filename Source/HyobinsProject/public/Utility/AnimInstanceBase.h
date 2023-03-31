@@ -21,27 +21,28 @@ public:
 	virtual void PlayDeathMontage(int index);
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		float m_CurSpeed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		bool m_bIsIdle;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		bool m_bIsWalking;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+		bool m_bIsRunning;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		bool m_bIsInAir;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsAttacking;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		TArray<UAnimMontage*> m_AttackMontages;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		TArray<UAnimMontage*> m_OnHitMontages;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Montage, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		TArray<UAnimMontage*> m_DeathMontages;
 };

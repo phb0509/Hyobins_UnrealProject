@@ -17,14 +17,11 @@ AMainPlayer::AMainPlayer() :
 	m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
 	m_ArmRotationSpeed(0.0f),
-	m_RunSpeed(1300.0f),
 	m_MovdDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
 	m_bIsPressingShift(false),
 	m_bIsCombated(true),
-	m_bIsRunning(false),
 	m_bIsHit(false),
-	m_bIsAttacking(false),
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
@@ -38,6 +35,7 @@ AMainPlayer::AMainPlayer() :
 	this->Tags.Add(FName("MainPlayer"));
 
 	m_WalkSpeed = 300.0f;
+	m_RunSpeed = 1300.0f;
 
 	initComponents();
 

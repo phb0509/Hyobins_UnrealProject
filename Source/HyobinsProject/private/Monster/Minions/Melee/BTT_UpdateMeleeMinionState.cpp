@@ -30,8 +30,8 @@ EBTNodeResult::Type UBTT_UpdateMeleeMinionState::ExecuteTask(UBehaviorTreeCompon
 	}
 	else if (distanceToEnemy <= owner->GetNormalAttackRange())
 	{
-		owner->SetState(ENormalMinionStates::Attack);
-		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::Attack));
+		owner->SetState(ENormalMinionStates::NormalAttack);
+		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::NormalAttack));
 		//UE_LOG(LogTemp, Warning, TEXT(" AttacState!!!!!!!!!!!!!!!"));
 		//UE_LOG(LogTemp, Warning, TEXT(" Attack :: distance To Enemy : %f"), distanceToEnemy);
 	}

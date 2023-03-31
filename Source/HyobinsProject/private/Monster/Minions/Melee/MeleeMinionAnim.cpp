@@ -6,7 +6,6 @@
 
 
 UMeleeMinionAnim::UMeleeMinionAnim()
-
 {
 	loadMontages();
 }
@@ -25,7 +24,6 @@ void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)
 		m_bIsIdle = m_Owner->GetIsIdle();
 		m_bIsWalking = m_Owner->GetIsWalking();
 		m_bIsInAir = m_Owner->GetIsInAir();
-		m_bIsAttacking = m_Owner->GetIsAttacking();
 	}
 }
 
@@ -35,8 +33,6 @@ void UMeleeMinionAnim::PlayNormalAttackMontage()
 
 	Montage_Play(m_AttackMontages[randomIndex], 1.0f); // 낮을수록 느리게 재생.
 }
-
-
 
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {

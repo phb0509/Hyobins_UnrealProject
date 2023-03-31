@@ -8,10 +8,13 @@ ACharacterBase::ACharacterBase() :
 	m_CurHP(m_MaxHP),
 	m_CurSpeed(0.0f),
 	m_WalkSpeed(200.0f),
+	m_RunSpeed(400.0f),
 	m_HitRecovery(1.0f),
 	m_OnHitTimer(1.0f),
 	m_bIsIdle(true),
 	m_bIsWalking(false),
+	m_bIsRunning(false),
+	m_bIsAttacking(false),
 	m_bIsInAir(false),
 	m_bIsSuperArmor(false)
 {
@@ -39,6 +42,56 @@ void ACharacterBase::LoadAnimInstance(FString assetPath)
 	{
 		GetMesh()->SetAnimInstanceClass(animInstance.Class);
 	}
+}
 
-	//GetMesh()->GetAnimInstance()->
+float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
+	checkf(IsValid(instigatorCharacter), TEXT("instigatorCharacter is not Valid"));
+	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
+	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
+
+	m_CurHP -= attackInformation->damage;
+
+	if (m_CurHP <= 0)
+	{
+		Die();
+	}
+
+	if (!m_bIsSuperArmor)
+	{
+		SetHitState();
+
+		m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
+
+		// Timer Setting.
+		m_OnHitTimer = m_HitRecovery * attackInformation->knockBackTime;
+
+		if (GetWorldTimerManager().IsTimerActive(m_OnHitTimerHandle))
+		{
+			GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+		}
+
+		GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnHitTimerEnded, m_OnHitTimer, true); // OnHitTimeEnded는 알아서 오버라이드되서 호출됨.
+	}
+
+	// 로그.
+	FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
+
+	return FinalDamage;
+}
+
+void ACharacterBase::OnHitTimerEnded()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Call the ACharacterBase::OnHitTimerEnded"));
+
+	this->OnHitTimerEnded();
+}
+
+void ACharacterBase::Die()
+{
+
 }

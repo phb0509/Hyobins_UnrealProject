@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "Animation/AnimInstance.h"
 #include "Utility/AnimInstanceBase.h"
 #include "MeleeMinionAnim.generated.h"
 
@@ -20,8 +19,6 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	void PlayNormalAttackMontage();
-
-
 
 private:
 	void loadMontages();

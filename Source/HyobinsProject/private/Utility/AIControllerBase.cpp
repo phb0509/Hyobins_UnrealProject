@@ -18,8 +18,6 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 
 	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerceptionComponent_CreatedC++");
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
-
-	UE_LOG(LogTemp, Warning, TEXT(" Call The AIControllerBase has parameter"));
 }
 
 void AAIControllerBase::LoadBehaviorTree(FString assetPath)
@@ -48,8 +46,3 @@ void AAIControllerBase::LoadBlackBoard(FString assetPath)
 	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));
 }
 
-//UBlackboardComponent* AAIControllerBase::GetBlackBoard()
-//{
-//	UBlackboardComponent* temp = Cast< UBlackboardComponent>(Blackboard);
-//	return temp;
-//}

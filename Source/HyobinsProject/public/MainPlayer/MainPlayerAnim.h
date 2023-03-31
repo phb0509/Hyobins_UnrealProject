@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Animation/AnimInstance.h"
+//#include "Animation/AnimInstance.h"
+#include "Utility/AnimInstanceBase.h"
 #include "MainPlayerAnim.generated.h"
 
 enum class EMainPlayerStates : uint8;
@@ -14,7 +15,7 @@ DECLARE_MULTICAST_DELEGATE(FOnNormalAttackHitCheckDelegate);
 
 
 UCLASS()
-class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstance
+class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstanceBase
 {
 	GENERATED_BODY()
 
@@ -47,31 +48,8 @@ private:
 	TWeakObjectPtr<class AMainPlayer> m_Owner;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		float m_CurSpeed;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsIdle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
 		bool m_bIsPressingShift;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
 		bool m_bIsCombated;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
-		bool m_bIsWalking;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
-		bool m_bIsRunning;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
-		bool m_bIsInAir;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
-		bool m_bIsAttacking;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass,Meta = (AllowPrivateAccess = true))
-		bool m_bIsHit;
-
-
 };
