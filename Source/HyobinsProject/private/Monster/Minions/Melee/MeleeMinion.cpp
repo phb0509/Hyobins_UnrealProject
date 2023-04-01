@@ -121,6 +121,8 @@ void AMeleeMinion::Die()
 {
 	m_bIsDeath = true;
 	
+	m_AIController->StopBehaviorTree();
+	m_AnimInstance->SetDeathSequenceIndex(0);
 }
 
 void AMeleeMinion::initComponents()

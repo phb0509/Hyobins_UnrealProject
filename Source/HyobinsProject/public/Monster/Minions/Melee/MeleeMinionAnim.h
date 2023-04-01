@@ -30,7 +30,7 @@ public:
 	FOnAttackHitCheckDelegate  OnAttackHitCheck;
 
 private:
-	TWeakObjectPtr<class AMeleeMinion> m_Owner;
+	
 
 
 };

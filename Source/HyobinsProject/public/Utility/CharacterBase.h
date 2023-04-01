@@ -23,6 +23,7 @@ public:
 	bool GetIsRunning() { return m_bIsRunning; }
 	bool GetIsAttacking() { return m_bIsAttacking; }
 	bool GetIsInAir() { return m_bIsInAir; }
+	bool GetIsDeath() { return m_bIsDeath; }
 
 	virtual void OnHitTimerEnded();
 

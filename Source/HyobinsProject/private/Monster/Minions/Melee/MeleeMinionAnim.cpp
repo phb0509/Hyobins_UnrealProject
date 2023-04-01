@@ -14,17 +14,6 @@ void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (!m_Owner.IsValid())
-	{
-		m_Owner = Cast<AMeleeMinion>(TryGetPawnOwner());
-	}
-	else
-	{
-		m_CurSpeed = m_Owner->GetCurSpeed();
-		m_bIsIdle = m_Owner->GetIsIdle();
-		m_bIsWalking = m_Owner->GetIsWalking();
-		m_bIsInAir = m_Owner->GetIsInAir();
-	}
 }
 
 void UMeleeMinionAnim::PlayNormalAttackMontage()
@@ -73,11 +62,19 @@ void UMeleeMinionAnim::loadMontages()
 		m_OnHitMontages.Add(onHitMontage.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> deathMontage
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/Death.Death'"));
+	static ConstructorHelpers::FObjectFinder <UAnimSequence> deathSequenceA
+	(TEXT("AnimSequence'/Game/MonsterAsset/Minion/NormalDeath_A.NormalDeath_A'"));
 
-	if (deathMontage.Succeeded())
+	if (deathSequenceA.Succeeded())
 	{
-		m_DeathMontages.Add(deathMontage.Object);
+		m_DeathSequences.Add(deathSequenceA.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimSequence> deathSequenceB
+	(TEXT("AnimSequence'/Game/MonsterAsset/Minion/NormalDeath_B.NormalDeath_B'"));
+
+	if (deathSequenceB.Succeeded())
+	{
+		m_DeathSequences.Add(deathSequenceB.Object);
 	}
 }

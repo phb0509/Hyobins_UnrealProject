@@ -30,10 +30,12 @@ void AAIControllerBase::BeginPlay()
 
 void AAIControllerBase::StopBehaviorTree()
 {
+	m_BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 }
 
 void AAIControllerBase::PlayBehaviorTree()
 {
+	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 
 void AAIControllerBase::LoadBehaviorTree(FString assetPath)

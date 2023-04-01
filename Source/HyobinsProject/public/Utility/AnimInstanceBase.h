@@ -16,14 +16,19 @@ class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
 
 public:
 	UAnimInstanceBase();
-	
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
 	TArray<UAnimMontage*> GetAttackMontages() { return m_AttackMontages; }
 	TArray<UAnimMontage*> GetOnHitMontages() { return m_OnHitMontages; }
-	TArray<UAnimMontage*> GetDeathMontages() { return m_DeathMontages; }
+	TArray<UAnimSequence*> GetDeathSequences() { return m_DeathSequences; }
+
+	void SetDeathSequenceIndex(int index) { m_DeathSequenceIndex = index; }
 
 	
 
 protected:
+	TWeakObjectPtr<class ACharacterBase> m_Owner;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		float m_CurSpeed;
 
@@ -39,6 +44,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		bool m_bIsInAir;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+		bool m_bIsDeath;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+		int m_DeathSequenceIndex;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		TArray<UAnimMontage*> m_AttackMontages;
@@ -47,5 +58,5 @@ protected:
 		TArray<UAnimMontage*> m_OnHitMontages;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		TArray<UAnimMontage*> m_DeathMontages;
+		TArray<UAnimSequence*> m_DeathSequences;
 };
