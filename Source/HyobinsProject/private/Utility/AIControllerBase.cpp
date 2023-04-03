@@ -13,18 +13,21 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 	m_AISightAge(5.0f),
 	m_AILastSeenLocation(900.0f)
 {
-	m_BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTreeComponent"));
+	m_BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTree_Component"));
 	checkf(IsValid(m_BehaviorTreeComponent), TEXT("m_BehaviorTreeComponent is not Valid"));
 
-	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerceptionComponent_CreatedC++");
+	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerception_Component");
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
 }
 
 void AAIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase::BeginPlay"));
+
 	RunBehaviorTree(m_BehaviorTree);
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
+
 }
 
 
@@ -40,27 +43,33 @@ void AAIControllerBase::PlayBehaviorTree()
 
 void AAIControllerBase::LoadBehaviorTree(FString assetPath)
 {
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject
+	/*static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject
 	(*assetPath);
+
+	UE_LOG(LogTemp, Warning, TEXT("LoadBehaviorTree :: assetPath is %s"), *(assetPath));
+
 	if (BTObject.Succeeded())
 	{
 		m_BehaviorTree = BTObject.Object;
-		//UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BTObject"));
+		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BTObject"));
 	}
 
-	checkf(IsValid(m_BehaviorTree), TEXT("m_BehaviorTree is not Valid"));
+	UE_LOG(LogTemp, Warning, TEXT("LoadBehaviorTree :: GetName is %s"), *(m_BehaviorTree->GetName()));
+	UE_LOG(LogTemp, Warning, TEXT("LoadBehaviorTree :: GetPathName is %s"), *(m_BehaviorTree->GetPathName()));
+
+	checkf(IsValid(m_BehaviorTree), TEXT("m_BehaviorTree is not Valid"));*/
 }
 
 void AAIControllerBase::LoadBlackBoard(FString assetPath)
 {
-	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject
+	/*static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject
 	(*assetPath);
 	if (BBObject.Succeeded())
 	{
 		m_BlackboardData = BBObject.Object;
-		//UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BBObject"));
+		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BBObject"));
 	}
 
-	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));
+	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));*/
 }
 

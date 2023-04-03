@@ -20,7 +20,7 @@ AMeleeMinion::AMeleeMinion() :
 
 	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
 	Super::LoadAnimInstance("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'");
-
+	
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
 
@@ -30,6 +30,11 @@ AMeleeMinion::AMeleeMinion() :
 void AMeleeMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+}
+
+void AMeleeMinion::BeginPlay()
+{
+	Super::BeginPlay();
 
 	m_AnimInstance = Cast<UMeleeMinionAnim>(GetMesh()->GetAnimInstance());
 
@@ -52,12 +57,6 @@ void AMeleeMinion::PostInitializeComponents()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
 	}
-}
-
-void AMeleeMinion::BeginPlay()
-{
-	Super::BeginPlay();
-
 }
 
 void AMeleeMinion::Tick(float DeltaTime)

@@ -31,6 +31,7 @@ void ACharacterBase::LoadMesh(FString assetPath)
 	{
 		GetMesh()->SetSkeletalMesh(mesh.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
+		//UE_LOG(LogTemp, Warning, TEXT("%s  LoadMesh Success"), *assetPath);
 	}
 }
 
@@ -42,13 +43,12 @@ void ACharacterBase::LoadAnimInstance(FString assetPath)
 	if (animInstance.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(animInstance.Class);
+		//UE_LOG(LogTemp, Warning, TEXT("%s  LoadAnimInstance Success"), *assetPath);
 	}
 }
 
 void ACharacterBase::initAttackInformations(FString path)
 {
-	//FString dataPath = "DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'";
-
 	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	HPGameInstance->InitAttackInformations(path, m_AttackInformations);
 }

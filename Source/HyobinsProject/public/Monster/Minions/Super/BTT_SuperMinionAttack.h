@@ -6,12 +6,13 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTT_SuperMinionAttack.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class HYOBINSPROJECT_API UBTT_SuperMinionAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
 	
+public:
+	UBTT_SuperMinionAttack();
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

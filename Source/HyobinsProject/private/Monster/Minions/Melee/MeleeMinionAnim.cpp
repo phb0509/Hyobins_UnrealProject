@@ -31,7 +31,7 @@ void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주
 void UMeleeMinionAnim::loadMontages()
 {
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage0
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_NormalAttack0.AMBP_NormalAttack0'"));
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_NormalAttack0.AM_NormalAttack0'"));
 
 	if (normalAttackMontage0.Succeeded())
 	{
@@ -39,7 +39,7 @@ void UMeleeMinionAnim::loadMontages()
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage1
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_NormalAttack1.AMBP_NormalAttack1'"));
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_NormalAttack1.AM_NormalAttack1'"));
 
 	if (normalAttackMontage1.Succeeded())
 	{
@@ -47,7 +47,7 @@ void UMeleeMinionAnim::loadMontages()
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> criticalAttackMontage
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_CriticalAttack.AMBP_CriticalAttack'"));
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_CriticalAttack.AM_CriticalAttack'"));
 
 	if (criticalAttackMontage.Succeeded())
 	{
@@ -55,7 +55,7 @@ void UMeleeMinionAnim::loadMontages()
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> onHitMontage
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AMBP_HitReact_Front.AMBP_HitReact_Front'"));
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_HitReact_Front.AM_HitReact_Front'"));
 
 	if (onHitMontage.Succeeded())
 	{
@@ -68,13 +68,5 @@ void UMeleeMinionAnim::loadMontages()
 	if (deathSequenceA.Succeeded())
 	{
 		m_DeathSequences.Add(deathSequenceA.Object);
-	}
-
-	static ConstructorHelpers::FObjectFinder <UAnimSequence> deathSequenceB
-	(TEXT("AnimSequence'/Game/MonsterAsset/Minion/NormalDeath_B.NormalDeath_B'"));
-
-	if (deathSequenceB.Succeeded())
-	{
-		m_DeathSequences.Add(deathSequenceB.Object);
 	}
 }

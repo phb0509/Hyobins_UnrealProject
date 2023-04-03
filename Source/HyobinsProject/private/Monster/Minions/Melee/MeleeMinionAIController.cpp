@@ -8,12 +8,28 @@ AMeleeMinionAIController::AMeleeMinionAIController(const FObjectInitializer& Obj
 	Super(ObjectInitializer)
 {
 	m_TeamID = FGenericTeamId(4);
-	LoadBehaviorTree("BehaviorTree'/Game/MonsterAsset/Minion/BT_MeleeMinion.BT_MeleeMinion'");
-	LoadBlackBoard("BlackboardData'/Game/MonsterAsset/Minion/BB_MeleeMinion.BB_MeleeMinion'");
+
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/Minion/BT_MeleeMinion.BT_MeleeMinion'"));
+
+	if (BTObject.Succeeded())
+	{
+		m_BehaviorTree = BTObject.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BTObject"));
+	}
+
+	checkf(IsValid(m_BehaviorTree), TEXT("m_BehaviorTree is not Valid"));
+
+	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("BlackboardData'/Game/MonsterAsset/Minion/BB_MeleeMinion.BB_MeleeMinion'"));
+	if (BBObject.Succeeded())
+	{
+		m_BlackboardData = BBObject.Object;
+		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BBObject"));
+	}
+
+	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));
+
 
 	initPerceptionSystem();
-
-	UE_LOG(LogTemp, Warning, TEXT(" Call The AMeleeMinionAIController has parameter"));
 }
 
 void AMeleeMinionAIController::BeginPlay()
