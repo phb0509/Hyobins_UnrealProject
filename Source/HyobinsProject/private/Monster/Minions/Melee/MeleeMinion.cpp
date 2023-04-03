@@ -18,26 +18,17 @@ AMeleeMinion::AMeleeMinion() :
 
 	Tags.Add(FName("MeleeMinion" + FString::FromInt(++TagCount)));
 
-	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'");
-	Super::LoadAnimInstance("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'");
-	
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
 
-	initComponents();
+	initAssets();
 }
 
 void AMeleeMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-}
-
-void AMeleeMinion::BeginPlay()
-{
-	Super::BeginPlay();
 
 	m_AnimInstance = Cast<UMeleeMinionAnim>(GetMesh()->GetAnimInstance());
-
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
@@ -57,6 +48,11 @@ void AMeleeMinion::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
 	}
+}
+
+void AMeleeMinion::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void AMeleeMinion::Tick(float DeltaTime)
@@ -111,34 +107,42 @@ void AMeleeMinion::onNormalAttackMontageEnded()
 	m_bIsAttacking = false;
 }
 
-void AMeleeMinion::onHitMontageEnded()
-{
-	
-}
-
 void AMeleeMinion::Die()
 {
 	m_bIsDeath = true;
-	
 	m_AIController->StopBehaviorTree();
-	m_AnimInstance->SetDeathSequenceIndex(0);
+	SetState(ENormalMinionStates::Die);
+	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
 }
 
-void AMeleeMinion::initComponents()
+void AMeleeMinion::initAssets()
 {
-	initCollisions();
-}
+	// Mesh
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MonsterAsset/Minion/Character/MeleeMinion.MeleeMinion'"));
+	if (mesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(mesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
+	}
+	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
 
-void AMeleeMinion::initCollisions()
-{
+	// AnimInstance
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'"));
+	if (animInstance.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(animInstance.Class);
+	}
+	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
+
+	// HitCollider
 	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
 	m_HitCollider->SetupAttachment(RootComponent);
 	m_HitCollider->SetCapsuleHalfHeight(60.0f);
 	m_HitCollider->SetCapsuleRadius(60.0f);
 	m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
 	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-}
 
+}
 
 void AMeleeMinion::updateState()
 {

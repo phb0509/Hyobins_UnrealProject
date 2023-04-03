@@ -37,12 +37,7 @@ AMainPlayer::AMainPlayer() :
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
 
-	initComponents();
-
-	Super::LoadMesh("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'");
-	Super::LoadAnimInstance("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'");
-
-	initCollisions();
+	initAssets();
 	initAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
 	updateNormalAttackStateOnEnd();
 }
@@ -52,21 +47,9 @@ void AMainPlayer::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-
 	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
 	m_AnimInstance->OnNextNormalAttackCheck.AddUObject(this, &AMainPlayer::OnCalledCheckNextAttackNotify); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
 	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::CheckNormalAttackCollision);
-
-	if (GetCapsuleComponent() != nullptr)
-	{
-		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
-		GetCapsuleComponent()->SetCapsuleRadius(40.0f);
-		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Not Valid!"));
-	}
 }
 
 // Called when the game starts or when spawned
@@ -75,20 +58,15 @@ void AMainPlayer::BeginPlay()
 	Super::BeginPlay();
 
 	SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
-	
 }
 
-
-// Called every frame
 void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//checkIsValidComponants();
 	updateState();
 	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, m_ArmLengthTo, DeltaTime, m_ArmLengthSpeed);
 
-	// 로그 
 	printLog();
 }
 
@@ -173,7 +151,6 @@ void AMainPlayer::updateNormalAttackStateOnEnd() // 기본공격이 아예 끝난 후(끝까
 	m_CurNormalAttackCombo = 0;
 }
 
-// Called to bind functionality to input
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -298,10 +275,75 @@ void AMainPlayer::CheckNormalAttackCollision()
 	}
 }
 
-void AMainPlayer::initComponents()
+void AMainPlayer::initAssets()
 {
-	initSpringArm();
-	initTargetCamera();
+	// RootCapsuleComponent
+	if (GetCapsuleComponent() != nullptr)
+	{
+		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
+		GetCapsuleComponent()->SetCapsuleRadius(40.0f);
+		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Not Valid!"));
+	}
+
+	// Mesh
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'"));
+	if (mesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(mesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
+	}
+	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
+
+	// AnimInstance
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'"));
+	if (animInstance.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(animInstance.Class);
+	}
+	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
+
+	// SpringArm
+	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	m_SpringArm->SetupAttachment(RootComponent);
+	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
+	m_SpringArm->TargetArmLength = 600;
+
+	// 스프링암의 회전 값을 컨트롤 회전 값과 동일하게 맞춰준다.
+	m_SpringArm->bUsePawnControlRotation = true;
+	m_SpringArm->bInheritPitch = true;
+	m_SpringArm->bInheritRoll = true;
+	m_SpringArm->bInheritYaw = true;
+
+	// true로 할 경우, 카메라와 캐릭터사이에 장애물이 있을 경우, 줌 기능을 활성화 해준다.
+	m_SpringArm->bDoCollisionTest = false;
+
+	// TargetCamera
+	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
+	m_TargetCamera->SetupAttachment(m_SpringArm);
+
+
+	// SwordCollider
+	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
+
+	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
+	// location.x, location.y, location. z
+	// scale.x,scale.y,scale.z
+
+	m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
+	m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
+	m_SwordCollider->SetWorldTransform(collisionTransform);
+	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
+	m_SwordCollider->SetCapsuleRadius(10.0f);
+
+	m_SwordCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
+
+
+	// 이외 CharacterMovement Detail값들
 
 	// true로 할 경우, 컨트롤러의 회전방향으로 캐릭터를 회전시켜줌.
 	bUseControllerRotationYaw = false;
@@ -318,56 +360,6 @@ void AMainPlayer::initComponents()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
-}
-
-void AMainPlayer::initCollisions()
-{
-	// SwordCollision
-	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
-
-	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
-	// location.x, location.y, location. z
-	// scale.x,scale.y,scale.z
-
-	m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
-	m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
-	m_SwordCollider->SetWorldTransform(collisionTransform);
-	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
-	m_SwordCollider->SetCapsuleRadius(10.0f);
-
-	m_SwordCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
-}
-
-void AMainPlayer::initSpringArm()
-{
-	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	m_SpringArm->SetupAttachment(RootComponent);
-	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
-	m_SpringArm->TargetArmLength = 600;
-
-	// 스프링암의 회전 값을 컨트롤 회전 값과 동일하게 맞춰준다.
-	m_SpringArm->bUsePawnControlRotation = true;
-	m_SpringArm->bInheritPitch = true;
-	m_SpringArm->bInheritRoll = true;
-	m_SpringArm->bInheritYaw = true;
-
-	// true로 할 경우, 카메라와 캐릭터사이에 장애물이 있을 경우, 줌 기능을 활성화 해준다.
-	m_SpringArm->bDoCollisionTest = false;
-}
-
-void AMainPlayer::initTargetCamera()
-{
-	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
-	m_TargetCamera->SetupAttachment(m_SpringArm);
-}
-
-
-
-void AMainPlayer::checkIsValidComponants()
-{
-	checkf(IsValid(m_SpringArm), TEXT("SpringArm is not Valid"));
-	checkf(IsValid(m_TargetCamera), TEXT("TargetCamera is not Valid"));
 }
 
 void AMainPlayer::printLog()

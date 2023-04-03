@@ -51,6 +51,7 @@ protected:
 	float m_HitRecovery;
 	float m_OnHitTimer;
 
+	bool m_bIsActivated;
 	bool m_bIsIdle;
 	bool m_bIsWalking;
 	bool m_bIsRunning;

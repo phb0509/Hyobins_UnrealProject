@@ -18,24 +18,15 @@ ASuperMinion::ASuperMinion() :
 
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
 
-	Super::LoadMesh("SkeletalMesh'/Game/MonsterAsset/SuperMinion/Character/SuperMinion.SuperMinion'");
-	Super::LoadAnimInstance("AnimBlueprint'/Game/MonsterAsset/SuperMinion/ABP_SuperMinion.ABP_SuperMinion_C'");
-	UE_LOG(LogTemp, Warning, TEXT("This is SuperMinionClass"));
-
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
 
-	initComponents();
+	initAssets();
 }
 
 void ASuperMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-}
-
-void ASuperMinion::BeginPlay()
-{
-	Super::BeginPlay();
 
 	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
 
@@ -58,6 +49,11 @@ void ASuperMinion::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController is not Valid"));
 	}
+}
+
+void ASuperMinion::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void ASuperMinion::Tick(float DeltaTime)
@@ -89,6 +85,14 @@ void ASuperMinion::SetHitState()
 
 void ASuperMinion::OnHitTimerEnded()
 {
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: OnHitTimerEnded"));
+
+	if (m_bIsDeath)
+	{
+		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+		return;
+	}
+
 	SetState(ENormalMinionStates::Patrol);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
@@ -112,26 +116,36 @@ void ASuperMinion::onNormalAttackMontageEnded()
 	m_bIsAttacking = false;
 }
 
-void ASuperMinion::onHitMontageEnded()
-{
-
-}
-
 void ASuperMinion::Die()
 {
 	m_bIsDeath = true;
-
-	m_AIController->StopBehaviorTree();
-	m_AnimInstance->SetDeathSequenceIndex(0);
+	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetState(ENormalMinionStates::Die);
+	//m_AIController->StopBehaviorTree();
+	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
 }
 
-void ASuperMinion::initComponents()
-{
-	initCollisions();
-}
 
-void ASuperMinion::initCollisions()
+void ASuperMinion::initAssets()
 {
+	// Mesh
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MonsterAsset/SuperMinion/Character/SuperMinion.SuperMinion'"));
+	if (mesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(mesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
+	}
+	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
+
+	// AnimInstance
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MonsterAsset/SuperMinion/ABP_SuperMinion.ABP_SuperMinion_C'"));
+	if (animInstance.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(animInstance.Class);
+	}
+	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
+
+	// HitCollider
 	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
 	m_HitCollider->SetupAttachment(RootComponent);
 	m_HitCollider->SetCapsuleHalfHeight(60.0f);
@@ -139,7 +153,6 @@ void ASuperMinion::initCollisions()
 	m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
 	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
-
 
 void ASuperMinion::updateState()
 {

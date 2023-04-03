@@ -15,7 +15,6 @@ class HYOBINSPROJECT_API ASuperMinionAIController : public AAIControllerBase
 public:
 	ASuperMinionAIController(const FObjectInitializer& ObjectInitializer);
 
-	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 

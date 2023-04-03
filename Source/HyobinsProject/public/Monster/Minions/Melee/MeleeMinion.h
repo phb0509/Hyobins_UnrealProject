@@ -21,8 +21,11 @@ public:
 
 	void NormalAttack();
 
+	// Get
 	ENormalMinionStates GetState() { return m_CurState; }
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
+
+	// Set
 	void SetState(ENormalMinionStates state);
 
 protected:
@@ -31,12 +34,9 @@ protected:
 	
 
 private:
-	void initComponents();
-	void initCollisions();
+	void initAssets();
 	void updateState();
-	
 	void onNormalAttackMontageEnded();
-	void onHitMontageEnded();
 	void Die();
 
 	UFUNCTION()

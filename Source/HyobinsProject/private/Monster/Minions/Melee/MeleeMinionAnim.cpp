@@ -62,11 +62,11 @@ void UMeleeMinionAnim::loadMontages()
 		m_OnHitMontages.Add(onHitMontage.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimSequence> deathSequenceA
-	(TEXT("AnimSequence'/Game/MonsterAsset/Minion/NormalDeath_A.NormalDeath_A'"));
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> deathMontage_Front
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_Death_Front.AM_Death_Front'"));
 
-	if (deathSequenceA.Succeeded())
+	if (deathMontage_Front.Succeeded())
 	{
-		m_DeathSequences.Add(deathSequenceA.Object);
+		m_DeathMontages.Add(deathMontage_Front.Object);
 	}
 }

@@ -23,7 +23,6 @@ class HYOBINSPROJECT_API AAIControllerBase : public AAIController
 	GENERATED_BODY()
 
 public:
-	//AAIControllerBase();
 	AAIControllerBase(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;

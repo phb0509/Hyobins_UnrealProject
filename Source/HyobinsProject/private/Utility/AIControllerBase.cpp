@@ -27,7 +27,6 @@ void AAIControllerBase::BeginPlay()
 
 	RunBehaviorTree(m_BehaviorTree);
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
-
 }
 
 

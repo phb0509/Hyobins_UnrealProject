@@ -62,19 +62,19 @@ void USuperMinionAnim::loadMontages()
 		m_OnHitMontages.Add(onHitMontage.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimSequence> death_Front
-	(TEXT("AnimSequence'/Game/MonsterAsset/SuperMinion/Death_Front.Death_Front'"));
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> death_Front
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_Death_Front.AM_Death_Front'"));
 
 	if (death_Front.Succeeded())
 	{
-		m_DeathSequences.Add(death_Front.Object);
+		m_DeathMontages.Add(death_Front.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimSequence> death_Back
-	(TEXT("AnimSequence'/Game/MonsterAsset/SuperMinion/Death_Back.Death_Back'"));
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> death_Back
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_Death_Back.AM_Death_Back'"));
 
 	if (death_Back.Succeeded())
 	{
-		m_DeathSequences.Add(death_Back.Object);
+		m_DeathMontages.Add(death_Back.Object);
 	}
 }

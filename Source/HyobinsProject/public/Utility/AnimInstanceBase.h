@@ -20,7 +20,7 @@ public:
 
 	TArray<UAnimMontage*> GetAttackMontages() { return m_AttackMontages; }
 	TArray<UAnimMontage*> GetOnHitMontages() { return m_OnHitMontages; }
-	TArray<UAnimSequence*> GetDeathSequences() { return m_DeathSequences; }
+	TArray<UAnimMontage*> GetDeathMontages() { return m_DeathMontages; }
 
 	void SetDeathSequenceIndex(int index) { m_DeathSequenceIndex = index; }
 
@@ -58,5 +58,5 @@ protected:
 		TArray<UAnimMontage*> m_OnHitMontages;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		TArray<UAnimSequence*> m_DeathSequences;
+		TArray<UAnimMontage*> m_DeathMontages;
 };

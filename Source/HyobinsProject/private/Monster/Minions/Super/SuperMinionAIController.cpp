@@ -9,36 +9,22 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 {
 	m_TeamID = FGenericTeamId(4);
 
-
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/SuperMinion/BT_SuperMinion.BT_SuperMinion'"));
 
 	if (BTObject.Succeeded())
 	{
 		m_BehaviorTree = BTObject.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BTObject"));
 	}
-
-	checkf(IsValid(m_BehaviorTree), TEXT("m_BehaviorTree is not Valid"));
-
+	checkf(IsValid(m_BehaviorTree), TEXT("BehaviorTree is not Valid"));
 
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("BlackboardData'/Game/MonsterAsset/SuperMinion/BB_SuperMinion.BB_SuperMinion'"));
 	if (BBObject.Succeeded())
 	{
 		m_BlackboardData = BBObject.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BBObject"));
 	}
-
-	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));
+	checkf(IsValid(m_BlackboardData), TEXT("BlackboardData is not Valid"));
 
 	initPerceptionSystem();
-
-}
-
-void ASuperMinionAIController::BeginPlay()
-{
-	Super::BeginPlay();
-
-
 
 }
 

@@ -51,10 +51,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	void initComponents();
-	void initCollisions();
-	void initSpringArm();
-	void initTargetCamera();
+	void initAssets();
 	
 	void checkIsValidComponants();
 	void updateState();

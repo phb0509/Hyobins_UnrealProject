@@ -31,12 +31,10 @@ protected:
 
 
 private:
-	void initComponents();
-	void initCollisions();
+	void initAssets();
 	void updateState();
 
 	void onNormalAttackMontageEnded();
-	void onHitMontageEnded();
 	void Die();
 
 	UFUNCTION()
