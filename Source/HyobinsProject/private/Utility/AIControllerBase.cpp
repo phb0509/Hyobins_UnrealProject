@@ -23,7 +23,7 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 void AAIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase::BeginPlay"));
+	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase :: BeginPlay"));
 
 	RunBehaviorTree(m_BehaviorTree);
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
@@ -32,6 +32,7 @@ void AAIControllerBase::BeginPlay()
 void AAIControllerBase::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
+	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase :: OnPossess"));
 }
 
 void AAIControllerBase::OnUnPossess()

@@ -28,22 +28,23 @@ public:
 	bool GetIsDeath() { return m_bIsDeath; }
 
 	virtual void OnHitTimerEnded();
+	virtual void DeathTimerEnded();
+
+	virtual void OnCalledDeathMontageEndedNotify();
 
 protected:
-	void LoadMesh(FString assetPath);
-	void LoadAnimInstance(FString assetPath);
 	void initAttackInformations(FString path);
 
-	virtual void SetHitState() {};
-	virtual void Die();
-
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void Die();
 	
-	
+
+	virtual void SetHitState() {};
 	
 protected:
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
 	FTimerHandle m_OnHitTimerHandle;
+	FTimerHandle m_DeathTimerHandle;
 
 	float m_MaxHP;
 	float m_CurHP;
@@ -51,7 +52,8 @@ protected:
 	float m_WalkSpeed;
 	float m_RunSpeed;
 	float m_HitRecovery;
-	float m_OnHitTimer;
+	float m_OnHitTimerTime;
+	float m_DeathTimerTime;
 
 	bool m_bIsActivated;
 	bool m_bIsIdle;

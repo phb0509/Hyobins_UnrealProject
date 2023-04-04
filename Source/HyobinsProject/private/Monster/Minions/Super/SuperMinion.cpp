@@ -33,6 +33,7 @@ void ASuperMinion::PostInitializeComponents()
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
+		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
 		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance is Valid"));
 	}
 	else
@@ -117,17 +118,11 @@ void ASuperMinion::onNormalAttackMontageEnded()
 
 void ASuperMinion::Die()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: Die"));
-
 	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetState(ENormalMinionStates::Die);
-	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
+	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
 	m_AIController->OnUnPossess();
-	
-	//m_AIController->StopBehaviorTree();
-	//m_AIController->GetAIPerceptionComponent()->Deactivate();
 }
-
 
 void ASuperMinion::initAssets()
 {

@@ -6,9 +6,10 @@
 #include "Animation/AnimInstance.h"
 #include "AnimInstanceBase.generated.h"
 
-/**
- * 
- */
+
+
+DECLARE_MULTICAST_DELEGATE(FOnDeathMontageEndedDelegate);
+
 UCLASS()
 class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
 {
@@ -25,6 +26,12 @@ public:
 	void SetDeathSequenceIndex(int index) { m_DeathSequenceIndex = index; }
 
 	
+private:
+	UFUNCTION()
+		void AnimNotify_OnDeathMontageEnded(); // Notify를 실행시키는 함수.
+
+public:
+	FOnDeathMontageEndedDelegate OnDeathMontageEnded;
 
 protected:
 	TWeakObjectPtr<class ACharacterBase> m_Owner;

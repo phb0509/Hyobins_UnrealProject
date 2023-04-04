@@ -34,7 +34,6 @@ public:
 
     // Get
 	UBlackboardComponent* GetBlackBoard() { return Blackboard; }
-	UAIPerceptionComponent* GetAIPerceptionComponent() { return m_AIPerceptionComponent; }
 
 protected:
 	UPROPERTY()

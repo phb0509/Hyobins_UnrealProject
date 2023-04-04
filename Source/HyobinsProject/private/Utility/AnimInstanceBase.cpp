@@ -33,3 +33,8 @@ void UAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 		m_bIsDeath = m_Owner->GetIsDeath();
 	}
 }
+
+void UAnimInstanceBase::AnimNotify_OnDeathMontageEnded()
+{
+	OnDeathMontageEnded.Broadcast();
+}

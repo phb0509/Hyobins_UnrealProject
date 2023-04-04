@@ -32,6 +32,7 @@ void AMeleeMinion::PostInitializeComponents()
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
+		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is Valid"));
 	}
 	else
@@ -118,6 +119,7 @@ void AMeleeMinion::Die()
 	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetState(ENormalMinionStates::Die);
 	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
+	m_AIController->OnUnPossess();
 }
 
 void AMeleeMinion::initAssets()

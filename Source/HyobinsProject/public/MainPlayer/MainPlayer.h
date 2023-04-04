@@ -52,7 +52,6 @@ protected:
 private:
 	void initAssets();
 	
-	void checkIsValidComponants();
 	void updateState();
 	void normalComboAttack();
 	void updateNormalAttackStateOnStart();
