@@ -10,17 +10,6 @@ AMainPlayerController::AMainPlayerController():
 
 }
 
-void AMainPlayerController::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-}
-
-void AMainPlayerController::OnPossess(APawn* pawn)
-{
-	Super::OnPossess(pawn);
-	UE_LOG(LogTemp, Warning, TEXT("Call the MainPlayer::OnPossess!"));
-}
-
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const
 {
 	return m_TeamID;

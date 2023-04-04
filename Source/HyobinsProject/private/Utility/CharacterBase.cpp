@@ -23,6 +23,11 @@ ACharacterBase::ACharacterBase() :
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint); // 블루프린트를 사용하겠다는 의미.
 }
 
+void ACharacterBase::PossessedBy(AController* newController)
+{
+	Super::PossessedBy(newController);
+}
+
 void ACharacterBase::LoadMesh(FString assetPath)
 {
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
@@ -74,6 +79,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 	if (m_CurHP <= 0)
 	{
+		m_bIsDeath = true;
 		m_bIsAttacking = false;
 
 		Die();
@@ -98,8 +104,6 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 		}
 	}
 
-
-
 	return FinalDamage;
 }
 
@@ -111,6 +115,6 @@ void ACharacterBase::OnHitTimerEnded()
 
 void ACharacterBase::Die()
 {
-	if (m_bIsDeath) return;
+	UE_LOG(LogTemp, Warning, TEXT("CharacterBase :: Die"));
 	this->Die();
 }

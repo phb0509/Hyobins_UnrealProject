@@ -29,6 +29,18 @@ void AAIControllerBase::BeginPlay()
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 
+void AAIControllerBase::OnPossess(APawn* pawn)
+{
+	Super::OnPossess(pawn);
+}
+
+void AAIControllerBase::OnUnPossess()
+{
+	Super::OnUnPossess();
+	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase :: OnUnPossess"));
+
+	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
+}
 
 void AAIControllerBase::StopBehaviorTree()
 {
@@ -38,37 +50,5 @@ void AAIControllerBase::StopBehaviorTree()
 void AAIControllerBase::PlayBehaviorTree()
 {
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
-}
-
-void AAIControllerBase::LoadBehaviorTree(FString assetPath)
-{
-	/*static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject
-	(*assetPath);
-
-	UE_LOG(LogTemp, Warning, TEXT("LoadBehaviorTree :: assetPath is %s"), *(assetPath));
-
-	if (BTObject.Succeeded())
-	{
-		m_BehaviorTree = BTObject.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BTObject"));
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("LoadBehaviorTree :: GetName is %s"), *(m_BehaviorTree->GetName()));
-	UE_LOG(LogTemp, Warning, TEXT("LoadBehaviorTree :: GetPathName is %s"), *(m_BehaviorTree->GetPathName()));
-
-	checkf(IsValid(m_BehaviorTree), TEXT("m_BehaviorTree is not Valid"));*/
-}
-
-void AAIControllerBase::LoadBlackBoard(FString assetPath)
-{
-	/*static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject
-	(*assetPath);
-	if (BBObject.Succeeded())
-	{
-		m_BlackboardData = BBObject.Object;
-		UE_LOG(LogTemp, Warning, TEXT("Succeeded in load BBObject"));
-	}
-
-	checkf(IsValid(m_BlackboardData), TEXT("m_BlackboardData is not Valid"));*/
 }
 

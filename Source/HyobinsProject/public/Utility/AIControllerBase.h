@@ -26,16 +26,15 @@ public:
 	AAIControllerBase(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+	virtual void OnPossess(APawn* pawn) override;
+	virtual void OnUnPossess() override;
 
 	void StopBehaviorTree();
 	void PlayBehaviorTree();
 
-protected:
-	void LoadBehaviorTree(FString assetPath);
-	void LoadBlackBoard(FString assetPath);
-
+    // Get
 	UBlackboardComponent* GetBlackBoard() { return Blackboard; }
-	
+	UAIPerceptionComponent* GetAIPerceptionComponent() { return m_AIPerceptionComponent; }
 
 protected:
 	UPROPERTY()

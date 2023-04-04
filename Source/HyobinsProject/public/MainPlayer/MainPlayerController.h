@@ -17,8 +17,6 @@ class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, publi
 
 public:
 	AMainPlayerController();
-	virtual void PostInitializeComponents() override;
-	virtual void OnPossess(APawn* pawn) override;
 	virtual FGenericTeamId GetGenericTeamId() const override; 
 
 

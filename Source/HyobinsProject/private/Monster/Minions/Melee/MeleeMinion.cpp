@@ -2,8 +2,8 @@
 
 
 #include "Monster/Minions/Melee/MeleeMinion.h"
-#include "Monster/Minions/Melee/MeleeMinionAIController.h"
 #include "Monster/Minions/Melee/MeleeMinionAnim.h"
+#include "Monster/Minions/Melee/MeleeMinionAIController.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 
@@ -84,6 +84,12 @@ void AMeleeMinion::SetHitState()
 
 void AMeleeMinion::OnHitTimerEnded()
 {
+	if (m_bIsDeath)
+	{
+		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+		return;
+	}
+
 	SetState(ENormalMinionStates::Patrol);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
@@ -109,8 +115,7 @@ void AMeleeMinion::onNormalAttackMontageEnded()
 
 void AMeleeMinion::Die()
 {
-	m_bIsDeath = true;
-	m_AIController->StopBehaviorTree();
+	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetState(ENormalMinionStates::Die);
 	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
 }

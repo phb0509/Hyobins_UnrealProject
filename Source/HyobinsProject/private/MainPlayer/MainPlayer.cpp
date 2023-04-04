@@ -4,6 +4,7 @@
 //#include "MainPlayer.h"
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
+#include "MainPlayer/MainPlayerController.h"
 #include <GameFramework/SpringArmComponent.h.>
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Camera/CameraComponent.h>
@@ -31,7 +32,8 @@ AMainPlayer::AMainPlayer() :
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+	AIControllerClass = AMainPlayerController::StaticClass();
+
 	this->Tags.Add(FName("MainPlayer"));
 
 	m_WalkSpeed = 300.0f;
@@ -168,11 +170,11 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 }
 
-void AMainPlayer::PossessedBy(AController* newController)
-{
-	Super::PossessedBy(newController);
-	UE_LOG(LogTemp, Warning, TEXT("Call the MainPlayer::PossessedBy!"));
-}
+//void AMainPlayer::PossessedBy(AController* newController)
+//{
+//	Super::PossessedBy(newController);
+//	UE_LOG(LogTemp, Warning, TEXT("Call the MainPlayer::PossessedBy!"));
+//}
 
 void AMainPlayer::Jump()
 {

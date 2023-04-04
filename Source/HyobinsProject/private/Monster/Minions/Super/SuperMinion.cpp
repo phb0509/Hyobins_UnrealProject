@@ -2,8 +2,8 @@
 
 
 #include "Monster/Minions/Super/SuperMinion.h"
-#include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Monster/Minions/Super/SuperMinionAnim.h"
+#include "Monster/Minions/Super/SuperMinionAIController.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 
@@ -85,14 +85,13 @@ void ASuperMinion::SetHitState()
 
 void ASuperMinion::OnHitTimerEnded()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: OnHitTimerEnded"));
-
 	if (m_bIsDeath)
 	{
 		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 		return;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: OnHitTimerEnded"));
 	SetState(ENormalMinionStates::Patrol);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
@@ -118,11 +117,15 @@ void ASuperMinion::onNormalAttackMontageEnded()
 
 void ASuperMinion::Die()
 {
-	m_bIsDeath = true;
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: Die"));
+
 	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetState(ENormalMinionStates::Die);
-	//m_AIController->StopBehaviorTree();
 	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
+	m_AIController->OnUnPossess();
+	
+	//m_AIController->StopBehaviorTree();
+	//m_AIController->GetAIPerceptionComponent()->Deactivate();
 }
 
 

@@ -18,7 +18,6 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void PossessedBy(AController* newController) override;
 	virtual void Jump() override;
 
 	// AxisMappings

@@ -32,6 +32,7 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::OnPossess"));
+
 	UBlackboardComponent* BlackboardComponent = Blackboard;
 
 	m_Owner = Cast<ASuperMinion>(pawn);
@@ -145,9 +146,9 @@ void ASuperMinionAIController::initPerceptionSystem()
 	m_SightConfig->AutoSuccessRangeFromLastSeenLocation = m_AILastSeenLocation; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
 																				// 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
 
-	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true; // 적
-	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = false; // 중립
-	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true; // 아군
+	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true; 
+	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
+	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true; 
 
 	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
 	GetPerceptionComponent()->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.

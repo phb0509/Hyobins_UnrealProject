@@ -17,6 +17,8 @@ class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 public:
 	ACharacterBase();
 
+	virtual void PossessedBy(AController* newController) override;
+
 	float GetCurSpeed() { return m_CurSpeed; }
 	bool GetIsIdle() { return m_bIsIdle; }
 	bool GetIsWalking() { return m_bIsWalking; }
