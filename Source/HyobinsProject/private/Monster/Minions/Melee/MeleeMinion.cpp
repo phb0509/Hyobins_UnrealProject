@@ -17,7 +17,6 @@ AMeleeMinion::AMeleeMinion() :
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	Tags.Add(FName("MeleeMinion" + FString::FromInt(++TagCount)));
-
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
 

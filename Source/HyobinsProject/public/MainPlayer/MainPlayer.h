@@ -9,7 +9,7 @@
 enum class EMainPlayerStates : uint8;
 
 UCLASS()
-class HYOBINSPROJECT_API AMainPlayer : public ACharacterBase
+class HYOBINSPROJECT_API AMainPlayer final: public ACharacterBase
 {
 	GENERATED_BODY()
 

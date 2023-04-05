@@ -165,13 +165,13 @@ ETeamAttitude::Type ASuperMinionAIController::GetTeamAttitudeTowards(const AActo
 		{
 			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(4))
 			{
-				return ETeamAttitude::Friendly; // 동료
+				return ETeamAttitude::Friendly; 
 			}
 			else
 			{
-				return ETeamAttitude::Hostile; // 적
+				return ETeamAttitude::Hostile; 
 			}
 		}
 	}
-	return ETeamAttitude::Neutral; // 중립
+	return ETeamAttitude::Neutral; 
 }

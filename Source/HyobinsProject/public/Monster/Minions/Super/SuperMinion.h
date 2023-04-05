@@ -9,7 +9,7 @@
 enum class ENormalMinionStates : uint8;
 
 UCLASS()
-class HYOBINSPROJECT_API ASuperMinion : public AMonster
+class HYOBINSPROJECT_API ASuperMinion final: public AMonster
 {
 	GENERATED_BODY()
 	
