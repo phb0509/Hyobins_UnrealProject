@@ -3,6 +3,8 @@
 
 #include "HPGameInstance.h"
 #include "Utility/EnumTypes.h"
+#include "Utility/ActorPool.h"
+
 
 UHPGameInstance::UHPGameInstance()
 {
@@ -13,6 +15,9 @@ void UHPGameInstance::Init()
 {
 	Super::Init();
 	UE_LOG(LogTemp, Warning, TEXT("Call the HPGameInstance::Init!"));
+
+	m_ActorPool = GetWorld()->SpawnActor<AActorPool>();
+	checkf(IsValid(m_ActorPool), TEXT("UHPGameInstance::m_ActorPool is not Valid"));
 }
 
 void UHPGameInstance::Shutdown()
@@ -63,7 +68,7 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FNam
 			temp.knockBackTime = data.knockBackTime;
 			temp.knockBackDistance = data.knockBackDistance;
 
-			attackInformations.Add(attackName,temp);
+			attackInformations.Add(attackName, temp);
 		}
 	}
 }
@@ -72,3 +77,4 @@ int32 UHPGameInstance::GetIndexByEnumName(FName& enumClassName, FName& enumTypeN
 {
 	return m_Enums[enumClassName]->GetIndexByName(enumTypeName);
 }
+

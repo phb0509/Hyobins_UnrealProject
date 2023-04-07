@@ -6,9 +6,7 @@
 #include "LevelBase.h"
 #include "FirstLevel.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class HYOBINSPROJECT_API AFirstLevel : public ALevelBase
 {
@@ -18,16 +16,18 @@ public:
 	AFirstLevel();
 
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 
 private:
 	void spawn();
 
-public:
-	UPROPERTY(EditAnywhere, Category = "ObjectPooler")
-	TSubclassOf<class AMeleeMinion> classType;
+	//template<class T>
+	//void TestFunction(T* classType);
+	
 
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;
 	float m_SpawnTimerTime_MeleeMinion;
+	
 };
