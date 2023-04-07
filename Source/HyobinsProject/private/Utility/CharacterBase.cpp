@@ -113,4 +113,5 @@ void ACharacterBase::Activate()
 
 void ACharacterBase::DeActivate()
 {
+	UE_LOG(LogTemp, Warning, TEXT("CharacterBase :: DeActivate"));
 }

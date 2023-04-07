@@ -59,7 +59,7 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetActorLocation(FVector(0.0f, 0.0f, 0.0f));
+	SetActorLocation(FVector(0.0f, 0.0f, 50.0f));
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -328,21 +328,21 @@ void AMainPlayer::initAssets()
 	m_TargetCamera->SetupAttachment(m_SpringArm);
 
 
-	// SwordCollider
-	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
+	//// SwordCollider
+	//FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
 
-	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
-	// location.x, location.y, location. z
-	// scale.x,scale.y,scale.z
+	//// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
+	//// location.x, location.y, location. z
+	//// scale.x,scale.y,scale.z
 
-	m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
-	m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
-	m_SwordCollider->SetWorldTransform(collisionTransform);
-	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
-	m_SwordCollider->SetCapsuleRadius(10.0f);
+	//m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
+	//m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
+	//m_SwordCollider->SetWorldTransform(collisionTransform);
+	//m_SwordCollider->SetCapsuleHalfHeight(50.0f);
+	//m_SwordCollider->SetCapsuleRadius(10.0f);
 
-	m_SwordCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
+	//m_SwordCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	//m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
 
 
 	// 이외 CharacterMovement Detail값들

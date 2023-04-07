@@ -31,9 +31,7 @@ void AFirstLevel::BeginPlay()
 	AActorPool* actorPool = gameInstance->GetActorPool();
 	checkf(IsValid(actorPool), TEXT("AFirstLevel :: actorPool is not Valid"));
 
-	FString temp = "MeleeMinion";
-	actorPool->CreatePool(AMeleeMinion::StaticClass(), "MeleeMinion", 6);
-
+	actorPool->CreatePool(AMeleeMinion::StaticClass(), 6);
 }
 
 
@@ -42,24 +40,3 @@ void AFirstLevel::spawn()
 
 }
 
-
-//template<class T>
-//void AFirstLevel::TestFunction(T* classType)
-//{
-//	TSubclassOf<ACharacterBase> temp = classType;
-//
-//	if (temp != nullptr)
-//	{
-//		float x = FMath::RandRange(0, 500);
-//		float y = FMath::RandRange(0, 500);
-//		const FVector location = { x,y,10 };
-//		const FRotator rotation = { 0,0,0 };
-//		GetWorld()->SpawnActor<AActor>(classType, location, rotation);
-//
-//		UE_LOG(LogTemp, Warning, TEXT("parameter is Correct"));
-//	}
-//	else
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("parameter is not correct"));
-//	}
-//}

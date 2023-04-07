@@ -2,6 +2,8 @@
 
 
 #include "Utility/ActorPool.h"
+#include "Utility/PoolableActor.h"
+#include "Kismet/GameplayStatics.h"
 
 AActorPool::AActorPool()
 {
@@ -15,8 +17,7 @@ void AActorPool::BeginPlay()
 
 }
 
-//template<class T>
-void AActorPool::CreatePool(TSubclassOf<AActor> classType, FString actorName, int actorCount)
+void AActorPool::CreatePool(TSubclassOf<AActor> classType, int actorCount)
 {
 	checkf(IsValid(classType), TEXT("ClassType does not inherit from Actor"));
 
@@ -24,8 +25,23 @@ void AActorPool::CreatePool(TSubclassOf<AActor> classType, FString actorName, in
 
 	for (int i = 0; i < actorCount; ++i)
 	{
-		temp.Add(GetWorld()->SpawnActor<AActor>(classType));
-		m_Actors.Add(actorName, temp);
+		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f,0.0f,1000.0f }); // Rotation, Location
+
+		AActor* actor = GetWorld()->SpawnActorDeferred<AActor>(classType, spawnTransform);
+		
+		if (actor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()))
+		{
+			auto pooldableActor = Cast<IPoolableActor>(actor);
+			pooldableActor->DeActivate();
+
+			temp.Add(actor);
+
+			m_Actors.Add(classType, temp);
+		}
+
+		UGameplayStatics::FinishSpawningActor(actor, { {0.0f,0.0f,0.0f}, {100.0f,100.0f,30.0f} });
+
+		checkf(IsValid(actor), TEXT("Actor does not inherit from IPoolableActor"));
 	}
 }
 

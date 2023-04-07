@@ -46,6 +46,10 @@ protected:
 	
 protected:
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
+	
+	UPROPERTY()
+		TArray<class UCapsuleComponent*> m_HitColliders;
+
 	FTimerHandle m_OnHitTimerHandle;
 	FTimerHandle m_DeathTimerHandle;
 

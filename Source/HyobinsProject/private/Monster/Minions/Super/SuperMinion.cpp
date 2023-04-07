@@ -118,7 +118,7 @@ void ASuperMinion::onNormalAttackMontageEnded()
 
 void ASuperMinion::Die()
 {
-	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetState(ENormalMinionStates::Die);
 	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
 	m_AIController->OnUnPossess();
@@ -144,12 +144,14 @@ void ASuperMinion::initAssets()
 	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
 
 	// HitCollider
-	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
-	m_HitCollider->SetupAttachment(RootComponent);
-	m_HitCollider->SetCapsuleHalfHeight(60.0f);
-	m_HitCollider->SetCapsuleRadius(60.0f);
-	m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
-	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
+	hitCollider->SetupAttachment(RootComponent);
+	hitCollider->SetCapsuleHalfHeight(60.0f);
+	hitCollider->SetCapsuleRadius(60.0f);
+	hitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
+	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	m_HitColliders.Add(hitCollider);
 }
 
 void ASuperMinion::updateState()

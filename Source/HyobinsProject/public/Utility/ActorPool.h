@@ -18,16 +18,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	void CreatePool(TSubclassOf<AActor> classType, FString actorName, int actorCount);
+	void CreatePool(TSubclassOf<class AActor> classType, int actorCount);
 
-	void TestFunction()
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AACtorPool : TestFunction"));
-	}
 
 
 private:
-	TMap<FString, TArray<AActor*>> m_Actors;
+	TMap<TSubclassOf<class AActor>, TArray<class AActor*>> m_Actors;
 };
 
 

@@ -47,7 +47,4 @@ private:
 
 	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;
 	TWeakObjectPtr<class ASuperMinionAIController> m_AIController;
-
-	UPROPERTY(VisibleAnywhere, Category = Collision)
-		class UCapsuleComponent* m_HitCollider;
 };
