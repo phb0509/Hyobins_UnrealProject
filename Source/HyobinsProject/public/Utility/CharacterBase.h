@@ -7,10 +7,11 @@
 #include "Utility/CustomStructs.h"
 #include "Kismet/GameplayStatics.h"
 #include "HPGameInstance.h"
+#include "Utility/PoolableActor.h"
 #include "CharacterBase.generated.h"
 
 UCLASS()
-class HYOBINSPROJECT_API ACharacterBase : public ACharacter
+class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor
 {
 	GENERATED_BODY()
 
@@ -37,9 +38,11 @@ protected:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Die();
-	
 
 	virtual void SetHitState() {};
+
+	virtual void Activate() override;
+	virtual void DeActivate() override;
 	
 protected:
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;

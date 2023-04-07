@@ -106,3 +106,11 @@ void ACharacterBase::DeathTimerEnded()
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 	this->Destroy();
 }
+
+void ACharacterBase::Activate()
+{
+}
+
+void ACharacterBase::DeActivate()
+{
+}
