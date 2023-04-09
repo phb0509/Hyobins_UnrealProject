@@ -82,6 +82,11 @@ void AMeleeMinion::SetHitState()
 	SetState(ENormalMinionStates::Hit);
 }
 
+void AMeleeMinion::ExecHitEvent(ACharacterBase* instigator)
+{
+	m_AIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+}
+
 void AMeleeMinion::OnHitTimerEnded()
 {
 	if (m_bIsDeath)
@@ -90,7 +95,7 @@ void AMeleeMinion::OnHitTimerEnded()
 		return;
 	}
 
-	SetState(ENormalMinionStates::Patrol);
+	SetState(ENormalMinionStates::Chase);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
 
@@ -140,14 +145,8 @@ void AMeleeMinion::initAssets()
 	}
 	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
 
-	// HitCollider
 
-	//m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
-	//m_HitCollider->SetupAttachment(RootComponent);
-	//m_HitCollider->SetCapsuleHalfHeight(60.0f);
-	//m_HitCollider->SetCapsuleRadius(60.0f);
-	//m_HitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
-	//m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	// HitCollider
 
 	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
 	hitCollider->SetupAttachment(RootComponent);

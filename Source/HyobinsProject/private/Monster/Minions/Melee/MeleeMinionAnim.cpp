@@ -13,7 +13,6 @@ UMeleeMinionAnim::UMeleeMinionAnim()
 void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)	
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
-
 }
 
 void UMeleeMinionAnim::PlayNormalAttackMontage()

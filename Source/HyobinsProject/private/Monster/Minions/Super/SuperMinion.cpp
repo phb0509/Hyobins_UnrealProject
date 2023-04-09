@@ -84,6 +84,11 @@ void ASuperMinion::SetHitState()
 	SetState(ENormalMinionStates::Hit);
 }
 
+void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
+{
+	m_AIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+}
+
 void ASuperMinion::OnHitTimerEnded()
 {
 	if (m_bIsDeath)
@@ -93,7 +98,7 @@ void ASuperMinion::OnHitTimerEnded()
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: OnHitTimerEnded"));
-	SetState(ENormalMinionStates::Patrol);
+	SetState(ENormalMinionStates::Chase);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
 

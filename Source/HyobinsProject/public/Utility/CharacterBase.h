@@ -28,7 +28,7 @@ public:
 	bool GetIsInAir() { return m_bIsInAir; }
 	bool GetIsDeath() { return m_bIsDeath; }
 
-	virtual void OnHitTimerEnded();
+	virtual void OnHitTimerEnded() {};
 	virtual void DeathTimerEnded();
 
 	virtual void OnCalledDeathMontageEndedNotify();
@@ -37,9 +37,10 @@ protected:
 	void initAttackInformations(FString path);
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-	virtual void Die();
+	virtual void Die() {};
 
 	virtual void SetHitState() {};
+	virtual void ExecHitEvent(ACharacterBase* instigator) {};
 
 	virtual void Activate() override;
 	virtual void DeActivate() override;

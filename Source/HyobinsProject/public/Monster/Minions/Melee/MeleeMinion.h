@@ -31,6 +31,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetHitState() override;
+	virtual void ExecHitEvent(ACharacterBase* instigator) override;
 	
 
 private:

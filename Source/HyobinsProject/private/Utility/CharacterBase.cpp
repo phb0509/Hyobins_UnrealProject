@@ -47,7 +47,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 
-	checkf(IsValid(instigatorCharacter), TEXT("instigatorCharacter is not Valid"));
+	checkf(IsValid(instigatorCharacter), TEXT("InstigatorCharacter is not Valid"));
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
 
 	m_CurHP -= attackInformation->damage;
@@ -65,9 +65,11 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	}
 	else
 	{
+		ExecHitEvent(instigatorCharacter);
+		
 		if (!m_bIsSuperArmor)
 		{
-			SetHitState();
+			SetHitState(); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록.
 
 			m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
 
@@ -86,16 +88,6 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	return FinalDamage;
 }
 
-void ACharacterBase::OnHitTimerEnded()
-{
-	this->OnHitTimerEnded();
-}
-
-void ACharacterBase::Die()
-{
-	this->Die();
-}
-
 void ACharacterBase::OnCalledDeathMontageEndedNotify()
 {
 	GetWorldTimerManager().SetTimer(m_DeathTimerHandle, this, &ACharacterBase::DeathTimerEnded, m_DeathTimerTime, true); // OnHitTimeEnded는 알아서 오버라이드되서 호출됨.
@@ -104,14 +96,22 @@ void ACharacterBase::OnCalledDeathMontageEndedNotify()
 void ACharacterBase::DeathTimerEnded()
 {
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-	this->Destroy();
+	DeActivate();
 }
 
 void ACharacterBase::Activate()
 {
+	m_bIsActivated = true;
+	SetActorTickEnabled(true);
+	SetActorHiddenInGame(false);
+	GetController()->Possess(this);
 }
 
 void ACharacterBase::DeActivate()
 {
 	UE_LOG(LogTemp, Warning, TEXT("CharacterBase :: DeActivate"));
+
+	m_bIsActivated = false;
+	SetActorTickEnabled(false); 
+	SetActorHiddenInGame(true);
 }

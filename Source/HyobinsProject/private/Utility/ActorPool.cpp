@@ -39,8 +39,6 @@ void AActorPool::CreatePool(TSubclassOf<AActor> classType, int actorCount)
 			m_Actors.Add(classType, temp);
 		}
 
-		UGameplayStatics::FinishSpawningActor(actor, { {0.0f,0.0f,0.0f}, {100.0f,100.0f,30.0f} }); 
-
 		checkf(IsValid(actor), TEXT("Actor does not inherit from IPoolableActor"));
 	}
 }

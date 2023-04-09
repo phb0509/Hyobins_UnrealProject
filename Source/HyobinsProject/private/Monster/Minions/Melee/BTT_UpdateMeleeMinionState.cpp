@@ -25,15 +25,11 @@ EBTNodeResult::Type UBTT_UpdateMeleeMinionState::ExecuteTask(UBehaviorTreeCompon
 	{
 		owner->SetState(ENormalMinionStates::Chase); // 공격할 수 있는 거리 될 때까지 추적.
 		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::Chase));
-		//UE_LOG(LogTemp, Warning, TEXT(" ChaseState!!!!!!!!!!!!!!!"));
-		//UE_LOG(LogTemp, Warning, TEXT(" Chase :: distance To Enemy : %f"), distanceToEnemy);
 	}
 	else if (distanceToEnemy <= owner->GetNormalAttackRange())
 	{
 		owner->SetState(ENormalMinionStates::NormalAttack);
 		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::NormalAttack));
-		//UE_LOG(LogTemp, Warning, TEXT(" AttacState!!!!!!!!!!!!!!!"));
-		//UE_LOG(LogTemp, Warning, TEXT(" Attack :: distance To Enemy : %f"), distanceToEnemy);
 	}
 
 	return EBTNodeResult::Succeeded;

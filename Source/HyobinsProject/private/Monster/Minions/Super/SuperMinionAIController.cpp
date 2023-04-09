@@ -82,12 +82,12 @@ void ASuperMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 				{
 					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::NormalAttack)
 					{
-						// 타겟유지.
+						// 현재상태 유지.
 					}
 					else
 					{
-						m_Owner->SetState(ENormalMinionStates::Patrol);
-						Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);
+					/*	m_Owner->SetState(ENormalMinionStates::Patrol);
+						Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);*/
 					}
 				}
 

@@ -83,8 +83,8 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 					}
 					else
 					{
-						m_Owner->SetState(ENormalMinionStates::Patrol);
-						Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);
+						/*m_Owner->SetState(ENormalMinionStates::Patrol);
+						Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);*/
 					}
 				}
 
