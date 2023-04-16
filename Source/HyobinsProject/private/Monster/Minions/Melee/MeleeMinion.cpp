@@ -19,6 +19,7 @@ AMeleeMinion::AMeleeMinion() :
 	Tags.Add(FName("MeleeMinion" + FString::FromInt(++TagCount)));
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
+	m_DeathTimerTime = 3.0f;
 
 	initAssets();
 }
@@ -27,7 +28,7 @@ void AMeleeMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	m_AnimInstance = Cast<UMeleeMinionAnim>(GetMesh()->GetAnimInstance());
+	m_AnimInstance = Cast<UMeleeMinionAnim>(m_AnimInstanceBase);
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
@@ -39,8 +40,8 @@ void AMeleeMinion::PostInitializeComponents()
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is not Valid"));
 	}
 
-	m_AIController = Cast<AMeleeMinionAIController>(GetController());
-	if (m_AIController.IsValid())
+	m_OwnerAIController = Cast<AMeleeMinionAIController>(m_AIControllerBase);
+	if (m_OwnerAIController.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is Valid"));
 	}
@@ -48,11 +49,15 @@ void AMeleeMinion::PostInitializeComponents()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
 	}
+
 }
 
 void AMeleeMinion::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("MeleeMinion :: BeginPlay"));
+	
 }
 
 void AMeleeMinion::Tick(float DeltaTime)
@@ -70,21 +75,56 @@ void AMeleeMinion::NormalAttack()
 	m_AnimInstance->PlayNormalAttackMontage();
 }
 
+void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)
+{
+	int8 index = static_cast<int8>(commonState);
+
+	switch (index)
+	{
+	case static_cast<int8>(EMonsterCommonStates::Patrol):
+		SetState(ENormalMinionStates::Patrol);
+		break;
+	case static_cast<int8>(EMonsterCommonStates::Hit):
+		m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+		SetState(ENormalMinionStates::Hit);
+		break;
+	case static_cast<int8>(EMonsterCommonStates::Die):
+		break;
+	default:
+		break;
+	}
+}
+
 void AMeleeMinion::SetState(ENormalMinionStates state)
 {
 	m_CurState = state;
-	m_AIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
-}
-
-void AMeleeMinion::SetHitState()
-{
-	m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
-	SetState(ENormalMinionStates::Hit);
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
 void AMeleeMinion::ExecHitEvent(ACharacterBase* instigator)
 {
-	m_AIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+}
+
+void AMeleeMinion::ExecDeathEvent()
+{
+	m_DeathTimerRemainingTime = m_DeathTimerTime;
+	m_DeathTimerTickTime = m_DeathTimerTime / 100; 
+
+	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &AMeleeMinion::OnDeathTimerEvent, m_DeathTimerTickTime, true, 0.0f);
+}
+
+void AMeleeMinion::OnDeathTimerEvent()
+{
+	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
+	m_DiffuseRatio -= m_DeathTimerTickTime;
+
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
+
+	if (m_DeathTimerRemainingTime <= 0.0f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(m_DeathTimerHandle);
+	}
 }
 
 void AMeleeMinion::OnHitTimerEnded()
@@ -99,7 +139,7 @@ void AMeleeMinion::OnHitTimerEnded()
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
 
-void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 현재 재생중인 몽타주의 재생이 끝났을 시 호출.
+void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
 	int curState = (uint8)m_CurState;
 
@@ -120,10 +160,12 @@ void AMeleeMinion::onNormalAttackMontageEnded()
 
 void AMeleeMinion::Die()
 {
-	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetState(ENormalMinionStates::Die);
+
+	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
-	m_AIController->OnUnPossess();
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
+	m_OwnerAIController->OnUnPossess();
 }
 
 void AMeleeMinion::initAssets()
@@ -145,7 +187,6 @@ void AMeleeMinion::initAssets()
 	}
 	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
 
-
 	// HitCollider
 
 	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
@@ -156,7 +197,6 @@ void AMeleeMinion::initAssets()
 	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	m_HitColliders.Add(hitCollider);
-
 }
 
 void AMeleeMinion::updateState()

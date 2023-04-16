@@ -3,22 +3,19 @@
 
 #include "Utility/EnumTypes.h"
 
-// Sets default values
+
 AEnumTypes::AEnumTypes()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 }
 
-// Called when the game starts or when spawned
 void AEnumTypes::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
 void AEnumTypes::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

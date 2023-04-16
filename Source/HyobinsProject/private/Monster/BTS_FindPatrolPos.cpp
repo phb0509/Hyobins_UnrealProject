@@ -3,7 +3,7 @@
 
 #include "Monster/BTS_FindPatrolPos.h"
 #include "Monster/Monster.h"
-#include "Monster/Minions/Melee/MeleeMinionAIController.h"
+#include "Utility/AIControllerBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 
@@ -33,6 +33,4 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMonster::PatrolPosKey, NextPatrol.Location);
 	}
 
-
-	UE_LOG(LogTemp, Warning, TEXT("Call FindPath"));
 }

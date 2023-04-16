@@ -10,20 +10,20 @@ UCLASS()
 class HYOBINSPROJECT_API AActorPool : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AActorPool();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	void CreatePool(TSubclassOf<class AActor> classType, int actorCount);
-
-
+public:
+	void CreatePool(TSubclassOf<AActor> classType, int actorCount);
+	AActor* SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation = {0.0f,0.0f,0.0f});
 
 private:
-	TMap<TSubclassOf<class AActor>, TArray<class AActor*>> m_Actors;
+	TMap<TSubclassOf<AActor>, TArray<AActor*>> m_ActorPools;
+	int32 m_DefaultSpawnCount;
 };
 
 

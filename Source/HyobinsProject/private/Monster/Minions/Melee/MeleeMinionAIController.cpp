@@ -30,6 +30,8 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
 
+	UE_LOG(LogTemp, Warning, TEXT("Call MeleeMinionAIController::OnPossess"));
+
 	UBlackboardComponent* BlackboardComponent = Blackboard;
 	
 	m_Owner = Cast<AMeleeMinion>(pawn);
@@ -42,8 +44,10 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 	}
 }
 
-void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const Stimulus)
+void AMeleeMinionAIController::UpdatePerceptedActor(AActor* actor, FAIStimulus const Stimulus)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Call MeleeMinionAIController::UpdatePerceptedActor"));
+
 	if (m_Owner.IsValid())
 	{
 		ACharacterBase* perceivedCharacter = Cast<ACharacterBase>(actor);
@@ -67,7 +71,7 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 			}
 			break;
 
-			case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
+			case 2:  // 적
 			{
 				ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
 
@@ -83,8 +87,6 @@ void AMeleeMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const St
 					}
 					else
 					{
-						/*m_Owner->SetState(ENormalMinionStates::Patrol);
-						Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);*/
 					}
 				}
 
@@ -149,7 +151,10 @@ void AMeleeMinionAIController::initPerceptionSystem()
 
 	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
 	GetPerceptionComponent()->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
-	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::CheckIsTarget);
+	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerceptedActor);
+
+	m_SightConfig->IsEnabled();
+	m_AIPerceptionComponent->Deactivate();
 	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
 	AAIController::SetGenericTeamId(m_TeamID);
 }

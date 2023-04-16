@@ -2,6 +2,10 @@
 
 
 #include "Utility/CharacterBase.h"
+#include "Utility/AIControllerBase.h"
+#include "Utility/AnimInstanceBase.h"
+#include <Components/CapsuleComponent.h>
+#include "HPGameInstance.h"
 
 ACharacterBase::ACharacterBase() :
 	m_MaxHP(100.0f),
@@ -12,7 +16,9 @@ ACharacterBase::ACharacterBase() :
 	m_HitRecovery(1.0f),
 	m_OnHitTimerTime(1.0f),
 	m_DeathTimerTime(3.0f),
-	m_bIsActivated(false),
+	m_DeathTimerTickTime(1.0f),
+	m_DeathTimerRemainingTime(3.0f),
+	m_DiffuseRatio(1.0f),
 	m_bIsIdle(true),
 	m_bIsWalking(false),
 	m_bIsRunning(false),
@@ -27,12 +33,12 @@ ACharacterBase::ACharacterBase() :
 void ACharacterBase::PossessedBy(AController* newController)
 {
 	Super::PossessedBy(newController);
-}
 
-void ACharacterBase::initAttackInformations(FString path)
-{
-	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	HPGameInstance->InitAttackInformations(path, m_AttackInformations);
+	FString temp = Tags[0].ToString() + " :: CharacterBase :: Possessedby!!";
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"),*temp);
+	m_AIControllerBase = Cast<AAIControllerBase>(newController);
+	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -69,7 +75,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 		
 		if (!m_bIsSuperArmor)
 		{
-			SetHitState(); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록.
+			SetCommonState(EMonsterCommonStates::Hit); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록.
 
 			m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
 
@@ -90,28 +96,13 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void ACharacterBase::OnCalledDeathMontageEndedNotify()
 {
-	GetWorldTimerManager().SetTimer(m_DeathTimerHandle, this, &ACharacterBase::DeathTimerEnded, m_DeathTimerTime, true); // OnHitTimeEnded는 알아서 오버라이드되서 호출됨.
+	UE_LOG(LogTemp, Warning, TEXT("OnCalledDeathMontageNotify"));
+	ExecDeathEvent();
+	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ACharacterBase::DeActivate, m_DeathTimerTime, true);
 }
 
-void ACharacterBase::DeathTimerEnded()
+void ACharacterBase::initAttackInformations(FString path)
 {
-	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-	DeActivate();
-}
-
-void ACharacterBase::Activate()
-{
-	m_bIsActivated = true;
-	SetActorTickEnabled(true);
-	SetActorHiddenInGame(false);
-	GetController()->Possess(this);
-}
-
-void ACharacterBase::DeActivate()
-{
-	UE_LOG(LogTemp, Warning, TEXT("CharacterBase :: DeActivate"));
-
-	m_bIsActivated = false;
-	SetActorTickEnabled(false); 
-	SetActorHiddenInGame(true);
+	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	HPGameInstance->InitAttackInformations(path, m_AttackInformations);
 }

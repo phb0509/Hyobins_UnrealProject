@@ -30,6 +30,15 @@ enum class ENormalMinionStates : uint8
 };
 
 UENUM(BlueprintType)
+enum class EMonsterCommonStates : uint8
+{
+	Patrol			UMETA(DisplayName = "Patrol"),
+	Hit				UMETA(DisplayName = "Hit"),
+	Die				UMETA(DisplayName = "Die"),
+	End				UMETA(DisplayName = "End")
+};
+
+UENUM(BlueprintType)
 enum class ECrowdControlType : uint8
 {
 	None    UMETA(DisplayName = "None"),

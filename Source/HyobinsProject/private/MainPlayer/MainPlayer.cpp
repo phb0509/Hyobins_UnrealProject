@@ -59,7 +59,7 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetActorLocation(FVector(0.0f, 0.0f, 50.0f));
+	SetActorLocation(FVector(-200.0f, 0.0f, 100.0f));
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -70,38 +70,6 @@ void AMainPlayer::Tick(float DeltaTime)
 	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, m_ArmLengthTo, DeltaTime, m_ArmLengthSpeed);
 
 	printLog();
-}
-
-void AMainPlayer::updateState()
-{
-	m_CurSpeed = GetVelocity().Size();
-	m_bIsInAir = GetMovementComponent()->IsFalling();
-
-	if (!m_bIsInAir)
-	{
-		if (m_CurSpeed < 0.1)
-		{
-			m_bIsIdle = true;
-			m_bIsWalking = false;
-			m_bIsRunning = false;
-		}
-		else if (m_CurSpeed > 0.1 && m_CurSpeed <= m_WalkSpeed)
-		{
-			m_bIsIdle = false;
-			m_bIsWalking = true;
-			m_bIsRunning = false;
-		}
-		else if (m_CurSpeed > m_WalkSpeed && m_CurSpeed <= m_RunSpeed)
-		{
-			m_bIsIdle = false;
-			m_bIsWalking = false;
-			m_bIsRunning = true;
-		}
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
-	}
 }
 
 void AMainPlayer::normalComboAttack()
@@ -169,12 +137,6 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 }
-
-//void AMainPlayer::PossessedBy(AController* newController)
-//{
-//	Super::PossessedBy(newController);
-//	UE_LOG(LogTemp, Warning, TEXT("Call the MainPlayer::PossessedBy!"));
-//}
 
 void AMainPlayer::Jump()
 {
@@ -360,10 +322,40 @@ void AMainPlayer::initAssets()
 
 	// 회전을 부드럽게 만들어 주기 위해 RotationRate 를 조정한다. 값이 낮을수록 카메라 회전시 캐릭터가 한박자 느리게 회전.
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
 
+void AMainPlayer::updateState()
+{
+	m_CurSpeed = GetVelocity().Size();
+	m_bIsInAir = GetMovementComponent()->IsFalling();
+
+	if (!m_bIsInAir)
+	{
+		if (m_CurSpeed < 0.1)
+		{
+			m_bIsIdle = true;
+			m_bIsWalking = false;
+			m_bIsRunning = false;
+		}
+		else if (m_CurSpeed > 0.1 && m_CurSpeed <= m_WalkSpeed)
+		{
+			m_bIsIdle = false;
+			m_bIsWalking = true;
+			m_bIsRunning = false;
+		}
+		else if (m_CurSpeed > m_WalkSpeed && m_CurSpeed <= m_RunSpeed)
+		{
+			m_bIsIdle = false;
+			m_bIsWalking = false;
+			m_bIsRunning = true;
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
+	}
+}
 void AMainPlayer::printLog()
 {
 	FVector location = GetActorLocation();

@@ -2,9 +2,10 @@
 
 
 #include "Monster/Minions/Super/BTT_SuperMinionAttack.h"
+#include "Monster/Minions/Super/SuperMinion.h"
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Monster/Minions/Super/SuperMinion.h"
+
 
 UBTT_SuperMinionAttack::UBTT_SuperMinionAttack()
 {
@@ -16,8 +17,9 @@ EBTNodeResult::Type UBTT_SuperMinionAttack::ExecuteTask(UBehaviorTreeComponent& 
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
-	checkf(IsValid(owner), TEXT("Owner is not Valid~~~~~~~"));
-	ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
+	checkf(IsValid(owner), TEXT("Owner is not Valid"));
+	/*ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
+	checkf(IsValid(enemyOnBlackBoard), TEXT("Cast Failed"));*/
 
 	owner->NormalAttack();
 

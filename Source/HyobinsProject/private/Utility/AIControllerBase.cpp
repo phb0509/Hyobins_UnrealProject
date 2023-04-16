@@ -33,6 +33,10 @@ void AAIControllerBase::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
 	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase :: OnPossess"));
+
+	m_AIPerceptionComponent->Activate();
+	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), true);
+	//m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass());
 }
 
 void AAIControllerBase::OnUnPossess()
@@ -41,6 +45,7 @@ void AAIControllerBase::OnUnPossess()
 	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase :: OnUnPossess"));
 
 	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
+	m_AIPerceptionComponent->Deactivate();
 }
 
 void AAIControllerBase::StopBehaviorTree()
@@ -50,6 +55,7 @@ void AAIControllerBase::StopBehaviorTree()
 
 void AAIControllerBase::PlayBehaviorTree()
 {
+	RunBehaviorTree(m_BehaviorTree);
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 

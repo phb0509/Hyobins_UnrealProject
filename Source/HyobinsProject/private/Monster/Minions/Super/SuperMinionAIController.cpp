@@ -45,7 +45,7 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 	}
 }
 
-void ASuperMinionAIController::CheckIsTarget(AActor* actor, FAIStimulus const Stimulus)
+void ASuperMinionAIController::UpdatePerceptedActor(AActor* actor, FAIStimulus const Stimulus)
 {
 	if (m_Owner.IsValid())
 	{
@@ -152,7 +152,7 @@ void ASuperMinionAIController::initPerceptionSystem()
 
 	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
 	GetPerceptionComponent()->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
-	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::CheckIsTarget);
+	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedActor);
 	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
 	AAIController::SetGenericTeamId(m_TeamID);
 }

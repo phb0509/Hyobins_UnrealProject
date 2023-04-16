@@ -28,7 +28,7 @@ void ASuperMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
+	m_AnimInstance = Cast<USuperMinionAnim>(m_AnimInstanceBase);
 
 	if (m_AnimInstance.IsValid())
 	{
@@ -41,8 +41,8 @@ void ASuperMinion::PostInitializeComponents()
 		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance is not Valid"));
 	}
 
-	m_AIController = Cast<ASuperMinionAIController>(GetController());
-	if (m_AIController.IsValid())
+	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
+	if (m_OwnerAIController.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController is Valid"));
 	}
@@ -75,18 +75,54 @@ void ASuperMinion::NormalAttack()
 void ASuperMinion::SetState(ENormalMinionStates state)
 {
 	m_CurState = state;
-	m_AIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
-void ASuperMinion::SetHitState()
+void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 {
-	m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
-	SetState(ENormalMinionStates::Hit);
+	int8 index = static_cast<int8>(commonState);
+
+	switch (index)
+	{
+	case static_cast<int8>(EMonsterCommonStates::Patrol):
+		SetState(ENormalMinionStates::Patrol);
+		break;
+	case static_cast<int8>(EMonsterCommonStates::Hit):
+		m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+		SetState(ENormalMinionStates::Hit);
+		break;
+	case static_cast<int8>(EMonsterCommonStates::Die):
+		break;
+	default:
+		break;
+	}
 }
 
 void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
 {
-	m_AIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+}
+
+void ASuperMinion::ExecDeathEvent()
+{
+	// 타이머 시간 및, 호출빈도수 정의
+
+	m_DeathTimerRemainingTime = m_DeathTimerTime;
+	m_DeathTimerTickTime = m_DeathTimerTime / 100;
+	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnDeathTimerEvent, m_DeathTimerTickTime, true, 0.0f);
+}
+
+void ASuperMinion::OnDeathTimerEvent()
+{
+	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
+
+	m_DiffuseRatio -= m_DeathTimerTickTime;
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
+
+	if (m_DeathTimerRemainingTime <= 0.0f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(m_DeathTimerHandle);
+	}
 }
 
 void ASuperMinion::OnHitTimerEnded()
@@ -123,10 +159,11 @@ void ASuperMinion::onNormalAttackMontageEnded()
 
 void ASuperMinion::Die()
 {
-	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	SetState(ENormalMinionStates::Die);
+	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
-	m_AIController->OnUnPossess();
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
+	m_OwnerAIController->OnUnPossess();
 }
 
 void ASuperMinion::initAssets()
@@ -147,6 +184,7 @@ void ASuperMinion::initAssets()
 		GetMesh()->SetAnimInstanceClass(animInstance.Class);
 	}
 	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
+
 
 	// HitCollider
 	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));

@@ -20,6 +20,7 @@ void UMeleeMinionAnim::PlayNormalAttackMontage()
 	int32 randomIndex = FMath::RandRange(0, 2);
 
 	Montage_Play(m_AttackMontages[randomIndex], 1.0f); // 낮을수록 느리게 재생.
+	
 }
 
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.

@@ -19,15 +19,13 @@ public:
 	virtual void PostInitializeComponents() override;
 
 private:
-	void spawn();
-
-	//template<class T>
-	//void TestFunction(T* classType);
-	
+	UFUNCTION(BlueprintCallable, Category = "TestFunction")
+		void spawn();
 
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;
 	float m_SpawnTimerTime_MeleeMinion;
+	TWeakObjectPtr<class AActorPool> m_ActorPool;
 	
 };

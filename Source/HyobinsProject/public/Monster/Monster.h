@@ -20,8 +20,9 @@ public:
 
 
 protected:
-	//virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-
+	
+	virtual void Activate() override;
+	virtual void DeActivate() override;
 
 public:
 	static const FName HomePosKey;

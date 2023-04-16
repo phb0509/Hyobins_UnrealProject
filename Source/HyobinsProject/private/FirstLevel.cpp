@@ -11,7 +11,7 @@
 AFirstLevel::AFirstLevel() :
 	m_SpawnTimerTime_MeleeMinion(2.0f)
 {
-	
+
 }
 
 void AFirstLevel::PostInitializeComponents()
@@ -28,15 +28,33 @@ void AFirstLevel::BeginPlay()
 	UHPGameInstance* gameInstance = Cast<UHPGameInstance>(GetGameInstance());
 	checkf(IsValid(gameInstance), TEXT("AFirstLevel :: GameInstance is not Valid"));
 
-	AActorPool* actorPool = gameInstance->GetActorPool();
-	checkf(IsValid(actorPool), TEXT("AFirstLevel :: actorPool is not Valid"));
+	m_ActorPool = gameInstance->GetActorPool();
+	
+	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: actorPool is not Valid"));
 
-	actorPool->CreatePool(AMeleeMinion::StaticClass(), 6);
+	//m_ActorPool->CreatePool(AMeleeMinion::StaticClass(), 5);
+	//m_ActorPool->CreatePool(ASuperMinion::StaticClass(), 5);
+
+	m_ActorPool->CreatePool(AMeleeMinion::StaticClass(), 1);
+
+
 }
 
 
 void AFirstLevel::spawn()
 {
+	UE_LOG(LogTemp, Warning, TEXT("FirstLevel :: Spawn"));
+
+	/*FVector meleeSpawnLocation = { 0.0f, 100.0f, 100.0f };
+	m_ActorPool->SpawnActor(AMeleeMinion::StaticClass(), meleeSpawnLocation);
+
+	FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
+	m_ActorPool->SpawnActor(ASuperMinion::StaticClass(), superSpawnLocation);*/
+
+	FVector meleeSpawnLocation = { 0.0f, 100.0f, 100.0f };
+	m_ActorPool->SpawnActor(AMeleeMinion::StaticClass(), meleeSpawnLocation);
 
 }
+
+
 

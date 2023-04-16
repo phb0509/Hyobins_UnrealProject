@@ -6,6 +6,7 @@
 #include "Monster/Monster.h"
 #include "MeleeMinion.generated.h"
 
+enum class EMonsterCommonStates : uint8;
 enum class ENormalMinionStates : uint8;
 
 UCLASS()
@@ -30,15 +31,18 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetHitState() override;
+	virtual void SetCommonState(EMonsterCommonStates commonState);
 	virtual void ExecHitEvent(ACharacterBase* instigator) override;
+	virtual void Die() override;
+	virtual void ExecDeathEvent() override;
 	
+	void OnDeathTimerEvent();
 
 private:
 	void initAssets();
 	void updateState();
 	void onNormalAttackMontageEnded();
-	void Die();
+	
 
 	UFUNCTION()
 		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -49,6 +53,6 @@ private:
 	ENormalMinionStates m_CurState;
 
 	TWeakObjectPtr<class UMeleeMinionAnim> m_AnimInstance;
-	TWeakObjectPtr<class AMeleeMinionAIController> m_AIController;
+	TWeakObjectPtr<class AMeleeMinionAIController> m_OwnerAIController;
 
 };

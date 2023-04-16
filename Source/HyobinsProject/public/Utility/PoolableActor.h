@@ -20,4 +20,8 @@ class HYOBINSPROJECT_API IPoolableActor
 public:
 	virtual void Activate() = 0;
 	virtual void DeActivate() = 0;
+	bool GetIsActivated() { return m_bIsActivated; }
+
+protected:
+	bool m_bIsActivated = false;
 };
