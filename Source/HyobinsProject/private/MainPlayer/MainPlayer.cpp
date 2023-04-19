@@ -216,14 +216,14 @@ void AMainPlayer::CheckNormalAttackCollision()
 	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
 	float DebugLifeTime = 3.0f;
 
-	DrawDebugCapsule(GetWorld(),
-		Center,
-		HalfHeight,
-		m_NormalAttackRadius,
-		CapsuleRot,
-		DrawColor,
-		false,
-		DebugLifeTime);
+	//DrawDebugCapsule(GetWorld(),
+	//	Center,
+	//	HalfHeight,
+	//	m_NormalAttackRadius,
+	//	CapsuleRot,
+	//	DrawColor,
+	//	false,
+	//	DebugLifeTime);
 #endif
 
 	if (bResult)

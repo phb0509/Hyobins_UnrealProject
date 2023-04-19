@@ -33,7 +33,7 @@ void AMeleeMinion::PostInitializeComponents()
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
 		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
-		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is Valid"));
+		//UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is Valid"));
 	}
 	else
 	{
@@ -43,7 +43,7 @@ void AMeleeMinion::PostInitializeComponents()
 	m_OwnerAIController = Cast<AMeleeMinionAIController>(m_AIControllerBase);
 	if (m_OwnerAIController.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is Valid"));
+		//UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is Valid"));
 	}
 	else
 	{
@@ -111,10 +111,10 @@ void AMeleeMinion::ExecDeathEvent()
 	m_DeathTimerRemainingTime = m_DeathTimerTime;
 	m_DeathTimerTickTime = m_DeathTimerTime / 100; 
 
-	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &AMeleeMinion::OnDeathTimerEvent, m_DeathTimerTickTime, true, 0.0f);
+	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &AMeleeMinion::OnDeathEventTimerEnded, m_DeathTimerTickTime, true, 0.0f);
 }
 
-void AMeleeMinion::OnDeathTimerEvent()
+void AMeleeMinion::OnDeathEventTimerEnded()
 {
 	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
 	m_DiffuseRatio -= m_DeathTimerTickTime;

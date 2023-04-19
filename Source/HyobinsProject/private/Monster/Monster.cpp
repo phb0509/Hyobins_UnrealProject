@@ -32,6 +32,7 @@ void AMonster::Activate()
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 	m_DiffuseRatio = 1.0f;
+
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 

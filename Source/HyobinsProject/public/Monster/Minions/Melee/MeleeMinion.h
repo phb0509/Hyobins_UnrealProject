@@ -36,7 +36,7 @@ protected:
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 	
-	void OnDeathTimerEvent();
+	void OnDeathEventTimerEnded();
 
 private:
 	void initAssets();

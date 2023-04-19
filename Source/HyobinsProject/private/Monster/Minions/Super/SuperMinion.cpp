@@ -34,7 +34,7 @@ void ASuperMinion::PostInitializeComponents()
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
 		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance is Valid"));
+	//	UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance is Valid"));
 	}
 	else
 	{
@@ -44,7 +44,7 @@ void ASuperMinion::PostInitializeComponents()
 	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
 	if (m_OwnerAIController.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController is Valid"));
+		//UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController is Valid"));
 	}
 	else
 	{
@@ -109,10 +109,10 @@ void ASuperMinion::ExecDeathEvent()
 
 	m_DeathTimerRemainingTime = m_DeathTimerTime;
 	m_DeathTimerTickTime = m_DeathTimerTime / 100;
-	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnDeathTimerEvent, m_DeathTimerTickTime, true, 0.0f);
+	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnDeathEventTimerEnded, m_DeathTimerTickTime, true, 0.0f);
 }
 
-void ASuperMinion::OnDeathTimerEvent()
+void ASuperMinion::OnDeathEventTimerEnded()
 {
 	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
 

@@ -32,8 +32,14 @@ public:
 	void StopBehaviorTree();
 	void PlayBehaviorTree();
 
+	UFUNCTION()
+		virtual void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus) {};
+
     // Get
 	UBlackboardComponent* GetBlackBoard() { return Blackboard; }
+
+protected:
+	
 
 protected:
 	UPROPERTY()

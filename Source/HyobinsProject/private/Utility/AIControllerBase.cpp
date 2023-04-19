@@ -18,6 +18,13 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 
 	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerception_Component");
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
+
+	//FScriptDelegate Delegate;
+	//Delegate.BindUFunction(this, "UpdatePerceptedTargetActor");
+
+	////m_AIPerceptionComponent->OnComponentActivated.Add(&AAIControllerBase::UpdatePerceptedTargetActor);
+	//m_AIPerceptionComponent->OnComponentActivated.Add(Delegate);
+
 }
 
 void AAIControllerBase::BeginPlay()

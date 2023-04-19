@@ -44,7 +44,7 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 	}
 }
 
-void AMeleeMinionAIController::UpdatePerceptedActor(AActor* actor, FAIStimulus const Stimulus)
+void AMeleeMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Call MeleeMinionAIController::UpdatePerceptedActor"));
 
@@ -129,11 +129,11 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	checkf(IsValid(m_SightConfig), TEXT("SightConfig is not Valid"));
 
-	m_SightRadius = 1000.0f;
-	m_LoseSightRadius = 1100.0f;
+	m_SightRadius = 800.0f;
+	m_LoseSightRadius = 1500.0f;
 	m_PeripheralVisionHalfAngle = 180.0f;
 	m_AILastSeenLocation = 0.0f;
-	m_AISightAge = 0.0f;
+	m_AISightAge = 5.0f;
 
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
 	SetPerceptionComponent(*m_AIPerceptionComponent);
@@ -149,11 +149,10 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = false; // 중립
 	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true; // 아군
 
-	GetPerceptionComponent()->ConfigureSense(*m_SightConfig);
-	GetPerceptionComponent()->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
-	GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerceptedActor);
-
-	m_SightConfig->IsEnabled();
+	m_AIPerceptionComponent->ConfigureSense(*m_SightConfig);
+	m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
+	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAIControllerBase::UpdatePerceptedTargetActor);
+	
 	m_AIPerceptionComponent->Deactivate();
 	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
 	AAIController::SetGenericTeamId(m_TeamID);

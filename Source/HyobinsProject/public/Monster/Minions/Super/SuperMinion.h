@@ -33,7 +33,7 @@ protected:
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 
-	void OnDeathTimerEvent();
+	void OnDeathEventTimerEnded();
 
 
 private:
@@ -42,9 +42,9 @@ private:
 
 	void onNormalAttackMontageEnded();
 	
-
 	UFUNCTION()
 		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
 public:
 	static int TagCount;
 

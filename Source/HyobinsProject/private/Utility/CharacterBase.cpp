@@ -96,8 +96,9 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void ACharacterBase::OnCalledDeathMontageEndedNotify()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnCalledDeathMontageNotify"));
 	ExecDeathEvent();
+
+	// 액터풀에 반환하기위한 비활성화타이머
 	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ACharacterBase::DeActivate, m_DeathTimerTime, true);
 }
 
