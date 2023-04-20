@@ -133,7 +133,6 @@ void ASuperMinion::OnHitTimerEnded()
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: OnHitTimerEnded"));
 	SetState(ENormalMinionStates::Chase);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
