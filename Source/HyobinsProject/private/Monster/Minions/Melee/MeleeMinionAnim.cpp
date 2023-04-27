@@ -1,8 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "Monster/Minions/Melee/MeleeMinionAnim.h"
 #include "Monster/Minions/Melee/MeleeMinion.h"
+#include "Monster/Minions/Melee/MeleeMinionAnim.h"
 
 
 UMeleeMinionAnim::UMeleeMinionAnim()
@@ -10,17 +9,11 @@ UMeleeMinionAnim::UMeleeMinionAnim()
 	loadMontages();
 }
 
-void UMeleeMinionAnim::NativeUpdateAnimation(float DeltaSeconds)	
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-}
-
-void UMeleeMinionAnim::PlayNormalAttackMontage()
+void UMeleeMinionAnim::PlayNormalAttackMontage(float InPlayRate)
 {
 	int32 randomIndex = FMath::RandRange(0, 2);
 
-	Montage_Play(m_AttackMontages[randomIndex], 1.0f); // 낮을수록 느리게 재생.
-	
+	Montage_Play(m_AttackMontages[randomIndex], InPlayRate); // 낮을수록 느리게 재생.
 }
 
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
@@ -69,4 +62,5 @@ void UMeleeMinionAnim::loadMontages()
 	{
 		m_DeathMontages.Add(deathMontage_Front.Object);
 	}
+
 }

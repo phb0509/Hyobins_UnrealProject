@@ -69,7 +69,8 @@ void ASuperMinion::NormalAttack()
 
 	m_bIsAttacking = true;
 
-	m_AnimInstance->PlayNormalAttackMontage();
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsFloat(AMonster::NormalAttackSpeedKey, 1 / m_NormalAttackSpeed);
+	m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
 }
 
 void ASuperMinion::SetState(ENormalMinionStates state)

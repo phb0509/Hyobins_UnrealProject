@@ -33,7 +33,7 @@ void AFirstLevel::BeginPlay()
 	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: actorPool is not Valid"));
 
 	m_ActorPool->CreatePool(AMeleeMinion::StaticClass(), 3);
-	m_ActorPool->CreatePool(ASuperMinion::StaticClass(), 3);
+	//m_ActorPool->CreatePool(ASuperMinion::StaticClass(), 3);
 }
 
 
@@ -42,8 +42,8 @@ void AFirstLevel::spawn()
 	FVector meleeSpawnLocation = { 0.0f, 100.0f, 100.0f };
 	m_ActorPool->SpawnActor(AMeleeMinion::StaticClass(), meleeSpawnLocation);
 
-	FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
-	m_ActorPool->SpawnActor(ASuperMinion::StaticClass(), superSpawnLocation);
+	/*FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
+	m_ActorPool->SpawnActor(ASuperMinion::StaticClass(), superSpawnLocation);*/
 }
 
 

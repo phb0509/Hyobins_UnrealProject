@@ -16,9 +16,9 @@ class HYOBINSPROJECT_API UMeleeMinionAnim : public UAnimInstanceBase
 	
 public:
 	UMeleeMinionAnim();
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+	//virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	void PlayNormalAttackMontage();
+	void PlayNormalAttackMontage(float InPlayRate);
 
 private:
 	void loadMontages();

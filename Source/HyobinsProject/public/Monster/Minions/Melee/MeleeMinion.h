@@ -24,7 +24,7 @@ public:
 
 	// Get
 	ENormalMinionStates GetState() { return m_CurState; }
-	float GetNormalAttackRange() { return m_NormalAttackRange; }
+	//float GetNormalAttackRange() { return m_NormalAttackRange; }
 
 	// Set
 	void SetState(ENormalMinionStates state);

@@ -84,6 +84,8 @@ void AMeleeMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::NormalAttack)
 					{
 						// Å¸°ÙÀ¯Áö.
+
+
 					}
 					else
 					{

@@ -29,10 +29,12 @@ public:
 	static const FName PatrolPosKey;
 	static const FName EnemyKey;
 	static const FName StateKey;
+	static const FName NormalAttackSpeedKey;
 
 
 protected:
 	float m_PatrolRange;
 	float m_NormalAttackRange;
+	float m_NormalAttackSpeed;
 
 };

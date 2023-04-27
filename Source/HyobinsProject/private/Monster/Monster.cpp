@@ -11,11 +11,14 @@ const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
 const FName AMonster::EnemyKey(TEXT("Enemy"));
 const FName AMonster::StateKey(TEXT("State"));
+const FName AMonster::NormalAttackSpeedKey(TEXT("NormalAttackSpeed"));
+
 
 
 AMonster::AMonster() :
 	m_PatrolRange(1000.0f),
-	m_NormalAttackRange(150.0f)
+	m_NormalAttackRange(150.0f),
+	m_NormalAttackSpeed(1.0f)
 {
 	
 }
@@ -28,7 +31,7 @@ void AMonster::Activate()
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->PlayBehaviorTree();
 
-	SetCommonState(EMonsterCommonStates::Patrol);
+	//SetCommonState(EMonsterCommonStates::Patrol);
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 	m_DiffuseRatio = 1.0f;

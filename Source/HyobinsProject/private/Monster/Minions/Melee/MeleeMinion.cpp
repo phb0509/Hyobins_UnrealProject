@@ -17,6 +17,8 @@ AMeleeMinion::AMeleeMinion() :
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	Tags.Add(FName("MeleeMinion" + FString::FromInt(++TagCount)));
+
+	m_NormalAttackSpeed = 1.0f;
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
 	m_DeathTimerTime = 3.0f;
@@ -66,13 +68,15 @@ void AMeleeMinion::Tick(float DeltaTime)
 
 	updateState();
 }
+
 void AMeleeMinion::NormalAttack()
 {
 	if (m_bIsAttacking) return;
 
 	m_bIsAttacking = true;
 
-	m_AnimInstance->PlayNormalAttackMontage();
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsFloat(AMonster::NormalAttackSpeedKey, 1 / m_NormalAttackSpeed);
+	m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
 }
 
 void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)

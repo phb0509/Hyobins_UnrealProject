@@ -17,7 +17,7 @@ public:
 	USuperMinionAnim();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	void PlayNormalAttackMontage();
+	void PlayNormalAttackMontage(float InPlayRate);
 
 private:
 	void loadMontages();
