@@ -197,8 +197,16 @@ void AMeleeMinion::initAssets()
 	hitCollider->SetupAttachment(RootComponent);
 	hitCollider->SetCapsuleHalfHeight(60.0f);
 	hitCollider->SetCapsuleRadius(60.0f);
-	hitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
-	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	//hitCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); // HitCollider 채널
+	hitCollider->SetCollisionProfileName(TEXT("HitCollider")); // HitCollider 프리셋
+
+	/*hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	hitCollider->SetNotifyRigidBodyCollision(true);
+	hitCollider->SetGenerateOverlapEvents(true);
+	hitCollider->BodyInstance.bNotifyRigidBodyCollision = true;*/
+	
+
+	//hitCollider->setchannel
 
 	m_HitColliders.Add(hitCollider);
 }

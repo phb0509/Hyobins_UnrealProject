@@ -135,7 +135,7 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_LoseSightRadius = 1500.0f;
 	m_PeripheralVisionHalfAngle = 180.0f;
 	m_AILastSeenLocation = 0.0f;
-	m_AISightAge = 5.0f;
+	m_AISightAge = 5.0f; // 비활성화 후, 재스폰했을 때 다시 인지시키려면 0값이면 안된다.
 
 	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
 	SetPerceptionComponent(*m_AIPerceptionComponent);
@@ -155,9 +155,12 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
 	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAIControllerBase::UpdatePerceptedTargetActor);
 	
-	m_AIPerceptionComponent->Deactivate();
-	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
+	//m_AIPerceptionComponent->Deactivate();
+	
 	AAIController::SetGenericTeamId(m_TeamID);
+
+
+	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
 }
 
 ETeamAttitude::Type AMeleeMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const

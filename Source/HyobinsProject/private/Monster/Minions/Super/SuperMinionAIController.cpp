@@ -82,12 +82,11 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 				{
 					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::NormalAttack)
 					{
-						// 현재상태 유지.
+						
 					}
 					else
 					{
-					/*	m_Owner->SetState(ENormalMinionStates::Patrol);
-						Blackboard->SetValueAsObject(AMonster::EnemyKey, nullptr);*/
+
 					}
 				}
 
@@ -152,7 +151,6 @@ void ASuperMinionAIController::initPerceptionSystem()
 
 	m_AIPerceptionComponent->ConfigureSense(*m_SightConfig);
 	m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
-	//GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
 	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAIControllerBase::UpdatePerceptedTargetActor);
 	AAIController::SetGenericTeamId(m_TeamID);
 }

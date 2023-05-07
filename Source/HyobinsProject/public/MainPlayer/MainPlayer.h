@@ -72,8 +72,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 		class UCameraComponent* m_TargetCamera;
 
-	//UPROPERTY(VisibleAnywhere, Category = Collision)
-	//	class UCapsuleComponent* m_SwordCollider;
+	UPROPERTY(VisibleAnywhere, Category = Collision)
+		class UCapsuleComponent* m_SwordCollider;
 
 private:
 	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;

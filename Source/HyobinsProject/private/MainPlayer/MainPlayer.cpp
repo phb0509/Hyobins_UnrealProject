@@ -193,19 +193,21 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 void AMainPlayer::CheckNormalAttackCollision()
 {
 	TArray<FHitResult> detectedObjects;
+	FCollisionQueryParams Params(NAME_None, false, this); // 각각 TraceTag, 복잡검사여부 (아마 bTraceComplex), 그리고 무시할 객체
+	//FCollisionQueryParams Params;
+	
 
-	FHitResult HitResult;
-	FCollisionQueryParams Params(NAME_None, false, this);
+	FVector start = GetActorLocation();
+	FVector end = GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange;
 
 	bool bResult = GetWorld()->SweepMultiByChannel(
-		detectedObjects,
-		GetActorLocation(),
-		GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange,
-		FQuat::Identity,
+		detectedObjects, // 탐지된 액터들
+		start, // 탐색 시작 위치
+		end, // 탐색을 끝낼 위치
+		FQuat::Identity, // 탐색에 사용할 도형의 회전
 		ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
-		FCollisionShape::MakeSphere(m_NormalAttackRadius),
-		Params);
-
+		FCollisionShape::MakeSphere(m_NormalAttackRadius), // 탐색에 사용할 기본 도형 정보. 구체,캡슐,박스 사용.
+		Params); // 탐색 방법에 대한 설정 값을 모아둔 구조체.
 
 #if ENABLE_DRAW_DEBUG
 
@@ -216,14 +218,14 @@ void AMainPlayer::CheckNormalAttackCollision()
 	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
 	float DebugLifeTime = 3.0f;
 
-	//DrawDebugCapsule(GetWorld(),
-	//	Center,
-	//	HalfHeight,
-	//	m_NormalAttackRadius,
-	//	CapsuleRot,
-	//	DrawColor,
-	//	false,
-	//	DebugLifeTime);
+	DrawDebugCapsule(GetWorld(),
+		Center,
+		HalfHeight,
+		m_NormalAttackRadius,
+		CapsuleRot,
+		DrawColor,
+		false,
+		DebugLifeTime);
 #endif
 
 	if (bResult)
@@ -237,6 +239,14 @@ void AMainPlayer::CheckNormalAttackCollision()
 			}
 		}
 	}
+
+
+	//FString sweepStartString = " Sweep StartLocation : " + start.ToString();
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *sweepStartString);
+
+	//FString sweepEndString = " Sweep EndLocation : " + end.ToString();
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), *sweepEndString);
+
 }
 
 void AMainPlayer::initAssets()
@@ -290,19 +300,19 @@ void AMainPlayer::initAssets()
 	m_TargetCamera->SetupAttachment(m_SpringArm);
 
 
-	//// SwordCollider
-	//FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
+	// SwordCollider
+	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
 
-	//// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
-	//// location.x, location.y, location. z
-	//// scale.x,scale.y,scale.z
+	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
+	// location.x, location.y, location. z
+	// scale.x,scale.y,scale.z
 
 	//m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
 	//m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
 	//m_SwordCollider->SetWorldTransform(collisionTransform);
 	//m_SwordCollider->SetCapsuleHalfHeight(50.0f);
 	//m_SwordCollider->SetCapsuleRadius(10.0f);
-
+	//
 	//m_SwordCollider->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
 	//m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
 

@@ -18,8 +18,10 @@ ASuperMinion::ASuperMinion() :
 
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
 
+	m_NormalAttackSpeed = 1.0f;
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
+	m_DeathTimerTime = 3.0f;
 
 	initAssets();
 }
@@ -191,8 +193,8 @@ void ASuperMinion::initAssets()
 	hitCollider->SetupAttachment(RootComponent);
 	hitCollider->SetCapsuleHalfHeight(60.0f);
 	hitCollider->SetCapsuleRadius(60.0f);
-	hitCollider->SetCollisionProfileName(TEXT("ACharacterBase"));
-	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	hitCollider->SetCollisionProfileName(TEXT("HitCollider"));
+	//hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	m_HitColliders.Add(hitCollider);
 }
