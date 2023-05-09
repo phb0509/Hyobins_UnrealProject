@@ -55,7 +55,7 @@ void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() // 노티파이 실행 함수. �
 
 void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
 {
-	OnNextNormalAttackCheck.Broadcast();
+	OnNormalAttackNextCheck.Broadcast();
 }
 
 FName UMainPlayerAnim::GetNormalAttackMontageSectionName(int32 section)

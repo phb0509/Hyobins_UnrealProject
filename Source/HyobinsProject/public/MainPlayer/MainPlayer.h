@@ -32,15 +32,15 @@ public:
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
 
-	void CheckNormalAttackCollision();
+	void OnCalledNormalAttackHitCheckNotify();
 
 
 	// Get  자동 inline 처리된다.
 	
 	bool GetIsPressingShift() { return m_bIsPressingShift; }
 	bool GetIsCombat() { return m_bIsCombated; }
-	bool GetIsRunning() { return m_bIsRunning; }
-	bool GetIsAttacking() { return m_bIsAttacking; }
+	//bool GetIsRunning() { return m_bIsRunning; }
+	//bool GetIsAttacking() { return m_bIsAttacking; }
 	bool GetIsHit() { return m_bIsHit; }
 
 	// Set
@@ -56,11 +56,16 @@ private:
 	void normalComboAttack();
 	void updateNormalAttackStateOnStart();
 	void updateNormalAttackStateOnEnd();
-
+	void checkNormalAttackCollisionBySweep();
+	
 	UFUNCTION()
 		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	void OnCalledCheckNextAttackNotify();
+	UFUNCTION()
+		void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void OnCalledNormalAttackNextCheckNotify();
 
 	void printLog();
 
@@ -74,6 +79,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = Collision)
 		class UCapsuleComponent* m_SwordCollider;
+
+	UPROPERTY(VisibleAnywhere, Category = Collision)
+		class UBoxComponent* m_ShieldColliderForAttack;
+
+	UPROPERTY(VisibleAnywhere, Category = Collision)
+		class UBoxComponent* m_ShieldColliderForShield;
 
 private:
 	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;

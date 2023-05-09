@@ -10,7 +10,7 @@
 enum class EMainPlayerStates : uint8;
 
 
-DECLARE_MULTICAST_DELEGATE(FOnNextNormalAttackCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnNormalAttackNextCheckDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnNormalAttackHitCheckDelegate);
 
 
@@ -38,7 +38,7 @@ private:
 
 public:
 	// µ®∏Æ∞‘¿Ã∆Æ.
-	FOnNextNormalAttackCheckDelegate OnNextNormalAttackCheck;
+	FOnNormalAttackNextCheckDelegate OnNormalAttackNextCheck;
 	FOnNormalAttackHitCheckDelegate  OnNormalAttackHitCheck;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))

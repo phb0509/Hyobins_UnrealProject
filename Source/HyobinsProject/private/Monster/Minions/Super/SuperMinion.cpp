@@ -193,7 +193,10 @@ void ASuperMinion::initAssets()
 	hitCollider->SetupAttachment(RootComponent);
 	hitCollider->SetCapsuleHalfHeight(60.0f);
 	hitCollider->SetCapsuleRadius(60.0f);
-	hitCollider->SetCollisionProfileName(TEXT("HitCollider"));
+	hitCollider->SetCollisionProfileName(TEXT("HitCollider")); // HitCollider ÇÁ¸®¼Â
+	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	hitCollider->SetNotifyRigidBodyCollision(false);
+	hitCollider->SetGenerateOverlapEvents(true);
 	//hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	m_HitColliders.Add(hitCollider);

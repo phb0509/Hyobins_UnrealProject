@@ -42,8 +42,8 @@ void AFirstLevel::spawn()
 	FVector meleeSpawnLocation = { 0.0f, 100.0f, 100.0f };
 	m_ActorPool->SpawnActor(AMeleeMinion::StaticClass(), meleeSpawnLocation);
 
-	FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
-	m_ActorPool->SpawnActor(ASuperMinion::StaticClass(), superSpawnLocation);
+	/*FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
+	m_ActorPool->SpawnActor(ASuperMinion::StaticClass(), superSpawnLocation);*/
 }
 
 
