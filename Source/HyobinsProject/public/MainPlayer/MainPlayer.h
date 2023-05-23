@@ -32,7 +32,7 @@ public:
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
 
-	void OnCalledNormalAttackHitCheckNotify();
+	void OnCalledNotify_NormalAttackHitCheck();
 
 
 	// Get  자동 inline 처리된다.
@@ -65,7 +65,7 @@ private:
 		void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	void OnCalledNormalAttackNextCheckNotify();
+	void OnCalledNotify_NormalAttackNextCheck();
 
 	void printLog();
 

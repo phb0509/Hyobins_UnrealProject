@@ -45,7 +45,6 @@ void AActorPool::CreatePool(TSubclassOf<AActor> classType, int actorCount)
 
 	for (int i = 0; i < actorCount; ++i)
 	{
-		//FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, i * 100.0f, 100.0f }); // Rotation, Location . 일단 임시값. DeActivate가 제대로 작성되면 0,0,0으로 해도상관없다.
 		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // Rotation, Location . 일단 임시값. DeActivate가 제대로 작성되면 0,0,0으로 해도상관없다.
 		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);

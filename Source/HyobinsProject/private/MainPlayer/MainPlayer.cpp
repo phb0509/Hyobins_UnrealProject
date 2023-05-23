@@ -51,9 +51,13 @@ void AMainPlayer::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
+
+	// MontageEnded
 	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
-	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::OnCalledNormalAttackHitCheckNotify);
-	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::OnCalledNormalAttackNextCheckNotify); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
+
+	// Notify
+	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackHitCheck);
+	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackNextCheck); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
 }
 
 // Called when the game starts or when spawned
@@ -102,10 +106,16 @@ void AMainPlayer::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 
 void AMainPlayer::checkOverlapSwordCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Collide!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"));
+	FString hitCompName = HitComp->GetName();
+	UE_LOG(LogTemp, Warning, TEXT("hitCompName : %s"),*hitCompName);
+
+	FHitResult hitResult;
+	OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+
+	int af = 0;
 }
 
-void AMainPlayer::OnCalledNormalAttackNextCheckNotify()
+void AMainPlayer::OnCalledNotify_NormalAttackNextCheck()
 {
 	m_bCanNextCombo = false;
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -124,18 +134,9 @@ void AMainPlayer::updateNormalAttackStateOnStart() // 각 구간의 기본공격(연속공�
 	m_CurNormalAttackCombo = FMath::Clamp<int32>(m_CurNormalAttackCombo + 1, 1, m_NormalAttackMaxCombo);
 }
 
-//void AMainPlayer::updateNormalAttackStateOnEnd() // 기본공격이 아예 끝난 후(끝까지 재생 or 키입력x), 상태값 업데이트.
-//{
-//	m_bIsInputOnNextCombo = false;
-//	m_bCanNextCombo = false;
-//	m_CurNormalAttackCombo = 0;
-//}
-
-void AMainPlayer::OnCalledNormalAttackHitCheckNotify() // 때릴 수 있는 타이밍일 때.
+void AMainPlayer::OnCalledNotify_NormalAttackHitCheck() // 때릴 수 있는 타이밍일 때.
 {
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly); // 컬리젼 키고
-
-
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -304,8 +305,8 @@ void AMainPlayer::initAssets()
 
 
 	
-	
 
+	
 	// 이외 CharacterMovement Detail값들
 
 	// true로 할 경우, 컨트롤러의 회전방향으로 캐릭터를 회전시켜줌.

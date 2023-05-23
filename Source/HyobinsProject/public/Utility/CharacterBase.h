@@ -22,7 +22,6 @@ public:
 	virtual void PossessedBy(AController* newController) override;
 
 	virtual void OnHitTimerEnded() {};
-	//virtual void OnDeathTimerEnded();
 	virtual void OnCalledDeathMontageEndedNotify();
 
 	float GetCurSpeed() const { return m_CurSpeed; }
@@ -34,6 +33,7 @@ public:
 	bool GetIsDeath() const { return m_bIsDeath; }
 
 	virtual void SetCommonState(EMonsterCommonStates commonState) {};
+	void InitHP(float hp) { m_CurHP = hp; m_MaxHP = m_CurHP; }
 
 protected:
 	void initAttackInformations(FString path);
