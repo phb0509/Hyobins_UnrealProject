@@ -11,6 +11,7 @@
 #include "Utility/EnumTypes.h" 
 #include "DrawDebugHelpers.h"
 
+static int screenDebugKey = 0;
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
@@ -25,9 +26,7 @@ AMainPlayer::AMainPlayer() :
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
-	m_NormalAttackMaxCombo(4),
-	m_NormalAttackRange(50.0f),
-	m_NormalAttackRadius(70.0f)
+	m_NormalAttackMaxCombo(4)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -60,7 +59,6 @@ void AMainPlayer::PostInitializeComponents()
 	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackNextCheck); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
 }
 
-// Called when the game starts or when spawned
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
@@ -106,24 +104,48 @@ void AMainPlayer::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterr
 
 void AMainPlayer::checkOverlapSwordCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	FString hitCompName = HitComp->GetName();
-	UE_LOG(LogTemp, Warning, TEXT("hitCompName : %s"),*hitCompName);
+	//FString hitCompName = HitComp->GetName();
+	//UE_LOG(LogTemp, Warning, TEXT("hitCompName : %s"),*hitCompName);
 
 	FHitResult hitResult;
 	OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+}
 
-	int af = 0;
+void AMainPlayer::checkOverlapShieldCollisionForAttack(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+}
+
+void AMainPlayer::checkOverlapShieldCollisionForShield(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
 }
 
 void AMainPlayer::OnCalledNotify_NormalAttackNextCheck()
 {
-	m_bCanNextCombo = false;
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	if (m_CurNormalAttackCombo == 4) return;
+
+	m_bCanNextCombo = false;
+	
 	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되면
 	{
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
+	}
+}
+
+void AMainPlayer::OnCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
+{
+	if (m_CurNormalAttackCombo == 3) // 방패로 공격하는 타이밍
+	{
+		m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	else // 검으로 공격하는 타이밍
+	{
+		m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly); 
 	}
 }
 
@@ -132,11 +154,6 @@ void AMainPlayer::updateNormalAttackStateOnStart() // 각 구간의 기본공격(연속공�
 	m_bCanNextCombo = true;
 	m_bIsInputOnNextCombo = false;
 	m_CurNormalAttackCombo = FMath::Clamp<int32>(m_CurNormalAttackCombo + 1, 1, m_NormalAttackMaxCombo);
-}
-
-void AMainPlayer::OnCalledNotify_NormalAttackHitCheck() // 때릴 수 있는 타이밍일 때.
-{
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly); // 컬리젼 키고
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -271,15 +288,14 @@ void AMainPlayer::initAssets()
 	m_SwordCollider->SetWorldTransform(collisionTransform);
 	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
 	m_SwordCollider->SetCapsuleRadius(10.0f);
-	
 	m_SwordCollider->SetCollisionProfileName(TEXT("AttackCollider"));
 	m_SwordCollider->SetGenerateOverlapEvents(true); // 블루프린트의 Generate Overlap Events에 대응되는 코드.
 	m_SwordCollider->SetNotifyRigidBodyCollision(false);
-
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
 	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::checkOverlapSwordCollision);
 
 
+	// ShieldCollider For Attack
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.35f} };
 
 	m_ShieldColliderForAttack = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForAttack"));
@@ -289,8 +305,9 @@ void AMainPlayer::initAssets()
 	m_ShieldColliderForAttack->SetGenerateOverlapEvents(true); // 블루프린트의 Generate Overlap Events에 대응되는 코드.
 	m_ShieldColliderForAttack->SetNotifyRigidBodyCollision(false);
 	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
-	//m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::checkOverlapSwordCollision);
+	m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::checkOverlapShieldCollisionForAttack);
 
+	// ShieldCollider For Shield
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.1f} };
 
 	m_ShieldColliderForShield = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForShield"));
@@ -301,10 +318,6 @@ void AMainPlayer::initAssets()
 	m_ShieldColliderForShield->SetNotifyRigidBodyCollision(false);
 	m_ShieldColliderForShield->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
 
-
-
-
-	
 
 	
 	// 이외 CharacterMovement Detail값들
@@ -359,64 +372,61 @@ void AMainPlayer::printLog()
 {
 	FVector location = GetActorLocation();
 	FVector velocity = GetVelocity();
+	FVector forwardVector = GetActorForwardVector();
 
-	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("location : %f  %f  %f"), location.X, location.Y, location.Z));
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
-	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("velocity Length(speed) : %f"), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
+	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
+	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
 }
-void AMainPlayer::checkNormalAttackCollisionBySweep()
-{
-	TArray<FHitResult> detectedObjects;
-	FCollisionQueryParams Params(NAME_None, false, this); // 각각 TraceTag, 복잡검사여부 (아마 bTraceComplex), 그리고 무시할 객체
-	//FCollisionQueryParams Params;
 
-	FVector start = GetActorLocation();
-	FVector end = GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange;
-
-	bool bResult = GetWorld()->SweepMultiByChannel(
-		detectedObjects, // 탐지된 액터들
-		start, // 탐색 시작 위치
-		end, // 탐색을 끝낼 위치
-		FQuat::Identity, // 탐색에 사용할 도형의 회전
-		ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
-		FCollisionShape::MakeSphere(m_NormalAttackRadius), // 탐색에 사용할 기본 도형 정보. 구체,캡슐,박스 사용.
-		Params); // 탐색 방법에 대한 설정 값을 모아둔 구조체.
-
-#if ENABLE_DRAW_DEBUG
-
-	FVector TraceVec = GetActorForwardVector() * m_NormalAttackRange;
-	FVector Center = GetActorLocation() + TraceVec * 0.5f;
-	float HalfHeight = m_NormalAttackRange * 0.5f + m_NormalAttackRadius;
-	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
-	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
-	float DebugLifeTime = 3.0f;
-
-	DrawDebugCapsule(GetWorld(),
-		Center,
-		HalfHeight,
-		m_NormalAttackRadius,
-		CapsuleRot,
-		DrawColor,
-		false,
-		DebugLifeTime);
-#endif
-
-	if (bResult)
-	{
-		for (auto& dectedObject : detectedObjects)
-		{
-			if (dectedObject.GetActor() != nullptr)
-			{
-				FDamageEvent DamageEvent;
-				dectedObject.GetActor()->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
-			}
-		}
-	}
-
-
-	//FString sweepStartString = " Sweep StartLocation : " + start.ToString();
-	//UE_LOG(LogTemp, Warning, TEXT("%s"), *sweepStartString);
-
-	//FString sweepEndString = " Sweep EndLocation : " + end.ToString();
-	//UE_LOG(LogTemp, Warning, TEXT("%s"), *sweepEndString);
-}
+//void AMainPlayer::checkNormalAttackCollisionBySweep()
+//{
+//	TArray<FHitResult> detectedObjects;
+//	FCollisionQueryParams Params(NAME_None, false, this); // 각각 TraceTag, 복잡검사여부 (아마 bTraceComplex), 그리고 무시할 객체
+//	//FCollisionQueryParams Params;
+//
+//	FVector start = GetActorLocation();
+//	FVector end = GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange;
+//
+//	bool bResult = GetWorld()->SweepMultiByChannel(
+//		detectedObjects, // 탐지된 액터들
+//		start, // 탐색 시작 위치
+//		end, // 탐색을 끝낼 위치
+//		FQuat::Identity, // 탐색에 사용할 도형의 회전
+//		ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
+//		FCollisionShape::MakeSphere(m_NormalAttackRadius), // 탐색에 사용할 기본 도형 정보. 구체,캡슐,박스 사용.
+//		Params); // 탐색 방법에 대한 설정 값을 모아둔 구조체.
+//
+//#if ENABLE_DRAW_DEBUG
+//
+//	FVector TraceVec = GetActorForwardVector() * m_NormalAttackRange;
+//	FVector Center = GetActorLocation() + TraceVec * 0.5f;
+//	float HalfHeight = m_NormalAttackRange * 0.5f + m_NormalAttackRadius;
+//	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
+//	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
+//	float DebugLifeTime = 3.0f;
+//
+//	DrawDebugCapsule(GetWorld(),
+//		Center,
+//		HalfHeight,
+//		m_NormalAttackRadius,
+//		CapsuleRot,
+//		DrawColor,
+//		false,
+//		DebugLifeTime);
+//#endif
+//
+//	if (bResult)
+//	{
+//		for (auto& dectedObject : detectedObjects)
+//		{
+//			if (dectedObject.GetActor() != nullptr)
+//			{
+//				FDamageEvent DamageEvent;
+//				dectedObject.GetActor()->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+//			}
+//		}
+//	}
+//}

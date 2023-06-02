@@ -39,8 +39,6 @@ public:
 	
 	bool GetIsPressingShift() { return m_bIsPressingShift; }
 	bool GetIsCombat() { return m_bIsCombated; }
-	//bool GetIsRunning() { return m_bIsRunning; }
-	//bool GetIsAttacking() { return m_bIsAttacking; }
 	bool GetIsHit() { return m_bIsHit; }
 
 	// Set
@@ -55,8 +53,7 @@ private:
 	void updateState();
 	void normalComboAttack();
 	void updateNormalAttackStateOnStart();
-	void updateNormalAttackStateOnEnd();
-	void checkNormalAttackCollisionBySweep();
+	void checkNormalAttackCollisionBySweep(); // 삭제 예정.
 	
 	UFUNCTION()
 		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -64,6 +61,15 @@ private:
 	UFUNCTION()
 		void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void checkOverlapShieldCollisionForAttack(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void checkOverlapShieldCollisionForShield(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 
 	void OnCalledNotify_NormalAttackNextCheck();
 
@@ -111,7 +117,5 @@ private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		int32 m_NormalAttackMaxCombo;
 
-	float m_NormalAttackRange;
-	float m_NormalAttackRadius;
 
 };
