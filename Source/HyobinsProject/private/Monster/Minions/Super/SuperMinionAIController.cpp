@@ -10,7 +10,6 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 	m_TeamID = FGenericTeamId(4);
 
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/SuperMinion/BT_SuperMinion.BT_SuperMinion'"));
-
 	if (BTObject.Succeeded())
 	{
 		m_BehaviorTree = BTObject.Object;

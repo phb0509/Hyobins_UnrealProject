@@ -20,7 +20,6 @@ public:
 	ACharacterBase();
 
 	virtual void PossessedBy(AController* newController) override;
-
 	virtual void OnHitTimerEnded() {};
 	virtual void OnCalledDeathMontageEndedNotify();
 
@@ -51,7 +50,6 @@ protected:
 protected:
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
 	TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
-
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
 	
 	UPROPERTY()

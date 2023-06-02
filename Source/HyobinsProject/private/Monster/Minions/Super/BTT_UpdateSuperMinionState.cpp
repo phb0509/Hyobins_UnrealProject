@@ -17,6 +17,7 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 
 	ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
 	checkf(IsValid(owner), TEXT("Owner is not Valid"));
+
 	ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 	checkf(IsValid(enemyOnBlackBoard), TEXT("Cast Failed"));
 

@@ -46,7 +46,7 @@ void AMeleeMinionAIController::OnPossess(APawn* pawn)
 
 void AMeleeMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Call MeleeMinionAIController::UpdatePerceptedActor"));
+	//UE_LOG(LogTemp, Warning, TEXT("Call MeleeMinionAIController::UpdatePerceptedActor"));
 
 	if (m_Owner.IsValid())
 	{
@@ -84,8 +84,6 @@ void AMeleeMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::NormalAttack)
 					{
 						// 타겟유지.
-
-
 					}
 					else
 					{
@@ -155,11 +153,7 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
 	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAIControllerBase::UpdatePerceptedTargetActor);
 	
-	//m_AIPerceptionComponent->Deactivate();
-	
 	AAIController::SetGenericTeamId(m_TeamID);
-
-
 	//GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AMeleeMinionAIController::UpdatePerception);
 }
 

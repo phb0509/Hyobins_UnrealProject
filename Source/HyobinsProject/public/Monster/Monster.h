@@ -20,7 +20,6 @@ public:
 
 
 protected:
-	
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 

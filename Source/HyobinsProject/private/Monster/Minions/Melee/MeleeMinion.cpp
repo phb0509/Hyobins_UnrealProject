@@ -32,11 +32,11 @@ void AMeleeMinion::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	m_AnimInstance = Cast<UMeleeMinionAnim>(m_AnimInstanceBase);
+
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
 		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
-		//UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is Valid"));
 	}
 	else
 	{
@@ -45,9 +45,7 @@ void AMeleeMinion::PostInitializeComponents()
 
 	m_OwnerAIController = Cast<AMeleeMinionAIController>(m_AIControllerBase);
 	if (m_OwnerAIController.IsValid())
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is Valid"));
-	}
+	{}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
@@ -58,9 +56,6 @@ void AMeleeMinion::PostInitializeComponents()
 void AMeleeMinion::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("MeleeMinion :: BeginPlay"));
-	
 }
 
 void AMeleeMinion::Tick(float DeltaTime)
@@ -68,6 +63,8 @@ void AMeleeMinion::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	updateState();
+
+	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("MeleeMinion is Attacking? : %d"), m_bIsAttacking));
 }
 
 void AMeleeMinion::NormalAttack()
@@ -76,34 +73,8 @@ void AMeleeMinion::NormalAttack()
 
 	m_bIsAttacking = true;
 
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsFloat(AMonster::NormalAttackSpeedKey, 1 / m_NormalAttackSpeed);
+	m_OwnerAIController->StopBehaviorTree();
 	m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
-}
-
-void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)
-{
-	int8 index = static_cast<int8>(commonState);
-
-	switch (index)
-	{
-	case static_cast<int8>(EMonsterCommonStates::Patrol):
-		SetState(ENormalMinionStates::Patrol);
-		break;
-	case static_cast<int8>(EMonsterCommonStates::Hit):
-		m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
-		SetState(ENormalMinionStates::Hit);
-		break;
-	case static_cast<int8>(EMonsterCommonStates::Die):
-		break;
-	default:
-		break;
-	}
-}
-
-void AMeleeMinion::SetState(ENormalMinionStates state)
-{
-	m_CurState = state;
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
 void AMeleeMinion::ExecHitEvent(ACharacterBase* instigator)
@@ -111,11 +82,10 @@ void AMeleeMinion::ExecHitEvent(ACharacterBase* instigator)
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }
 
-void AMeleeMinion::ExecDeathEvent()
+void AMeleeMinion::ExecDeathEvent() // 타이머 시간 및, 호출빈도수 정의
 {
 	m_DeathTimerRemainingTime = m_DeathTimerTime;
 	m_DeathTimerTickTime = m_DeathTimerTime / 100; 
-
 	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &AMeleeMinion::OnDeathEventTimerEnded, m_DeathTimerTickTime, true, 0.0f);
 }
 
@@ -161,6 +131,7 @@ void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 void AMeleeMinion::onNormalAttackMontageEnded()
 {
 	m_bIsAttacking = false;
+	m_OwnerAIController->PlayBehaviorTree();
 }
 
 void AMeleeMinion::Die()
@@ -190,7 +161,7 @@ void AMeleeMinion::initAssets()
 	{
 		GetMesh()->SetAnimInstanceClass(animInstance.Class);
 	}
-	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
+	checkf(IsValid(animInstance.Class), TEXT("AnimInstance is not Valid"));
 
 	// HitCollider
 
@@ -202,17 +173,6 @@ void AMeleeMinion::initAssets()
 	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	hitCollider->SetNotifyRigidBodyCollision(false);
 	hitCollider->SetGenerateOverlapEvents(true);
-
-	//hitCollider->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1); // HitCollider 채널
-	
-
-	/*;
-	hitCollider->SetNotifyRigidBodyCollision(true);
-	hitCollider->SetGenerateOverlapEvents(true);
-	hitCollider->BodyInstance.bNotifyRigidBodyCollision = true;*/
-	
-
-	//hitCollider->setchannel
 
 	m_HitColliders.Add(hitCollider);
 }
@@ -234,5 +194,31 @@ void AMeleeMinion::updateState()
 			m_bIsIdle = false;
 			m_bIsWalking = true;
 		}
+	}
+}
+
+void AMeleeMinion::SetState(ENormalMinionStates state)
+{
+	m_CurState = state;
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+}
+
+void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)
+{
+	int8 index = static_cast<int8>(commonState);
+
+	switch (index)
+	{
+	case static_cast<int8>(EMonsterCommonStates::Patrol):
+		SetState(ENormalMinionStates::Patrol);
+		break;
+	case static_cast<int8>(EMonsterCommonStates::Hit):
+		m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+		SetState(ENormalMinionStates::Hit);
+		break;
+	case static_cast<int8>(EMonsterCommonStates::Die):
+		break;
+	default:
+		break;
 	}
 }

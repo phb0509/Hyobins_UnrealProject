@@ -18,6 +18,7 @@ ASuperMinion::ASuperMinion() :
 
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
 
+	InitHP(100.0f);
 	m_NormalAttackSpeed = 1.0f;
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
@@ -36,7 +37,6 @@ void ASuperMinion::PostInitializeComponents()
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
 		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
-	//	UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance is Valid"));
 	}
 	else
 	{
@@ -44,10 +44,9 @@ void ASuperMinion::PostInitializeComponents()
 	}
 
 	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
+
 	if (m_OwnerAIController.IsValid())
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController is Valid"));
-	}
+	{}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController is not Valid"));
@@ -65,14 +64,135 @@ void ASuperMinion::Tick(float DeltaTime)
 
 	updateState();
 }
+
 void ASuperMinion::NormalAttack()
 {
 	if (m_bIsAttacking) return;
 
 	m_bIsAttacking = true;
 
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsFloat(AMonster::NormalAttackSpeedKey, 1 / m_NormalAttackSpeed);
 	m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
+	m_OwnerAIController->StopBehaviorTree();
+}
+
+void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
+{
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+}
+
+void ASuperMinion::ExecDeathEvent()
+{
+	m_DeathTimerRemainingTime = m_DeathTimerTime;
+	m_DeathTimerTickTime = m_DeathTimerTime / 100;
+	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnDeathEventTimerEnded, m_DeathTimerTickTime, true, 0.0f);
+}
+
+void ASuperMinion::OnDeathEventTimerEnded()
+{
+	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
+	m_DiffuseRatio -= m_DeathTimerTickTime;
+
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
+
+	if (m_DeathTimerRemainingTime <= 0.0f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(m_DeathTimerHandle);
+	}
+}
+
+void ASuperMinion::OnHitTimerEnded()
+{
+	if (m_bIsDeath)
+	{
+		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+		return;
+	}
+
+	SetState(ENormalMinionStates::Chase);
+	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+}
+
+void ASuperMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
+{
+	int curState = (uint8)m_CurState;
+
+	switch (curState)
+	{
+	case (uint8)ENormalMinionStates::NormalAttack:
+		onNormalAttackMontageEnded();
+		break;
+	default:
+		break;
+	}
+}
+
+void ASuperMinion::onNormalAttackMontageEnded()
+{
+	m_bIsAttacking = false;
+	m_OwnerAIController->PlayBehaviorTree();
+}
+
+void ASuperMinion::Die()
+{
+	SetState(ENormalMinionStates::Die);
+
+	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
+	m_OwnerAIController->OnUnPossess();
+}
+
+void ASuperMinion::initAssets()
+{
+	// Mesh
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MonsterAsset/SuperMinion/Character/SuperMinion.SuperMinion'"));
+	if (mesh.Succeeded())
+	{
+		GetMesh()->SetSkeletalMesh(mesh.Object);
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
+	}
+	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
+
+	// AnimInstance
+	static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MonsterAsset/SuperMinion/ABP_SuperMinion.ABP_SuperMinion_C'"));
+	if (animInstance.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(animInstance.Class);
+	}
+	checkf(IsValid(animInstance.Class), TEXT("AnimInstance is not Valid"));
+
+
+	// HitCollider
+	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
+	hitCollider->SetupAttachment(RootComponent);
+	hitCollider->SetCapsuleHalfHeight(60.0f);
+	hitCollider->SetCapsuleRadius(60.0f);
+	hitCollider->SetCollisionProfileName(TEXT("HitCollider")); // HitCollider 프리셋
+	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	hitCollider->SetNotifyRigidBodyCollision(false);
+	hitCollider->SetGenerateOverlapEvents(true);
+
+	m_HitColliders.Add(hitCollider);
+}
+
+void ASuperMinion::updateState()
+{
+	m_CurSpeed = GetVelocity().Size();
+	m_bIsInAir = GetMovementComponent()->IsFalling();
+
+	if (!m_bIsInAir)
+	{
+		if (m_CurSpeed < 0.1f)
+		{
+			m_bIsIdle = true;
+			m_bIsWalking = false;
+		}
+		else
+		{
+			m_bIsIdle = false;
+			m_bIsWalking = true;
+		}
+	}
 }
 
 void ASuperMinion::SetState(ENormalMinionStates state)
@@ -98,126 +218,5 @@ void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 		break;
 	default:
 		break;
-	}
-}
-
-void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
-{
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
-}
-
-void ASuperMinion::ExecDeathEvent()
-{
-	// 타이머 시간 및, 호출빈도수 정의
-
-	m_DeathTimerRemainingTime = m_DeathTimerTime;
-	m_DeathTimerTickTime = m_DeathTimerTime / 100;
-	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnDeathEventTimerEnded, m_DeathTimerTickTime, true, 0.0f);
-}
-
-void ASuperMinion::OnDeathEventTimerEnded()
-{
-	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
-
-	m_DiffuseRatio -= m_DeathTimerTickTime;
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
-
-	if (m_DeathTimerRemainingTime <= 0.0f)
-	{
-		GetWorld()->GetTimerManager().ClearTimer(m_DeathTimerHandle);
-	}
-}
-
-void ASuperMinion::OnHitTimerEnded()
-{
-	if (m_bIsDeath)
-	{
-		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-		return;
-	}
-
-	SetState(ENormalMinionStates::Chase);
-	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-}
-
-void ASuperMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 현재 재생중인 몽타주의 재생이 끝났을 시 호출.
-{
-	int curState = (uint8)m_CurState;
-
-	switch (curState)
-	{
-	case (uint8)ENormalMinionStates::NormalAttack:
-		onNormalAttackMontageEnded();
-		break;
-	default:
-		break;
-	}
-}
-
-void ASuperMinion::onNormalAttackMontageEnded()
-{
-	m_bIsAttacking = false;
-}
-
-void ASuperMinion::Die()
-{
-	SetState(ENormalMinionStates::Die);
-	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
-	m_OwnerAIController->OnUnPossess();
-}
-
-void ASuperMinion::initAssets()
-{
-	// Mesh
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MonsterAsset/SuperMinion/Character/SuperMinion.SuperMinion'"));
-	if (mesh.Succeeded())
-	{
-		GetMesh()->SetSkeletalMesh(mesh.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
-	}
-	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
-
-	// AnimInstance
-	static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MonsterAsset/SuperMinion/ABP_SuperMinion.ABP_SuperMinion_C'"));
-	if (animInstance.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(animInstance.Class);
-	}
-	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
-
-
-	// HitCollider
-	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
-	hitCollider->SetupAttachment(RootComponent);
-	hitCollider->SetCapsuleHalfHeight(60.0f);
-	hitCollider->SetCapsuleRadius(60.0f);
-	hitCollider->SetCollisionProfileName(TEXT("HitCollider")); // HitCollider 프리셋
-	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	hitCollider->SetNotifyRigidBodyCollision(false);
-	hitCollider->SetGenerateOverlapEvents(true);
-	//hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-	m_HitColliders.Add(hitCollider);
-}
-
-void ASuperMinion::updateState()
-{
-	m_CurSpeed = GetVelocity().Size();
-	m_bIsInAir = GetMovementComponent()->IsFalling();
-
-	if (!m_bIsInAir)
-	{
-		if (m_CurSpeed < 0.1f)
-		{
-			m_bIsIdle = true;
-			m_bIsWalking = false;
-		}
-		else
-		{
-			m_bIsIdle = false;
-			m_bIsWalking = true;
-		}
 	}
 }
