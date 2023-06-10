@@ -62,11 +62,22 @@ protected:
 	float m_MaxHP;
 	float m_CurHP;
 	float m_CurSpeed;
+
+	UPROPERTY(EditDefaultsOnly)
 	float m_WalkSpeed;
+
+	UPROPERTY(EditDefaultsOnly)
 	float m_RunSpeed;
+
+	UPROPERTY(EditDefaultsOnly)
 	float m_HitRecovery;
+
+	UPROPERTY(EditDefaultsOnly)
 	float m_OnHitTimerTime;
+
+	UPROPERTY(EditDefaultsOnly)
 	float m_DeathTimerTime;
+
 	float m_DeathTimerTickTime;
 	float m_DeathTimerRemainingTime;
 	float m_DiffuseRatio;

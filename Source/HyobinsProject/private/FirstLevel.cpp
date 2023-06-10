@@ -33,7 +33,7 @@ void AFirstLevel::BeginPlay()
 	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: actorPool is not Valid"));
 
 	m_ActorPool->CreatePool(AMeleeMinion::StaticClass(), 1);
-	m_ActorPool->CreatePool(ASuperMinion::StaticClass(), 1);
+	//m_ActorPool->CreatePool(ASuperMinion::StaticClass(), 1);
 }
 
 

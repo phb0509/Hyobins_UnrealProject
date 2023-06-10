@@ -32,8 +32,13 @@ public:
 
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
 	float m_PatrolRange;
+
+	UPROPERTY(EditDefaultsOnly)
 	float m_NormalAttackRange;
+
+	UPROPERTY(EditDefaultsOnly)
 	float m_NormalAttackSpeed;
 
 };

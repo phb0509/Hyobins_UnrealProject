@@ -32,10 +32,9 @@ void ASuperMinion::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	m_AnimInstance = Cast<USuperMinionAnim>(m_AnimInstanceBase);
-
 	if (m_AnimInstance.IsValid())
 	{
-		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::OnMontageEnded); // 몽타주 재생완료시 호출할 함수 바인딩.
+		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::OnMontageEnded); 
 		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
 	}
 	else
@@ -44,7 +43,6 @@ void ASuperMinion::PostInitializeComponents()
 	}
 
 	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
-
 	if (m_OwnerAIController.IsValid())
 	{}
 	else

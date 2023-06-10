@@ -18,7 +18,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void Jump() override;
+	//virtual void Jump() override;
 
 	// AxisMappings
 	void Turn(float value);
@@ -31,6 +31,7 @@ public:
 	void TriggerReleasedShift();
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
+	void TriggerPressedSpaceBar();
 
 	void OnCalledNotify_NormalAttackHitCheck();
 

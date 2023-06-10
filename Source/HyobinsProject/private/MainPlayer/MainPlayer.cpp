@@ -50,20 +50,18 @@ void AMainPlayer::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-
-	// MontageEnded
 	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
 
 	// Notify
 	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackHitCheck);
-	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackNextCheck); // 노티파이의 BroadCast 전달받으면 바인딩한 함수 호출.
+	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackNextCheck);
 }
 
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetActorLocation(FVector(-200.0f, 0.0f, 100.0f));
+	SetActorLocation(FVector(0.0f, 0.0f, 100.0f));
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -78,6 +76,9 @@ void AMainPlayer::Tick(float DeltaTime)
 
 void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 {
+	FVector worldDireciton = GetActorForwardVector();
+	AddMovementInput(worldDireciton, 1.0f, true);
+
 	if (m_bIsAttacking) 
 	{
 		if (m_bCanNextCombo)
@@ -87,6 +88,7 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 	}
 	else
 	{
+		
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->PlayNormalAttackMontage();
 		m_AnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
@@ -173,10 +175,6 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 }
 
-void AMainPlayer::Jump()
-{
-}
-
 void AMainPlayer::Turn(float value)
 {
 	AddControllerYawInput(value * GetWorld()->GetDeltaSeconds() * m_RotationDeltaSecondsOffset);
@@ -191,7 +189,8 @@ void AMainPlayer::InputHorizontal(float value)
 {
 	if (!m_bIsAttacking)
 	{
-		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
+		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
 }
 
@@ -199,7 +198,8 @@ void AMainPlayer::InputVertical(float value)
 {
 	if (!m_bIsAttacking)
 	{
-		AddMovementInput(FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X), value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
+		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
 }
 
@@ -223,6 +223,11 @@ void AMainPlayer::TriggerPressedLeftMouseButton()
 void AMainPlayer::TriggerReleasedLeftMouseButton()
 {
 	
+}
+
+void AMainPlayer::TriggerPressedSpaceBar()
+{
+
 }
 
 void AMainPlayer::initAssets()
