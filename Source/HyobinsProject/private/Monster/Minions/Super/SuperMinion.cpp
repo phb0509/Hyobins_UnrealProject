@@ -73,10 +73,10 @@ void ASuperMinion::NormalAttack()
 	m_OwnerAIController->StopBehaviorTree();
 }
 
-void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
-{
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
-}
+//void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
+//{
+//	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+//}
 
 void ASuperMinion::ExecDeathEvent()
 {

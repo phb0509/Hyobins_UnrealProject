@@ -23,6 +23,10 @@ EBTNodeResult::Type UBTT_UpdateMeleeMinionState::ExecuteTask(UBehaviorTreeCompon
 
 	float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
 
+	UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
+	UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
+
+
 	if (distanceToEnemy > owner->GetNormalAttackRange()) // 공격범위 밖이면
 	{
 		owner->SetState(ENormalMinionStates::Chase); // 공격할 수 있는 거리 될 때까지 추적.

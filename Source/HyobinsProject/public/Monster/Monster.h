@@ -20,6 +20,7 @@ public:
 
 
 protected:
+	virtual void ExecHitEvent(ACharacterBase* instigator) override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 

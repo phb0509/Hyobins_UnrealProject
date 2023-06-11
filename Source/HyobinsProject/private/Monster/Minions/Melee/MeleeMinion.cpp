@@ -76,10 +76,11 @@ void AMeleeMinion::NormalAttack()
 	m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
 }
 
-void AMeleeMinion::ExecHitEvent(ACharacterBase* instigator)
-{
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
-}
+//void AMeleeMinion::ExecHitEvent(ACharacterBase* instigator)
+//{
+//	m_OwnerAIController->PlayBehaviorTree();
+//	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+//}
 
 void AMeleeMinion::ExecDeathEvent() // 타이머 시간 및, 호출빈도수 정의
 {

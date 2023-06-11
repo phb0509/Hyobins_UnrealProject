@@ -20,7 +20,12 @@ AMonster::AMonster() :
 	m_NormalAttackRange(150.0f),
 	m_NormalAttackSpeed(1.0f)
 {
-	
+}
+
+void AMonster::ExecHitEvent(ACharacterBase* instigator)
+{
+	m_AIControllerBase->PlayBehaviorTree();
+	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }
 
 void AMonster::Activate()

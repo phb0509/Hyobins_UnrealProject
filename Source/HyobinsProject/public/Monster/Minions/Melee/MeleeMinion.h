@@ -32,7 +32,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetCommonState(EMonsterCommonStates commonState);
-	virtual void ExecHitEvent(ACharacterBase* instigator) override;
+	//virtual void ExecHitEvent(ACharacterBase* instigator) override;
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 	
