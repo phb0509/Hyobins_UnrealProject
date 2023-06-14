@@ -69,14 +69,10 @@ void ASuperMinion::NormalAttack()
 
 	m_bIsAttacking = true;
 
-	m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
+	//m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
+	m_AnimInstance->PlayMontage("NormalAttack1");
 	m_OwnerAIController->StopBehaviorTree();
 }
-
-//void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
-//{
-//	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
-//}
 
 void ASuperMinion::ExecDeathEvent()
 {
@@ -135,7 +131,8 @@ void ASuperMinion::Die()
 	SetState(ENormalMinionStates::Die);
 
 	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
+	//m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
+	m_AnimInstance->PlayMontage("OnDeath_Front");
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_OwnerAIController->OnUnPossess();
 }
@@ -209,7 +206,8 @@ void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 		SetState(ENormalMinionStates::Patrol);
 		break;
 	case static_cast<int8>(EMonsterCommonStates::Hit):
-		m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+		//m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+		m_AnimInstance->PlayMontage("OnHit_Front");
 		SetState(ENormalMinionStates::Hit);
 		break;
 	case static_cast<int8>(EMonsterCommonStates::Die):

@@ -23,13 +23,11 @@ public:
 	void NormalAttack();
 
 	ENormalMinionStates GetState() { return m_CurState; }
-	float GetNormalAttackRange() { return m_NormalAttackRange; }
 	void SetState(ENormalMinionStates state);
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetCommonState(EMonsterCommonStates commonState);
-	//virtual void ExecHitEvent(ACharacterBase* instigator) override;
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 
@@ -39,7 +37,6 @@ protected:
 private:
 	void initAssets();
 	void updateState();
-
 	void onNormalAttackMontageEnded();
 	
 	UFUNCTION()

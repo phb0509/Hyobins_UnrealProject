@@ -73,14 +73,8 @@ void AMeleeMinion::NormalAttack()
 	m_bIsAttacking = true;
 
 	m_OwnerAIController->StopBehaviorTree();
-	m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
+	m_AnimInstance->PlayMontage("NormalAttack1",m_NormalAttackSpeed);
 }
-
-//void AMeleeMinion::ExecHitEvent(ACharacterBase* instigator)
-//{
-//	m_OwnerAIController->PlayBehaviorTree();
-//	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
-//}
 
 void AMeleeMinion::ExecDeathEvent() // 타이머 시간 및, 호출빈도수 정의
 {
@@ -139,7 +133,8 @@ void AMeleeMinion::Die()
 	SetState(ENormalMinionStates::Die);
 
 	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
+	//m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
+	m_AnimInstance->PlayMontage("OnDeath_Front");
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_OwnerAIController->OnUnPossess();
 }
@@ -213,7 +208,8 @@ void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)
 		SetState(ENormalMinionStates::Patrol);
 		break;
 	case static_cast<int8>(EMonsterCommonStates::Hit):
-		m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+		//m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
+		m_AnimInstance->PlayMontage("OnHit_Front");
 		SetState(ENormalMinionStates::Hit);
 		break;
 	case static_cast<int8>(EMonsterCommonStates::Die):

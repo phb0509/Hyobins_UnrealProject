@@ -6,37 +6,37 @@
 
 UMeleeMinionAnim::UMeleeMinionAnim()
 {
-	loadMontages();
+	initAssets();
 }
 
-void UMeleeMinionAnim::PlayNormalAttackMontage(float InPlayRate)
-{
-	int32 randomIndex = FMath::RandRange(0, 2);
-
-	Montage_Play(m_AttackMontages[randomIndex], InPlayRate); // 낮을수록 느리게 재생.
-}
+//void UMeleeMinionAnim::PlayNormalAttackMontage(float InPlayRate)
+//{
+//	int32 randomIndex = FMath::RandRange(0, 2);
+//
+//	Montage_Play(m_AttackMontages[randomIndex], InPlayRate); // 낮을수록 느리게 재생.
+//}
 
 void UMeleeMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
 	OnAttackHitCheck.Broadcast();
 }
 
-void UMeleeMinionAnim::loadMontages()
+void UMeleeMinionAnim::initAssets()
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage0
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_NormalAttack0.AM_NormalAttack0'"));
-
-	if (normalAttackMontage0.Succeeded())
-	{
-		m_AttackMontages.Add(normalAttackMontage0.Object);
-	}
-
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage1
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_NormalAttack1.AM_NormalAttack1'"));
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_NormalAttack0.AM_NormalAttack0'"));
 
 	if (normalAttackMontage1.Succeeded())
 	{
-		m_AttackMontages.Add(normalAttackMontage1.Object);
+		m_Montages.Add("NormalAttack1",normalAttackMontage1.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage2
+	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_NormalAttack1.AM_NormalAttack1'"));
+
+	if (normalAttackMontage2.Succeeded())
+	{
+		m_Montages.Add("NormalAttack2",normalAttackMontage2.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> criticalAttackMontage
@@ -44,7 +44,7 @@ void UMeleeMinionAnim::loadMontages()
 
 	if (criticalAttackMontage.Succeeded())
 	{
-		m_AttackMontages.Add(criticalAttackMontage.Object);
+		m_Montages.Add("CriticalAttack",criticalAttackMontage.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> onHitMontage
@@ -52,7 +52,7 @@ void UMeleeMinionAnim::loadMontages()
 
 	if (onHitMontage.Succeeded())
 	{
-		m_OnHitMontages.Add(onHitMontage.Object);
+		m_Montages.Add("OnHit_Front",onHitMontage.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> deathMontage_Front
@@ -60,7 +60,7 @@ void UMeleeMinionAnim::loadMontages()
 
 	if (deathMontage_Front.Succeeded())
 	{
-		m_DeathMontages.Add(deathMontage_Front.Object);
+		m_Montages.Add("OnDeath_Front",deathMontage_Front.Object);
 	}
 
 }

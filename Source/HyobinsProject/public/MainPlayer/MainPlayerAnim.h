@@ -23,26 +23,24 @@ public:
 	UMainPlayerAnim();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	void PlayNormalAttackMontage();
-	void JumpToNormalAttackMontageSection(int32 newSection);
+	//void JumpToNormalAttackMontageSection(int32 newSection);
 
 private:
+	void initAssets();
+
 	UFUNCTION()
 		void AnimNotify_checkNormalAttackHit(); // Notify를 실행시키는 함수.
 
 	UFUNCTION()
 		void AnimNotify_checkNextNormalAttack();
 
-	FName GetNormalAttackMontageSectionName(int32 section);
+	//FName GetNormalAttackMontageSectionName(int32 section);
 
 
 public:
-	// 델리게이트.
 	FOnNormalAttackNextCheckDelegate OnNormalAttackNextCheck;
 	FOnNormalAttackHitCheckDelegate  OnNormalAttackHitCheck;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		UAnimMontage* m_NormalAttackMontage;
 
 private:
 	TWeakObjectPtr<class AMainPlayer> m_Owner;
@@ -52,4 +50,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
 		bool m_bIsCombated;
+
+
 };

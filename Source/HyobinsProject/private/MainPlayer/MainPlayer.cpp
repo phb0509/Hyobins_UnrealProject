@@ -90,8 +90,8 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 	{
 		
 		updateNormalAttackStateOnStart();
-		m_AnimInstance->PlayNormalAttackMontage();
-		m_AnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
+		m_AnimInstance->PlayMontage("NormalAttack", 1.2f);
+		m_AnimInstance->JumpToMontageSection("NormalAttack",m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
 		m_bIsAttacking = true;
 	}
 }
@@ -135,7 +135,7 @@ void AMainPlayer::OnCalledNotify_NormalAttackNextCheck()
 	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되면
 	{
 		updateNormalAttackStateOnStart();
-		m_AnimInstance->JumpToNormalAttackMontageSection(m_CurNormalAttackCombo);
+		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo);
 	}
 }
 
@@ -173,6 +173,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedShift);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
+	PlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &AMainPlayer::TriggerPressedSpaceBar);
 }
 
 void AMainPlayer::Turn(float value)

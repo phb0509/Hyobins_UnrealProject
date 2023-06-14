@@ -18,14 +18,15 @@ class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
 public:
 	UAnimInstanceBase();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
-	TArray<UAnimMontage*> GetAttackMontages() { return m_AttackMontages; }
+	void PlayMontage(FName montageName, float inPlayRate = 1.0f);
+	void JumpToMontageSection(FName montageName, int32 newSection);
+	
+	/*TArray<UAnimMontage*> GetAttackMontages() { return m_AttackMontages; }
 	TArray<UAnimMontage*> GetOnHitMontages() { return m_OnHitMontages; }
-	TArray<UAnimMontage*> GetDeathMontages() { return m_DeathMontages; }
+	TArray<UAnimMontage*> GetDeathMontages() { return m_DeathMontages; }*/
 
 	void SetDeathSequenceIndex(int index) { m_DeathSequenceIndex = index; }
 
-	
 private:
 	UFUNCTION()
 		void AnimNotify_OnDeathMontageEnded(); // Notify를 실행시키는 함수.
@@ -58,12 +59,14 @@ protected:
 		int m_DeathSequenceIndex;
 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	TMap<FName, UAnimMontage*> m_Montages;
+
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		TArray<UAnimMontage*> m_AttackMontages;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
 		TArray<UAnimMontage*> m_OnHitMontages;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		TArray<UAnimMontage*> m_DeathMontages;
+		TArray<UAnimMontage*> m_DeathMontages;*/
 };

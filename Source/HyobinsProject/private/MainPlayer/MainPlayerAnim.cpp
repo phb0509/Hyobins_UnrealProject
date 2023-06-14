@@ -9,13 +9,7 @@ UMainPlayerAnim::UMainPlayerAnim() :
 	m_bIsPressingShift(false),
 	m_bIsCombated(true)
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> attackMontage
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AMBP_ComboAttack1.AMBP_ComboAttack1'"));
-
-	if (attackMontage.Succeeded())
-	{
-		m_NormalAttackMontage = attackMontage.Object;
-	}
+	initAssets();
 }
 
 void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
@@ -35,17 +29,7 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		m_bIsWalking = m_Owner->GetIsWalking();
 		m_bIsRunning = m_Owner->GetIsRunning();
 		m_bIsInAir = m_Owner->GetIsInAir();
-	}
-}
-
-void UMainPlayerAnim::PlayNormalAttackMontage()
-{
-	Montage_Play(m_NormalAttackMontage, 1.2f);
-}
-
-void UMainPlayerAnim::JumpToNormalAttackMontageSection(int32 newSection)
-{
-	Montage_JumpToSection(GetNormalAttackMontageSectionName(newSection), m_NormalAttackMontage);
+	}	
 }
 
 void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
@@ -58,7 +42,19 @@ void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
 	OnNormalAttackNextCheck.Broadcast();
 }
 
-FName UMainPlayerAnim::GetNormalAttackMontageSectionName(int32 section)
+//FName UMainPlayerAnim::GetNormalAttackMontageSectionName(int32 section)
+//{
+//	return FName(*FString::Printf(TEXT("Attack%d"), section));
+//}
+
+void UMainPlayerAnim::initAssets()
 {
-	return FName(*FString::Printf(TEXT("Attack%d"), section));
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> attackMontage
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AMBP_ComboAttack1.AMBP_ComboAttack1'"));
+
+	if (attackMontage.Succeeded())
+	{
+		//m_Montages["NormalAttack"] = attackMontage.Object;
+		m_Montages.Add("NormalAttack",attackMontage.Object);
+	}
 }

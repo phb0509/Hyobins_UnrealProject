@@ -24,7 +24,6 @@ public:
 
 	// Get
 	ENormalMinionStates GetState() { return m_CurState; }
-	//float GetNormalAttackRange() { return m_NormalAttackRange; }
 
 	// Set
 	void SetState(ENormalMinionStates state);
@@ -32,7 +31,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetCommonState(EMonsterCommonStates commonState);
-	//virtual void ExecHitEvent(ACharacterBase* instigator) override;
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 	

@@ -16,12 +16,10 @@ class HYOBINSPROJECT_API UMeleeMinionAnim : public UAnimInstanceBase
 	
 public:
 	UMeleeMinionAnim();
-	//virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	void PlayNormalAttackMontage(float InPlayRate);
 
 private:
-	void loadMontages();
+	void initAssets();
 
 	UFUNCTION()
 		void AnimNotify_checkAttackHit(); // Notify를 실행시키는 함수.
