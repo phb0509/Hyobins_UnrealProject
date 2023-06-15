@@ -42,11 +42,6 @@ void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
 	OnNormalAttackNextCheck.Broadcast();
 }
 
-//FName UMainPlayerAnim::GetNormalAttackMontageSectionName(int32 section)
-//{
-//	return FName(*FString::Printf(TEXT("Attack%d"), section));
-//}
-
 void UMainPlayerAnim::initAssets()
 {
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> attackMontage

@@ -36,33 +36,22 @@ void UAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
 
 void UAnimInstanceBase::PlayMontage(FName montageName, float inPlayRate)
 {
-	//FName temp = montageName;
-	//	
-	//UAnimMontage* am = m_Montages[temp];
+	if (m_Montages.Contains(montageName))
+	{
+		checkf(IsValid(m_Montages[montageName]), TEXT(""));
 
-	//int fsad = 0;
-	if (IsValid(m_Montages[montageName]))
-	{
 		Montage_Play(m_Montages[montageName], inPlayRate);
-	}
-	else
-	{
-		FString log = montageName.ToString() + "is Not Valid!! Check the MontageName In Function::PlayMontage()";
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 	}
 }
 
 void UAnimInstanceBase::JumpToMontageSection(FName montageName, int32 newSection)
 {
-	if (IsValid(m_Montages[montageName]))
+	if (m_Montages.Contains(montageName))
 	{
+		checkf(IsValid(m_Montages[montageName]), TEXT(""));
+
 		FString section = FString::FromInt(newSection);
 		Montage_JumpToSection(*section, m_Montages[montageName]);
-	}
-	else
-	{
-		FString log = montageName.ToString() + "is Not Valid!! Check the MontageName In Function::PlayMontage()";
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 	}
 }
 
