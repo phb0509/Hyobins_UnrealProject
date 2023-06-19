@@ -44,12 +44,19 @@ void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
 
 void UMainPlayerAnim::initAssets()
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> attackMontage
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttack
 	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AMBP_ComboAttack1.AMBP_ComboAttack1'"));
 
-	if (attackMontage.Succeeded())
+	if (normalAttack.Succeeded())
 	{
-		//m_Montages["NormalAttack"] = attackMontage.Object;
-		m_Montages.Add("NormalAttack",attackMontage.Object);
+		m_Montages.Add("NormalAttack", normalAttack.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> dodge_Combat
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Dodge_Combat.Dodge_Combat'"));
+
+	if (dodge_Combat.Succeeded())
+	{
+		m_Montages.Add("Dodge_Combat", dodge_Combat.Object);
 	}
 }

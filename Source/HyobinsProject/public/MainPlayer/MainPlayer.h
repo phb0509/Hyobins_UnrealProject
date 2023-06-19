@@ -54,7 +54,7 @@ private:
 	void updateState();
 	void normalComboAttack();
 	void updateNormalAttackStateOnStart();
-	void checkNormalAttackCollisionBySweep(); // 삭제 예정.
+	void rotateUsingControllerYawAndInput();
 	
 	UFUNCTION()
 		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
@@ -100,11 +100,16 @@ private:
 	FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
 	float m_ArmRotationSpeed;
+
 	float m_MovdDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
+
 	bool m_bIsPressingShift;
 	bool m_bIsCombated;
 	bool m_bIsHit;
+
+	float m_CurInputHorizontal;
+	float m_CurInputVertical;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
 		bool m_bCanNextCombo;

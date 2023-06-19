@@ -9,6 +9,7 @@
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
 #include "Utility/EnumTypes.h" 
+#include "Utility/Utility.h"
 #include "DrawDebugHelpers.h"
 
 static int screenDebugKey = 0;
@@ -76,9 +77,6 @@ void AMainPlayer::Tick(float DeltaTime)
 
 void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 {
-	FVector worldDireciton = GetActorForwardVector();
-	AddMovementInput(worldDireciton, 1.0f, true);
-
 	if (m_bIsAttacking) 
 	{
 		if (m_bCanNextCombo)
@@ -88,7 +86,6 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 	}
 	else
 	{
-		
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->PlayMontage("NormalAttack", 1.2f);
 		m_AnimInstance->JumpToMontageSection("NormalAttack",m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
@@ -153,6 +150,7 @@ void AMainPlayer::OnCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
 
 void AMainPlayer::updateNormalAttackStateOnStart() // 각 구간의 기본공격(연속공격이니까) 수행 후, 상태값 업데이트.
 {
+	rotateUsingControllerYawAndInput();
 	m_bCanNextCombo = true;
 	m_bIsInputOnNextCombo = false;
 	m_CurNormalAttackCombo = FMath::Clamp<int32>(m_CurNormalAttackCombo + 1, 1, m_NormalAttackMaxCombo);
@@ -188,6 +186,8 @@ void AMainPlayer::LookUp(float value)
 
 void AMainPlayer::InputHorizontal(float value)
 {
+	m_CurInputHorizontal = value;
+
 	if (!m_bIsAttacking)
 	{
 		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
@@ -197,6 +197,8 @@ void AMainPlayer::InputHorizontal(float value)
 
 void AMainPlayer::InputVertical(float value)
 {
+	m_CurInputVertical = value;
+
 	if (!m_bIsAttacking)
 	{
 		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
@@ -228,7 +230,17 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 
 void AMainPlayer::TriggerPressedSpaceBar()
 {
+	//m_AnimInstance->PlayMontage("Dodge_Combat", 1.0f);
+	//m_AnimInstance->StopAllMontages(0.1f);
+	//FVector LeftDirection = Forward.RotateAngleAxis(-30.0f, FVector::UpVector);
 
+
+	FRotator controllerRotation = GetControlRotation();
+	FRotator actorRotation = GetActorRotation();
+	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll }; 
+	
+	//FString log = FString::fromcontrollerRotation.
+	SetActorRotation(temp);
 }
 
 void AMainPlayer::initAssets()
@@ -374,6 +386,7 @@ void AMainPlayer::updateState()
 		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
 	}
 }
+
 void AMainPlayer::printLog()
 {
 	FVector location = GetActorLocation();
@@ -387,52 +400,12 @@ void AMainPlayer::printLog()
 	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
 }
 
-//void AMainPlayer::checkNormalAttackCollisionBySweep()
-//{
-//	TArray<FHitResult> detectedObjects;
-//	FCollisionQueryParams Params(NAME_None, false, this); // 각각 TraceTag, 복잡검사여부 (아마 bTraceComplex), 그리고 무시할 객체
-//	//FCollisionQueryParams Params;
-//
-//	FVector start = GetActorLocation();
-//	FVector end = GetActorLocation() + GetActorForwardVector() * m_NormalAttackRange;
-//
-//	bool bResult = GetWorld()->SweepMultiByChannel(
-//		detectedObjects, // 탐지된 액터들
-//		start, // 탐색 시작 위치
-//		end, // 탐색을 끝낼 위치
-//		FQuat::Identity, // 탐색에 사용할 도형의 회전
-//		ECollisionChannel::ECC_GameTraceChannel2, // "Attack" 트레이스 할당된 채널.
-//		FCollisionShape::MakeSphere(m_NormalAttackRadius), // 탐색에 사용할 기본 도형 정보. 구체,캡슐,박스 사용.
-//		Params); // 탐색 방법에 대한 설정 값을 모아둔 구조체.
-//
-//#if ENABLE_DRAW_DEBUG
-//
-//	FVector TraceVec = GetActorForwardVector() * m_NormalAttackRange;
-//	FVector Center = GetActorLocation() + TraceVec * 0.5f;
-//	float HalfHeight = m_NormalAttackRange * 0.5f + m_NormalAttackRadius;
-//	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
-//	FColor DrawColor = bResult ? FColor::Green : FColor::Red;
-//	float DebugLifeTime = 3.0f;
-//
-//	DrawDebugCapsule(GetWorld(),
-//		Center,
-//		HalfHeight,
-//		m_NormalAttackRadius,
-//		CapsuleRot,
-//		DrawColor,
-//		false,
-//		DebugLifeTime);
-//#endif
-//
-//	if (bResult)
-//	{
-//		for (auto& dectedObject : detectedObjects)
-//		{
-//			if (dectedObject.GetActor() != nullptr)
-//			{
-//				FDamageEvent DamageEvent;
-//				dectedObject.GetActor()->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
-//			}
-//		}
-//	}
-//}
+void AMainPlayer::rotateUsingControllerYawAndInput()
+{
+	FRotator controllerRotation = GetControlRotation();
+	FRotator actorRotation = GetActorRotation();
+	double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
+
+	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw + degree, actorRotation.Roll };
+	SetActorRotation(temp);
+}
