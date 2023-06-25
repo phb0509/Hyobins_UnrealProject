@@ -20,11 +20,6 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	void PlayMontage(FName montageName, float inPlayRate = 1.0f);
 	void JumpToMontageSection(FName montageName, int32 newSection);
-	
-	/*TArray<UAnimMontage*> GetAttackMontages() { return m_AttackMontages; }
-	TArray<UAnimMontage*> GetOnHitMontages() { return m_OnHitMontages; }
-	TArray<UAnimMontage*> GetDeathMontages() { return m_DeathMontages; }*/
-
 	void SetDeathSequenceIndex(int index) { m_DeathSequenceIndex = index; }
 
 private:
@@ -60,13 +55,6 @@ protected:
 
 
 	TMap<FName, UAnimMontage*> m_Montages;
+	
 
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		TArray<UAnimMontage*> m_AttackMontages;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		TArray<UAnimMontage*> m_OnHitMontages;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		TArray<UAnimMontage*> m_DeathMontages;*/
 };

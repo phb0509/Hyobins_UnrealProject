@@ -17,8 +17,9 @@ void AActorPool::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AActorPool::CreatePool(TSubclassOf<AActor> classType, int actorCount)
+void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 {
+	//classType->IsInBlueprint();
 	checkf(IsValid(classType), TEXT("ClassType does not inherit from Actor"));
 
 	if (classType->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()) == false)
@@ -45,13 +46,64 @@ void AActorPool::CreatePool(TSubclassOf<AActor> classType, int actorCount)
 
 	for (int i = 0; i < actorCount; ++i)
 	{
-		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // Rotation, Location . 일단 임시값. DeActivate가 제대로 작성되면 0,0,0으로 해도상관없다.
+		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // Rotation, Location.
 		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
 		castedSpawnedActor->DeActivate();
 
 		m_ActorPools[classType].Add(spawnedActor);
 	}
+}
+
+void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
+{
+	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
+	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath is Not Valid"));
+
+	if (loadedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()) == false)
+	{
+		checkf(true, TEXT("ClassType doesn't inherit from IPoolableActor"));
+	}
+	
+	UBlueprint* blueprintActor = Cast<UBlueprint>(loadedActor);
+	checkf(IsValid(blueprintActor), TEXT("Failed Casting to Blueprint"));
+
+	TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
+	//GetWorld()->SpawnActor<AActor>(classType, FVector::ZeroVector, FRotator::ZeroRotator);
+
+	if (m_BlueprintActorPools.Contains(classType)) // 이미 만들어진게 있다면
+	{
+		if (m_BlueprintActorPools[classType].Num() >= actorCount) // 현재 만들어진게 요청받은것보다 많거나 같다면 -> 새로 만들필요없다.
+		{
+			return;
+		}
+		else // 현재 만들어진게 요청받은것보다 적다면
+		{
+			actorCount -= m_BlueprintActorPools[classType].Num();
+		}
+	}
+	else
+	{
+		TArray<AActor*> actorPool;
+		m_BlueprintActorPools.Add(classType, actorPool);
+	}
+
+	for (int i = 0; i < actorCount; ++i)
+	{
+		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // Rotation, Location . 일단 임시값. DeActivate가 제대로 작성되면 0,0,0으로 해도상관없다.
+		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
+		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
+		
+		if (castedSpawnedActor == nullptr)
+		{
+			checkf(true, TEXT("Failed Casting to IPoolableActor"));
+		}
+
+		castedSpawnedActor->DeActivate();
+
+		m_BlueprintActorPools[classType].Add(spawnedActor);
+	}
+
 }
 
 AActor* AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation)
@@ -65,7 +117,7 @@ AActor* AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocat
 
 	if (m_ActorPools.Contains(classType) == false) // 이미 만들어진게 없다면
 	{
-		CreatePool(classType, m_DefaultSpawnCount);
+		CreateActorPool(classType, m_DefaultSpawnCount);
 		UE_LOG(LogTemp, Warning, TEXT("A new actor pool was created because no actor pool was created for the requested actor."));
 	}
 
@@ -85,10 +137,58 @@ AActor* AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocat
 
 	if (actor == nullptr) // 가용가능한 액터가 없다면
 	{
-		UE_LOG(LogTemp, Warning, TEXT("There are no spawnable Actors. Please increase the size of the ActorPool"));
+		UE_LOG(LogTemp, Warning, TEXT("There are no spawnableActors. Please increase the size of the ActorPool"));
 		return nullptr;
 	}
 	
+	return actor;
+}
+
+AActor* AActorPool::SpawnBlueprintActor(FName path, FVector spawnLocation)
+{
+	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
+	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath is Not Valid"));
+
+	if (loadedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()) == false)
+	{
+		checkf(true, TEXT("ClassType doesn't inherit from IPoolableActor"));
+	}
+
+	UBlueprint* blueprintActor = Cast<UBlueprint>(loadedActor);
+	checkf(IsValid(blueprintActor), TEXT("Failed Casting to Blueprint"));
+
+	TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
+
+	if (m_BlueprintActorPools.Contains(classType) == false) // 이미 만들어진게 없다면
+	{
+		CreateBlueprintActorPool(path, m_DefaultSpawnCount);
+		UE_LOG(LogTemp, Warning, TEXT("A new actor pool was created because no actor pool was created for the requested actor."));
+	}
+
+	AActor* actor = nullptr;
+
+	for (AActor* poolableActor : m_BlueprintActorPools[classType])
+	{
+		IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
+		if (castedPoolableActor == nullptr)
+		{
+			checkf(true, TEXT("Failed Casting to IPoolableActor"));
+		}
+
+		if (castedPoolableActor->GetIsActivated()) continue;
+
+		actor = poolableActor;
+		actor->SetActorLocation(spawnLocation);
+		castedPoolableActor->Activate();
+		break;
+	}
+
+	if (actor == nullptr) // 가용가능한 액터가 없다면
+	{
+		UE_LOG(LogTemp, Warning, TEXT("There are no spawnableActors. Please increase the size of the ActorPool"));
+		return nullptr;
+	}
+
 	return actor;
 }
 

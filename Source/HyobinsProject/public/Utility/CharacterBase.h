@@ -27,6 +27,8 @@ public:
 	bool GetIsIdle() const { return m_bIsIdle; }
 	bool GetIsWalking() const { return m_bIsWalking; }
 	bool GetIsRunning() const { return m_bIsRunning; }
+
+	UFUNCTION(BlueprintGetter)
 	bool GetIsAttacking() const { return m_bIsAttacking; }
 	bool GetIsInAir() const { return m_bIsInAir; }
 	bool GetIsDeath() const { return m_bIsDeath; }

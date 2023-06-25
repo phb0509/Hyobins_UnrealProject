@@ -19,7 +19,6 @@ public:
 	AMainPlayerController();
 	virtual FGenericTeamId GetGenericTeamId() const override; 
 
-
 private:
 	FGenericTeamId m_TeamID;
 	

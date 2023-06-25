@@ -24,6 +24,7 @@ AMainPlayer::AMainPlayer() :
 	m_bIsPressingShift(false),
 	m_bIsCombated(true),
 	m_bIsHit(false),
+	m_bIsDodgeMoving(false),
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
@@ -46,23 +47,19 @@ AMainPlayer::AMainPlayer() :
 	m_CurNormalAttackCombo = 0;
 }
 
-void AMainPlayer::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::OnNormalAttackMontageEnded);
-
-	// Notify
-	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackHitCheck);
-	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::OnCalledNotify_NormalAttackNextCheck);
-}
-
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
 	SetActorLocation(FVector(0.0f, 0.0f, 100.0f));
+
+	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
+	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onNormalAttackMontageEnded);
+
+	// Notify
+	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck);
+	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck);
+	m_AnimInstance->OnEndedDodgeMove.AddUObject(this, &AMainPlayer::onCalledNotify_EndedDodgeMove);
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -93,7 +90,7 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 	}
 }
 
-void AMainPlayer::OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었거나, 공격 도중 키입력이 더이상 없거나
+void AMainPlayer::onNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었거나, 공격 도중 키입력이 더이상 없거나
 {
 	m_bIsAttacking = false;
 	m_bIsInputOnNextCombo = false;
@@ -120,7 +117,7 @@ void AMainPlayer::checkOverlapShieldCollisionForShield(UPrimitiveComponent* HitC
 
 }
 
-void AMainPlayer::OnCalledNotify_NormalAttackNextCheck()
+void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
 {
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -136,7 +133,7 @@ void AMainPlayer::OnCalledNotify_NormalAttackNextCheck()
 	}
 }
 
-void AMainPlayer::OnCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
+void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
 {
 	if (m_CurNormalAttackCombo == 3) // 방패로 공격하는 타이밍
 	{
@@ -146,6 +143,11 @@ void AMainPlayer::OnCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
 	{
 		m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly); 
 	}
+}
+
+void AMainPlayer::onCalledNotify_EndedDodgeMove()
+{
+	m_bIsDodgeMoving = false;
 }
 
 void AMainPlayer::updateNormalAttackStateOnStart() // 각 구간의 기본공격(연속공격이니까) 수행 후, 상태값 업데이트.
@@ -230,17 +232,19 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 
 void AMainPlayer::TriggerPressedSpaceBar()
 {
-	//m_AnimInstance->PlayMontage("Dodge_Combat", 1.0f);
-	//m_AnimInstance->StopAllMontages(0.1f);
-	//FVector LeftDirection = Forward.RotateAngleAxis(-30.0f, FVector::UpVector);
+	if (m_bIsDodgeMoving) return;
 
+	m_bIsDodgeMoving = true;
 
-	FRotator controllerRotation = GetControlRotation();
-	FRotator actorRotation = GetActorRotation();
-	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll }; 
-	
-	//FString log = FString::fromcontrollerRotation.
-	SetActorRotation(temp);
+	if (m_bIsAttacking)
+	{
+
+	}
+	else
+	{
+		rotateUsingControllerYawAndInput();
+		m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
+	}
 }
 
 void AMainPlayer::initAssets()
@@ -265,14 +269,6 @@ void AMainPlayer::initAssets()
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
 	}
 	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
-
-	// AnimInstance
-	static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MainPlayerAsset/ABP_MainPlayer.ABP_MainPlayer_C'"));
-	if (animInstance.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(animInstance.Class);
-	}
-	checkf(IsValid(animInstance.Class), TEXT("animInstance is not Valid"));
 
 	// SpringArm
 	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
@@ -398,6 +394,10 @@ void AMainPlayer::printLog()
 	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
 	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
+	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("is Attacking : %d"), m_bIsAttacking));
+
+	/*bool isInBlueprint = this->IsInBlueprint();
+	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is In Blueprint? : %d"), isInBlueprint));*/
 }
 
 void AMainPlayer::rotateUsingControllerYawAndInput()

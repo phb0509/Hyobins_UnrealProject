@@ -15,11 +15,9 @@ class HYOBINSPROJECT_API AMainPlayer final: public ACharacterBase
 
 public:
 	AMainPlayer();
-	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	//virtual void Jump() override;
-
+	
 	// AxisMappings
 	void Turn(float value);
 	void LookUp(float value);
@@ -33,7 +31,6 @@ public:
 	void TriggerReleasedLeftMouseButton();
 	void TriggerPressedSpaceBar();
 
-	void OnCalledNotify_NormalAttackHitCheck();
 
 
 	// Get  자동 inline 처리된다.
@@ -57,7 +54,7 @@ private:
 	void rotateUsingControllerYawAndInput();
 	
 	UFUNCTION()
-		void OnNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+		void onNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 	UFUNCTION()
 		void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
@@ -71,8 +68,10 @@ private:
 		void checkOverlapShieldCollisionForShield(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-
-	void OnCalledNotify_NormalAttackNextCheck();
+	void onCalledNotify_NormalAttackHitCheck();
+	void onCalledNotify_NormalAttackNextCheck();
+	void onCalledNotify_EndedDodgeMove();
+	
 
 	void printLog();
 
@@ -107,21 +106,16 @@ private:
 	bool m_bIsPressingShift;
 	bool m_bIsCombated;
 	bool m_bIsHit;
+	bool m_bIsDodgeMoving;
 
+	bool m_bCanNextCombo;
+	bool m_bIsInputOnNextCombo;
+	int32 m_CurNormalAttackCombo;
+	int32 m_NormalAttackMaxCombo;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	float m_CurInputHorizontal;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	float m_CurInputVertical;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		bool m_bCanNextCombo;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		bool m_bIsInputOnNextCombo;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		int32 m_CurNormalAttackCombo;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = true))
-		int32 m_NormalAttackMaxCombo;
-
 
 };

@@ -22,11 +22,11 @@ void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 	}
 	else
 	{
-		m_CurSpeed = m_Owner->GetCurSpeed();
-		m_bIsIdle = m_Owner->GetIsIdle();
+		//m_CurSpeed = m_Owner->GetCurSpeed();
+		//m_bIsIdle = m_Owner->GetIsIdle();
 		m_bIsPressingShift = m_Owner->GetIsPressingShift();
 		m_bIsCombated = m_Owner->GetIsCombat();
-		m_bIsWalking = m_Owner->GetIsWalking();
+		//m_bIsWalking = m_Owner->GetIsWalking();
 		m_bIsRunning = m_Owner->GetIsRunning();
 		m_bIsInAir = m_Owner->GetIsInAir();
 	}	
@@ -42,6 +42,11 @@ void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
 	OnNormalAttackNextCheck.Broadcast();
 }
 
+void UMainPlayerAnim::AnimNotify_EndedDodgeMove()
+{
+	OnEndedDodgeMove.Broadcast();
+}
+
 void UMainPlayerAnim::initAssets()
 {
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttack
@@ -53,10 +58,10 @@ void UMainPlayerAnim::initAssets()
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> dodge_Combat
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Dodge_Combat.Dodge_Combat'"));
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Dodge_NonCombat.Dodge_NonCombat'"));
 
 	if (dodge_Combat.Succeeded())
 	{
-		m_Montages.Add("Dodge_Combat", dodge_Combat.Object);
+		m_Montages.Add("Dodge_NonCombat", dodge_Combat.Object);
 	}
 }

@@ -49,7 +49,6 @@ void AMeleeMinion::PostInitializeComponents()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
 	}
-
 }
 
 void AMeleeMinion::BeginPlay()
@@ -150,13 +149,13 @@ void AMeleeMinion::initAssets()
 	}
 	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
 
-	// AnimInstance
-	static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'"));
-	if (animInstance.Succeeded())
-	{
-		GetMesh()->SetAnimInstanceClass(animInstance.Class);
-	}
-	checkf(IsValid(animInstance.Class), TEXT("AnimInstance is not Valid"));
+	//// AnimInstance
+	//static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'"));
+	//if (animInstance.Succeeded())
+	//{
+	//	GetMesh()->SetAnimInstanceClass(animInstance.Class);
+	//}
+	//checkf(IsValid(animInstance.Class), TEXT("AnimInstance is not Valid"));
 
 	// HitCollider
 

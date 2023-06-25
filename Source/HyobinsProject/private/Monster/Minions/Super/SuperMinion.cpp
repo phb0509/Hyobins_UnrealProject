@@ -206,7 +206,6 @@ void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 		SetState(ENormalMinionStates::Patrol);
 		break;
 	case static_cast<int8>(EMonsterCommonStates::Hit):
-		//m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
 		m_AnimInstance->PlayMontage("OnHit_Front");
 		SetState(ENormalMinionStates::Hit);
 		break;

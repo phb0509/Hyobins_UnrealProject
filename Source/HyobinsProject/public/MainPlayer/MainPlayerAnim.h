@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "Animation/AnimInstance.h"
 #include "Utility/AnimInstanceBase.h"
 #include "MainPlayerAnim.generated.h"
 
@@ -12,6 +11,7 @@ enum class EMainPlayerStates : uint8;
 
 DECLARE_MULTICAST_DELEGATE(FOnNormalAttackNextCheckDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnNormalAttackHitCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnEndedDodgeMoveDelegate);
 
 
 UCLASS()
@@ -23,23 +23,24 @@ public:
 	UMainPlayerAnim();
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	//void JumpToNormalAttackMontageSection(int32 newSection);
 
 private:
 	void initAssets();
 
 	UFUNCTION()
-		void AnimNotify_checkNormalAttackHit(); // Notify를 실행시키는 함수.
+		void AnimNotify_checkNormalAttackHit();
 
 	UFUNCTION()
 		void AnimNotify_checkNextNormalAttack();
 
-	//FName GetNormalAttackMontageSectionName(int32 section);
+	UFUNCTION()
+		void AnimNotify_EndedDodgeMove();
 
 
 public:
 	FOnNormalAttackNextCheckDelegate OnNormalAttackNextCheck;
 	FOnNormalAttackHitCheckDelegate  OnNormalAttackHitCheck;
+	FOnEndedDodgeMoveDelegate OnEndedDodgeMove;
 
 
 private:
