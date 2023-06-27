@@ -14,8 +14,7 @@ class HYOBINSPROJECT_API AActorPool : public AActor
 public:
 	AActorPool();
 
-protected:
-	virtual void BeginPlay() override;
+
 
 public:
 	// 추가호출을 할 경우, 추가호출의 'actorCount - 기존생성된 액터의 개수' 만큼만 생성한다.
