@@ -44,13 +44,8 @@ public:
 
 
 private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
 	TWeakObjectPtr<class AMainPlayer> m_Owner;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsPressingShift;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-		bool m_bIsCombated;
 
 
 };

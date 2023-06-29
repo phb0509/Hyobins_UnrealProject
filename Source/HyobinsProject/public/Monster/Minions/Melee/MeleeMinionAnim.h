@@ -27,6 +27,4 @@ private:
 public:
 	FOnAttackHitCheckDelegate  OnAttackHitCheck;
 
-
-	
 };

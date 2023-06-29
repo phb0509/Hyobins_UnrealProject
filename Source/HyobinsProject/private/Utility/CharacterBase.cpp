@@ -10,22 +10,22 @@
 ACharacterBase::ACharacterBase() :
 	m_MaxHP(100.0f),
 	m_CurHP(m_MaxHP),
-	m_CurSpeed(0.0f),
 	m_WalkSpeed(200.0f),
 	m_RunSpeed(400.0f),
 	m_HitRecovery(1.0f),
 	m_OnHitTimerTime(1.0f),
 	m_DeathTimerTime(3.0f),
-	m_DeathTimerTickTime(1.0f),
-	m_DeathTimerRemainingTime(3.0f),
-	m_DiffuseRatio(1.0f),
+	m_CurSpeed(0.0f),
 	m_bIsIdle(true),
 	m_bIsWalking(false),
 	m_bIsRunning(false),
 	m_bIsAttacking(false),
 	m_bIsInAir(false),
 	m_bIsSuperArmor(false),
-	m_bIsDeath(false)
+	m_bIsDeath(false),
+	m_DeathTimerTickTime(1.0f),
+	m_DeathTimerRemainingTime(3.0f),
+	m_DiffuseRatio(1.0f)
 {
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint); // 블루프린트를 사용하겠다는 의미.
 }

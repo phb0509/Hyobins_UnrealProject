@@ -63,7 +63,7 @@ protected:
 
 	float m_MaxHP;
 	float m_CurHP;
-	float m_CurSpeed;
+	
 
 	UPROPERTY(EditDefaultsOnly)
 	float m_WalkSpeed;
@@ -80,15 +80,31 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float m_DeathTimerTime;
 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	float m_CurSpeed;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsIdle;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsWalking;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsRunning;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsAttacking;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsInAir;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsSuperArmor;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsDeath;
+
 	float m_DeathTimerTickTime;
 	float m_DeathTimerRemainingTime;
 	float m_DiffuseRatio;
-
-	bool m_bIsIdle;
-	bool m_bIsWalking;
-	bool m_bIsRunning;
-	bool m_bIsAttacking;
-	bool m_bIsInAir;
-	bool m_bIsSuperArmor;
-	bool m_bIsDeath;
 };

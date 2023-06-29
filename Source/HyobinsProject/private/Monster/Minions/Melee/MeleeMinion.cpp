@@ -61,8 +61,6 @@ void AMeleeMinion::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	updateState();
-
-	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("MeleeMinion is Attacking? : %d"), m_bIsAttacking));
 }
 
 void AMeleeMinion::NormalAttack()

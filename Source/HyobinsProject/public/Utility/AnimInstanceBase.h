@@ -20,7 +20,6 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	void PlayMontage(FName montageName, float inPlayRate = 1.0f);
 	void JumpToMontageSection(FName montageName, int32 newSection);
-	void SetDeathSequenceIndex(int index) { m_DeathSequenceIndex = index; }
 
 private:
 	UFUNCTION()
@@ -32,26 +31,26 @@ public:
 protected:
 	TWeakObjectPtr<class ACharacterBase> m_Owner;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		float m_CurSpeed;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	//	float m_CurSpeed;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		bool m_bIsIdle;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	//	bool m_bIsIdle;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		bool m_bIsWalking;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	//	bool m_bIsWalking;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		bool m_bIsRunning;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	//	bool m_bIsRunning;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		bool m_bIsInAir;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	//	bool m_bIsInAir;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		bool m_bIsDeath;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	//	bool m_bIsDeath;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
-		int m_DeathSequenceIndex;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass)
+	//	int m_DeathSequenceIndex;
 
 
 	TMap<FName, UAnimMontage*> m_Montages;

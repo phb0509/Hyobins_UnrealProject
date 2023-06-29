@@ -31,13 +31,9 @@ public:
 	void TriggerReleasedLeftMouseButton();
 	void TriggerPressedSpaceBar();
 
-
-
 	// Get  자동 inline 처리된다.
 	
-	bool GetIsPressingShift() { return m_bIsPressingShift; }
-	bool GetIsCombat() { return m_bIsCombated; }
-	bool GetIsHit() { return m_bIsHit; }
+
 
 	// Set
 
@@ -103,19 +99,27 @@ private:
 	float m_MovdDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 
-	bool m_bIsPressingShift;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsCombated;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsHit;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	bool m_bIsPressingShift;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsDodgeMoving;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	float m_CurInputHorizontal;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	float m_CurInputVertical;
 
 	bool m_bCanNextCombo;
 	bool m_bIsInputOnNextCombo;
 	int32 m_CurNormalAttackCombo;
 	int32 m_NormalAttackMaxCombo;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	float m_CurInputHorizontal;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	float m_CurInputVertical;
 
 };

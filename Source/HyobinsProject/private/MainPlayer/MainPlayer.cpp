@@ -12,7 +12,6 @@
 #include "Utility/Utility.h"
 #include "DrawDebugHelpers.h"
 
-static int screenDebugKey = 0;
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
@@ -21,9 +20,9 @@ AMainPlayer::AMainPlayer() :
 	m_ArmRotationSpeed(0.0f),
 	m_MovdDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
-	m_bIsPressingShift(false),
 	m_bIsCombated(true),
 	m_bIsHit(false),
+	m_bIsPressingShift(false),
 	m_bIsDodgeMoving(false),
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
@@ -235,6 +234,7 @@ void AMainPlayer::TriggerPressedSpaceBar()
 	if (m_bIsDodgeMoving) return;
 
 	m_bIsDodgeMoving = true;
+	m_AnimInstance->StopAllMontages(0.1f);
 
 	if (m_bIsAttacking)
 	{
@@ -243,7 +243,7 @@ void AMainPlayer::TriggerPressedSpaceBar()
 	else
 	{
 		rotateUsingControllerYawAndInput();
-		m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
+		//m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
 	}
 }
 
@@ -395,9 +395,8 @@ void AMainPlayer::printLog()
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
 	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
 	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("is Attacking : %d"), m_bIsAttacking));
+	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is DodgeMoving : %d"), m_bIsDodgeMoving));
 
-	/*bool isInBlueprint = this->IsInBlueprint();
-	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is In Blueprint? : %d"), isInBlueprint));*/
 }
 
 void AMainPlayer::rotateUsingControllerYawAndInput()
