@@ -112,10 +112,16 @@ private:
 	bool m_bIsDodgeMoving;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	float m_CurInputHorizontal;
+	int m_CurInputHorizontal;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	float m_CurInputVertical;
+	int m_CurInputVertical;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	int m_TempInputHorizontalForDodge;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	int m_TempInputVerticalForDodge;
 
 	bool m_bCanNextCombo;
 	bool m_bIsInputOnNextCombo;

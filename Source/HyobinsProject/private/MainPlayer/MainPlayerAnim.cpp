@@ -8,6 +8,7 @@
 UMainPlayerAnim::UMainPlayerAnim() 
 {
 	initAssets();
+	
 }
 
 void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)

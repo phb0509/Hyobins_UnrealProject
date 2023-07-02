@@ -189,7 +189,7 @@ void AMainPlayer::InputHorizontal(float value)
 {
 	m_CurInputHorizontal = value;
 
-	if (!m_bIsAttacking)
+	if (!m_bIsAttacking && !m_bIsDodgeMoving)
 	{
 		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
@@ -200,7 +200,7 @@ void AMainPlayer::InputVertical(float value)
 {
 	m_CurInputVertical = value;
 
-	if (!m_bIsAttacking)
+	if (!m_bIsAttacking && !m_bIsDodgeMoving)
 	{
 		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
@@ -236,14 +236,21 @@ void AMainPlayer::TriggerPressedSpaceBar()
 	m_bIsDodgeMoving = true;
 	m_AnimInstance->StopAllMontages(0.1f);
 
+	m_TempInputHorizontalForDodge = m_CurInputHorizontal;
+	m_TempInputVerticalForDodge = m_CurInputVertical;
+
 	if (m_bIsAttacking)
 	{
+		FRotator controllerRotation = GetControlRotation();
+		FRotator actorRotation = GetActorRotation();
 
+		FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
+		SetActorRotation(temp);
 	}
 	else
 	{
 		rotateUsingControllerYawAndInput();
-		//m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
+		m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
 	}
 }
 
@@ -396,6 +403,8 @@ void AMainPlayer::printLog()
 	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
 	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("is Attacking : %d"), m_bIsAttacking));
 	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is DodgeMoving : %d"), m_bIsDodgeMoving));
+	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
+	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
 
 }
 
