@@ -31,6 +31,11 @@ void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
 	OnNormalAttackNextCheck.Broadcast();
 }
 
+void UMainPlayerAnim::AnimNotify_EndedNormalAttack()
+{
+	OnEndedNormalAttack.Broadcast();
+}
+
 void UMainPlayerAnim::AnimNotify_EndedDodgeMove()
 {
 	OnEndedDodgeMove.Broadcast();

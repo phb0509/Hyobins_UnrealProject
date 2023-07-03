@@ -48,9 +48,7 @@ private:
 	void normalComboAttack();
 	void updateNormalAttackStateOnStart();
 	void rotateUsingControllerYawAndInput();
-	
-	UFUNCTION()
-		void onNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void setRotationToControllerYaw();
 
 	UFUNCTION()
 		void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
@@ -66,6 +64,7 @@ private:
 
 	void onCalledNotify_NormalAttackHitCheck();
 	void onCalledNotify_NormalAttackNextCheck();
+	void onCalledNotify_EndedNormalAttack();
 	void onCalledNotify_EndedDodgeMove();
 	
 
@@ -122,6 +121,9 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int m_TempInputVerticalForDodge;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	bool m_TempIsAttacking;
 
 	bool m_bCanNextCombo;
 	bool m_bIsInputOnNextCombo;

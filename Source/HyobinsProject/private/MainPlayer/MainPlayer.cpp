@@ -24,6 +24,11 @@ AMainPlayer::AMainPlayer() :
 	m_bIsHit(false),
 	m_bIsPressingShift(false),
 	m_bIsDodgeMoving(false),
+	m_CurInputHorizontal(0),
+	m_CurInputVertical(0),
+	m_TempInputHorizontalForDodge(0),
+	m_TempInputVerticalForDodge(0),
+	m_TempIsAttacking(false),
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
@@ -40,10 +45,6 @@ AMainPlayer::AMainPlayer() :
 
 	initAssets();
 	initAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
-
-	m_bIsInputOnNextCombo = false;
-	m_bCanNextCombo = false;
-	m_CurNormalAttackCombo = 0;
 }
 
 void AMainPlayer::BeginPlay()
@@ -53,11 +54,12 @@ void AMainPlayer::BeginPlay()
 	SetActorLocation(FVector(0.0f, 0.0f, 100.0f));
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onNormalAttackMontageEnded);
+	//m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onNormalAttackMontageEnded);
 
 	// Notify
 	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck);
 	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck);
+	m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &AMainPlayer::onCalledNotify_EndedNormalAttack);
 	m_AnimInstance->OnEndedDodgeMove.AddUObject(this, &AMainPlayer::onCalledNotify_EndedDodgeMove);
 }
 
@@ -73,6 +75,8 @@ void AMainPlayer::Tick(float DeltaTime)
 
 void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 {
+	if (m_bIsDodgeMoving) return;
+
 	if (m_bIsAttacking) 
 	{
 		if (m_bCanNextCombo)
@@ -87,14 +91,6 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 		m_AnimInstance->JumpToMontageSection("NormalAttack",m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
 		m_bIsAttacking = true;
 	}
-}
-
-void AMainPlayer::onNormalAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 기본공격몽타주가 끝까지 재생 되었거나, 공격 도중 키입력이 더이상 없거나
-{
-	m_bIsAttacking = false;
-	m_bIsInputOnNextCombo = false;
-	m_bCanNextCombo = false;
-	m_CurNormalAttackCombo = 0;
 }
 
 void AMainPlayer::checkOverlapSwordCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -130,6 +126,15 @@ void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo);
 	}
+}
+
+void AMainPlayer::onCalledNotify_EndedNormalAttack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("TESTSETESETSTESTSETES"));
+	m_bIsAttacking = false;
+	m_bIsInputOnNextCombo = false;
+	m_bCanNextCombo = false;
+	m_CurNormalAttackCombo = 0;
 }
 
 void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
@@ -238,19 +243,18 @@ void AMainPlayer::TriggerPressedSpaceBar()
 
 	m_TempInputHorizontalForDodge = m_CurInputHorizontal;
 	m_TempInputVerticalForDodge = m_CurInputVertical;
+	m_TempIsAttacking = m_bIsAttacking;
 
 	if (m_bIsAttacking)
 	{
-		FRotator controllerRotation = GetControlRotation();
-		FRotator actorRotation = GetActorRotation();
-
-		FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
-		SetActorRotation(temp);
+		onCalledNotify_EndedNormalAttack();
+		setRotationToControllerYaw();
 	}
 	else
 	{
 		rotateUsingControllerYawAndInput();
 		m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
+		
 	}
 }
 
@@ -416,4 +420,12 @@ void AMainPlayer::rotateUsingControllerYawAndInput()
 
 	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw + degree, actorRotation.Roll };
 	SetActorRotation(temp);
+}
+
+void AMainPlayer::setRotationToControllerYaw()
+{
+	FRotator controllerRotation = GetControlRotation();
+	FRotator actorRotation = GetActorRotation();
+
+	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
 }

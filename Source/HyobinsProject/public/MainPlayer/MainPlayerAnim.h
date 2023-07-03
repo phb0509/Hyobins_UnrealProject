@@ -11,7 +11,9 @@ enum class EMainPlayerStates : uint8;
 
 DECLARE_MULTICAST_DELEGATE(FOnNormalAttackNextCheckDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnNormalAttackHitCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnEndedNormalAttackDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnEndedDodgeMoveDelegate);
+
 
 
 UCLASS()
@@ -34,12 +36,16 @@ private:
 		void AnimNotify_checkNextNormalAttack();
 
 	UFUNCTION()
+		void AnimNotify_EndedNormalAttack();
+
+	UFUNCTION()
 		void AnimNotify_EndedDodgeMove();
 
 
 public:
 	FOnNormalAttackNextCheckDelegate OnNormalAttackNextCheck;
 	FOnNormalAttackHitCheckDelegate  OnNormalAttackHitCheck;
+	FOnEndedNormalAttackDelegate OnEndedNormalAttack;
 	FOnEndedDodgeMoveDelegate OnEndedDodgeMove;
 
 
