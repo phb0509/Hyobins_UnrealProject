@@ -147,14 +147,6 @@ void AMeleeMinion::initAssets()
 	}
 	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
 
-	//// AnimInstance
-	//static ConstructorHelpers::FClassFinder<UAnimInstance> animInstance(TEXT("AnimBlueprint'/Game/MonsterAsset/Minion/ABP_MeleeMinion.ABP_MeleeMinion_C'"));
-	//if (animInstance.Succeeded())
-	//{
-	//	GetMesh()->SetAnimInstanceClass(animInstance.Class);
-	//}
-	//checkf(IsValid(animInstance.Class), TEXT("AnimInstance is not Valid"));
-
 	// HitCollider
 
 	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));

@@ -23,8 +23,8 @@ class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstanceBase
 
 public:
 	UMainPlayerAnim();
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	//virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 private:
 	void initAssets();
@@ -47,11 +47,5 @@ public:
 	FOnNormalAttackHitCheckDelegate  OnNormalAttackHitCheck;
 	FOnEndedNormalAttackDelegate OnEndedNormalAttack;
 	FOnEndedDodgeMoveDelegate OnEndedDodgeMove;
-
-
-private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = AnimClass, Meta = (AllowPrivateAccess = true))
-	TWeakObjectPtr<class AMainPlayer> m_Owner;
-
 
 };

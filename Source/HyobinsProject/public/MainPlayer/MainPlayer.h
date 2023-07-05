@@ -31,13 +31,6 @@ public:
 	void TriggerReleasedLeftMouseButton();
 	void TriggerPressedSpaceBar();
 
-	// Get  자동 inline 처리된다.
-	
-
-
-	// Set
-
-
 protected:
 	virtual void BeginPlay() override;
 

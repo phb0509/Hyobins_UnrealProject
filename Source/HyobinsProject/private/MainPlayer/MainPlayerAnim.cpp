@@ -10,16 +10,12 @@ UMainPlayerAnim::UMainPlayerAnim()
 	initAssets();
 	
 }
-
-void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	if (!m_Owner.IsValid())
-	{
-		m_Owner = Cast<AMainPlayer>(TryGetPawnOwner());
-	}
-}
+//
+//void UMainPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
+//{
+//	Super::NativeUpdateAnimation(DeltaSeconds);
+//
+//}
 
 void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
