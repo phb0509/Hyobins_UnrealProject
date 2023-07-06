@@ -23,18 +23,8 @@ public:
 	virtual void OnHitTimerEnded() {};
 	virtual void OnCalledDeathMontageEndedNotify();
 
-	float GetCurSpeed() const { return m_CurSpeed; }
-	bool GetIsIdle() const { return m_bIsIdle; }
-	bool GetIsWalking() const { return m_bIsWalking; }
-	bool GetIsRunning() const { return m_bIsRunning; }
-
-	UFUNCTION(BlueprintGetter)
-	bool GetIsAttacking() const { return m_bIsAttacking; }
-	bool GetIsInAir() const { return m_bIsInAir; }
-	bool GetIsDeath() const { return m_bIsDeath; }
-
 	virtual void SetCommonState(EMonsterCommonStates commonState) {};
-	void InitHP(float hp) { m_CurHP = hp; m_MaxHP = m_CurHP; }
+	void InitHP(float hp) { m_CurHP = m_MaxHP; }
 
 protected:
 	void initAttackInformations(FString path);
@@ -61,10 +51,10 @@ protected:
 	FTimerHandle m_DeathTimerHandle;
 	FTimerHandle m_DeActivateTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly)
 	float m_MaxHP;
 	float m_CurHP;
 	
-
 	UPROPERTY(EditDefaultsOnly)
 	float m_WalkSpeed;
 

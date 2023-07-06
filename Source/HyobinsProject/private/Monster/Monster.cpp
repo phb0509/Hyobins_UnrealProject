@@ -30,13 +30,12 @@ void AMonster::ExecHitEvent(ACharacterBase* instigator)
 
 void AMonster::Activate()
 {
-	m_CurHP = m_MaxHP;
+	InitHP(m_MaxHP);
 	m_bIsActivated = true;
 	m_bIsDeath = false;
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->PlayBehaviorTree();
 
-	//SetCommonState(EMonsterCommonStates::Patrol);
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 	m_DiffuseRatio = 1.0f;

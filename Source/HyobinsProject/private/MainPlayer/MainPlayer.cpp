@@ -235,7 +235,6 @@ void AMainPlayer::TriggerPressedSpaceBar()
 	{
 		rotateUsingControllerYawAndInput();
 		m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
-		
 	}
 }
 
@@ -407,7 +406,6 @@ void AMainPlayer::setRotationToControllerYaw()
 {
 	FRotator controllerRotation = GetControlRotation();
 	FRotator actorRotation = GetActorRotation();
-
 	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
 
 	SetActorRotation(temp);

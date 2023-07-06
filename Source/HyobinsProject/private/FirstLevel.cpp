@@ -44,7 +44,7 @@ void AFirstLevel::spawn()
 	FVector meleeSpawnLocation = { 0.0f, 100.0f, 100.0f };
 	FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
 
-	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", superSpawnLocation);
+	//m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", superSpawnLocation);
 	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", meleeSpawnLocation);
 }
 

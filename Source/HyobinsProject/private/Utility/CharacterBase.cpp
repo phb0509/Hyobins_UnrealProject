@@ -27,7 +27,7 @@ ACharacterBase::ACharacterBase() :
 	m_DeathTimerRemainingTime(3.0f),
 	m_DiffuseRatio(1.0f)
 {
-	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint); // 블루프린트를 사용하겠다는 의미.
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 }
 
 void ACharacterBase::PossessedBy(AController* newController)
@@ -78,6 +78,10 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 			SetCommonState(EMonsterCommonStates::Hit); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록.
 
 			m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
+			
+			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation();
+			dirToInstigator.Normalize();
+			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * 50.0f,false);
 
 			// Timer Setting.
 			m_OnHitTimerTime = m_HitRecovery * attackInformation->knockBackTime;
