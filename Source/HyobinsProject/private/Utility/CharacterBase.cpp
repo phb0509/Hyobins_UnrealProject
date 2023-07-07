@@ -51,9 +51,9 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
-	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
-
 	checkf(IsValid(instigatorCharacter), TEXT("InstigatorCharacter is not Valid"));
+
+	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
 
 	m_CurHP -= attackInformation->damage;
@@ -81,7 +81,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 			
 			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation();
 			dirToInstigator.Normalize();
-			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * 50.0f,false);
+			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance,false);
 
 			// Timer Setting.
 			m_OnHitTimerTime = m_HitRecovery * attackInformation->knockBackTime;
