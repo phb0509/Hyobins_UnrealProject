@@ -28,7 +28,8 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 	}
 	else
 	{
-		TArray<AActor*> actorPool;
+		//TArray<AActor*> actorPool;
+		TArray<TWeakObjectPtr<AActor>> actorPool;
 		m_ActorPools.Add(classType, actorPool);
 	}
 
@@ -69,7 +70,8 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 	}
 	else
 	{
-		TArray<AActor*> actorPool;
+		//TArray<AActor*> actorPool;
+		TArray<TWeakObjectPtr<AActor>> actorPool;
 		m_BlueprintActorPools.Add(classType, actorPool);
 	}
 
@@ -86,7 +88,7 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 	}
 }
 
-AActor* AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation)
+TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation)
 {
 	checkf(IsValid(classType), TEXT("ClassType doesn't inherit from Actor"));
 
@@ -96,9 +98,9 @@ AActor* AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocat
 		UE_LOG(LogTemp, Warning, TEXT("A new actor pool was created because no actor pool was created for the requested actor."));
 	}
 
-	AActor* actor = nullptr;
+	TWeakObjectPtr<AActor> actor = nullptr;
 
-	for (AActor* poolableActor : m_ActorPools[classType])
+	for (TWeakObjectPtr<AActor> poolableActor : m_ActorPools[classType])
 	{
 		IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		checkf(castedPoolableActor != nullptr, TEXT("Failed Casting to IPoolableActor"));
@@ -121,7 +123,7 @@ AActor* AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocat
 	return actor;
 }
 
-AActor* AActorPool::SpawnBlueprintActor(FName path, FVector spawnLocation)
+TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(FName path, FVector spawnLocation)
 {
 	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
 	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath is Not Valid"));
@@ -138,9 +140,9 @@ AActor* AActorPool::SpawnBlueprintActor(FName path, FVector spawnLocation)
 		UE_LOG(LogTemp, Warning, TEXT("A new actor pool was created because no actor pool was created for the requested actor."));
 	}
 
-	AActor* actor = nullptr;
+	TWeakObjectPtr<AActor> actor = nullptr;
 
-	for (AActor* poolableActor : m_BlueprintActorPools[classType])
+	for (TWeakObjectPtr<AActor> poolableActor : m_BlueprintActorPools[classType])
 	{
 		IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		checkf(castedPoolableActor != nullptr, TEXT("Failed Casting to IPoolableActor"));

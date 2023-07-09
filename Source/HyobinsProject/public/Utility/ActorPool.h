@@ -21,12 +21,15 @@ public:
 	void CreateActorPool(TSubclassOf<AActor> classType, int actorCount);
 	void CreateBlueprintActorPool(FName path, int actorCount);
 
-	AActor* SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation = {0.0f, 0.0f, 0.0f});
-	AActor* SpawnBlueprintActor(FName path, FVector spawnLocation = { 0.0f, 0.0f, 0.0f });
+	TWeakObjectPtr<AActor> SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation = {0.0f, 0.0f, 0.0f});
+	TWeakObjectPtr<AActor> SpawnBlueprintActor(FName path, FVector spawnLocation = { 0.0f, 0.0f, 0.0f });
 
 private:
-	TMap<TSubclassOf<AActor>, TArray<AActor*>> m_ActorPools;
-	TMap<TSubclassOf<AActor>, TArray<AActor*>> m_BlueprintActorPools;
+	/*TMap<TSubclassOf<AActor>, TArray<AActor*>> m_ActorPools;
+	TMap<TSubclassOf<AActor>, TArray<AActor*>> m_BlueprintActorPools;*/
+
+	TMap<TSubclassOf<AActor>, TArray<TWeakObjectPtr<AActor>>> m_ActorPools;
+	TMap<TSubclassOf<AActor>, TArray<TWeakObjectPtr<AActor>>> m_BlueprintActorPools;
 
 	int32 m_DefaultSpawnCount;
 };

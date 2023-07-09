@@ -11,6 +11,7 @@
 #include "Utility/EnumTypes.h" 
 #include "Utility/Utility.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 AMainPlayer::AMainPlayer() :
@@ -34,7 +35,6 @@ AMainPlayer::AMainPlayer() :
 	m_CurNormalAttackCombo(0),
 	m_NormalAttackMaxCombo(4)
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
 
@@ -43,8 +43,8 @@ AMainPlayer::AMainPlayer() :
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
 
-	initAssets();
 	initAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
+	initAssets();
 }
 
 void AMainPlayer::BeginPlay()
@@ -54,7 +54,6 @@ void AMainPlayer::BeginPlay()
 	SetActorLocation(FVector(0.0f, 0.0f, 100.0f));
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-	//m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onNormalAttackMontageEnded);
 
 	// Notify
 	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck);
@@ -116,7 +115,7 @@ void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
 {
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	
 	if (m_CurNormalAttackCombo == 4) return;
 
 	m_bCanNextCombo = false;
@@ -389,7 +388,6 @@ void AMainPlayer::printLog()
 	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is DodgeMoving : %d"), m_bIsDodgeMoving));
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
-
 }
 
 void AMainPlayer::rotateUsingControllerYawAndInput()

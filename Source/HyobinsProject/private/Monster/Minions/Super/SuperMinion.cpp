@@ -69,7 +69,6 @@ void ASuperMinion::NormalAttack()
 
 	m_bIsAttacking = true;
 
-	//m_AnimInstance->PlayNormalAttackMontage(m_NormalAttackSpeed);
 	m_AnimInstance->PlayMontage("NormalAttack1");
 	m_OwnerAIController->StopBehaviorTree();
 }
