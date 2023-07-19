@@ -34,7 +34,7 @@ void ASuperMinion::PostInitializeComponents()
 	m_AnimInstance = Cast<USuperMinionAnim>(m_AnimInstanceBase);
 	if (m_AnimInstance.IsValid())
 	{
-		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::OnMontageEnded); 
+		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::onMontageEnded); 
 		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
 	}
 	else
@@ -61,6 +61,9 @@ void ASuperMinion::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	updateState();
+
+	GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState : %d"), (uint8)m_CurState));
+	GEngine->AddOnScreenDebugMessage(21, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState :: isAttacking : %d"), m_bIsAttacking));
 }
 
 void ASuperMinion::NormalAttack()
@@ -69,8 +72,9 @@ void ASuperMinion::NormalAttack()
 
 	m_bIsAttacking = true;
 
-	m_AnimInstance->PlayMontage("NormalAttack1");
+	SetState(ENormalMinionStates::NormalAttack);
 	m_OwnerAIController->StopBehaviorTree();
+	m_AnimInstance->PlayMontage("NormalAttack1");
 }
 
 void ASuperMinion::ExecDeathEvent()
@@ -105,7 +109,7 @@ void ASuperMinion::OnHitTimerEnded()
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
 
-void ASuperMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
+void ASuperMinion::onMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
 	int curState = (uint8)m_CurState;
 
@@ -121,6 +125,8 @@ void ASuperMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 void ASuperMinion::onNormalAttackMontageEnded()
 {
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: AttackEnded"));
+
 	m_bIsAttacking = false;
 	m_OwnerAIController->PlayBehaviorTree();
 }
@@ -130,10 +136,50 @@ void ASuperMinion::Die()
 	SetState(ENormalMinionStates::Die);
 
 	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[TagCount % 2]);
 	m_AnimInstance->PlayMontage("OnDeath_Front");
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_OwnerAIController->OnUnPossess();
+}
+
+void ASuperMinion::SetState(ENormalMinionStates state)
+{
+	m_CurState = state;
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+}
+
+void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
+{
+	int8 index = static_cast<int8>(commonState);
+
+	switch (index)
+	{
+	case static_cast<int8>(EMonsterCommonStates::Patrol):
+		SetState(ENormalMinionStates::Patrol);
+		break;
+
+	case static_cast<int8>(EMonsterCommonStates::Hit):
+		m_AnimInstance->PlayMontage("OnHit_Front");
+
+		if (m_CurState == ENormalMinionStates::Hit)
+		{
+			UAnimMontage* temp = m_AnimInstance->GetMontage("OnHit_Front");
+
+			if (temp != nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: Pause Montage!!!!!!!!!!!!!!!!"));
+				m_AnimInstance->Montage_Pause(m_AnimInstance->GetMontage("OnHit_Front"));
+			}
+		}
+
+		SetState(ENormalMinionStates::Hit);
+
+		break;
+
+	case static_cast<int8>(EMonsterCommonStates::Die):
+		break;
+	default:
+		break;
+	}
 }
 
 void ASuperMinion::initAssets()
@@ -186,31 +232,5 @@ void ASuperMinion::updateState()
 			m_bIsIdle = false;
 			m_bIsWalking = true;
 		}
-	}
-}
-
-void ASuperMinion::SetState(ENormalMinionStates state)
-{
-	m_CurState = state;
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
-}
-
-void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
-{
-	int8 index = static_cast<int8>(commonState);
-
-	switch (index)
-	{
-	case static_cast<int8>(EMonsterCommonStates::Patrol):
-		SetState(ENormalMinionStates::Patrol);
-		break;
-	case static_cast<int8>(EMonsterCommonStates::Hit):
-		m_AnimInstance->PlayMontage("OnHit_Front");
-		SetState(ENormalMinionStates::Hit);
-		break;
-	case static_cast<int8>(EMonsterCommonStates::Die):
-		break;
-	default:
-		break;
 	}
 }

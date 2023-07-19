@@ -24,8 +24,6 @@ class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstanceBase
 public:
 	UMainPlayerAnim();
 
-	//virtual void NativeUpdateAnimation(float DeltaSeconds) override;
-
 private:
 	void initAssets();
 

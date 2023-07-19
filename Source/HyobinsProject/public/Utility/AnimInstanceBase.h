@@ -17,9 +17,10 @@ class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
 
 public:
 	UAnimInstanceBase();
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
 	void PlayMontage(FName montageName, float inPlayRate = 1.0f);
 	void JumpToMontageSection(FName montageName, int32 newSection);
+	UAnimMontage* GetMontage(FName montageName);
 
 private:
 	UFUNCTION()

@@ -26,6 +26,10 @@ public:
 	virtual void SetCommonState(EMonsterCommonStates commonState) {};
 	void InitHP(float hp) { m_CurHP = m_MaxHP; }
 
+	// Get
+	TMap<FName, TMap<AActor*, bool>> GetCheckHitActors() { return m_CheckHitActors; }
+
+
 protected:
 	void initAttackInformations(FString path);
 
@@ -44,8 +48,10 @@ protected:
 	TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
 	
-	UPROPERTY()
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
 		TArray<class UShapeComponent*> m_HitColliders;
+
+	TMap<FName, TMap<AActor*, bool>> m_CheckHitActors;
 
 	FTimerHandle m_OnHitTimerHandle;
 	FTimerHandle m_DeathTimerHandle;

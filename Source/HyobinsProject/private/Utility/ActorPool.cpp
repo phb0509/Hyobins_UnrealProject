@@ -28,7 +28,6 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 	}
 	else
 	{
-		//TArray<AActor*> actorPool;
 		TArray<TWeakObjectPtr<AActor>> actorPool;
 		m_ActorPools.Add(classType, actorPool);
 	}
@@ -70,7 +69,6 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 	}
 	else
 	{
-		//TArray<AActor*> actorPool;
 		TArray<TWeakObjectPtr<AActor>> actorPool;
 		m_BlueprintActorPools.Add(classType, actorPool);
 	}

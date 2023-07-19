@@ -31,5 +31,7 @@ public:
 	bool bHasKnockBack; 
 	float knockBackTime; // 경직시간 -> 피격체의 힛트모션 재생시간과 대응
 	float knockBackDistance; // 밀려지는 정도
+	FVector colliderLocation;
+	TMap<AActor*, bool> checkHitActors;
 };
 

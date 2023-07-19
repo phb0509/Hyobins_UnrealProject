@@ -13,7 +13,7 @@ UCLASS()
 class HYOBINSPROJECT_API ASuperMinion final: public AMonster
 {
 	GENERATED_BODY()
-	
+
 public:
 	ASuperMinion();
 	virtual void Tick(float DeltaTime) override;
@@ -38,14 +38,15 @@ private:
 	void initAssets();
 	void updateState();
 	void onNormalAttackMontageEnded();
-	
+
 	UFUNCTION()
-		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+		void onMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 public:
 	static int TagCount;
 
 private:
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 
 	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;

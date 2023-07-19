@@ -10,17 +10,6 @@ UAnimInstanceBase::UAnimInstanceBase()
 
 }
 
-void UAnimInstanceBase::NativeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-
-	/*if (!m_Owner.IsValid())
-	{
-		m_Owner = Cast<ACharacterBase>(TryGetPawnOwner());
-	}*/
-
-}
-
 void UAnimInstanceBase::PlayMontage(FName montageName, float inPlayRate)
 {
 	if (m_Montages.Contains(montageName))
@@ -34,11 +23,22 @@ void UAnimInstanceBase::JumpToMontageSection(FName montageName, int32 newSection
 {
 	if (m_Montages.Contains(montageName))
 	{
-		checkf(IsValid(m_Montages[montageName]), TEXT(""));
+		checkf(IsValid(m_Montages[montageName]), TEXT("Montage isn't Valid"));
 
 		FString section = FString::FromInt(newSection);
 		Montage_JumpToSection(*section, m_Montages[montageName]);
 	}
+}
+
+UAnimMontage* UAnimInstanceBase::GetMontage(FName montageName)
+{
+	if (m_Montages.Contains(montageName))
+	{
+		checkf(IsValid(m_Montages[montageName]), TEXT("Montage isn't Valid"));
+		return m_Montages[montageName];
+	}
+
+	return nullptr;
 }
 
 void UAnimInstanceBase::AnimNotify_OnDeathMontageEnded()

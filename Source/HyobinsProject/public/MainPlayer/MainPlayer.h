@@ -55,6 +55,9 @@ private:
 		void checkOverlapShieldCollisionForShield(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void onMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
 	void onCalledNotify_NormalAttackHitCheck();
 	void onCalledNotify_NormalAttackNextCheck();
 	void onCalledNotify_EndedNormalAttack();

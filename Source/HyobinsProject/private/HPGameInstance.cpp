@@ -47,7 +47,7 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FNam
 			FHPAttackInformationData data =
 				*(DT_AttackInformations->FindRow<FHPAttackInformationData>(attackName, attackName.ToString()));
 
-			ECrowdControlType crowdControlType;
+			ECrowdControlType crowdControlType = ECrowdControlType::None;
 
 			const UEnum* crowdControlEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
 
@@ -57,18 +57,18 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FNam
 				crowdControlType = ECrowdControlType((uint8)Index);
 			}
 
-			FAttackInfoStruct temp;
-			temp.attackName = attackName;
-			temp.damage = data.damage;
-			temp.bIsDot = data.bIsDot;
-			temp.bHasCrowdControl = data.bHasCrowdControl;
-			temp.crowdControlType = crowdControlType;
-			temp.crowdControlTime = data.crowdControlTime;
-			temp.bHasKnockBack = data.bHasKnockBack;
-			temp.knockBackTime = data.knockBackTime;
-			temp.knockBackDistance = data.knockBackDistance;
+			FAttackInfoStruct attackInfoStruct;
+			attackInfoStruct.attackName = attackName;
+			attackInfoStruct.damage = data.damage;
+			attackInfoStruct.bIsDot = data.bIsDot;
+			attackInfoStruct.bHasCrowdControl = data.bHasCrowdControl;
+			attackInfoStruct.crowdControlType = crowdControlType;
+			attackInfoStruct.crowdControlTime = data.crowdControlTime;
+			attackInfoStruct.bHasKnockBack = data.bHasKnockBack;
+			attackInfoStruct.knockBackTime = data.knockBackTime;
+			attackInfoStruct.knockBackDistance = data.knockBackDistance;
 
-			attackInformations.Add(attackName, temp);
+			attackInformations.Add(attackName, attackInfoStruct);
 		}
 	}
 }

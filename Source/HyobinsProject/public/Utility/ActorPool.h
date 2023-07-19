@@ -25,9 +25,6 @@ public:
 	TWeakObjectPtr<AActor> SpawnBlueprintActor(FName path, FVector spawnLocation = { 0.0f, 0.0f, 0.0f });
 
 private:
-	/*TMap<TSubclassOf<AActor>, TArray<AActor*>> m_ActorPools;
-	TMap<TSubclassOf<AActor>, TArray<AActor*>> m_BlueprintActorPools;*/
-
 	TMap<TSubclassOf<AActor>, TArray<TWeakObjectPtr<AActor>>> m_ActorPools;
 	TMap<TSubclassOf<AActor>, TArray<TWeakObjectPtr<AActor>>> m_BlueprintActorPools;
 

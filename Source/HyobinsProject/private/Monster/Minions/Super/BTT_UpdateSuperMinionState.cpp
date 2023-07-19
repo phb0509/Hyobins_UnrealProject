@@ -26,12 +26,10 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 	if (distanceToEnemy > owner->GetNormalAttackRange()) // 공격범위 밖이면
 	{
 		owner->SetState(ENormalMinionStates::Chase); // 공격할 수 있는 거리 될 때까지 추적.
-		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::Chase));
 	}
 	else if (distanceToEnemy <= owner->GetNormalAttackRange())
 	{
 		owner->SetState(ENormalMinionStates::NormalAttack);
-		OwnerComp.GetBlackboardComponent()->SetValueAsEnum("State", static_cast<uint8>(ENormalMinionStates::NormalAttack));
 	}
 
 	return EBTNodeResult::Succeeded;

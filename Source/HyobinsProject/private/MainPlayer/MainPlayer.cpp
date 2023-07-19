@@ -55,6 +55,8 @@ void AMainPlayer::BeginPlay()
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 
+	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onMontageEnded);
+
 	// Notify
 	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck);
 	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck);
@@ -76,7 +78,7 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 {
 	if (m_bIsDodgeMoving) return;
 
-	if (m_bIsAttacking) 
+	if (m_bIsAttacking)
 	{
 		if (m_bCanNextCombo)
 		{
@@ -87,23 +89,31 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 	{
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->PlayMontage("NormalAttack", 1.2f);
-		m_AnimInstance->JumpToMontageSection("NormalAttack",m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
+		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
 		m_bIsAttacking = true;
 	}
 }
 
 void AMainPlayer::checkOverlapSwordCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//FString hitCompName = HitComp->GetName();
-	//UE_LOG(LogTemp, Warning, TEXT("hitCompName : %s"),*hitCompName);
+	//FString hitCompName = HitComp->GetName(); // owner의 부딪힌 컬라이더이름. swordcollider. OtherActor가 미니언이다.
 
-	FHitResult hitResult;
-	OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+	if (m_AttackInformations["NormalAttack"].checkHitActors.Contains(OtherActor) == false)
+	{
+		m_AttackInformations["NormalAttack"].checkHitActors.Add(OtherActor, true);
+		m_AttackInformations["NormalAttack"].colliderLocation = m_SwordCollider->GetComponentLocation();
+		OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+	}
 }
 
 void AMainPlayer::checkOverlapShieldCollisionForAttack(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+	if (m_AttackInformations["NormalAttack"].checkHitActors.Contains(OtherActor) == false)
+	{
+		m_AttackInformations["NormalAttack"].checkHitActors.Add(OtherActor, true);
+		m_AttackInformations["NormalAttack"].colliderLocation = m_SwordCollider->GetComponentLocation();
+		OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
+	}
 }
 
 void AMainPlayer::checkOverlapShieldCollisionForShield(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -111,15 +121,20 @@ void AMainPlayer::checkOverlapShieldCollisionForShield(UPrimitiveComponent* HitC
 
 }
 
+void AMainPlayer::onMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+}
+
 void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
 {
+	m_AttackInformations["NormalAttack"].checkHitActors.Empty();
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 	if (m_CurNormalAttackCombo == 4) return;
 
 	m_bCanNextCombo = false;
-	
+
 	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되면
 	{
 		updateNormalAttackStateOnStart();
@@ -143,7 +158,7 @@ void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
 	}
 	else // 검으로 공격하는 타이밍
 	{
-		m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly); 
+		m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
 }
 
@@ -211,7 +226,7 @@ void AMainPlayer::TriggerPressedLeftMouseButton()
 
 void AMainPlayer::TriggerReleasedLeftMouseButton()
 {
-	
+
 }
 
 void AMainPlayer::TriggerPressedSpaceBar()
@@ -306,9 +321,9 @@ void AMainPlayer::initAssets()
 	m_ShieldColliderForAttack->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
 	m_ShieldColliderForAttack->SetWorldTransform(collisionTransform);
 	m_ShieldColliderForAttack->SetCollisionProfileName(TEXT("AttackCollider"));
-	m_ShieldColliderForAttack->SetGenerateOverlapEvents(true); // 블루프린트의 Generate Overlap Events에 대응되는 코드.
+	m_ShieldColliderForAttack->SetGenerateOverlapEvents(true);
 	m_ShieldColliderForAttack->SetNotifyRigidBodyCollision(false);
-	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
+	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::checkOverlapShieldCollisionForAttack);
 
 	// ShieldCollider For Shield
@@ -318,12 +333,12 @@ void AMainPlayer::initAssets()
 	m_ShieldColliderForShield->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
 	m_ShieldColliderForShield->SetWorldTransform(collisionTransform);
 	m_ShieldColliderForShield->SetCollisionProfileName(TEXT("HitCollider"));
-	m_ShieldColliderForShield->SetGenerateOverlapEvents(true); // 블루프린트의 Generate Overlap Events에 대응되는 코드.
+	m_ShieldColliderForShield->SetGenerateOverlapEvents(true);
 	m_ShieldColliderForShield->SetNotifyRigidBodyCollision(false);
-	m_ShieldColliderForShield->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
+	m_ShieldColliderForShield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 
-	
+
 	// 이외 CharacterMovement Detail값들
 
 	// true로 할 경우, 컨트롤러의 회전방향으로 캐릭터를 회전시켜줌.
