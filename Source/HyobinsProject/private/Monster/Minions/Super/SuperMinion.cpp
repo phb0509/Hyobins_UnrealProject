@@ -111,6 +111,8 @@ void ASuperMinion::OnHitTimerEnded()
 
 void ASuperMinion::onMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: MontageEnded"));
+
 	int curState = (uint8)m_CurState;
 
 	switch (curState)
@@ -125,8 +127,6 @@ void ASuperMinion::onMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 
 void ASuperMinion::onNormalAttackMontageEnded()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: AttackEnded"));
-
 	m_bIsAttacking = false;
 	m_OwnerAIController->PlayBehaviorTree();
 }
@@ -158,21 +158,10 @@ void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 		break;
 
 	case static_cast<int8>(EMonsterCommonStates::Hit):
-		m_AnimInstance->PlayMontage("OnHit_Front");
-
-		if (m_CurState == ENormalMinionStates::Hit)
-		{
-			UAnimMontage* temp = m_AnimInstance->GetMontage("OnHit_Front");
-
-			if (temp != nullptr)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: Pause Montage!!!!!!!!!!!!!!!!"));
-				m_AnimInstance->Montage_Pause(m_AnimInstance->GetMontage("OnHit_Front"));
-			}
-		}
-
+		//m_AnimInstance->PlayMontage("OnHit_Front");
+		m_AnimInstance->StopAllMontages(0.1f);
 		SetState(ENormalMinionStates::Hit);
-
+		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
 		break;
 
 	case static_cast<int8>(EMonsterCommonStates::Die):

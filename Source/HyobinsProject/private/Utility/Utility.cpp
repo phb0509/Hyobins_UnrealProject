@@ -3,6 +3,7 @@
 
 #include "Utility/Utility.h"
 
+
 const double Utility::m_DegreeTable[3][3] = { {-135,180,135},{-90,0,90},{-45,0,45} };
 
 
@@ -12,6 +13,38 @@ Utility::Utility()
 
 Utility::~Utility()
 {
+}
+
+int32 Utility::GetHitDirection(AActor* hitActor, AActor* attackActor)
+{
+    
+	FVector forward = hitActor->GetActorForwardVector();
+	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation();
+	toActor.Normalize();
+
+	float cosTheta = FVector::DotProduct(forward, toActor);
+	float theta = FMath::Acos(cosTheta);
+
+	FVector cross = FVector::CrossProduct(forward, toActor);
+
+	if (theta >= 0.0f && theta < PI / 4)
+	{
+		return 0;
+	}
+	else if (cross.Z >= 0.0f && theta >= PI / 4 && theta < PI * 3 / 4)
+	{
+		return 1;
+	}
+	else if (theta >= PI * 3 / 4 && theta < PI)
+	{
+		return 2;
+	}
+	else if (cross.Z < 0 && theta >= PI / 4 && theta < PI * 3 / 4)
+	{
+		return 3;
+	}
+	
+	return -1;
 }
 
 

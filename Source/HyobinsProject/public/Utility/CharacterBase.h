@@ -26,10 +26,6 @@ public:
 	virtual void SetCommonState(EMonsterCommonStates commonState) {};
 	void InitHP(float hp) { m_CurHP = m_MaxHP; }
 
-	// Get
-	TMap<FName, TMap<AActor*, bool>> GetCheckHitActors() { return m_CheckHitActors; }
-
-
 protected:
 	void initAttackInformations(FString path);
 
@@ -99,6 +95,12 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsDeath;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsHitStateTrigger;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	int m_HitDirection;
 
 	float m_DeathTimerTickTime;
 	float m_DeathTimerRemainingTime;

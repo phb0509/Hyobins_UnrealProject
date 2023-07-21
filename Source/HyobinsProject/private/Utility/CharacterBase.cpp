@@ -4,6 +4,7 @@
 #include "Utility/CharacterBase.h"
 #include "Utility/AIControllerBase.h"
 #include "Utility/AnimInstanceBase.h"
+#include "Utility/Utility.h"
 #include <Components/CapsuleComponent.h>
 #include "HPGameInstance.h"
 
@@ -23,6 +24,7 @@ ACharacterBase::ACharacterBase() :
 	m_bIsInAir(false),
 	m_bIsSuperArmor(false),
 	m_bIsDeath(false),
+	m_bIsHitStateTrigger(false),
 	m_DeathTimerTickTime(1.0f),
 	m_DeathTimerRemainingTime(3.0f),
 	m_DiffuseRatio(1.0f)
@@ -71,6 +73,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	}
 	else
 	{
+		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter);
 		ExecHitEvent(instigatorCharacter);
 		
 		if (!m_bIsSuperArmor)

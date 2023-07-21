@@ -96,8 +96,6 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 
 void AMainPlayer::checkOverlapSwordCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//FString hitCompName = HitComp->GetName(); // owner의 부딪힌 컬라이더이름. swordcollider. OtherActor가 미니언이다.
-
 	if (m_AttackInformations["NormalAttack"].checkHitActors.Contains(OtherActor) == false)
 	{
 		m_AttackInformations["NormalAttack"].checkHitActors.Add(OtherActor, true);
