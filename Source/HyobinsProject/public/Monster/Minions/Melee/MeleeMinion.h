@@ -48,6 +48,7 @@ public:
 	static int TagCount;
 
 private:
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 
 	TWeakObjectPtr<class UMeleeMinionAnim> m_AnimInstance;

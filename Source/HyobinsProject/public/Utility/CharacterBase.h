@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Utility/CustomStructs.h"
 #include "Utility/PoolableActor.h"
+#include "Component/StatComponent.h"
 #include "CharacterBase.generated.h"
 
 enum class EMonsterCommonStates : uint8;
@@ -24,7 +25,6 @@ public:
 	virtual void OnCalledDeathMontageEndedNotify();
 
 	virtual void SetCommonState(EMonsterCommonStates commonState) {};
-	void InitHP(float hp) { m_CurHP = m_MaxHP; }
 
 protected:
 	void initAttackInformations(FString path);
@@ -33,19 +33,23 @@ protected:
 	virtual void Die() {};
 
 	virtual void SetHitState() {};
+	virtual void OnHPIsZero();
 	virtual void ExecHitEvent(ACharacterBase* instigator) {};
 	virtual void ExecDeathEvent() {};
 
 	virtual void Activate() {};
 	virtual void DeActivate() {};
-	
+
 protected:
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
 	TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
-	
+
+	UPROPERTY(VIsibleAnywhere, Category = Stat)
+		UStatComponent* m_StatComponent;
+
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
-		TArray<class UShapeComponent*> m_HitColliders;
+		TArray<UShapeComponent*> m_HitColliders;
 
 	TMap<FName, TMap<AActor*, bool>> m_CheckHitActors;
 
@@ -53,54 +57,51 @@ protected:
 	FTimerHandle m_DeathTimerHandle;
 	FTimerHandle m_DeActivateTimerHandle;
 
-	UPROPERTY(EditDefaultsOnly)
-	float m_MaxHP;
-	float m_CurHP;
-	
-	UPROPERTY(EditDefaultsOnly)
-	float m_WalkSpeed;
 
 	UPROPERTY(EditDefaultsOnly)
-	float m_RunSpeed;
+		float m_WalkSpeed;
 
 	UPROPERTY(EditDefaultsOnly)
-	float m_HitRecovery;
+		float m_RunSpeed;
 
 	UPROPERTY(EditDefaultsOnly)
-	float m_OnHitTimerTime;
+		float m_HitRecovery;
 
 	UPROPERTY(EditDefaultsOnly)
-	float m_DeathTimerTime;
+		float m_OnHitTimerTime;
+
+	UPROPERTY(EditDefaultsOnly)
+		float m_DeathTimerTime;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	float m_CurSpeed;
+		float m_CurSpeed;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsIdle;
+		bool m_bIsIdle;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsWalking;
+		bool m_bIsWalking;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsRunning;
+		bool m_bIsRunning;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsAttacking;
+		bool m_bIsAttacking;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsInAir;
+		bool m_bIsInAir;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsSuperArmor;
+		bool m_bIsSuperArmor;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsDeath;
+		bool m_bIsDeath;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsHitStateTrigger;
+		bool m_bIsHitStateTrigger;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	int m_HitDirection;
+		int m_HitDirection;
 
 	float m_DeathTimerTickTime;
 	float m_DeathTimerRemainingTime;

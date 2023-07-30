@@ -18,7 +18,6 @@ AMeleeMinion::AMeleeMinion() :
 
 	Tags.Add(FName("MeleeMinion" + FString::FromInt(++TagCount)));
 
-	InitHP(100.0f);
 	m_NormalAttackSpeed = 1.0f;
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
@@ -114,6 +113,7 @@ void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	case (uint8)ENormalMinionStates::NormalAttack:
 		onNormalAttackMontageEnded();
 		break;
+
 	default:
 		break;
 	}
@@ -130,10 +130,39 @@ void AMeleeMinion::Die()
 	SetState(ENormalMinionStates::Die);
 
 	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//m_AnimInstance->Montage_Play(m_AnimInstance->GetDeathMontages()[0]);
 	m_AnimInstance->PlayMontage("OnDeath_Front");
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_OwnerAIController->OnUnPossess();
+}
+
+void AMeleeMinion::SetState(ENormalMinionStates state)
+{
+	m_CurState = state;
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+}
+
+void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)
+{
+	int8 index = static_cast<int8>(commonState);
+
+	switch (index)
+	{
+	case static_cast<int8>(EMonsterCommonStates::Patrol):
+		SetState(ENormalMinionStates::Patrol);
+		break;
+
+	case static_cast<int8>(EMonsterCommonStates::Hit):
+		m_AnimInstance->StopAllMontages(0.1f);
+		SetState(ENormalMinionStates::Hit);
+		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
+		break;
+
+	case static_cast<int8>(EMonsterCommonStates::Die):
+		break;
+
+	default:
+		break;
+	}
 }
 
 void AMeleeMinion::initAssets()
@@ -178,32 +207,5 @@ void AMeleeMinion::updateState()
 			m_bIsIdle = false;
 			m_bIsWalking = true;
 		}
-	}
-}
-
-void AMeleeMinion::SetState(ENormalMinionStates state)
-{
-	m_CurState = state;
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
-}
-
-void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)
-{
-	int8 index = static_cast<int8>(commonState);
-
-	switch (index)
-	{
-	case static_cast<int8>(EMonsterCommonStates::Patrol):
-		SetState(ENormalMinionStates::Patrol);
-		break;
-	case static_cast<int8>(EMonsterCommonStates::Hit):
-		//m_AnimInstance->Montage_Play(m_AnimInstance->GetOnHitMontages()[0]);
-		m_AnimInstance->PlayMontage("OnHit_Front");
-		SetState(ENormalMinionStates::Hit);
-		break;
-	case static_cast<int8>(EMonsterCommonStates::Die):
-		break;
-	default:
-		break;
 	}
 }

@@ -18,7 +18,6 @@ ASuperMinion::ASuperMinion() :
 
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
 
-	InitHP(100.0f);
 	m_NormalAttackSpeed = 1.0f;
 	m_HitRecovery = 1.0f;
 	m_PatrolRange = 500.0f;
@@ -62,8 +61,8 @@ void ASuperMinion::Tick(float DeltaTime)
 
 	updateState();
 
-	GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState : %d"), (uint8)m_CurState));
-	GEngine->AddOnScreenDebugMessage(21, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState :: isAttacking : %d"), m_bIsAttacking));
+	//GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState : %d"), (uint8)m_CurState));
+	//GEngine->AddOnScreenDebugMessage(21, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState :: isAttacking : %d"), m_bIsAttacking));
 }
 
 void ASuperMinion::NormalAttack()
@@ -111,8 +110,6 @@ void ASuperMinion::OnHitTimerEnded()
 
 void ASuperMinion::onMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: MontageEnded"));
-
 	int curState = (uint8)m_CurState;
 
 	switch (curState)
@@ -120,6 +117,7 @@ void ASuperMinion::onMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	case (uint8)ENormalMinionStates::NormalAttack:
 		onNormalAttackMontageEnded();
 		break;
+
 	default:
 		break;
 	}
@@ -158,7 +156,6 @@ void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 		break;
 
 	case static_cast<int8>(EMonsterCommonStates::Hit):
-		//m_AnimInstance->PlayMontage("OnHit_Front");
 		m_AnimInstance->StopAllMontages(0.1f);
 		SetState(ENormalMinionStates::Hit);
 		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
@@ -166,6 +163,7 @@ void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 
 	case static_cast<int8>(EMonsterCommonStates::Die):
 		break;
+
 	default:
 		break;
 	}

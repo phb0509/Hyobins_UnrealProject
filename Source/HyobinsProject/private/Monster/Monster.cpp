@@ -30,7 +30,7 @@ void AMonster::ExecHitEvent(ACharacterBase* instigator)
 
 void AMonster::Activate()
 {
-	InitHP(m_MaxHP);
+	m_StatComponent->InitHP();
 	m_bIsActivated = true;
 	m_bIsDeath = false;
 	m_AIControllerBase->OnPossess(this);

@@ -9,8 +9,6 @@
 #include "HPGameInstance.h"
 
 ACharacterBase::ACharacterBase() :
-	m_MaxHP(100.0f),
-	m_CurHP(m_MaxHP),
 	m_WalkSpeed(200.0f),
 	m_RunSpeed(400.0f),
 	m_HitRecovery(1.0f),
@@ -30,6 +28,9 @@ ACharacterBase::ACharacterBase() :
 	m_DiffuseRatio(1.0f)
 {
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+
+	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat"));
+	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 }
 
 void ACharacterBase::PossessedBy(AController* newController)
@@ -38,18 +39,13 @@ void ACharacterBase::PossessedBy(AController* newController)
 
 	FString temp = Tags[0].ToString() + " :: CharacterBase :: Possessedby!!";
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"),*temp);
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *temp);
 	m_AIControllerBase = Cast<AAIControllerBase>(newController);
 	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	if (m_bIsDeath)
-	{
-		return 0.0f;
-	}
-
 	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
@@ -58,33 +54,26 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
 
-	m_CurHP -= attackInformation->damage;
+	m_StatComponent->SetDamage(attackInformation->damage);
 
 	// 로그.
 	FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
-	if (m_CurHP <= 0)
-	{
-		m_bIsDeath = true;
-		m_bIsAttacking = false;
-
-		Die();
-	}
-	else
+	if (!m_bIsDeath)
 	{
 		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter);
 		ExecHitEvent(instigatorCharacter);
-		
+
 		if (!m_bIsSuperArmor)
 		{
 			SetCommonState(EMonsterCommonStates::Hit); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록.
 
 			m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
-			
+
 			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation();
 			dirToInstigator.Normalize();
-			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance,false);
+			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
 
 			// Timer Setting.
 			m_OnHitTimerTime = m_HitRecovery * attackInformation->knockBackTime;
@@ -97,8 +86,15 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnHitTimerEnded, m_OnHitTimerTime, true); // OnHitTimeEnded는 알아서 오버라이드되서 호출됨.
 		}
 	}
-
+	
 	return FinalDamage;
+}
+
+void ACharacterBase::OnHPIsZero()
+{
+	m_bIsDeath = true;
+	m_bIsAttacking = false;
+	Die();
 }
 
 void ACharacterBase::OnCalledDeathMontageEndedNotify()

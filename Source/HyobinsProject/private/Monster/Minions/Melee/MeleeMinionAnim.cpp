@@ -40,14 +40,6 @@ void UMeleeMinionAnim::initAssets()
 		m_Montages.Add("CriticalAttack",criticalAttackMontage.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> onHitMontage
-	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_HitReact_Front.AM_HitReact_Front'"));
-
-	if (onHitMontage.Succeeded())
-	{
-		m_Montages.Add("OnHit_Front",onHitMontage.Object);
-	}
-
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> deathMontage_Front
 	(TEXT("AnimMontage'/Game/MonsterAsset/Minion/AM_Death_Front.AM_Death_Front'"));
 
