@@ -6,6 +6,17 @@
 #include "GameFramework/Actor.h"
 #include "ActorPool.generated.h"
 
+
+USTRUCT()
+struct FActors
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+		TArray<TWeakObjectPtr<AActor>> actors;
+};
+
 UCLASS()
 class HYOBINSPROJECT_API AActorPool : public AActor
 {
@@ -13,7 +24,6 @@ class HYOBINSPROJECT_API AActorPool : public AActor
 
 public:
 	AActorPool();
-
 
 
 public:
@@ -25,8 +35,11 @@ public:
 	TWeakObjectPtr<AActor> SpawnBlueprintActor(FName path, FVector spawnLocation = { 0.0f, 0.0f, 0.0f });
 
 private:
-	TMap<TSubclassOf<AActor>, TArray<TWeakObjectPtr<AActor>>> m_ActorPools;
-	TMap<TSubclassOf<AActor>, TArray<TWeakObjectPtr<AActor>>> m_BlueprintActorPools;
+	UPROPERTY()
+	TMap<TSubclassOf<AActor>, FActors> m_ActorPools;
+
+	UPROPERTY()
+	TMap<TSubclassOf<AActor>, FActors> m_BlueprintActorPools;
 
 	int32 m_DefaultSpawnCount;
 };

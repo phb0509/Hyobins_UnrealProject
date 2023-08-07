@@ -7,6 +7,7 @@
 #include "StatComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHPIsZeroDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnHPIsChangedDelegate);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class HYOBINSPROJECT_API UStatComponent : public UActorComponent
@@ -23,8 +24,13 @@ protected:
 public:
 	void InitHP() { m_CurHP = m_MaxHP; }
 	void ChangeMaxHP(float hp) { m_MaxHP = hp; }
+	void SetHP(float hp);
 	void SetDamage(float damage);
+
+	float GetHPRatio();
+
 	FOnHPIsZeroDelegate OnHPIsZero;
+	FOnHPIsChangedDelegate OnHPIsChanged;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))

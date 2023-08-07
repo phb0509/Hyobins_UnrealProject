@@ -17,18 +17,18 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 
 	if (m_ActorPools.Contains(classType)) 
 	{
-		if (m_ActorPools[classType].Num() >= actorCount) 
+		if (m_ActorPools[classType].actors.Num() >= actorCount)
 		{
 			return;
 		}
 		else 
 		{
-			actorCount -= m_ActorPools[classType].Num();
+			actorCount -= m_ActorPools[classType].actors.Num();
 		}
 	}
 	else
 	{
-		TArray<TWeakObjectPtr<AActor>> actorPool;
+		FActors actorPool;
 		m_ActorPools.Add(classType, actorPool);
 	}
 
@@ -41,7 +41,7 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
 		castedSpawnedActor->DeActivate();
 
-		m_ActorPools[classType].Add(spawnedActor);
+		m_ActorPools[classType].actors.Add(spawnedActor);
 	}
 }
 
@@ -58,18 +58,18 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 
 	if (m_BlueprintActorPools.Contains(classType)) // 이미 만들어진게 있다면
 	{
-		if (m_BlueprintActorPools[classType].Num() >= actorCount) // 현재 만들어진게 요청받은것보다 많거나 같다면 -> 새로 만들필요없다.
+		if (m_BlueprintActorPools[classType].actors.Num() >= actorCount) // 현재 만들어진게 요청받은것보다 많거나 같다면 -> 새로 만들필요없다.
 		{
 			return;
 		}
 		else // 현재 만들어진게 요청받은것보다 적다면
 		{
-			actorCount -= m_BlueprintActorPools[classType].Num();
+			actorCount -= m_BlueprintActorPools[classType].actors.Num();
 		}
 	}
 	else
 	{
-		TArray<TWeakObjectPtr<AActor>> actorPool;
+		FActors actorPool;
 		m_BlueprintActorPools.Add(classType, actorPool);
 	}
 
@@ -82,7 +82,7 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
 		castedSpawnedActor->DeActivate();
 
-		m_BlueprintActorPools[classType].Add(spawnedActor);
+		m_BlueprintActorPools[classType].actors.Add(spawnedActor);
 	}
 }
 
@@ -98,7 +98,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVe
 
 	TWeakObjectPtr<AActor> actor = nullptr;
 
-	for (TWeakObjectPtr<AActor> poolableActor : m_ActorPools[classType])
+	for (TWeakObjectPtr<AActor> poolableActor : m_ActorPools[classType].actors)
 	{
 		IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		checkf(castedPoolableActor != nullptr, TEXT("Failed Casting to IPoolableActor"));
@@ -113,7 +113,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVe
 
 	if (actor == nullptr) 
 	{
-		CreateActorPool(classType, m_ActorPools[classType].Num() * 2);
+		CreateActorPool(classType, m_ActorPools[classType].actors.Num() * 2);
 		SpawnActor(classType);
 		return nullptr;
 	}
@@ -140,7 +140,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(FName path, FVector spawn
 
 	TWeakObjectPtr<AActor> actor = nullptr;
 
-	for (TWeakObjectPtr<AActor> poolableActor : m_BlueprintActorPools[classType])
+	for (TWeakObjectPtr<AActor> poolableActor : m_BlueprintActorPools[classType].actors)
 	{
 		IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		checkf(castedPoolableActor != nullptr, TEXT("Failed Casting to IPoolableActor"));
@@ -155,7 +155,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(FName path, FVector spawn
 
 	if (actor == nullptr) 
 	{
-		CreateBlueprintActorPool(path, m_BlueprintActorPools[classType].Num() * 2);
+		CreateBlueprintActorPool(path, m_BlueprintActorPools[classType].actors.Num() * 2);
 		SpawnBlueprintActor(path);
 		return nullptr;
 	}

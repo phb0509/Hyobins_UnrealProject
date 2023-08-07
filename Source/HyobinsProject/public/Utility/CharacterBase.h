@@ -8,6 +8,7 @@
 #include "Utility/CustomStructs.h"
 #include "Utility/PoolableActor.h"
 #include "Component/StatComponent.h"
+#include "Components/WidgetComponent.h"
 #include "CharacterBase.generated.h"
 
 enum class EMonsterCommonStates : uint8;
@@ -47,6 +48,9 @@ protected:
 
 	UPROPERTY(VIsibleAnywhere, Category = Stat)
 		UStatComponent* m_StatComponent;
+
+	UPROPERTY(VisibleAnyWhere, Category = UI)
+		class UWidgetComponent* m_HPBarWidget;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
 		TArray<UShapeComponent*> m_HitColliders;

@@ -21,15 +21,26 @@ void UStatComponent::BeginPlay()
 	InitHP();
 }
 
-void UStatComponent::SetDamage(float damage)
+void UStatComponent::SetHP(float hp)
 {
-	m_CurHP -= damage;
+	m_CurHP = hp;
+	OnHPIsChanged.Broadcast();
 
-	if (m_CurHP <= 0.0f)
+	if (m_CurHP < KINDA_SMALL_NUMBER)
 	{
 		m_CurHP = 0.0f;
 		OnHPIsZero.Broadcast();
 	}
+}
+
+void UStatComponent::SetDamage(float damage)
+{
+	SetHP(FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP));
+}
+
+float UStatComponent::GetHPRatio()
+{
+	return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP);
 }
 
 

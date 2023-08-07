@@ -31,6 +31,7 @@ void AMeleeMinion::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	m_AnimInstance = Cast<UMeleeMinionAnim>(m_AnimInstanceBase);
+
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMeleeMinion::OnMontageEnded); 

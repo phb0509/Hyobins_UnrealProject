@@ -6,6 +6,8 @@
 #include "Utility/AnimInstanceBase.h"
 #include "Utility/Utility.h"
 #include <Components/CapsuleComponent.h>
+#include "Components/WidgetComponent.h"
+#include "UI/CharacterUpperHPBar.h"
 #include "HPGameInstance.h"
 
 ACharacterBase::ACharacterBase() :
@@ -31,6 +33,20 @@ ACharacterBase::ACharacterBase() :
 
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat"));
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
+
+
+	// UI »ý¼º..
+	m_HPBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBar_Widget"));
+	m_HPBarWidget->SetupAttachment(GetMesh());
+	m_HPBarWidget->SetRelativeLocation(FVector(0, 0, 180));
+	m_HPBarWidget->SetWidgetSpace(EWidgetSpace::Screen);
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(TEXT("/Game/UI/Monster/UI_HPBar.UI_HPBar_C"));
+	if (UI_HUD.Succeeded())
+	{
+		m_HPBarWidget->SetWidgetClass(UI_HUD.Class);
+		m_HPBarWidget->SetDrawSize(FVector2D(150, 50));
+	}
 }
 
 void ACharacterBase::PossessedBy(AController* newController)
@@ -38,10 +54,16 @@ void ACharacterBase::PossessedBy(AController* newController)
 	Super::PossessedBy(newController);
 
 	FString temp = Tags[0].ToString() + " :: CharacterBase :: Possessedby!!";
-
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *temp);
+
 	m_AIControllerBase = Cast<AAIControllerBase>(newController);
 	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
+
+	UCharacterUpperHPBar* upperHPBar = Cast<UCharacterUpperHPBar>(m_HPBarWidget->GetUserWidgetObject());
+	if (upperHPBar != nullptr)
+	{
+		upperHPBar->BindStatComponent(m_StatComponent);
+	}
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
