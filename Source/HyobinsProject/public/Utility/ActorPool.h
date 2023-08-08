@@ -25,8 +25,6 @@ class HYOBINSPROJECT_API AActorPool : public AActor
 public:
 	AActorPool();
 
-
-public:
 	// 추가호출을 할 경우, 추가호출의 'actorCount - 기존생성된 액터의 개수' 만큼만 생성한다.
 	void CreateActorPool(TSubclassOf<AActor> classType, int actorCount);
 	void CreateBlueprintActorPool(FName path, int actorCount);
@@ -34,12 +32,15 @@ public:
 	TWeakObjectPtr<AActor> SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation = {0.0f, 0.0f, 0.0f});
 	TWeakObjectPtr<AActor> SpawnBlueprintActor(FName path, FVector spawnLocation = { 0.0f, 0.0f, 0.0f });
 
+	void ClearActorPool();
+	void ClearBlueprintActorPool();
+
 private:
 	UPROPERTY()
-	TMap<TSubclassOf<AActor>, FActors> m_ActorPools;
+	TMap<TSubclassOf<AActor>, FActors> m_ActorPool;
 
 	UPROPERTY()
-	TMap<TSubclassOf<AActor>, FActors> m_BlueprintActorPools;
+	TMap<TSubclassOf<AActor>, FActors> m_BlueprintActorPool;
 
 	int32 m_DefaultSpawnCount;
 };

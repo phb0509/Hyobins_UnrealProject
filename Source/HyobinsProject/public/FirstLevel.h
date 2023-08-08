@@ -19,8 +19,14 @@ public:
 	virtual void PostInitializeComponents() override;
 
 private:
-	UFUNCTION(BlueprintCallable, Category = "TestFunction")
-		void spawn();
+	UFUNCTION(BlueprintCallable, Category = "Test")
+		void Create();
+
+	UFUNCTION(BlueprintCallable, Category = "Test")
+		void Spawn();
+
+	UFUNCTION(BlueprintCallable, Category = "Test")
+		void ClearActorPool();
 
 
 private:

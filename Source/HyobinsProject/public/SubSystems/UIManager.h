@@ -17,5 +17,5 @@ public:
 	virtual void Deinitialize() override {}
 
 private:
-	TMap<TSubclassOf<class UUserWidget>, TArray<TWeakObjectPtr<AActor>>> m_ActorPools;
+	TMap<TSubclassOf<class UUserWidget>, TArray<TWeakObjectPtr<AActor>>> m_ActorPool;
 };
