@@ -7,14 +7,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Utility/CustomStructs.h"
 #include "Utility/PoolableActor.h"
-#include "Component/StatComponent.h"
-#include "Components/WidgetComponent.h"
+#include "Utility/StatusActor.h"
 #include "CharacterBase.generated.h"
-
+	 
 enum class EMonsterCommonStates : uint8;
 
 UCLASS()
-class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor
+class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor, public IStatusActor
 {
 	GENERATED_BODY()
 
@@ -26,6 +25,7 @@ public:
 	virtual void OnCalledDeathMontageEndedNotify();
 
 	virtual void SetCommonState(EMonsterCommonStates commonState) {};
+
 
 protected:
 	void initAttackInformations(FString path);
@@ -45,12 +45,6 @@ protected:
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
 	TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
 	TMap<FName, FAttackInfoStruct> m_AttackInformations;
-
-	UPROPERTY(VIsibleAnywhere, Category = Stat)
-		UStatComponent* m_StatComponent;
-
-	UPROPERTY(VisibleAnyWhere, Category = UI)
-		class UWidgetComponent* m_HPBarWidget;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
 		TArray<UShapeComponent*> m_HitColliders;

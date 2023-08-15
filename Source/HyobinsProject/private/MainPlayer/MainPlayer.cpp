@@ -12,7 +12,7 @@
 #include "Utility/Utility.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
-
+#include "SubSystems/UIManager.h"
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
@@ -62,6 +62,8 @@ void AMainPlayer::BeginPlay()
 	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck);
 	m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &AMainPlayer::onCalledNotify_EndedNormalAttack);
 	m_AnimInstance->OnEndedDodgeMove.AddUObject(this, &AMainPlayer::onCalledNotify_EndedDodgeMove);
+
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateUpperHPBar(this, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C", FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
 }
 
 void AMainPlayer::Tick(float DeltaTime)

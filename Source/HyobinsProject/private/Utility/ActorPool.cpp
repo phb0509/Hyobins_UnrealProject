@@ -75,9 +75,9 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 
 	for (int i = 0; i < actorCount; ++i)
 	{
-		FTransform spawnTransform({ 0.0f,0.0f, 360.0f }, { 0.0f, 0.0f, 360.0f }); 
+		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f }); 
 		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
-		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActor doesn't inherit interfaces."));
+		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActor doesn't inherit PoolableActor interfaces."));
 
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
 		castedSpawnedActor->DeActivate();
@@ -165,7 +165,18 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(FName path, FVector spawn
 
 void AActorPool::ClearActorPool()
 {
-	
+	for (auto& iter : m_ActorPool)
+	{
+		TSubclassOf<AActor>& classType = iter.Key;
+		FActors& actors = m_ActorPool[classType];
+
+		for (auto& actor : actors.actors)
+		{
+			actor->Destroy();
+		}
+	}
+
+	m_ActorPool.Empty();
 }
 
 void AActorPool::ClearBlueprintActorPool()

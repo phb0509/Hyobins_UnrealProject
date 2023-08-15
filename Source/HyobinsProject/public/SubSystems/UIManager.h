@@ -16,6 +16,8 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override {}
 	virtual void Deinitialize() override {}
 
+	void CreateUpperHPBar(class AActor* actor, class USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize);
+
 private:
-	TMap<TSubclassOf<class UUserWidget>, TArray<TWeakObjectPtr<AActor>>> m_ActorPool;
+	TMap<TWeakObjectPtr<class AActor>, TMap<TSubclassOf<class UUserWidget>, TWeakObjectPtr<class UUserWidget>>> m_UIWidgets;
 };
