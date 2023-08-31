@@ -14,14 +14,14 @@ AMeleeMinionAIController::AMeleeMinionAIController(const FObjectInitializer& Obj
 	{
 		m_BehaviorTree = BTObject.Object;
 	}
-	checkf(IsValid(m_BehaviorTree), TEXT("BehaviorTree is not Valid"));
+	checkf(IsValid(m_BehaviorTree), TEXT("BehaviorTree isn't Valid"));
 
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("BlackboardData'/Game/MonsterAsset/Minion/BB_MeleeMinion.BB_MeleeMinion'"));
 	if (BBObject.Succeeded())
 	{
 		m_BlackboardData = BBObject.Object;
 	}
-	checkf(IsValid(m_BlackboardData), TEXT("BlackboardData is not Valid"));
+	checkf(IsValid(m_BlackboardData), TEXT("BlackboardData isn't Valid"));
 
 	initPerceptionSystem();
 }
@@ -135,7 +135,7 @@ void AMeleeMinionAIController::initPerceptionSystem()
 	m_AILastSeenLocation = 0.0f;
 	m_AISightAge = 5.0f; // 비활성화 후, 재스폰했을 때 다시 인지시키려면 0값이면 안된다.
 
-	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
+	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent isn't Valid"));
 	SetPerceptionComponent(*m_AIPerceptionComponent);
 
 	m_SightConfig->SightRadius = m_SightRadius;

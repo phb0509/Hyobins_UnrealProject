@@ -3,9 +3,8 @@
 
 #include "FirstLevel.h"
 #include "HPGameInstance.h"
-#include "Monster/Minions/Melee/MeleeMinion.h"
-#include "Monster/Minions/Super/SuperMinion.h"
 #include "Utility/ActorPool.h"
+#include "SubSystems/UIManager.h"
 
 
 AFirstLevel::AFirstLevel() :
@@ -26,12 +25,11 @@ void AFirstLevel::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("AFirstLevel :: BeginPlay"));
 
 	UHPGameInstance* gameInstance = Cast<UHPGameInstance>(GetGameInstance());
-	checkf(IsValid(gameInstance), TEXT("AFirstLevel :: GameInstance is not Valid"));
+	checkf(IsValid(gameInstance), TEXT("AFirstLevel :: GameInstance isn't Valid"));
 
 	m_ActorPool = gameInstance->GetActorPool();
 	
-	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: ActorPool is not Valid"));
-
+	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: ActorPool isn't Valid"));
 }
 
 void AFirstLevel::Create()
@@ -45,8 +43,8 @@ void AFirstLevel::Spawn()
 	FVector meleeSpawnLocation = { 0.0f, 100.0f, 100.0f };
 	FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
 
-	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", superSpawnLocation);
-	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", meleeSpawnLocation);
+	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", meleeSpawnLocation);
+	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", superSpawnLocation);
 }
 
 void AFirstLevel::ClearActorPool()
@@ -54,5 +52,13 @@ void AFirstLevel::ClearActorPool()
 	m_ActorPool->ClearBlueprintActorPool();
 }
 
+void AFirstLevel::HideHPBar()
+{
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->HideWidgets("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'");
+}
 
+void AFirstLevel::ShowHPBar()
+{
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowWidgets("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'");
+}
 

@@ -19,11 +19,11 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 
-	checkf(IsValid(owner), TEXT("Monster is not Valid"));
+	checkf(IsValid(owner), TEXT("Monster isn't Valid"));
 
 	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(owner->GetWorld());
 
-	checkf(IsValid(NavSystem), TEXT("NavSystem is not Valid"));
+	checkf(IsValid(NavSystem), TEXT("NavSystem isn't Valid"));
 
 	FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AMonster::HomePosKey);
 	FNavLocation NextPatrol;

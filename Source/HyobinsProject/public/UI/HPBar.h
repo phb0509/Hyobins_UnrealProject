@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "CharacterUpperHPBar.generated.h"
+#include "HPBar.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class HYOBINSPROJECT_API UCharacterUpperHPBar : public UUserWidget
+class HYOBINSPROJECT_API UHPBar : public UUserWidget
 {
 	GENERATED_BODY()
 	
@@ -21,9 +21,9 @@ protected:
 	virtual void NativeConstruct() override;
 	void UpdateHPWidget();
 
-private:
+protected:
 	TWeakObjectPtr<class UStatComponent> m_StatComponent;
 
-	UPROPERTY()
-		class UProgressBar* m_HPProgressBar;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		TWeakObjectPtr<class UProgressBar> m_HPProgressBar;
 };

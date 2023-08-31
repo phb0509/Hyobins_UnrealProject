@@ -38,7 +38,7 @@ void ASuperMinion::PostInitializeComponents()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance is not Valid"));
+		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance isn't Valid"));
 	}
 
 	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
@@ -46,7 +46,7 @@ void ASuperMinion::PostInitializeComponents()
 	{}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController is not Valid"));
+		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController isn't Valid"));
 	}
 }
 

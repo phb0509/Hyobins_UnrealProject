@@ -19,14 +19,20 @@ public:
 	virtual void PostInitializeComponents() override;
 
 private:
-	UFUNCTION(BlueprintCallable, Category = "Test")
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
 		void Create();
 
-	UFUNCTION(BlueprintCallable, Category = "Test")
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
 		void Spawn();
 
-	UFUNCTION(BlueprintCallable, Category = "Test")
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
 		void ClearActorPool();
+
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
+		void HideHPBar();
+
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
+		void ShowHPBar();
 
 
 private:

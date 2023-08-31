@@ -52,10 +52,10 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
-	checkf(IsValid(instigatorCharacter), TEXT("InstigatorCharacter is not Valid"));
+	checkf(IsValid(instigatorCharacter), TEXT("InstigatorCharacter isn't Valid"));
 
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
-	checkf(IsValid(DamageCauser), TEXT("DamageCauser is not Valid"));
+	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
 	m_StatComponent->SetDamage(attackInformation->damage);
 

@@ -5,15 +5,14 @@
 #include "GameFramework/Actor.h"
 #include "Utility/StatusActor.h"
 #include "Components/WidgetComponent.h"
-#include "UI/CharacterUpperHPBar.h"
+#include "UI/HPBar.h"
 #include "Components/SceneComponent.h"
 
-void UUIManager::CreateUpperHPBar(AActor* actor, USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize)
+void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize)
 {
-	checkf(actor->GetClass()->ImplementsInterface(UStatusActor::StaticClass()), TEXT("Actor doesn't inherit StatusActor interfaces."));
+	checkf(actor->GetClass()->ImplementsInterface(UStatusActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
 	IStatusActor* castedStatusActor = Cast<IStatusActor>(actor);
 
-	//UWidgetComponent* widgetComponent = CreateDefaultSubobject<UWidgetComponent>(*assetPath);
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
 	widgetComponent->SetupAttachment(mesh);
 	widgetComponent->SetRelativeLocation(relativeLocation);
@@ -21,33 +20,52 @@ void UUIManager::CreateUpperHPBar(AActor* actor, USceneComponent* mesh, FName su
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
 	widgetComponent->RegisterComponentWithWorld(GetWorld());
 
-	/*static ConstructorHelpers::FClassFinder<UUserWidget> UI_HUD(*assetPath);
-	if (UI_HUD.Succeeded())
-	{
-		widgetComponent->SetWidgetClass(UI_HUD.Class);
-		widgetComponent->SetDrawSize(drawSize);
-	}*/
-	//WidgetBlueprint'/Game/UI/Monster/UI_HPBar.UI_HPBar'
-	
-	//UUserWidget* userWidget = LoadObject<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/UI_HPBar.UI_HPBar'"));
-	//auto userWidget = LoadObject<UUserWidget>(NULL, TEXT("WidgetBlueprint'/Game/UI/Monster/UI_HPBar.UI_HPBar'"), NULL, LOAD_None, NULL);
-	auto tClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/UI_HPBar.UI_HPBar_C'"));
+	TSubclassOf<UUserWidget> widgetClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
+	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
-	if (tClass != nullptr)
+	if (widgetClass != nullptr)
 	{
-		widgetComponent->SetWidgetClass(tClass);
+		widgetComponent->SetWidgetClass(widgetClass);
 		widgetComponent->SetDrawSize(drawSize);
 	}
 
-	auto widgetObject = widgetComponent->GetUserWidgetObject();
-	UCharacterUpperHPBar* upperHPBar = Cast<UCharacterUpperHPBar>(widgetObject);
-	if (upperHPBar != nullptr)
+	UUserWidget* widgetObject = widgetComponent->GetUserWidgetObject();
+	checkf(widgetObject != nullptr, TEXT("Failed to Get UserWidgetObject"));
+
+	UHPBar* hpBar = Cast<UHPBar>(widgetObject);
+	checkf(hpBar != nullptr, TEXT("Failed to Cast To HPBar"));
+
+	hpBar->BindStatComponent(castedStatusActor->GetStatComponent());
+
+	if (m_UIWidgets.Contains(widgetClass) == false)
 	{
-		
-		upperHPBar->BindStatComponent(castedStatusActor->GetStatComponent());
+		TArray<class UUserWidget*> temp;
+		m_UIWidgets.Add(widgetClass, temp);
 	}
 
+	m_UIWidgets[widgetClass].Add(widgetObject);
+}
 
+void UUIManager::HideWidgets(FName path)
+{
+	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
-	// TMap<TWeakObjectPtr<class AActor>, TMap<TSubclassOf<class UUserWidget>, TWeakObjectPtr<class UUserWidget>>> m_UIWidgets;
+	for (UUserWidget* widget : m_UIWidgets[widgetClass])
+	{
+		checkf(widget != nullptr, TEXT("widget is Nullptr"));
+		widget->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UUIManager::ShowWidgets(FName path)
+{
+	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
+
+	for (UUserWidget* widget : m_UIWidgets[widgetClass])
+	{
+		checkf(widget != nullptr, TEXT("widget is Nullptr"));
+		widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
 }

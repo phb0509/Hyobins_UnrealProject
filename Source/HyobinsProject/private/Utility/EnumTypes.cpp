@@ -7,18 +7,15 @@
 AEnumTypes::AEnumTypes()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
 void AEnumTypes::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AEnumTypes::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

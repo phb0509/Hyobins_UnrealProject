@@ -14,14 +14,14 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 	{
 		m_BehaviorTree = BTObject.Object;
 	}
-	checkf(IsValid(m_BehaviorTree), TEXT("BehaviorTree is not Valid"));
+	checkf(IsValid(m_BehaviorTree), TEXT("BehaviorTree isn't Valid"));
 
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("BlackboardData'/Game/MonsterAsset/SuperMinion/BB_SuperMinion.BB_SuperMinion'"));
 	if (BBObject.Succeeded())
 	{
 		m_BlackboardData = BBObject.Object;
 	}
-	checkf(IsValid(m_BlackboardData), TEXT("BlackboardData is not Valid"));
+	checkf(IsValid(m_BlackboardData), TEXT("BlackboardData isn't Valid"));
 
 	initPerceptionSystem();
 
@@ -126,7 +126,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 void ASuperMinionAIController::initPerceptionSystem()
 {
 	m_SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	checkf(IsValid(m_SightConfig), TEXT("SightConfig is not Valid"));
+	checkf(IsValid(m_SightConfig), TEXT("SightConfig isn't Valid"));
 
 	m_SightRadius = 1000.0f;
 	m_LoseSightRadius = 1100.0f;
@@ -134,7 +134,7 @@ void ASuperMinionAIController::initPerceptionSystem()
 	m_AILastSeenLocation = 0.0f;
 	m_AISightAge = 5.0f;
 
-	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
+	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent isn't Valid"));
 	SetPerceptionComponent(*m_AIPerceptionComponent);
 
 	m_SightConfig->SightRadius = m_SightRadius;

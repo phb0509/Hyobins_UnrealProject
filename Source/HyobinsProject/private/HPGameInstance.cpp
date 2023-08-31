@@ -17,7 +17,7 @@ void UHPGameInstance::Init()
 	UE_LOG(LogTemp, Warning, TEXT("Call the HPGameInstance::Init!"));
 
 	m_ActorPool = GetWorld()->SpawnActor<AActorPool>();
-	checkf(IsValid(m_ActorPool), TEXT("UHPGameInstance::m_ActorPool is not Valid"));
+	checkf(IsValid(m_ActorPool), TEXT("UHPGameInstance::m_ActorPool isn't Valid"));
 }
 
 void UHPGameInstance::Shutdown()

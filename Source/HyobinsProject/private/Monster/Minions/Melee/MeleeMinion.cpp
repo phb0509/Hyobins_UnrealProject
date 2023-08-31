@@ -39,7 +39,7 @@ void AMeleeMinion::PostInitializeComponents()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance is not Valid"));
+		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AnimInstance isn't Valid"));
 	}
 
 	m_OwnerAIController = Cast<AMeleeMinionAIController>(m_AIControllerBase);
@@ -47,7 +47,7 @@ void AMeleeMinion::PostInitializeComponents()
 	{}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController is not Valid"));
+		UE_LOG(LogTemp, Warning, TEXT("MeleeMinion AIController isn't Valid"));
 	}
 }
 
@@ -175,7 +175,7 @@ void AMeleeMinion::initAssets()
 		GetMesh()->SetSkeletalMesh(mesh.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
 	}
-	checkf(IsValid(mesh.Object), TEXT("Mesh is not Valid"));
+	checkf(IsValid(mesh.Object), TEXT("Mesh isn't Valid"));
 
 	// HitCollider
 

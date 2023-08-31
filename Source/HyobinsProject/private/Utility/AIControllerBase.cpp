@@ -24,7 +24,6 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 
 	////m_AIPerceptionComponent->OnComponentActivated.Add(&AAIControllerBase::UpdatePerceptedTargetActor);
 	//m_AIPerceptionComponent->OnComponentActivated.Add(Delegate);
-
 }
 
 void AAIControllerBase::BeginPlay()

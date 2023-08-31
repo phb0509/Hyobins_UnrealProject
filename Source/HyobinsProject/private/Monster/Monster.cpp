@@ -5,14 +5,13 @@
 #include "Utility/AIControllerBase.h"
 #include "Utility/AnimInstanceBase.h"
 #include <Components/CapsuleComponent.h>
-
+#include "SubSystems/UIManager.h"
 
 const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
 const FName AMonster::EnemyKey(TEXT("Enemy"));
 const FName AMonster::StateKey(TEXT("State"));
 const FName AMonster::NormalAttackSpeedKey(TEXT("NormalAttackSpeed"));
-
 
 
 AMonster::AMonster() :
@@ -47,6 +46,8 @@ void AMonster::Activate()
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
+
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateHPBarComponent(this, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C", FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
 }
 
 void AMonster::DeActivate()
