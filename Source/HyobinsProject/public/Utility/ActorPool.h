@@ -13,7 +13,7 @@ struct FActors
 	GENERATED_BODY()
 
 public:
-	UPROPERTY()
+	//UPROPERTY()
 		TArray<TWeakObjectPtr<AActor>> actors;
 };
 
@@ -39,7 +39,7 @@ private:
 	UPROPERTY()
 	TMap<TSubclassOf<AActor>, FActors> m_ActorPool;
 
-	UPROPERTY()
+	//UPROPERTY()
 	TMap<TSubclassOf<AActor>, FActors> m_BlueprintActorPool;
 
 	int32 m_DefaultSpawnCount;

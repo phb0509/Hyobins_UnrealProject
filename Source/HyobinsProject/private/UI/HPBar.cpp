@@ -12,6 +12,11 @@ void UHPBar::BindStatComponent(UStatComponent* statComponent)
 	m_StatComponent->OnHPIsChanged.AddUObject(this, &UHPBar::UpdateHPWidget);
 }
 
+void UHPBar::SetExecuteState()
+{
+	m_HPProgressBar->SetVisibility(ESlateVisibility::Hidden);
+}
+
 void UHPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -26,7 +31,6 @@ void UHPBar::UpdateHPWidget()
 		if (m_HPProgressBar != nullptr)
 		{
 			m_HPProgressBar->SetPercent(m_StatComponent->GetHPRatio());
-			
 		}
 	}
 }

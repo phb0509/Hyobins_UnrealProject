@@ -5,8 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "Utility/StatusActor.h"
 #include "Components/WidgetComponent.h"
-#include "UI/HPBar.h"
 #include "Components/SceneComponent.h"
+#include "UI/HPBar.h"
 
 void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize)
 {
@@ -44,6 +44,8 @@ void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FNam
 	}
 
 	m_UIWidgets[widgetClass].Add(widgetObject);
+
+	int asf = 0;
 }
 
 void UUIManager::HideWidgets(FName path)
@@ -53,7 +55,7 @@ void UUIManager::HideWidgets(FName path)
 
 	for (UUserWidget* widget : m_UIWidgets[widgetClass])
 	{
-		checkf(widget != nullptr, TEXT("widget is Nullptr"));
+		checkf(widget != nullptr, TEXT("widget is Nullptr!!"));
 		widget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
@@ -65,7 +67,23 @@ void UUIManager::ShowWidgets(FName path)
 
 	for (UUserWidget* widget : m_UIWidgets[widgetClass])
 	{
-		checkf(widget != nullptr, TEXT("widget is Nullptr"));
+		checkf(widget != nullptr, TEXT("widget is Nullptr!!"));
 		widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+}
+
+void UUIManager::ClearWidgets(FName path)
+{
+	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
+
+	m_UIWidgets[widgetClass].Empty();
+}
+
+void UUIManager::ClearAllWidgets()
+{
+	for (auto iter : m_UIWidgets)
+	{
+		iter.Value.Empty();
 	}
 }

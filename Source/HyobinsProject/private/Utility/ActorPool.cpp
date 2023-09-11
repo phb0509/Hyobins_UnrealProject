@@ -6,7 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 AActorPool::AActorPool() :
-	m_DefaultSpawnCount(10)
+	m_DefaultSpawnCount(4)
 {
 	PrimaryActorTick.bCanEverTick = false;
 }

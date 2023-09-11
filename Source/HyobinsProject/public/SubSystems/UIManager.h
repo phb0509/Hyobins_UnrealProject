@@ -19,6 +19,9 @@ public:
 	void CreateHPBarComponent(class AActor* actor, class USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize);
 	void HideWidgets(FName path);
 	void ShowWidgets(FName path);
+	void ClearWidgets(FName path);
+	void ClearAllWidgets();
+	
 
 public:
 	TMap<TSubclassOf<class UUserWidget>, TArray<class UUserWidget*>> m_UIWidgets;

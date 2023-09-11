@@ -251,6 +251,16 @@ void AMainPlayer::TriggerPressedSpaceBar()
 	}
 }
 
+void AMainPlayer::TriggerPressedLeftCtrl()
+{
+
+}
+
+void AMainPlayer::TriggerReleasedLeftCtrl()
+{
+
+}
+
 void AMainPlayer::initAssets()
 {
 	// RootCapsuleComponent
@@ -439,4 +449,6 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &AMainPlayer::TriggerPressedSpaceBar);
+	PlayerInputComponent->BindAction(TEXT("Execute"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftCtrl);
+	PlayerInputComponent->BindAction(TEXT("Execute"), IE_Released, this, &AMainPlayer::TriggerPressedLeftCtrl);
 }

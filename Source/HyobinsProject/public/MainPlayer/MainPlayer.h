@@ -30,6 +30,9 @@ public:
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
 	void TriggerPressedSpaceBar();
+	void TriggerPressedLeftCtrl();
+	void TriggerReleasedLeftCtrl();
+
 
 protected:
 	virtual void BeginPlay() override;

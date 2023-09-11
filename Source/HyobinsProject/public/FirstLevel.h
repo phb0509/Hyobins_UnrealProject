@@ -34,6 +34,12 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
 		void ShowHPBar();
 
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
+		void ClearAllWidget();
+
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
+		void ClearHPBarWidget();
+
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;

@@ -16,6 +16,7 @@ class HYOBINSPROJECT_API UHPBar : public UUserWidget
 	
 public:
 	void BindStatComponent(class UStatComponent* statComponent);
+	void SetExecuteState();
 
 protected:
 	virtual void NativeConstruct() override;

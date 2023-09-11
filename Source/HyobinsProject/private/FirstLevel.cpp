@@ -62,3 +62,12 @@ void AFirstLevel::ShowHPBar()
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowWidgets("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'");
 }
 
+void AFirstLevel::ClearAllWidget()
+{
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowWidgets("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'");
+}
+
+void AFirstLevel::ClearHPBarWidget()
+{
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ClearAllWidgets();
+}
