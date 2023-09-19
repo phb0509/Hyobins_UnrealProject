@@ -6,7 +6,6 @@
 
 const double Utility::m_DegreeTable[3][3] = { {-135,180,135},{-90,0,90},{-45,0,45} };
 
-
 Utility::Utility() 
 {
 }

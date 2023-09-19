@@ -30,21 +30,25 @@ void AFirstLevel::BeginPlay()
 	m_ActorPool = gameInstance->GetActorPool();
 	
 	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: ActorPool isn't Valid"));
+
+	Create();
 }
 
 void AFirstLevel::Create()
 {
-	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", 3);
-	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 3);
+	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", 4);
+	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 4);
 }
 
 void AFirstLevel::Spawn()
 {
-	FVector meleeSpawnLocation = { 0.0f, 100.0f, 100.0f };
-	FVector superSpawnLocation = { 0.0f, 0.0f, 100.0f };
+	FVector positions[4] = { {700.0f,0.0f,50.0f}, {-700.0f,0.0f,50.0f}, {0.0f,700.0f,50.0f}, {0.0f,-700.0f,50.0f} };
 
-	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", meleeSpawnLocation);
-	m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", superSpawnLocation);
+	for (int i = 0; i < 4; ++i)
+	{
+		m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", positions[i]);
+		m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", positions[i]);
+	}
 }
 
 void AFirstLevel::ClearActorPool()

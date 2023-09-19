@@ -24,10 +24,13 @@ protected:
 public:
 	void InitHP() { m_CurHP = m_MaxHP; }
 	void ChangeMaxHP(float hp) { m_MaxHP = hp; }
-	void SetHP(float hp);
-	void SetDamage(float damage);
 
+	// Get
 	float GetHPRatio();
+
+	// Set
+	void SetDamage(float damage);
+	void SetHP(float hp);
 
 	FOnHPIsZeroDelegate OnHPIsZero;
 	FOnHPIsChangedDelegate OnHPIsChanged;

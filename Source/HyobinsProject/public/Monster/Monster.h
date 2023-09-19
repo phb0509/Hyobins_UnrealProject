@@ -21,6 +21,9 @@ public:
 
 protected:
 	virtual void ExecHitEvent(ACharacterBase* instigator) override;
+
+	// IPoolableActor VirtualFunction
+	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 

@@ -43,6 +43,7 @@ void AMeleeMinion::PostInitializeComponents()
 	}
 
 	m_OwnerAIController = Cast<AMeleeMinionAIController>(m_AIControllerBase);
+
 	if (m_OwnerAIController.IsValid())
 	{}
 	else
@@ -209,4 +210,6 @@ void AMeleeMinion::updateState()
 			m_bIsWalking = true;
 		}
 	}
+
+	//UE_LOG(LogTemp, Log, TEXT("MeleeMinion :: %f"), m_CurSpeed);
 }

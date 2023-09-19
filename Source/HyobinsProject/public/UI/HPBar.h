@@ -23,6 +23,7 @@ protected:
 	void UpdateHPWidget();
 
 protected:
+	UPROPERTY(EditDefaultsOnly)
 	TWeakObjectPtr<class UStatComponent> m_StatComponent;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

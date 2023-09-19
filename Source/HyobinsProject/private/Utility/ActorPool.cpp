@@ -39,6 +39,7 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit interfaces."));
 
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
+		//castedSpawnedActor->Initialize();
 		castedSpawnedActor->DeActivate();
 
 		m_ActorPool[classType].actors.Add(spawnedActor);
@@ -80,6 +81,7 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit PoolableActorInterfaces."));
 
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
+		castedSpawnedActor->Initialize();
 		castedSpawnedActor->DeActivate();
 
 		m_BlueprintActorPool[classType].actors.Add(spawnedActor);
@@ -156,8 +158,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(FName path, FVector spawn
 	if (actor == nullptr) 
 	{
 		CreateBlueprintActorPool(path, m_BlueprintActorPool[classType].actors.Num() * 2);
-		SpawnBlueprintActor(path);
-		return nullptr;
+		actor = SpawnBlueprintActor(path);
 	}
 
 	return actor;

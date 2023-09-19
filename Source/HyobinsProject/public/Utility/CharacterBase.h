@@ -38,6 +38,8 @@ protected:
 	virtual void ExecHitEvent(ACharacterBase* instigator) {};
 	virtual void ExecDeathEvent() {};
 
+	// IPOOlableActor
+	virtual void Initialize() {};
 	virtual void Activate() {};
 	virtual void DeActivate() {};
 

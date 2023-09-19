@@ -19,12 +19,18 @@ AMonster::AMonster() :
 	m_NormalAttackRange(150.0f),
 	m_NormalAttackSpeed(1.0f)
 {
+
 }
 
 void AMonster::ExecHitEvent(ACharacterBase* instigator)
 {
 	m_AIControllerBase->PlayBehaviorTree();
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+}
+
+void AMonster::Initialize()
+{
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateHPBarComponent(this, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C", FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
 }
 
 void AMonster::Activate()
@@ -46,8 +52,6 @@ void AMonster::Activate()
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
-
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateHPBarComponent(this, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C", FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
 }
 
 void AMonster::DeActivate()

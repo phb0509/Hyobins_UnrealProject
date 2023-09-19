@@ -32,7 +32,6 @@ ACharacterBase::ACharacterBase() :
 
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat"));
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
-
 }
 
 void ACharacterBase::PossessedBy(AController* newController)
@@ -44,7 +43,6 @@ void ACharacterBase::PossessedBy(AController* newController)
 
 	m_AIControllerBase = Cast<AAIControllerBase>(newController);
 	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -74,7 +72,8 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 			m_bIsAttacking = false; // 슈퍼아머같은 상태가 아니면 피격시 강제 온힛상태가 되니까 attacking을 false로 해줘야 한다.
 
-			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation();
+			// 거리넉백을 위한 속도계산.
+			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
 			dirToInstigator.Normalize();
 			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
 
@@ -97,6 +96,7 @@ void ACharacterBase::OnHPIsZero()
 {
 	m_bIsDeath = true;
 	m_bIsAttacking = false;
+
 	Die();
 }
 

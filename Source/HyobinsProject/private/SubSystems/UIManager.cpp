@@ -44,8 +44,6 @@ void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FNam
 	}
 
 	m_UIWidgets[widgetClass].Add(widgetObject);
-
-	int asf = 0;
 }
 
 void UUIManager::HideWidgets(FName path)
@@ -55,7 +53,7 @@ void UUIManager::HideWidgets(FName path)
 
 	for (UUserWidget* widget : m_UIWidgets[widgetClass])
 	{
-		checkf(widget != nullptr, TEXT("widget is Nullptr!!"));
+		checkf(widget != nullptr, TEXT("Widget is Nullptr!!"));
 		widget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
@@ -67,7 +65,7 @@ void UUIManager::ShowWidgets(FName path)
 
 	for (UUserWidget* widget : m_UIWidgets[widgetClass])
 	{
-		checkf(widget != nullptr, TEXT("widget is Nullptr!!"));
+		checkf(widget != nullptr, TEXT("Widget is Nullptr!!"));
 		widget->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 }

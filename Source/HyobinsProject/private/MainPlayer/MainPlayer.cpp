@@ -51,7 +51,7 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetActorLocation(FVector(0.0f, 0.0f, 100.0f));
+	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 
