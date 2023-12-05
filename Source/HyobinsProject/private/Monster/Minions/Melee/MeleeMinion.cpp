@@ -179,7 +179,6 @@ void AMeleeMinion::initAssets()
 	checkf(IsValid(mesh.Object), TEXT("Mesh isn't Valid"));
 
 	// HitCollider
-
 	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
 	hitCollider->SetupAttachment(RootComponent);
 	hitCollider->SetCapsuleHalfHeight(60.0f);

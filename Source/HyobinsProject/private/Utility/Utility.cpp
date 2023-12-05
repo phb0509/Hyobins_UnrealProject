@@ -8,15 +8,16 @@ const double Utility::m_DegreeTable[3][3] = { {-135,180,135},{-90,0,90},{-45,0,4
 
 Utility::Utility() 
 {
+
 }
 
 Utility::~Utility()
 {
+
 }
 
 int32 Utility::GetHitDirection(AActor* hitActor, AActor* attackActor)
 {
-    
 	FVector forward = hitActor->GetActorForwardVector();
 	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation();
 	toActor.Normalize();

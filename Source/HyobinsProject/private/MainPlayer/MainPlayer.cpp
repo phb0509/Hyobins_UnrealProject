@@ -8,6 +8,8 @@
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
+
+#include "HPGameInstance.h"
 #include "Utility/EnumTypes.h" 
 #include "Utility/Utility.h"
 #include "DrawDebugHelpers.h"
@@ -43,7 +45,13 @@ AMainPlayer::AMainPlayer() :
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
 
-	initAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
+
+	// 지울예정.
+	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	HPGameInstance->InitAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'", m_AttackInformations);
+	
+	//initAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
+
 	initAssets();
 }
 
@@ -51,10 +59,9 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
+	//SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-
 	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onMontageEnded);
 
 	// Notify
@@ -62,7 +69,6 @@ void AMainPlayer::BeginPlay()
 	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck);
 	m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &AMainPlayer::onCalledNotify_EndedNormalAttack);
 	m_AnimInstance->OnEndedDodgeMove.AddUObject(this, &AMainPlayer::onCalledNotify_EndedDodgeMove);
-
 }
 
 void AMainPlayer::Tick(float DeltaTime)

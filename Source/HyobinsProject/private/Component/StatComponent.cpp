@@ -7,12 +7,7 @@ UStatComponent::UStatComponent() :
 	m_CurHP(m_MaxHP)
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	bWantsInitializeComponent = true;
-}
-
-void UStatComponent::InitializeComponent()
-{
-	Super::InitializeComponent();
+	bWantsInitializeComponent = false;
 }
 
 void UStatComponent::BeginPlay()
@@ -42,3 +37,4 @@ void UStatComponent::SetHP(float hp)
 		OnHPIsZero.Broadcast();
 	}
 }
+

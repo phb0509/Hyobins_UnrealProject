@@ -19,7 +19,6 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void InitializeComponent() override;
 
 public:
 	void InitHP() { m_CurHP = m_MaxHP; }
@@ -41,5 +40,4 @@ private:
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
 		float m_CurHP;
-
 };

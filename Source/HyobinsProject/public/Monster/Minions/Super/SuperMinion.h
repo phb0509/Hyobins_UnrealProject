@@ -49,6 +49,8 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 
+	TMap<FName, FAttackInfoStruct> m_AttackInformations; // юс╫ц.
+
 	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;
 	TWeakObjectPtr<class ASuperMinionAIController> m_OwnerAIController;
 };

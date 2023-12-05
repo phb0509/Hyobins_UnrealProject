@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
-#include "Utility/CustomStructs.h"
 #include "Utility/PoolableActor.h"
+#include "Utility/CustomStructs.h"
 #include "Utility/StatusActor.h"
 #include "CharacterBase.generated.h"
 	 
@@ -28,7 +28,7 @@ public:
 
 
 protected:
-	void initAttackInformations(FString path);
+	//void initAttackInformations(FString path);
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Die() {};
@@ -46,7 +46,7 @@ protected:
 protected:
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
 	TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
-	TMap<FName, FAttackInfoStruct> m_AttackInformations;
+	//TMap<FName, FAttackInfoStruct> m_AttackInformations;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
 		TArray<UShapeComponent*> m_HitColliders;

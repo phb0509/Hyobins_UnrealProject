@@ -32,6 +32,7 @@ ACharacterBase::ACharacterBase() :
 
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat"));
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
+	
 }
 
 void ACharacterBase::PossessedBy(AController* newController)
@@ -108,8 +109,8 @@ void ACharacterBase::OnCalledDeathMontageEndedNotify()
 	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ACharacterBase::DeActivate, m_DeathTimerTime, true);
 }
 
-void ACharacterBase::initAttackInformations(FString path)
-{
-	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	HPGameInstance->InitAttackInformations(path, m_AttackInformations);
-}
+//void ACharacterBase::initAttackInformations(FString path)
+//{
+//	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+//	HPGameInstance->InitAttackInformations(path, m_AttackInformations);
+//}

@@ -87,6 +87,7 @@ public:
 		class UBoxComponent* m_ShieldColliderForShield;
 
 private:
+	TMap<FName, FAttackInfoStruct> m_AttackInformations; // юс╫ц. 
 	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;
 
 	float m_ArmLengthTo;
