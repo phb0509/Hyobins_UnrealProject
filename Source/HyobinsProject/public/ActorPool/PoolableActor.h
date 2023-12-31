@@ -18,9 +18,9 @@ class HYOBINSPROJECT_API IPoolableActor
 	GENERATED_BODY()
 
 public:
-	virtual void Initialize() = 0;
-	virtual void Activate() = 0;
-	virtual void DeActivate() = 0;
+	virtual void Initialize() abstract;
+	virtual void Activate() abstract;
+	virtual void DeActivate() abstract;
 
 	bool GetIsActivated() { return m_bIsActivated; }
 

@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 
-/**
- * 
- */
+
 class HYOBINSPROJECT_API Utility
 {
 public:

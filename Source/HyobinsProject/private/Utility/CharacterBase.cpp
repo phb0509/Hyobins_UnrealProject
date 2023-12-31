@@ -30,8 +30,8 @@ ACharacterBase::ACharacterBase() :
 {
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
-	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("Stat"));
-	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
+	//m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
+	//m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 	
 }
 
@@ -56,7 +56,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
-	m_StatComponent->SetDamage(attackInformation->damage);
+	//m_StatComponent->SetDamage(attackInformation->damage);
 
 	// ·Î±×.
 	FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
@@ -109,8 +109,3 @@ void ACharacterBase::OnCalledDeathMontageEndedNotify()
 	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ACharacterBase::DeActivate, m_DeathTimerTime, true);
 }
 
-//void ACharacterBase::initAttackInformations(FString path)
-//{
-//	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-//	HPGameInstance->InitAttackInformations(path, m_AttackInformations);
-//}

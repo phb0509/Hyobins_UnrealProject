@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ //Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Monster/Monster.h"
@@ -35,7 +35,7 @@ void AMonster::Initialize()
 
 void AMonster::Activate()
 {
-	m_StatComponent->InitHP();
+	//m_StatComponent->InitHP();
 	m_bIsActivated = true;
 	m_bIsDeath = false;
 	m_AIControllerBase->OnPossess(this);

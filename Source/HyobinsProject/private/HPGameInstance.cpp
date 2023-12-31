@@ -3,7 +3,7 @@
 
 #include "HPGameInstance.h"
 #include "Utility/EnumTypes.h"
-#include "Utility/ActorPool.h"
+#include "ActorPool/ActorPool.h"
 
 
 UHPGameInstance::UHPGameInstance()

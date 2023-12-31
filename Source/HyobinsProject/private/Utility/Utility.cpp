@@ -16,10 +16,10 @@ Utility::~Utility()
 
 }
 
-int32 Utility::GetHitDirection(AActor* hitActor, AActor* attackActor)
+int32 Utility::GetHitDirection(AActor* hitActor, AActor* attackActor) // 공격당한 액터, 공격한 액터
 {
 	FVector forward = hitActor->GetActorForwardVector();
-	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation();
+	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation(); // hitActor -> attackActor 벡터.
 	toActor.Normalize();
 
 	float cosTheta = FVector::DotProduct(forward, toActor);
@@ -27,19 +27,19 @@ int32 Utility::GetHitDirection(AActor* hitActor, AActor* attackActor)
 
 	FVector cross = FVector::CrossProduct(forward, toActor);
 
-	if (theta >= 0.0f && theta < PI / 4)
+	if (theta >= 0.0f && theta < PI / 4) // Front
 	{
 		return 0;
 	}
-	else if (cross.Z >= 0.0f && theta >= PI / 4 && theta < PI * 3 / 4)
+	else if (cross.Z >= 0.0f && theta >= PI / 4 && theta < PI * 3 / 4) // Right
 	{
 		return 1;
 	}
-	else if (theta >= PI * 3 / 4 && theta < PI)
+	else if (theta >= PI * 3 / 4 && theta < PI) // Back
 	{
 		return 2;
 	}
-	else if (cross.Z < 0 && theta >= PI / 4 && theta < PI * 3 / 4)
+	else if (cross.Z < 0 && theta >= PI / 4 && theta < PI * 3 / 4) // Left
 	{
 		return 3;
 	}

@@ -3,7 +3,7 @@
 
 #include "FirstLevel.h"
 #include "HPGameInstance.h"
-#include "Utility/ActorPool.h"
+#include "ActorPool/ActorPool.h"
 #include "SubSystems/UIManager.h"
 
 
@@ -36,8 +36,9 @@ void AFirstLevel::BeginPlay()
 
 void AFirstLevel::Create()
 {
-	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", 4);
-	//m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 4);
+	//m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", 4);
+
+	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 4);
 }
 
 void AFirstLevel::Spawn()
@@ -46,8 +47,8 @@ void AFirstLevel::Spawn()
 
 	for (int i = 0; i < 4; ++i)
 	{
-		m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", positions[i]);
-		//m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", positions[i]);
+		//m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/Minion/BP_MeleeMinion.BP_MeleeMinion'", positions[i]);
+		m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", positions[i]);
 	}
 }
 

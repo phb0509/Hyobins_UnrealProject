@@ -3,14 +3,14 @@
 
 #include "SubSystems/UIManager.h"
 #include "GameFramework/Actor.h"
-#include "Utility/StatusActor.h"
+//#include "Utility/StatusActor.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SceneComponent.h"
 #include "UI/HPBar.h"
 
 void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize)
 {
-	checkf(actor->GetClass()->ImplementsInterface(UStatusActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
+	/*checkf(actor->GetClass()->ImplementsInterface(UStatusActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
 	IStatusActor* castedStatusActor = Cast<IStatusActor>(actor);
 
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
@@ -43,7 +43,7 @@ void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FNam
 		m_UIWidgets.Add(widgetClass, temp);
 	}
 
-	m_UIWidgets[widgetClass].Add(widgetObject);
+	m_UIWidgets[widgetClass].Add(widgetObject);*/
 }
 
 void UUIManager::HideWidgets(FName path)

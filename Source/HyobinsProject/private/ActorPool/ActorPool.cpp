@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Utility/ActorPool.h"
-#include "Utility/PoolableActor.h"
+#include "ActorPool/ActorPool.h"
+#include "ActorPool/PoolableActor.h"
 #include "Kismet/GameplayStatics.h"
 
 AActorPool::AActorPool() :
@@ -15,13 +15,13 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 {
 	checkf(IsValid(classType), TEXT("ClassTypes doesn't inherit from Actor"));
 
-	if (m_ActorPool.Contains(classType)) 
+	if (m_ActorPool.Contains(classType))
 	{
 		if (m_ActorPool[classType].actors.Num() >= actorCount)
 		{
 			return;
 		}
-		else 
+		else
 		{
 			actorCount -= m_ActorPool[classType].actors.Num();
 		}
@@ -39,7 +39,7 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit interfaces."));
 
 		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
-		//castedSpawnedActor->Initialize();
+		castedSpawnedActor->Initialize();
 		castedSpawnedActor->DeActivate();
 
 		m_ActorPool[classType].actors.Add(spawnedActor);
@@ -76,7 +76,7 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 
 	for (int i = 0; i < actorCount; ++i)
 	{
-		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f }); 
+		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f });
 		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
 		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit PoolableActorInterfaces."));
 
@@ -92,7 +92,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVe
 {
 	checkf(IsValid(classType), TEXT("ClassTypes doesn't inherit from Actor"));
 
-	if (m_ActorPool.Contains(classType) == false) 
+	if (m_ActorPool.Contains(classType) == false)
 	{
 		CreateActorPool(classType, m_DefaultSpawnCount);
 		UE_LOG(LogTemp, Warning, TEXT("A new actor pool was created because no actor pool was created for the requested actor."));
@@ -113,7 +113,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVe
 		break;
 	}
 
-	if (actor == nullptr) 
+	if (actor == nullptr)
 	{
 		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 2);
 		SpawnActor(classType);
@@ -155,7 +155,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(FName path, FVector spawn
 		break;
 	}
 
-	if (actor == nullptr) 
+	if (actor == nullptr)
 	{
 		CreateBlueprintActorPool(path, m_BlueprintActorPool[classType].actors.Num() * 2);
 		actor = SpawnBlueprintActor(path);
@@ -182,11 +182,11 @@ void AActorPool::ClearActorPool()
 
 void AActorPool::ClearBlueprintActorPool()
 {
-	for (auto& iter: m_BlueprintActorPool)
+	for (auto& iter : m_BlueprintActorPool)
 	{
 		TSubclassOf<AActor>& classType = iter.Key;
 		FActors& actors = m_BlueprintActorPool[classType];
-		
+
 		for (auto& actor : actors.actors)
 		{
 			actor->Destroy();

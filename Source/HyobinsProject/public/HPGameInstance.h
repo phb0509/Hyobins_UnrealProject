@@ -64,8 +64,6 @@ public:
 	class AActorPool* GetActorPool() { return m_ActorPool; }
 	int32 GetIndexByEnumName(FName& enumClassName, FName& enumTypeName);
 
-
-
 private:
 	TMap<FName, UEnum*> m_Enums;
 

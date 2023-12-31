@@ -59,7 +59,8 @@ void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
+	//SetActorLocation(FVector(-5780.0f, 6720.0f, 7210.0f));
+	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onMontageEnded);
