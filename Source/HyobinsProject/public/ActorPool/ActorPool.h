@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ActorPool.generated.h"
 
-
+// ë¼ì´ë” ê¹ƒ ì»¤ë°‹ í…ŒìŠ¤íŠ¸
 USTRUCT()
 struct FActors
 {
@@ -24,7 +24,7 @@ class HYOBINSPROJECT_API AActorPool : public AActor
 public:
 	AActorPool();
 
-	// Ãß°¡È£ÃâÀ» ÇÒ °æ¿ì, Ãß°¡È£ÃâÀÇ 'actorCount - ±âÁ¸»ı¼ºµÈ ¾×ÅÍÀÇ °³¼ö' ¸¸Å­¸¸ »ı¼ºÇÑ´Ù.
+	// ï¿½ß°ï¿½È£ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½, ï¿½ß°ï¿½È£ï¿½ï¿½ï¿½ï¿½ 'actorCount - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½' ï¿½ï¿½Å­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
 	void CreateActorPool(TSubclassOf<AActor> classType, int actorCount);
 	void CreateBlueprintActorPool(FName path, int actorCount);
 

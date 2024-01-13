@@ -22,7 +22,7 @@ public:
 	virtual void Activate() abstract;
 	virtual void DeActivate() abstract;
 
-	bool GetIsActivated() { return m_bIsActivated; }
+	bool GetIsActivated() { return m_bIsActivated; } 
 
 protected:
 	bool m_bIsActivated = false;
