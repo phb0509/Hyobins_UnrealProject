@@ -7,13 +7,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "ActorPool/PoolableActor.h"
 #include "Utility/CustomStructs.h"
-//#include "Utility/StatusActor.h"
+#include "Utility/StatActor.h"
 #include "CharacterBase.generated.h"
 	 
 enum class EMonsterCommonStates : uint8;
 
 UCLASS(abstract)
-class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor // public IPoolableActor, public IStatusActor
+class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor, public IStatActor
 {
 	GENERATED_BODY()
 
@@ -36,7 +36,7 @@ protected:
 	virtual void ExecHitEvent(ACharacterBase* instigator) {};
 	virtual void ExecDeathEvent() {};
 
-	// IPOOlableActor
+	// IPoolableActor
 	virtual void Initialize() {};
 	virtual void Activate() {};
 	virtual void DeActivate() {};

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "Component/StatComponent.h"
 #include "StatActor.generated.h"
 
 // This class does not need to be modified.
@@ -13,13 +14,14 @@ class UStatActor : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
-class HYOBINSPROJECT_API IStatActor
+
+class HYOBINSPROJECT_API IStatActor // 추상클래스처럼 사용.
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	UStatComponent* GetStatComponent() { return m_StatComponent; }
+
+protected:
+	UStatComponent* m_StatComponent;
 };

@@ -30,9 +30,8 @@ ACharacterBase::ACharacterBase() :
 {
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 
-	//m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
-	//m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
-	
+	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
+	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 }
 
 void ACharacterBase::PossessedBy(AController* newController)
@@ -56,9 +55,9 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
-	//m_StatComponent->SetDamage(attackInformation->damage);
+	m_StatComponent->SetDamage(attackInformation->damage);
 
-	// ·Î±×.
+	// ë¡œê·¸
 	FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
@@ -69,11 +68,11 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 		if (!m_bIsSuperArmor)
 		{
-			SetCommonState(EMonsterCommonStates::Hit); // ¸ùÅ¸ÁÖ Àç»ı ¹×, curStateÀÌ¶û ºí·¢º¸µå¿¡ Hit»óÅÂ ±â·Ï.
+			SetCommonState(EMonsterCommonStates::Hit); // ëª½íƒ€ì£¼ ì¬ìƒ ë°, curStateì´ë‘ ë¸”ë™ë³´ë“œì— Hitìƒíƒœ ê¸°ë¡.
 
-			m_bIsAttacking = false; // ½´ÆÛ¾Æ¸Ó°°Àº »óÅÂ°¡ ¾Æ´Ï¸é ÇÇ°İ½Ã °­Á¦ ¿ÂÈı»óÅÂ°¡ µÇ´Ï±î attackingÀ» false·Î ÇØÁà¾ß ÇÑ´Ù.
+			m_bIsAttacking = false; // í”¼ê²©ëª¨ì…˜ì„ ì¬ìƒí•˜ê¸°ë•Œë¬¸ì— ê³µê²©x. 
 
-			// °Å¸®³Ë¹éÀ» À§ÇÑ ¼Óµµ°è»ê.
+			// ê±°ë¦¬ë„‰ë°±ì„ ìœ„í•œ ì†ë„ ê³„ì‚°.
 			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
 			dirToInstigator.Normalize();
 			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
@@ -86,7 +85,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 				GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 			}
 
-			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnHitTimerEnded, m_OnHitTimerTime, true); // OnHitTimeEnded´Â ¾Ë¾Æ¼­ ¿À¹ö¶óÀÌµåµÇ¼­ È£ÃâµÊ.
+			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnHitTimerEnded, m_OnHitTimerTime, true); // OnHitTimeEndedëŠ” ì•Œì•„ì„œ ì˜¤ë²„ë¼ì´ë“œë˜ì„œ í˜¸ì¶œ.
 		}
 	}
 	
@@ -105,7 +104,7 @@ void ACharacterBase::OnCalledDeathMontageEndedNotify()
 {
 	ExecDeathEvent();
 
-	// ¾×ÅÍÇ®¿¡ ¹İÈ¯ÇÏ±âÀ§ÇÑ ºñÈ°¼ºÈ­Å¸ÀÌ¸Ó
+	// ì•¡í„°í’€ì— ë°˜í™˜í•˜ê¸°ìœ„í•œ ë¹„í™œì„±í™”íƒ€ì´ë¨¸.
 	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ACharacterBase::DeActivate, m_DeathTimerTime, true);
 }
 

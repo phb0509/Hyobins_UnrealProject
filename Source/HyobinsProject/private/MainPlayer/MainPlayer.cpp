@@ -46,7 +46,7 @@ AMainPlayer::AMainPlayer() :
 	m_RunSpeed = 1300.0f;
 
 
-	// Áö¿ï¿¹Á¤.
+	// ì§€ìš¸ì˜ˆì •.
 	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	HPGameInstance->InitAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'", m_AttackInformations);
 	
@@ -82,7 +82,7 @@ void AMainPlayer::Tick(float DeltaTime)
 	printLog();
 }
 
-void AMainPlayer::normalComboAttack() // ¸¶¿ì½ºÁÂ¹öÆ° Å¬¸¯½Ã È£Ãâ
+void AMainPlayer::normalComboAttack() // ë§ˆìš°ìŠ¤ì¢Œë²„íŠ¼ í´ë¦­ì‹œ í˜¸ì¶œ
 {
 	if (m_bIsDodgeMoving) return;
 
@@ -97,7 +97,7 @@ void AMainPlayer::normalComboAttack() // ¸¶¿ì½ºÁÂ¹öÆ° Å¬¸¯½Ã È£Ãâ
 	{
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->PlayMontage("NormalAttack", 1.2f);
-		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo); // 0(ºñÀüÅõ)¿¡¼­ 1·Î Á¡ÇÁ
+		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo); // 0(ë¹„ì „íˆ¬)ì—ì„œ 1ë¡œ ì í”„
 		m_bIsAttacking = true;
 	}
 }
@@ -141,7 +141,7 @@ void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
 
 	m_bCanNextCombo = false;
 
-	if (m_bIsInputOnNextCombo) // ÀûÀýÇÑ Å¸ÀÌ¹Ö¿¡ Å°ÀÔ·Â µÇ¸é
+	if (m_bIsInputOnNextCombo) // ì ì ˆí•œ íƒ€ì´ë°ì— í‚¤ìž…ë ¥ ë˜ë©´
 	{
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo);
@@ -156,13 +156,13 @@ void AMainPlayer::onCalledNotify_EndedNormalAttack()
 	m_CurNormalAttackCombo = 0;
 }
 
-void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // Ãæµ¹Ã¼Å©Å¸ÀÌ¹Ö
+void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // ì¶©ëŒì²´í¬íƒ€ì´ë°
 {
-	if (m_CurNormalAttackCombo == 3) // ¹æÆÐ·Î °ø°ÝÇÏ´Â Å¸ÀÌ¹Ö
+	if (m_CurNormalAttackCombo == 3) // ë°©íŒ¨ë¡œ ê³µê²©í•˜ëŠ” íƒ€ì´ë°
 	{
 		m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
-	else // °ËÀ¸·Î °ø°ÝÇÏ´Â Å¸ÀÌ¹Ö
+	else // ê²€ìœ¼ë¡œ ê³µê²©í•˜ëŠ” íƒ€ì´ë°
 	{
 		m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
@@ -173,7 +173,7 @@ void AMainPlayer::onCalledNotify_EndedDodgeMove()
 	m_bIsDodgeMoving = false;
 }
 
-void AMainPlayer::updateNormalAttackStateOnStart() // °¢ ±¸°£ÀÇ ±âº»°ø°Ý(¿¬¼Ó°ø°ÝÀÌ´Ï±î) ¼öÇà ÈÄ, »óÅÂ°ª ¾÷µ¥ÀÌÆ®.
+void AMainPlayer::updateNormalAttackStateOnStart() // ê° êµ¬ê°„ì˜ ê¸°ë³¸ê³µê²©(ì—°ì†ê³µê²©ì´ë‹ˆê¹Œ) ìˆ˜í–‰ í›„, ìƒíƒœê°’ ì—…ë°ì´íŠ¸.
 {
 	rotateUsingControllerYawAndInput();
 	m_bCanNextCombo = true;
@@ -297,13 +297,13 @@ void AMainPlayer::initAssets()
 	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
 	m_SpringArm->TargetArmLength = 600;
 
-	// ½ºÇÁ¸µ¾ÏÀÇ È¸Àü °ªÀ» ÄÁÆ®·Ñ È¸Àü °ª°ú µ¿ÀÏÇÏ°Ô ¸ÂÃçÁØ´Ù.
+	// ìŠ¤í”„ë§ì•”ì˜ íšŒì „ ê°’ì„ ì»¨íŠ¸ë¡¤ íšŒì „ ê°’ê³¼ ë™ì¼í•˜ê²Œ ë§žì¶°ì¤€ë‹¤.
 	m_SpringArm->bUsePawnControlRotation = true;
 	m_SpringArm->bInheritPitch = true;
 	m_SpringArm->bInheritRoll = true;
 	m_SpringArm->bInheritYaw = true;
 
-	// true·Î ÇÒ °æ¿ì, Ä«¸Þ¶ó¿Í Ä³¸¯ÅÍ»çÀÌ¿¡ Àå¾Ö¹°ÀÌ ÀÖÀ» °æ¿ì, ÁÜ ±â´ÉÀ» È°¼ºÈ­ ÇØÁØ´Ù.
+	// trueë¡œ í•  ê²½ìš°, ì¹´ë©”ë¼ì™€ ìºë¦­í„°ì‚¬ì´ì— ìž¥ì• ë¬¼ì´ ìžˆì„ ê²½ìš°, ì¤Œ ê¸°ëŠ¥ì„ í™œì„±í™” í•´ì¤€ë‹¤.
 	m_SpringArm->bDoCollisionTest = false;
 
 	// TargetCamera
@@ -324,9 +324,9 @@ void AMainPlayer::initAssets()
 	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
 	m_SwordCollider->SetCapsuleRadius(10.0f);
 	m_SwordCollider->SetCollisionProfileName(TEXT("AttackCollider"));
-	m_SwordCollider->SetGenerateOverlapEvents(true); // ºí·çÇÁ¸°Æ®ÀÇ Generate Overlap Events¿¡ ´ëÀÀµÇ´Â ÄÚµå.
+	m_SwordCollider->SetGenerateOverlapEvents(true); // ë¸”ë£¨í”„ë¦°íŠ¸ì˜ Generate Overlap Eventsì— ëŒ€ì‘ë˜ëŠ” ì½”ë“œ.
 	m_SwordCollider->SetNotifyRigidBodyCollision(false);
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // ÇÊ¿äÇÒ¶§¸¸ Å°±â
+	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // í•„ìš”í• ë•Œë§Œ í‚¤ê¸°
 	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::checkOverlapSwordCollision);
 
 
@@ -355,20 +355,20 @@ void AMainPlayer::initAssets()
 
 
 
-	// ÀÌ¿Ü CharacterMovement Detail°ªµé
+	// ì´ì™¸ CharacterMovement Detailê°’ë“¤
 
-	// true·Î ÇÒ °æ¿ì, ÄÁÆ®·Ñ·¯ÀÇ È¸Àü¹æÇâÀ¸·Î Ä³¸¯ÅÍ¸¦ È¸Àü½ÃÄÑÁÜ.
+	// trueë¡œ í•  ê²½ìš°, ì»¨íŠ¸ë¡¤ëŸ¬ì˜ íšŒì „ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ë¥¼ íšŒì „ì‹œì¼œì¤Œ.
 	bUseControllerRotationYaw = false;
 
-	// true·Î ÇÒ °æ¿ì, Ä³¸¯ÅÍ°¡ ¿òÁ÷ÀÌ·Á´Â ¹æÇâÀ¸·Î Ä³¸¯ÅÍ¸¦ ÀÚµ¿À¸·Î È¸Àü½ÃÄÑ ÁØ´Ù.
+	// trueë¡œ í•  ê²½ìš°, ìºë¦­í„°ê°€ ì›€ì§ì´ë ¤ëŠ” ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ë¥¼ ìžë™ìœ¼ë¡œ íšŒì „ì‹œì¼œ ì¤€ë‹¤.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
-	// ÄÁÆ®·Ñ·¯°¡ "¿øÇÏ´Â" ¹æÇâÀ¸·Î Ä³¸¯ÅÍ¸¦ È¸ÀüÇÑ´Ù.
-	// Áï, ¿À¸¥ÂÊ+À§¸¦ ´©¸£¸é "Á¤È®È÷" 45µµ ¹æÇâÀ¸·Î Ä³¸¯ÅÍ°¡ È¸ÀüÇØ¼­ ÀÌµ¿ÇÏ´Â ½ÄÀÌ´Ù.
-	// ½ÇÁ¦·Î Ä³¸¯ÅÍÀÇ È¸Àü ¹æÇâÀÌ "µüµü ¶³¾îÁö´Â" ´À³¦À» ÁØ´Ù.
+	// ì»¨íŠ¸ë¡¤ëŸ¬ê°€ "ì›í•˜ëŠ”" ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ë¥¼ íšŒì „í•œë‹¤.
+	// ì¦‰, ì˜¤ë¥¸ìª½+ìœ„ë¥¼ ëˆ„ë¥´ë©´ "ì •í™•ížˆ" 45ë„ ë°©í–¥ìœ¼ë¡œ ìºë¦­í„°ê°€ íšŒì „í•´ì„œ ì´ë™í•˜ëŠ” ì‹ì´ë‹¤.
+	// ì‹¤ì œë¡œ ìºë¦­í„°ì˜ íšŒì „ ë°©í–¥ì´ "ë”±ë”± ë–¨ì–´ì§€ëŠ”" ëŠë‚Œì„ ì¤€ë‹¤.
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
-	// È¸ÀüÀ» ºÎµå·´°Ô ¸¸µé¾î ÁÖ±â À§ÇØ RotationRate ¸¦ Á¶Á¤ÇÑ´Ù. °ªÀÌ ³·À»¼ö·Ï Ä«¸Þ¶ó È¸Àü½Ã Ä³¸¯ÅÍ°¡ ÇÑ¹ÚÀÚ ´À¸®°Ô È¸Àü.
+	// íšŒì „ì„ ë¶€ë“œëŸ½ê²Œ ë§Œë“¤ì–´ ì£¼ê¸° ìœ„í•´ RotationRate ë¥¼ ì¡°ì •í•œë‹¤. ê°’ì´ ë‚®ì„ìˆ˜ë¡ ì¹´ë©”ë¼ íšŒì „ì‹œ ìºë¦­í„°ê°€ í•œë°•ìž ëŠë¦¬ê²Œ íšŒì „.
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
@@ -447,8 +447,8 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// AxisMappings
 	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AMainPlayer::Turn); // Mouse X 
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AMainPlayer::LookUp); // Mouse Y
-	PlayerInputComponent->BindAxis(TEXT("Horizontal"), this, &AMainPlayer::InputHorizontal); // ÁÂ, ¿ì (A,D) 
-	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &AMainPlayer::InputVertical); // Àü,ÈÄ (W,S)
+	PlayerInputComponent->BindAxis(TEXT("Horizontal"), this, &AMainPlayer::InputHorizontal); // ì¢Œ, ìš° (A,D) 
+	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &AMainPlayer::InputVertical); // ì „,í›„ (W,S)
 
 	// ActionMappings
 	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Pressed, this, &AMainPlayer::TriggerPressedShift);

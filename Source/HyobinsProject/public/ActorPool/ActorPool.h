@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ActorPool.generated.h"
 
-// 라이더 깃 커밋 테스트
+
 USTRUCT()
 struct FActors
 {
@@ -23,8 +23,7 @@ class HYOBINSPROJECT_API AActorPool : public AActor
 
 public:
 	AActorPool();
-
-	// �߰�ȣ���� �� ���, �߰�ȣ���� 'actorCount - ���������� ������ ����' ��ŭ�� �����Ѵ�.
+	
 	void CreateActorPool(TSubclassOf<AActor> classType, int actorCount);
 	void CreateBlueprintActorPool(FName path, int actorCount);
 

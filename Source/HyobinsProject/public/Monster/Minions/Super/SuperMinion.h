@@ -27,7 +27,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetCommonState(EMonsterCommonStates commonState);
+	virtual void SetCommonState(EMonsterCommonStates commonState) override;
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 
@@ -49,7 +49,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 
-	TMap<FName, FAttackInfoStruct> m_AttackInformations; // юс╫ц.
+	TMap<FName, FAttackInfoStruct> m_AttackInformations; // О©╫с╫О©╫.
 
 	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;
 	TWeakObjectPtr<class ASuperMinionAIController> m_OwnerAIController;

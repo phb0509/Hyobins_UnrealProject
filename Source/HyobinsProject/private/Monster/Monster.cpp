@@ -35,7 +35,7 @@ void AMonster::Initialize()
 
 void AMonster::Activate()
 {
-	//m_StatComponent->InitHP();
+	m_StatComponent->InitHP();
 	m_bIsActivated = true;
 	m_bIsDeath = false;
 	m_AIControllerBase->OnPossess(this);
@@ -64,6 +64,7 @@ void AMonster::DeActivate()
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	for (UShapeComponent* collider : m_HitColliders)
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);

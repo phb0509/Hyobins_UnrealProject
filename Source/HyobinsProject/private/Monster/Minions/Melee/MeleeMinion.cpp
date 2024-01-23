@@ -74,7 +74,7 @@ void AMeleeMinion::NormalAttack()
 	m_AnimInstance->PlayMontage("NormalAttack1",m_NormalAttackSpeed);
 }
 
-void AMeleeMinion::ExecDeathEvent() // Å¸ÀÌ¸Ó ½Ã°£ ¹×, È£Ãâºóµµ¼ö Á¤ÀÇ
+void AMeleeMinion::ExecDeathEvent() 
 {
 	m_DeathTimerRemainingTime = m_DeathTimerTime;
 	m_DeathTimerTickTime = m_DeathTimerTime / 100; 
@@ -108,11 +108,11 @@ void AMeleeMinion::OnHitTimerEnded()
 
 void AMeleeMinion::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
-	int curState = (uint8)m_CurState;
+	uint8 curStateIndex = static_cast<uint8>(m_CurState);
 
-	switch (curState)
+	switch (curStateIndex)
 	{
-	case (uint8)ENormalMinionStates::NormalAttack:
+	case static_cast<uint8>(ENormalMinionStates::NormalAttack):
 		onNormalAttackMontageEnded();
 		break;
 
@@ -145,21 +145,21 @@ void AMeleeMinion::SetState(ENormalMinionStates state)
 
 void AMeleeMinion::SetCommonState(EMonsterCommonStates commonState)
 {
-	int8 index = static_cast<int8>(commonState);
+	uint8 commonStateIndex = static_cast<uint8>(commonState);
 
-	switch (index)
+	switch (commonStateIndex)
 	{
-	case static_cast<int8>(EMonsterCommonStates::Patrol):
+	case static_cast<uint8>(EMonsterCommonStates::Patrol):
 		SetState(ENormalMinionStates::Patrol);
 		break;
 
-	case static_cast<int8>(EMonsterCommonStates::Hit):
+	case static_cast<uint8>(EMonsterCommonStates::Hit):
 		m_AnimInstance->StopAllMontages(0.1f);
 		SetState(ENormalMinionStates::Hit);
 		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
 		break;
 
-	case static_cast<int8>(EMonsterCommonStates::Die):
+	case static_cast<uint8>(EMonsterCommonStates::Die):
 		break;
 
 	default:
@@ -183,7 +183,7 @@ void AMeleeMinion::initAssets()
 	hitCollider->SetupAttachment(RootComponent);
 	hitCollider->SetCapsuleHalfHeight(60.0f);
 	hitCollider->SetCapsuleRadius(60.0f);
-	hitCollider->SetCollisionProfileName(TEXT("HitCollider")); // HitCollider ÇÁ¸®¼Â
+	hitCollider->SetCollisionProfileName(TEXT("HitCollider")); // HitCollider ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	hitCollider->SetNotifyRigidBodyCollision(false);
 	hitCollider->SetGenerateOverlapEvents(true);

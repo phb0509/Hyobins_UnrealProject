@@ -51,7 +51,7 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
 	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath is Not Valid"));
 
-	UBlueprint* blueprintActor = Cast<UBlueprint>(loadedActor);
+	const UBlueprint* blueprintActor = Cast<UBlueprint>(loadedActor);
 	checkf(IsValid(blueprintActor), TEXT("Failed to Cast to Blueprint"));
 
 	TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;

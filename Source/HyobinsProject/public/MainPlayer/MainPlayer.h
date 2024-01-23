@@ -65,14 +65,12 @@ private:
 	void onCalledNotify_NormalAttackNextCheck();
 	void onCalledNotify_EndedNormalAttack();
 	void onCalledNotify_EndedDodgeMove();
-	
-
 	void printLog();
 
 public:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
-		class USpringArmComponent* m_SpringArm; // ÀÌ ÄÄÆ÷³ÍÆ®·Î µî·ÏµÈ ÀÚ½Ä ÄÄÆ÷³ÍÆ®¸¦
-												// ÀÚ½Å°úÀÇ ÁöÁ¤µÈ °Å¸® ¾È¿¡ À¯ÁöµÇµµ·Ï Ã³¸®ÇÑ´Ù.
+		class USpringArmComponent* m_SpringArm; // ì´ ì»´í¬ë„ŒíŠ¸ë¡œ ë“±ë¡ëœ ìì‹ ì»´í¬ë„ŒíŠ¸ë¥¼
+												// ìì‹ ê³¼ì˜ ì§€ì •ëœ ê±°ë¦¬ ì•ˆì— ìœ ì§€ë˜ë„ë¡ ì²˜ë¦¬í•œë‹¤.
 
 	UPROPERTY(VisibleAnywhere, Category = Camera)
 		class UCameraComponent* m_TargetCamera;
@@ -87,7 +85,7 @@ public:
 		class UBoxComponent* m_ShieldColliderForShield;
 
 private:
-	TMap<FName, FAttackInfoStruct> m_AttackInformations; // ÀÓ½Ã. 
+	TMap<FName, FAttackInfoStruct> m_AttackInformations; // ì„ì‹œ. 
 	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;
 
 	float m_ArmLengthTo;

@@ -24,7 +24,7 @@ public:
 
 private:
 	UFUNCTION()
-		void AnimNotify_OnDeathMontageEnded(); // Notify를 실행시키는 함수.
+		void AnimNotify_OnDeathMontageEnded(); // 
 
 public:
 	FOnDeathMontageEndedDelegate OnDeathMontageEnded;
