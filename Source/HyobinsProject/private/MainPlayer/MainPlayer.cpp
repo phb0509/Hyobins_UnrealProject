@@ -31,7 +31,7 @@ AMainPlayer::AMainPlayer() :
 	m_CurInputVertical(0),
 	m_TempInputHorizontalForDodge(0),
 	m_TempInputVerticalForDodge(0),
-	m_TempIsAttacking(false),
+	m_bTempIsAttacking(false),
 	m_bCanNextCombo(false),
 	m_bIsInputOnNextCombo(false),
 	m_CurNormalAttackCombo(0),
@@ -44,31 +44,27 @@ AMainPlayer::AMainPlayer() :
 
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
-
-
-	// 지울예정.
+	
+	// 지울예정. GameInstance말고 서브시스템으로 다 기능 분할할것임.
 	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	HPGameInstance->InitAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'", m_AttackInformations);
 	
-	//initAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
-
 	initAssets();
 }
 
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
-
-	//SetActorLocation(FVector(-5780.0f, 6720.0f, 7210.0f));
+	
 	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onMontageEnded);
 
 	// Notify
-	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck);
-	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck);
-	m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &AMainPlayer::onCalledNotify_EndedNormalAttack);
+	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck); // 충돌검사 할 타이밍에 호출할 함수.
+	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck); // 콤보연계를 위한 키입력을 체크하는 타이밍에 호출할 함수.
+	m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &AMainPlayer::onCalledNotify_EndedNormalAttack); // 한 콤보 끝날때마다 호출할 함수.
 	m_AnimInstance->OnEndedDodgeMove.AddUObject(this, &AMainPlayer::onCalledNotify_EndedDodgeMove);
 }
 
@@ -86,7 +82,7 @@ void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 {
 	if (m_bIsDodgeMoving) return;
 
-	if (m_bIsAttacking)
+	if (m_bIsAttacking) // 공격중이고,
 	{
 		if (m_bCanNextCombo)
 		{
@@ -156,6 +152,11 @@ void AMainPlayer::onCalledNotify_EndedNormalAttack()
 	m_CurNormalAttackCombo = 0;
 }
 
+void AMainPlayer::onCalledNotify_EndedDodgeMove()
+{
+	m_bIsDodgeMoving = false;
+}
+
 void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
 {
 	if (m_CurNormalAttackCombo == 3) // 방패로 공격하는 타이밍
@@ -168,14 +169,9 @@ void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
 	}
 }
 
-void AMainPlayer::onCalledNotify_EndedDodgeMove()
-{
-	m_bIsDodgeMoving = false;
-}
-
 void AMainPlayer::updateNormalAttackStateOnStart() // 각 구간의 기본공격(연속공격이니까) 수행 후, 상태값 업데이트.
 {
-	rotateUsingControllerYawAndInput();
+	rotateUsingControllerYawAndInput(); // 공격시마다 컨트롤러의 Forword방향에 따라 캐릭터를 회전.
 	m_bCanNextCombo = true;
 	m_bIsInputOnNextCombo = false;
 	m_CurNormalAttackCombo = FMath::Clamp<int32>(m_CurNormalAttackCombo + 1, 1, m_NormalAttackMaxCombo);
@@ -235,26 +231,25 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 
 }
 
-void AMainPlayer::TriggerPressedSpaceBar()
+void AMainPlayer::TriggerPressedSpaceBar() // 스페이스바 입력시,
 {
-	if (m_bIsDodgeMoving) return;
-
-	m_bIsDodgeMoving = true;
-	m_AnimInstance->StopAllMontages(0.1f);
-
-	m_TempInputHorizontalForDodge = m_CurInputHorizontal;
-	m_TempInputVerticalForDodge = m_CurInputVertical;
-	m_TempIsAttacking = m_bIsAttacking;
-
-	if (m_bIsAttacking)
+	if (GetCharacterMovement()->IsMovingOnGround()) // 지면에 있는 상태면서,
 	{
-		onCalledNotify_EndedNormalAttack();
-		setRotationToControllerYaw();
-	}
-	else
-	{
-		rotateUsingControllerYawAndInput();
-		m_AnimInstance->PlayMontage("Dodge_NonCombat", 1.0f);
+		if (m_bIsAttacking == true) // 공격중이면서,
+		{
+			if (m_bIsDodgeMoving == false) // 이미 Dodge수행중 아니면,
+			{
+				m_bIsDodgeMoving = true; // ABP FSM에서 Move -> Dodge 상태로 변환하기 위한 조건 1.
+				m_bTempIsAttacking = m_bIsAttacking; // ABP FSM에서 Move -> Dodge 상태로 변환하기 위한 조건 2.
+				m_AnimInstance->StopAllMontages(0.1f); // 빠른 모션변환을 위해 현재 재생중인 몽타주 Stop.
+
+				m_TempInputHorizontalForDodge = m_CurInputHorizontal; // 블렌드스페이스에 사용하기위한 값 갱신. 키입력 시점기준에서의 값만 필요하기 때문에 따로 Temp변수 사용.
+				m_TempInputVerticalForDodge = m_CurInputVertical; // 동일.
+			
+				onCalledNotify_EndedNormalAttack(); // 공격행위를 정상적으로 종료.(공격도중에 수행하는거니까)
+				setRotationToControllerYaw();
+			}
+		}
 	}
 }
 
@@ -375,7 +370,8 @@ void AMainPlayer::initAssets()
 void AMainPlayer::updateState()
 {
 	m_CurSpeed = GetVelocity().Size();
-	m_bIsInAir = GetMovementComponent()->IsFalling();
+	//m_bIsInAir = GetMovementComponent()->IsFalling();
+	m_bIsInAir = GetCharacterMovement()->IsFalling();
 
 	if (!m_bIsInAir)
 	{

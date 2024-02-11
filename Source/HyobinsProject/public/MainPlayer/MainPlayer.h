@@ -121,7 +121,7 @@ private:
 	int m_TempInputVerticalForDodge;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	bool m_TempIsAttacking;
+	bool m_bTempIsAttacking;
 
 	bool m_bCanNextCombo;
 	bool m_bIsInputOnNextCombo;

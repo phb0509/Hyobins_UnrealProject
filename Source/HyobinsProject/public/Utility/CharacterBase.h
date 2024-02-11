@@ -37,9 +37,9 @@ protected:
 	virtual void ExecDeathEvent() {};
 
 	// IPoolableActor
-	virtual void Initialize() {};
-	virtual void Activate() {};
-	virtual void DeActivate() {};
+	virtual void Initialize() override {};
+	virtual void Activate() override {};
+	virtual void DeActivate() override {};
 
 protected:
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;

@@ -11,7 +11,7 @@ UMainPlayerAnim::UMainPlayerAnim()
 	
 }
 
-void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
+void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() //  
 {
 	OnNormalAttackHitCheck.Broadcast();
 }
