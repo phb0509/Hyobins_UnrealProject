@@ -8,7 +8,7 @@
 #include "Components/SceneComponent.h"
 #include "UI/HPBar.h"
 
-void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize)
+void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize)
 {
 	checkf(actor->GetClass()->ImplementsInterface(UStatActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
 	IStatActor* castedStatActor = Cast<IStatActor>(actor);
@@ -46,7 +46,7 @@ void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, FNam
 	m_UIWidgets[widgetClass].Add(widgetObject);
 }
 
-void UUIManager::HideWidgets(FName path)
+void UUIManager::HideWidgets(const FName& path)
 {
 	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
@@ -58,7 +58,7 @@ void UUIManager::HideWidgets(FName path)
 	}
 }
 
-void UUIManager::ShowWidgets(FName path)
+void UUIManager::ShowWidgets(const FName& path)
 {
 	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
@@ -70,7 +70,7 @@ void UUIManager::ShowWidgets(FName path)
 	}
 }
 
-void UUIManager::ClearWidgets(FName path)
+void UUIManager::ClearWidgets(const FName& path)
 {
 	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));

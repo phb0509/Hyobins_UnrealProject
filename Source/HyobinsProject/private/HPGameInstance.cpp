@@ -32,7 +32,7 @@ void UHPGameInstance::StartGameInstance()
 	UE_LOG(LogTemp, Warning, TEXT("Call the HPGameInstance::StartGameInstance!"));
 }
 
-void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations)
+void UHPGameInstance::InitAttackInformations(IN const FString& assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations)
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_Object(*assetPath);
 
@@ -73,7 +73,7 @@ void UHPGameInstance::InitAttackInformations(IN FString assetPath, OUT TMap<FNam
 	}
 }
 
-int32 UHPGameInstance::GetIndexByEnumName(FName& enumClassName, FName& enumTypeName)
+int32 UHPGameInstance::GetIndexByEnumName(const FName& enumClassName, const FName& enumTypeName)
 {
 	return m_Enums[enumClassName]->GetIndexByName(enumTypeName);
 }

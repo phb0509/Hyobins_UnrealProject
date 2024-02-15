@@ -59,10 +59,10 @@ public:
 	virtual void Shutdown() override;
 	virtual void StartGameInstance() override;
 
-	void InitAttackInformations(IN FString assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
+	void InitAttackInformations(IN const FString& assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
 
 	class AActorPool* GetActorPool() { return m_ActorPool; }
-	int32 GetIndexByEnumName(FName& enumClassName, FName& enumTypeName);
+	int32 GetIndexByEnumName(const FName& enumClassName, const FName& enumTypeName);
 
 private:
 	TMap<FName, UEnum*> m_Enums;

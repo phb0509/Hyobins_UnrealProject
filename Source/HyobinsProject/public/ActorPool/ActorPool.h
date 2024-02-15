@@ -25,10 +25,10 @@ public:
 	AActorPool();
 	
 	void CreateActorPool(TSubclassOf<AActor> classType, int actorCount);
-	void CreateBlueprintActorPool(FName path, int actorCount);
+	void CreateBlueprintActorPool(const FName& path, int actorCount);
 
-	TWeakObjectPtr<AActor> SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation = {0.0f, 0.0f, 0.0f});
-	TWeakObjectPtr<AActor> SpawnBlueprintActor(FName path, FVector spawnLocation = { 0.0f, 0.0f, 0.0f });
+	TWeakObjectPtr<AActor> SpawnActor(TSubclassOf<AActor> classType, const FVector& spawnLocation = {0.0f, 0.0f, 0.0f});
+	TWeakObjectPtr<AActor> SpawnBlueprintActor(const FName& path, const FVector& spawnLocation = { 0.0f, 0.0f, 0.0f });
 
 	void ClearActorPool();
 	void ClearBlueprintActorPool();

@@ -14,11 +14,11 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase
 
 public:
 	AMonster();
-
+	
 	float GetPatrolRange() { return m_PatrolRange; }
 	float GetNormalAttackRange() { return m_NormalAttackRange; }
 
-
+	
 protected:
 	virtual void ExecHitEvent(ACharacterBase* instigator) override;
 
@@ -27,6 +27,7 @@ protected:
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 
+	
 public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;

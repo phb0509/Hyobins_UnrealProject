@@ -18,9 +18,9 @@ class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
 public:
 	UAnimInstanceBase();
 
-	void PlayMontage(FName montageName, float inPlayRate = 1.0f);
-	void JumpToMontageSection(FName montageName, int32 newSection);
-	UAnimMontage* GetMontage(FName montageName);
+	void PlayMontage(const FName& montageName, float inPlayRate = 1.0f);
+	void JumpToMontageSection(const FName& montageName, int32 newSection);
+	UAnimMontage* GetMontage(const FName& montageName);
 
 private:
 	UFUNCTION()

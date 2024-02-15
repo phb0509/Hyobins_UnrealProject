@@ -16,7 +16,7 @@ Utility::~Utility()
 
 }
 
-int32 Utility::GetHitDirection(AActor* hitActor, AActor* attackActor) // 공격당한 액터, 공격한 액터
+int32 Utility::GetHitDirection(const AActor* hitActor, const AActor* attackActor) // 공격당한 액터, 공격한 액터
 {
 	FVector forward = hitActor->GetActorForwardVector();
 	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation(); // hitActor -> attackActor 벡터.

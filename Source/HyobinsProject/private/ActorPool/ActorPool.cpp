@@ -46,7 +46,7 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 	}
 }
 
-void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
+void AActorPool::CreateBlueprintActorPool(const FName& path, int actorCount)
 {
 	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
 	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath is Not Valid"));
@@ -88,10 +88,10 @@ void AActorPool::CreateBlueprintActorPool(FName path, int actorCount)
 	}
 }
 
-TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVector spawnLocation)
+TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, const FVector& spawnLocation)
 {
 	checkf(IsValid(classType), TEXT("ClassTypes doesn't inherit from Actor"));
-
+	
 	if (m_ActorPool.Contains(classType) == false)
 	{
 		CreateActorPool(classType, m_DefaultSpawnCount);
@@ -123,7 +123,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, FVe
 	return actor;
 }
 
-TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(FName path, FVector spawnLocation)
+TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const FName& path, const FVector& spawnLocation)
 {
 	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
 	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath isn't Valid"));

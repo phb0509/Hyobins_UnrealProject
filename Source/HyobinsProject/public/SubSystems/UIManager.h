@@ -16,10 +16,10 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override {}
 	virtual void Deinitialize() override {}
 
-	void CreateHPBarComponent(class AActor* actor, class USceneComponent* mesh, FName subObjectName, FString assetPath, FVector relativeLocation, FVector2D drawSize);
-	void HideWidgets(FName path);
-	void ShowWidgets(FName path);
-	void ClearWidgets(FName path);
+	void CreateHPBarComponent(class AActor* actor, class USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize);
+	void HideWidgets(const FName& path);
+	void ShowWidgets(const FName& path);
+	void ClearWidgets(const FName& path);
 	void ClearAllWidgets();
 	
 

@@ -10,7 +10,7 @@ UAnimInstanceBase::UAnimInstanceBase()
 
 }
 
-void UAnimInstanceBase::PlayMontage(FName montageName, float inPlayRate)
+void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
 {
 	if (m_Montages.Contains(montageName))
 	{
@@ -19,7 +19,7 @@ void UAnimInstanceBase::PlayMontage(FName montageName, float inPlayRate)
 	}
 }
 
-void UAnimInstanceBase::JumpToMontageSection(FName montageName, int32 newSection)
+void UAnimInstanceBase::JumpToMontageSection(const FName& montageName, int32 newSection)
 {
 	if (m_Montages.Contains(montageName))
 	{
@@ -30,7 +30,7 @@ void UAnimInstanceBase::JumpToMontageSection(FName montageName, int32 newSection
 	}
 }
 
-UAnimMontage* UAnimInstanceBase::GetMontage(FName montageName)
+UAnimMontage* UAnimInstanceBase::GetMontage(const FName& montageName)
 {
 	if (m_Montages.Contains(montageName))
 	{
