@@ -76,7 +76,7 @@ void ASuperMinion::NormalAttack()
 
 	SetState(ENormalMinionStates::NormalAttack);
 	m_OwnerAIController->StopBehaviorTree();
-	m_AnimInstance->PlayMontage("NormalAttack1");
+	m_AnimInstance->PlayMontage("NormalAttack1",m_NormalAttackSpeed);
 }
 
 void ASuperMinion::ExecDeathEvent()

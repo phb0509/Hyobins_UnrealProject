@@ -38,7 +38,7 @@ void ACharacterBase::PossessedBy(AController* newController)
 {
 	Super::PossessedBy(newController);
 
-	FString temp = Tags[0].ToString() + " :: CharacterBase :: Possessedby!!";
+	FString temp = Tags[0].ToString() + " :: CharacterBase :: PossessedBy!!";
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *temp);
 
 	m_AIControllerBase = Cast<AAIControllerBase>(newController);
