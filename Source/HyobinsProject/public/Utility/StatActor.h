@@ -20,7 +20,7 @@ class HYOBINSPROJECT_API IStatActor // 추상클래스처럼 사용.
 	GENERATED_BODY()
 
 public:
-	UStatComponent* GetStatComponent() { return m_StatComponent; }
+	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
 
 protected:
 	UStatComponent* m_StatComponent;

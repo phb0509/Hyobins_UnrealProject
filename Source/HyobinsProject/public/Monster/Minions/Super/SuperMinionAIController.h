@@ -18,8 +18,7 @@ public:
 	virtual void OnPossess(APawn* pawn) override;
 	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 
-	//UFUNCTION()
-		void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus);
+	void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus);
 
 
 private:

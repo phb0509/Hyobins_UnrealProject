@@ -16,5 +16,5 @@ class HYOBINSPROJECT_API UBTS_SetPatrolState : public UBTService
 public:
 	UBTS_SetPatrolState();
 
-	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
+	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

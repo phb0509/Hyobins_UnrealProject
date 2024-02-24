@@ -11,7 +11,7 @@ public:
 	Utility();
 	~Utility();
 
-	static double ConvertToDegree(int inputVertical, int inputHorizontal) { return m_DegreeTable[inputVertical + 1][inputHorizontal + 1]; }
+	static FORCEINLINE double ConvertToDegree(int inputVertical, int inputHorizontal) { return m_DegreeTable[inputVertical + 1][inputHorizontal + 1]; }
 	static int32 GetHitDirection(const AActor* hitActor, const AActor* attackActor);
 
 private:

@@ -59,7 +59,7 @@ void AMainPlayer::BeginPlay()
 	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
 	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-	m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onMontageEnded);
+	//m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onMontageEnded);
 
 	// Notify
 	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck); // 충돌검사 할 타이밍에 호출할 함수.
@@ -123,9 +123,9 @@ void AMainPlayer::checkOverlapShieldCollisionForShield(UPrimitiveComponent* HitC
 
 }
 
-void AMainPlayer::onMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-{
-}
+// void AMainPlayer::onMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+// {
+// }
 
 void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
 {
@@ -270,6 +270,7 @@ void AMainPlayer::initAssets()
 	{
 		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
 		GetCapsuleComponent()->SetCapsuleRadius(40.0f);
+		
 		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
 	}
 	else
@@ -370,7 +371,6 @@ void AMainPlayer::initAssets()
 void AMainPlayer::updateState()
 {
 	m_CurSpeed = GetVelocity().Size();
-	//m_bIsInAir = GetMovementComponent()->IsFalling();
 	m_bIsInAir = GetCharacterMovement()->IsFalling();
 
 	if (!m_bIsInAir)
@@ -419,19 +419,19 @@ void AMainPlayer::printLog()
 
 void AMainPlayer::rotateUsingControllerYawAndInput()
 {
-	FRotator controllerRotation = GetControlRotation();
-	FRotator actorRotation = GetActorRotation();
-	double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
-
-	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw + degree, actorRotation.Roll };
+	const FRotator controllerRotation = GetControlRotation();
+	const FRotator actorRotation = GetActorRotation();
+	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
+	const FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw + degree, actorRotation.Roll };
+	
 	SetActorRotation(temp);
 }
 
 void AMainPlayer::setRotationToControllerYaw()
 {
-	FRotator controllerRotation = GetControlRotation();
-	FRotator actorRotation = GetActorRotation();
-	FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
+	const FRotator controllerRotation = GetControlRotation();
+	const FRotator actorRotation = GetActorRotation();
+	const FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
 
 	SetActorRotation(temp);
 }

@@ -17,5 +17,5 @@ class HYOBINSPROJECT_API UBTS_FindPatrolPos : public UBTService
 public:
 	UBTS_FindPatrolPos();
 
-	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory);
+	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

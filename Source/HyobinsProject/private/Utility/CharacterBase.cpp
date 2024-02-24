@@ -63,7 +63,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 	if (!m_bIsDeath)
 	{
-		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter);
+		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 블렌드스페이스용 변수
 		ExecHitEvent(instigatorCharacter);
 
 		if (!m_bIsSuperArmor)
@@ -107,4 +107,3 @@ void ACharacterBase::OnCalledDeathMontageEndedNotify()
 	// 액터풀에 반환하기위한 비활성화타이머.
 	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ACharacterBase::DeActivate, m_DeathTimerTime, true);
 }
-

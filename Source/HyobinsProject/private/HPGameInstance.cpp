@@ -38,23 +38,23 @@ void UHPGameInstance::InitAttackInformations(IN const FString& assetPath, OUT TM
 
 	if (DT_Object.Succeeded())
 	{
-		UDataTable* DT_AttackInformations = DT_Object.Object;
+		const UDataTable* DT_AttackInformations = DT_Object.Object;
 
 		TArray<FName> attackNames = DT_AttackInformations->GetRowNames();
 
 		for (auto& attackName : attackNames)
 		{
-			FHPAttackInformationData data =
+			const FHPAttackInformationData data =
 				*(DT_AttackInformations->FindRow<FHPAttackInformationData>(attackName, attackName.ToString()));
 
 			ECrowdControlType crowdControlType = ECrowdControlType::None;
 
 			const UEnum* crowdControlEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
 
-			if (crowdControlEnum)
+			if (crowdControlEnum != nullptr)
 			{
-				int32 Index = crowdControlEnum->GetIndexByName(data.crowdControlType);
-				crowdControlType = ECrowdControlType((uint8)Index);
+				const int32 index = crowdControlEnum->GetIndexByName(data.crowdControlType);
+				crowdControlType = ECrowdControlType((uint8)index);
 			}
 
 			FAttackInfoStruct attackInfoStruct;
@@ -73,7 +73,7 @@ void UHPGameInstance::InitAttackInformations(IN const FString& assetPath, OUT TM
 	}
 }
 
-int32 UHPGameInstance::GetIndexByEnumName(const FName& enumClassName, const FName& enumTypeName)
+int32 UHPGameInstance::GetIndexByEnumName(const FName& enumClassName, const FName& enumTypeName) const
 {
 	return m_Enums[enumClassName]->GetIndexByName(enumTypeName);
 }

@@ -13,7 +13,7 @@ UCLASS()
 class HYOBINSPROJECT_API UHPBar : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
 	void BindStatComponent(class UStatComponent* statComponent);
 	void SetExecuteState();
@@ -27,5 +27,5 @@ protected:
 	TWeakObjectPtr<class UStatComponent> m_StatComponent;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TWeakObjectPtr<class UProgressBar> m_HPProgressBar;
+	TWeakObjectPtr<class UProgressBar> m_HPProgressBar;
 };

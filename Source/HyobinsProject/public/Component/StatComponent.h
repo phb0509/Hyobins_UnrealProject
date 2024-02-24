@@ -21,15 +21,15 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	void InitHP() { m_CurHP = m_MaxHP; }
-	void ChangeMaxHP(float hp) { m_MaxHP = hp; }
+	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
+	FORCEINLINE void ChangeMaxHP(const float hp) { m_MaxHP = hp; }
 
 	// Get
-	float GetHPRatio();
+	FORCEINLINE float GetHPRatio() const;
 
 	// Set
-	void SetDamage(float damage);
-	void SetHP(float hp);
+	void SetDamage(const float damage);
+	void SetHP(const float hp);
 
 	FOnHPIsZeroDelegate OnHPIsZero;
 	FOnHPIsChangedDelegate OnHPIsChanged;

@@ -113,7 +113,7 @@ void ASuperMinion::OnHitTimerEnded()
 
 void ASuperMinion::onMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
 {
-	uint8 curStateIndex = static_cast<uint8>(m_CurState);
+	const uint8 curStateIndex = static_cast<uint8>(m_CurState);
 
 	switch (curStateIndex)
 	{

@@ -5,9 +5,8 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "Engine/GameInstance.h"
-#include "Utility/CustomStructs.h" 
+#include "Utility/CustomStructs.h"
 #include "HPGameInstance.generated.h"
-
 
 
 USTRUCT(BlueprintType)
@@ -16,34 +15,43 @@ struct FHPAttackInformationData : public FTableRowBase
 	GENERATED_BODY()
 
 public:
-	FHPAttackInformationData() : attackName(""), damage(-1.0f), bIsDot(false), bHasCrowdControl(false), crowdControlType("None"), crowdControlTime(-1.0f), bHasKnockBack(false), knockBackTime(-1.0f), knockBackDistance(-1.0f) {}
+	FHPAttackInformationData() :
+	attackName(""),
+	damage(-1.0f),
+	bIsDot(false),
+	bHasCrowdControl(false),
+	crowdControlType("None"),
+	crowdControlTime(-1.0f),
+	bHasKnockBack(false),
+	knockBackTime(-1.0f), knockBackDistance(-1.0f)
+	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		FName attackName;
+	FName attackName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		float damage;
+	float damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		bool bIsDot;
+	bool bIsDot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		bool bHasCrowdControl;
+	bool bHasCrowdControl;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		FName crowdControlType;
+	FName crowdControlType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		float crowdControlTime;
+	float crowdControlTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		bool bHasKnockBack;
+	bool bHasKnockBack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		float knockBackTime;
+	float knockBackTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-		float knockBackDistance;
+	float knockBackDistance;
 };
 
 
@@ -61,14 +69,12 @@ public:
 
 	void InitAttackInformations(IN const FString& assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
 
-	class AActorPool* GetActorPool() { return m_ActorPool; }
-	int32 GetIndexByEnumName(const FName& enumClassName, const FName& enumTypeName);
+	FORCEINLINE class AActorPool* GetActorPool() const { return m_ActorPool; }
+	FORCEINLINE int32 GetIndexByEnumName(const FName& enumClassName, const FName& enumTypeName) const;
 
 private:
 	TMap<FName, UEnum*> m_Enums;
 
 	UPROPERTY()
 	class AActorPool* m_ActorPool;
-
 };
-

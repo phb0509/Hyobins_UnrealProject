@@ -22,7 +22,7 @@ public:
 
 	void NormalAttack();
 
-	ENormalMinionStates GetState() { return m_CurState; }
+	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
 	void SetState(ENormalMinionStates state);
 
 protected:
@@ -49,8 +49,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 
-	TMap<FName, FAttackInfoStruct> m_AttackInformations; // �ӽ�.
-
+	TMap<FName, FAttackInfoStruct> m_AttackInformations;
 	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;
 	TWeakObjectPtr<class ASuperMinionAIController> m_OwnerAIController;
 };

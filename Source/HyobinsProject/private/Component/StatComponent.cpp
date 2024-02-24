@@ -13,20 +13,21 @@ UStatComponent::UStatComponent() :
 void UStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	InitHP();
 }
 
-float UStatComponent::GetHPRatio()
+FORCEINLINE float UStatComponent::GetHPRatio() const
 {
 	return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP);
 }
 
-void UStatComponent::SetDamage(float damage)
+void UStatComponent::SetDamage(const float damage)
 {
 	SetHP(FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP));
 }
 
-void UStatComponent::SetHP(float hp)
+void UStatComponent::SetHP(const float hp)
 {
 	m_CurHP = hp;
 	OnHPIsChanged.Broadcast();
