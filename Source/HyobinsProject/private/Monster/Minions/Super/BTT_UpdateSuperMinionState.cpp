@@ -15,13 +15,13 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
+	ASuperMinion* const owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
 	checkf(IsValid(owner), TEXT("Owner isn't Valid"));
 
-	ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
+	const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 	checkf(IsValid(enemyOnBlackBoard), TEXT("Failed to Cast to enemyOnBlackBoard"));
 
-	float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
+	const float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
 
 	if (distanceToEnemy > owner->GetNormalAttackRange()) // 공격범위 밖이면
 	{

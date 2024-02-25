@@ -15,11 +15,11 @@ EBTNodeResult::Type UBTT_RotateToTarget::ExecuteTask(UBehaviorTreeComponent& Own
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
-	ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
+	AMonster* const owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 
-	FVector ToTarget = enemyOnBlackBoard->GetActorLocation() - owner->GetActorLocation();
-	FRotator LookAtRotation = FRotator(0.f, ToTarget.Rotation().Yaw, 0.f);
+	const FVector toTargetVector = enemyOnBlackBoard->GetActorLocation() - owner->GetActorLocation();
+	const FRotator LookAtRotation = FRotator(0.f, toTargetVector.Rotation().Yaw, 0.f);
 	owner->SetActorRotation(LookAtRotation);
 
 	return EBTNodeResult::Succeeded;

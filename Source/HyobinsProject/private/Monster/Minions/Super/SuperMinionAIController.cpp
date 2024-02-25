@@ -24,7 +24,6 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 	checkf(IsValid(m_BlackboardData), TEXT("BlackboardData isn't Valid"));
 
 	initPerceptionSystem();
-
 }
 
 void ASuperMinionAIController::OnPossess(APawn* pawn)
@@ -48,7 +47,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 {
 	if (m_Owner.IsValid())
 	{
-		ACharacterBase* perceivedCharacter = Cast<ACharacterBase>(actor);
+		ACharacterBase* const perceivedCharacter = Cast<ACharacterBase>(actor);
 
 		if (perceivedCharacter != nullptr)
 		{
@@ -71,7 +70,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 
 			case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
 			{
-				const ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
+				const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
 
 				if (enemyOnBlackBoard == nullptr) // 시야범위 안으로 적이 들어왔을 때
 				{
@@ -156,11 +155,11 @@ void ASuperMinionAIController::initPerceptionSystem()
 
 ETeamAttitude::Type ASuperMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const
 {
-	if (APawn const* OtherPawn = Cast<APawn>(&Other))
+	if (const APawn* otherPawn = Cast<APawn>(&Other))
 	{
-		if (auto const TeamAgent = Cast<IGenericTeamAgentInterface>(OtherPawn->GetController()))
+		if (const IGenericTeamAgentInterface* teamAgent = Cast<IGenericTeamAgentInterface>(otherPawn->GetController()))
 		{
-			if (TeamAgent->GetGenericTeamId() == FGenericTeamId(4))
+			if (teamAgent->GetGenericTeamId() == FGenericTeamId(4))
 			{
 				return ETeamAttitude::Friendly; 
 			}

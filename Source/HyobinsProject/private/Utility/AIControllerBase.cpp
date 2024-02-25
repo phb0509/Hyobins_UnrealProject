@@ -5,7 +5,6 @@
 
 AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer),
-	//Super(ObjectInitializer.SetDefaultSubobjectClass<UCrowdFollowingComponent>(TEXT("PathFollowingComponent"))),
 	m_TeamID(FGenericTeamId(0)),
 	m_SightRadius(300.0f),
 	m_LoseSightRadius(400.0f),

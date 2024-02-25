@@ -11,16 +11,16 @@
 void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize)
 {
 	checkf(actor->GetClass()->ImplementsInterface(UStatActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
-	IStatActor* castedStatActor = Cast<IStatActor>(actor);
+	const IStatActor* const castedStatActor = Cast<IStatActor>(actor);
 
-	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
+	UWidgetComponent* const widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
 	widgetComponent->SetupAttachment(mesh);
 	widgetComponent->SetRelativeLocation(relativeLocation);
 	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
 	widgetComponent->RegisterComponentWithWorld(GetWorld());
 
-	TSubclassOf<UUserWidget> widgetClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
+	const TSubclassOf<UUserWidget> widgetClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
 	if (widgetClass != nullptr)
@@ -29,10 +29,10 @@ void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, cons
 		widgetComponent->SetDrawSize(drawSize);
 	}
 
-	UUserWidget* widgetObject = widgetComponent->GetUserWidgetObject();
+	UUserWidget* const widgetObject = widgetComponent->GetUserWidgetObject();
 	checkf(widgetObject != nullptr, TEXT("Failed to Get UserWidgetObject"));
 
-	UHPBar* hpBar = Cast<UHPBar>(widgetObject);
+	UHPBar* const hpBar = Cast<UHPBar>(widgetObject);
 	checkf(hpBar != nullptr, TEXT("Failed to Cast To HPBar"));
 
 	hpBar->BindStatComponent(castedStatActor->GetStatComponent());
@@ -48,10 +48,10 @@ void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, cons
 
 void UUIManager::HideWidgets(const FName& path)
 {
-	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	UClass* const widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
-	for (UUserWidget* widget : m_UIWidgets[widgetClass])
+	for (UUserWidget* const widget : m_UIWidgets[widgetClass])
 	{
 		checkf(widget != nullptr, TEXT("Widget is Nullptr!!"));
 		widget->SetVisibility(ESlateVisibility::Hidden);
@@ -60,10 +60,10 @@ void UUIManager::HideWidgets(const FName& path)
 
 void UUIManager::ShowWidgets(const FName& path)
 {
-	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	UClass* const widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
-	for (UUserWidget* widget : m_UIWidgets[widgetClass])
+	for (UUserWidget* const widget : m_UIWidgets[widgetClass])
 	{
 		checkf(widget != nullptr, TEXT("Widget is Nullptr!!"));
 		widget->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -72,7 +72,7 @@ void UUIManager::ShowWidgets(const FName& path)
 
 void UUIManager::ClearWidgets(const FName& path)
 {
-	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	UClass* const widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
 	m_UIWidgets[widgetClass].Empty();

@@ -80,7 +80,10 @@ void AMainPlayer::Tick(float DeltaTime)
 
 void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
 {
-	if (m_bIsDodgeMoving) return;
+	if (m_bIsDodgeMoving)
+	{
+		return;
+	}
 
 	if (m_bIsAttacking) // 공격중이고,
 	{
@@ -137,7 +140,7 @@ void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
 
 	m_bCanNextCombo = false;
 
-	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되면
+	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되어있으면
 	{
 		updateNormalAttackStateOnStart();
 		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo);
@@ -193,7 +196,7 @@ void AMainPlayer::InputHorizontal(float value)
 
 	if (!m_bIsAttacking && !m_bIsDodgeMoving)
 	{
-		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
+		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
 }
@@ -204,7 +207,7 @@ void AMainPlayer::InputVertical(float value)
 
 	if (!m_bIsAttacking && !m_bIsDodgeMoving)
 	{
-		FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
+		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
 	}
 }
@@ -228,7 +231,6 @@ void AMainPlayer::TriggerPressedLeftMouseButton()
 
 void AMainPlayer::TriggerReleasedLeftMouseButton()
 {
-
 }
 
 void AMainPlayer::TriggerPressedSpaceBar() // 스페이스바 입력시,
@@ -246,8 +248,8 @@ void AMainPlayer::TriggerPressedSpaceBar() // 스페이스바 입력시,
 				m_TempInputHorizontalForDodge = m_CurInputHorizontal; // 블렌드스페이스에 사용하기위한 값 갱신. 키입력 시점기준에서의 값만 필요하기 때문에 따로 Temp변수 사용.
 				m_TempInputVerticalForDodge = m_CurInputVertical; // 동일.
 			
-				onCalledNotify_EndedNormalAttack(); // 공격행위를 정상적으로 종료.(공격도중에 수행하는거니까)
-				setRotationToControllerYaw();
+				onCalledNotify_EndedNormalAttack(); // 먼저 공격행위를 정상적으로 종료.(공격도중에 수행하는거니까)
+				setRotationToControllerYaw(); // 카메라가
 			}
 		}
 	}
@@ -402,9 +404,9 @@ void AMainPlayer::updateState()
 
 void AMainPlayer::printLog()
 {
-	FVector location = GetActorLocation();
-	FVector velocity = GetVelocity();
-	FVector forwardVector = GetActorForwardVector();
+	const FVector location = GetActorLocation();
+	const FVector velocity = GetVelocity();
+	const FVector forwardVector = GetActorForwardVector();
 
 	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
 	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));

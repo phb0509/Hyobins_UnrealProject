@@ -34,11 +34,11 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 
 	for (int i = 0; i < actorCount; ++i)
 	{
-		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // Rotation, Location.
-		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
+		const FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }); // Rotation, Location.
+		AActor* const spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
 		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit interfaces."));
 
-		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
+		IPoolableActor* const castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
 		castedSpawnedActor->Initialize();
 		castedSpawnedActor->DeActivate();
 
@@ -48,13 +48,13 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 
 void AActorPool::CreateBlueprintActorPool(const FName& path, int actorCount)
 {
-	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
+	const UObject* const loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
 	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath is Not Valid"));
 
-	const UBlueprint* blueprintActor = Cast<UBlueprint>(loadedActor);
+	const UBlueprint* const blueprintActor = Cast<UBlueprint>(loadedActor);
 	checkf(IsValid(blueprintActor), TEXT("Failed to Cast to Blueprint"));
 
-	TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
+	const TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
 	checkf(IsValid(blueprintActor), TEXT("Failed to Cast to Actor"));
 
 	if (m_BlueprintActorPool.Contains(classType)) // 이미 만들어진게 있다면
@@ -70,17 +70,17 @@ void AActorPool::CreateBlueprintActorPool(const FName& path, int actorCount)
 	}
 	else
 	{
-		FActors actorPool;
+		const FActors actorPool;
 		m_BlueprintActorPool.Add(classType, actorPool);
 	}
 
 	for (int i = 0; i < actorCount; ++i)
 	{
-		FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f });
-		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
+		const FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f });
+		AActor* const spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
 		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit PoolableActorInterfaces."));
 
-		IPoolableActor* castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
+		IPoolableActor* const castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
 		castedSpawnedActor->Initialize();
 		castedSpawnedActor->DeActivate();
 
@@ -125,13 +125,13 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, con
 
 TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const FName& path, const FVector& spawnLocation)
 {
-	UObject* loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
+	UObject* const loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
 	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath isn't Valid"));
 
-	UBlueprint* blueprintActor = Cast<UBlueprint>(loadedActor);
+	const UBlueprint* const blueprintActor = Cast<UBlueprint>(loadedActor);
 	checkf(IsValid(blueprintActor), TEXT("Failed to Cast to Blueprint"));
 
-	TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
+	const TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
 	checkf(IsValid(classType), TEXT("Failed to Cast to Actor"));
 
 	if (m_BlueprintActorPool.Contains(classType) == false) // 이미 만들어진적이 아예 없다면 (키값자체가 없다면)
@@ -144,7 +144,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const FName& path, const 
 
 	for (TWeakObjectPtr<AActor> poolableActor : m_BlueprintActorPool[classType].actors)
 	{
-		IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
+		IPoolableActor* const castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		checkf(castedPoolableActor != nullptr, TEXT("Failed to Cast to IPoolableActor"));
 
 		if (castedPoolableActor->GetIsActivated()) continue;
@@ -166,12 +166,12 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const FName& path, const 
 
 void AActorPool::ClearActorPool()
 {
-	for (auto& iter : m_ActorPool)
+	for (const auto& iter : m_ActorPool)
 	{
-		TSubclassOf<AActor>& classType = iter.Key;
-		FActors& actors = m_ActorPool[classType];
+		const TSubclassOf<AActor>& classType = iter.Key;
+		const FActors& actors = m_ActorPool[classType];
 
-		for (auto& actor : actors.actors)
+		for (const auto& actor : actors.actors)
 		{
 			actor->Destroy();
 		}
@@ -182,12 +182,12 @@ void AActorPool::ClearActorPool()
 
 void AActorPool::ClearBlueprintActorPool()
 {
-	for (auto& iter : m_BlueprintActorPool)
+	for (const auto& iter : m_BlueprintActorPool)
 	{
-		TSubclassOf<AActor>& classType = iter.Key;
-		FActors& actors = m_BlueprintActorPool[classType];
+		const TSubclassOf<AActor>& classType = iter.Key;
+		const FActors& actors = m_BlueprintActorPool[classType];
 
-		for (auto& actor : actors.actors)
+		for (const auto& actor : actors.actors)
 		{
 			actor->Destroy();
 		}

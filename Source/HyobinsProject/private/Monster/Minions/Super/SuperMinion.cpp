@@ -150,7 +150,7 @@ void ASuperMinion::SetState(ENormalMinionStates state)
 
 void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
 {
-	uint8 commonStateIndex = static_cast<uint8>(commonState);
+	const uint8 commonStateIndex = static_cast<uint8>(commonState);
 
 	switch (commonStateIndex)
 	{

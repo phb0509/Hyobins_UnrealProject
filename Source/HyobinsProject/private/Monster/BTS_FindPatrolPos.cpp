@@ -17,17 +17,17 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 {
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	const AMonster* const owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	checkf(IsValid(owner), TEXT("Monster isn't Valid"));
 
-	const UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(owner->GetWorld());
+	const UNavigationSystemV1* const NavSystem = UNavigationSystemV1::GetNavigationSystem(owner->GetWorld());
 	checkf(IsValid(NavSystem), TEXT("NavSystem isn't Valid"));
 
-	const FVector Origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AMonster::HomePosKey);
-	FNavLocation NextPatrol;
+	const FVector origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AMonster::HomePosKey);
+	FNavLocation nextPatrol;
 
-	if (NavSystem->GetRandomPointInNavigableRadius(Origin, owner->GetPatrolRange(), NextPatrol))
+	if (NavSystem->GetRandomPointInNavigableRadius(origin, owner->GetPatrolRange(), nextPatrol))
 	{
-		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMonster::PatrolPosKey, NextPatrol.Location);
+		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMonster::PatrolPosKey, nextPatrol.Location);
 	}
 }

@@ -47,18 +47,18 @@ void ACharacterBase::PossessedBy(AController* newController)
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	ACharacterBase* instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
+	ACharacterBase* const instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
 	checkf(IsValid(instigatorCharacter), TEXT("InstigatorCharacter isn't Valid"));
 
-	const FAttackInfoStruct* attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
+	const FAttackInfoStruct* const attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
 	m_StatComponent->SetDamage(attackInformation->damage);
 
 	// 로그
-	FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
+	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
 	if (!m_bIsDeath)

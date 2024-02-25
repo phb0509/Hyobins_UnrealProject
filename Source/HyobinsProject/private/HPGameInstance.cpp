@@ -38,9 +38,9 @@ void UHPGameInstance::InitAttackInformations(IN const FString& assetPath, OUT TM
 
 	if (DT_Object.Succeeded())
 	{
-		const UDataTable* DT_AttackInformations = DT_Object.Object;
+		const UDataTable* const DT_AttackInformations = DT_Object.Object;
 
-		TArray<FName> attackNames = DT_AttackInformations->GetRowNames();
+		const TArray<FName> attackNames = DT_AttackInformations->GetRowNames();
 
 		for (auto& attackName : attackNames)
 		{

@@ -20,7 +20,7 @@ public:
 	void HideWidgets(const FName& path);
 	void ShowWidgets(const FName& path);
 	void ClearWidgets(const FName& path);
-	void ClearAllWidgets();
+	void ClearAllWidgets(); // ¹Ì¿Ï¼º.
 	
 
 public:

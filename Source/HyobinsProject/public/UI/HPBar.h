@@ -16,7 +16,7 @@ class HYOBINSPROJECT_API UHPBar : public UUserWidget
 
 public:
 	void BindStatComponent(class UStatComponent* statComponent);
-	void SetExecuteState();
+	void SetExecuteState(); // 처형표시 (hp일정이하 내려갔을 시,)
 
 protected:
 	virtual void NativeConstruct() override;

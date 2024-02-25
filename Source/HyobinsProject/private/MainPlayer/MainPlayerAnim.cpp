@@ -33,19 +33,19 @@ void UMainPlayerAnim::AnimNotify_EndedDodgeMove()
 
 void UMainPlayerAnim::initAssets()
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttack
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage
 	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AM_ComboAttack1.AM_ComboAttack1'"));
 
-	if (normalAttack.Succeeded())
+	if (normalAttackMontage.Succeeded())
 	{
-		m_Montages.Add("NormalAttack", normalAttack.Object);
+		m_Montages.Add("NormalAttack", normalAttackMontage.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> dodge_Combat
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> combatDodgeMontage
 	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Dodge_NonCombat.Dodge_NonCombat'"));
 
-	if (dodge_Combat.Succeeded())
+	if (combatDodgeMontage.Succeeded())
 	{
-		m_Montages.Add("Dodge_NonCombat", dodge_Combat.Object);
+		m_Montages.Add("Dodge_NonCombat", combatDodgeMontage.Object);
 	}
 }

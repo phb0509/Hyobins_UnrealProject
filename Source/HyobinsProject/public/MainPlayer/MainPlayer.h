@@ -43,8 +43,9 @@ private:
 	void normalComboAttack();
 	void updateNormalAttackStateOnStart();
 	void rotateUsingControllerYawAndInput();
-	void setRotationToControllerYaw();
+	void setRotationToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 
+	// Overlap시 호출시킬 바인딩 할 함수. 매개변수는 고정되어 있으므로, 바뀌면 안된다.
 	UFUNCTION()
 		void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

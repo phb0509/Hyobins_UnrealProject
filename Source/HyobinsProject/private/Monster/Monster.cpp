@@ -48,7 +48,7 @@ void AMonster::Activate()
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	for (UShapeComponent* collider : m_HitColliders)
+	for (UShapeComponent* const collider : m_HitColliders)
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	}
@@ -65,7 +65,7 @@ void AMonster::DeActivate()
 	SetActorHiddenInGame(true);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	for (UShapeComponent* collider : m_HitColliders)
+	for (UShapeComponent* const collider : m_HitColliders)
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}

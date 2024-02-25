@@ -43,6 +43,7 @@ void USuperMinionAnim::initAssets()
 		m_Montages.Add("CriticalAttack",criticalAttackMontage.Object);
 	}
 
+	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> onDeath_Front
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_Death_Front.AM_Death_Front'"));
 
