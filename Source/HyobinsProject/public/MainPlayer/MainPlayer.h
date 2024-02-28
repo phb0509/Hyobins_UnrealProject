@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Utility/CharacterBase.h"
+#include "Component/MainPlayerSkillComponent.h"
 #include "MainPlayer.generated.h"
 
 enum class EMainPlayerStates : uint8;
@@ -85,7 +86,10 @@ public:
 		class UBoxComponent* m_ShieldColliderForShield;
 
 private:
-	TMap<FName, FAttackInfoStruct> m_AttackInformations; // 임시. 
+	TMap<FName, FAttackInfoStruct> m_AttackInformations; // 임시.
+	TUniquePtr<UMainPlayerSkillComponent> m_SkillComponent;
+	
+	
 	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;
 
 	float m_ArmLengthTo;
@@ -97,6 +101,9 @@ private:
 	float m_RotationDeltaSecondsOffset;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+	bool m_bIsDodgeMoving;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsCombated;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
@@ -104,10 +111,7 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bIsPressingShift;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
-	bool m_bIsDodgeMoving;
-
+	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int m_CurInputHorizontal;
 

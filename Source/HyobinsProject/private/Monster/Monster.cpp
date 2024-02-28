@@ -30,7 +30,7 @@ void AMonster::ExecHitEvent(ACharacterBase* instigator)
 
 void AMonster::Initialize()
 {
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateHPBarComponent(this, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C", FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateHPBarComponent(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C", FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
 }
 
 void AMonster::Activate()

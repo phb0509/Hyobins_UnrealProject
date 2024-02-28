@@ -27,7 +27,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetCommonState(EMonsterCommonStates commonState) override;
+	virtual void SetCommonState(const EMonsterCommonStates commonState) override;
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 

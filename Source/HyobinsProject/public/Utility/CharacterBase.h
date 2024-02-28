@@ -5,15 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "Component/StatComponent.h"
 #include "ActorPool/PoolableActor.h"
 #include "Utility/CustomStructs.h"
-#include "Utility/StatActor.h"
 #include "CharacterBase.generated.h"
 
 enum class EMonsterCommonStates : uint8;
 
 UCLASS(abstract)
-class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor, public IStatActor
+class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor
 {
 	GENERATED_BODY()
 
@@ -25,7 +25,7 @@ public:
 	virtual void OnHitTimerEnded() {};
 	virtual void OnCalledDeathMontageEndedNotify();
 
-	virtual void SetCommonState(EMonsterCommonStates commonState) {};
+	virtual void SetCommonState(const EMonsterCommonStates commonState) {};
 
 	// Get
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
@@ -58,6 +58,9 @@ protected:
 
 
 protected:
+	UPROPERTY(BlueprintReadOnly, Category = StatComponent)
+	UStatComponent* m_StatComponent;
+	
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
 	TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
 
@@ -70,7 +73,7 @@ protected:
 	FTimerHandle m_DeathTimerHandle;
 	FTimerHandle m_DeActivateTimerHandle;
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly) // 블루프린트에서 수정할 수 있게..
 	float m_WalkSpeed;
 	
 	UPROPERTY(EditDefaultsOnly)

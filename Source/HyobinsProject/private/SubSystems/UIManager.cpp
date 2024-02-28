@@ -2,16 +2,17 @@
 
 
 #include "SubSystems/UIManager.h"
+
+#include "Component/StatComponent.h"
 #include "GameFramework/Actor.h"
-#include "Utility/StatActor.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SceneComponent.h"
 #include "UI/HPBar.h"
 
-void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize)
+void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize)
 {
-	checkf(actor->GetClass()->ImplementsInterface(UStatActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
-	const IStatActor* const castedStatActor = Cast<IStatActor>(actor);
+	// checkf(actor->GetClass()->ImplementsInterface(UStatActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
+	// const IStatActor* const castedStatActor = Cast<IStatActor>(actor);
 
 	UWidgetComponent* const widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
 	widgetComponent->SetupAttachment(mesh);
@@ -35,7 +36,7 @@ void UUIManager::CreateHPBarComponent(AActor* actor, USceneComponent* mesh, cons
 	UHPBar* const hpBar = Cast<UHPBar>(widgetObject);
 	checkf(hpBar != nullptr, TEXT("Failed to Cast To HPBar"));
 
-	hpBar->BindStatComponent(castedStatActor->GetStatComponent());
+	hpBar->BindStatComponent(statComponent);
 
 	if (m_UIWidgets.Contains(widgetClass) == false)
 	{

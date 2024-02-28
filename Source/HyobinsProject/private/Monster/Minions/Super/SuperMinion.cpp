@@ -148,7 +148,7 @@ void ASuperMinion::SetState(ENormalMinionStates state)
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
-void ASuperMinion::SetCommonState(EMonsterCommonStates commonState)
+void ASuperMinion::SetCommonState(const EMonsterCommonStates commonState)
 {
 	const uint8 commonStateIndex = static_cast<uint8>(commonState);
 

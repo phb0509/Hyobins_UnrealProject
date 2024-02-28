@@ -8,9 +8,8 @@
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
-
+#include "Component/MainPlayerSkillComponent.h"
 #include "HPGameInstance.h"
-#include "Utility/EnumTypes.h" 
 #include "Utility/Utility.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -23,10 +22,10 @@ AMainPlayer::AMainPlayer() :
 	m_ArmRotationSpeed(0.0f),
 	m_MovdDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
+	m_bIsDodgeMoving(false),
 	m_bIsCombated(true),
 	m_bIsHit(false),
 	m_bIsPressingShift(false),
-	m_bIsDodgeMoving(false),
 	m_CurInputHorizontal(0),
 	m_CurInputVertical(0),
 	m_TempInputHorizontalForDodge(0),
@@ -44,7 +43,9 @@ AMainPlayer::AMainPlayer() :
 
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
-	
+
+	//m_SkillComponent = TUniquePtr<UMainPlayerSkillComponent>(CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent")));
+	//m_SkillComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 	// 지울예정. GameInstance말고 서브시스템으로 다 기능 분할할것임.
 	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	HPGameInstance->InitAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'", m_AttackInformations);
