@@ -24,7 +24,7 @@ protected:
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	TWeakObjectPtr<class UStatComponent> m_StatComponent;
+	TWeakObjectPtr<UStatComponent> m_StatComponent;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TWeakObjectPtr<class UProgressBar> m_HPProgressBar;

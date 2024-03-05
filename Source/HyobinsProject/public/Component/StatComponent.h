@@ -35,7 +35,7 @@ public:
 	FOnHPIsChangedDelegate OnHPIsChanged;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = true))
 		float m_MaxHP;
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))

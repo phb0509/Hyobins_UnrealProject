@@ -17,10 +17,10 @@
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
-	m_ArmRotationTo(10.0f),
+	//m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
-	m_ArmRotationSpeed(0.0f),
-	m_MovdDeltaSecondsOffset(20000.0f),
+	//m_ArmRotationSpeed(0.0f),
+	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
 	m_bIsDodgeMoving(false),
 	m_bIsCombated(true),
@@ -44,7 +44,7 @@ AMainPlayer::AMainPlayer() :
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
 
-	//m_SkillComponent = TUniquePtr<UMainPlayerSkillComponent>(CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent")));
+	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
 	//m_SkillComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 	// 지울예정. GameInstance말고 서브시스템으로 다 기능 분할할것임.
 	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -198,7 +198,7 @@ void AMainPlayer::InputHorizontal(float value)
 	if (!m_bIsAttacking && !m_bIsDodgeMoving)
 	{
 		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
-		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
 	}
 }
 
@@ -209,7 +209,7 @@ void AMainPlayer::InputVertical(float value)
 	if (!m_bIsAttacking && !m_bIsDodgeMoving)
 	{
 		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
-		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MovdDeltaSecondsOffset);
+		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
 	}
 }
 

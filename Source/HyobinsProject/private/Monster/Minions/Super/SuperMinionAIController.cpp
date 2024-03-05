@@ -8,20 +8,20 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 	Super(ObjectInitializer)
 {
 	m_TeamID = FGenericTeamId(4);
-
+	
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/SuperMinion/BT_SuperMinion.BT_SuperMinion'"));
 	if (BTObject.Succeeded())
 	{
 		m_BehaviorTree = BTObject.Object;
 	}
-	checkf(IsValid(m_BehaviorTree), TEXT("BehaviorTree isn't Valid"));
+	checkf(IsValid(m_BehaviorTree.Get()), TEXT("BehaviorTree isn't Valid"));
 
 	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("BlackboardData'/Game/MonsterAsset/SuperMinion/BB_SuperMinion.BB_SuperMinion'"));
 	if (BBObject.Succeeded())
 	{
 		m_BlackboardData = BBObject.Object;
 	}
-	checkf(IsValid(m_BlackboardData), TEXT("BlackboardData isn't Valid"));
+	checkf(IsValid(m_BlackboardData.Get()), TEXT("BlackboardData isn't Valid"));
 
 	initPerceptionSystem();
 }
@@ -31,13 +31,12 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 	Super::OnPossess(pawn);
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::OnPossess"));
 
-	UBlackboardComponent* BlackboardComponent = Blackboard;
-
 	m_Owner = Cast<ASuperMinion>(pawn);
-
+	
+	UBlackboardComponent* BlackboardComponent = Blackboard;
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
-
-	if (UseBlackboard(m_BlackboardData, BlackboardComponent))
+	
+	if (UseBlackboard(m_BlackboardData.Get(), BlackboardComponent))
 	{
 		Blackboard->SetValueAsVector(AMonster::HomePosKey, pawn->GetActorLocation());
 	}
@@ -125,7 +124,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 void ASuperMinionAIController::initPerceptionSystem()
 {
 	m_SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	checkf(IsValid(m_SightConfig), TEXT("SightConfig isn't Valid"));
+	checkf(IsValid(m_SightConfig.Get()), TEXT("SightConfig isn't Valid"));
 
 	m_SightRadius = 1000.0f;
 	m_LoseSightRadius = 1100.0f;
@@ -133,7 +132,7 @@ void ASuperMinionAIController::initPerceptionSystem()
 	m_AILastSeenLocation = 0.0f;
 	m_AISightAge = 5.0f;
 
-	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent isn't Valid"));
+	checkf(IsValid(m_AIPerceptionComponent.Get()), TEXT("AIPerceptionComponent isn't Valid"));
 	SetPerceptionComponent(*m_AIPerceptionComponent);
 
 	m_SightConfig->SightRadius = m_SightRadius;

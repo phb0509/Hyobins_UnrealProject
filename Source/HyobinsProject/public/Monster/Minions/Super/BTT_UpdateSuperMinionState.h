@@ -14,5 +14,6 @@ class HYOBINSPROJECT_API UBTT_UpdateSuperMinionState : public UBTTaskNode
 	
 public:
 	UBTT_UpdateSuperMinionState();
+	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

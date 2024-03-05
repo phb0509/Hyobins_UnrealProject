@@ -13,10 +13,10 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 	m_AILastSeenLocation(900.0f)
 {
 	m_BehaviorTreeComponent = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorTree_Component"));
-	checkf(IsValid(m_BehaviorTreeComponent), TEXT("m_BehaviorTreeComponent is not Valid"));
+	checkf(IsValid(m_BehaviorTreeComponent.Get()), TEXT("m_BehaviorTreeComponent is not Valid"));
 
 	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerception_Component");
-	checkf(IsValid(m_AIPerceptionComponent), TEXT("AIPerceptionComponent is not Valid"));
+	checkf(IsValid(m_AIPerceptionComponent.Get()), TEXT("AIPerceptionComponent is not Valid"));
 
 	//FScriptDelegate Delegate;
 	//Delegate.BindUFunction(this, "UpdatePerceptedTargetActor");
@@ -30,7 +30,7 @@ void AAIControllerBase::BeginPlay()
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("AIControllerBase :: BeginPlay"));
 
-	RunBehaviorTree(m_BehaviorTree);
+	RunBehaviorTree(m_BehaviorTree.Get());
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 
@@ -53,14 +53,14 @@ void AAIControllerBase::OnUnPossess()
 	m_AIPerceptionComponent->Deactivate();
 }
 
-void AAIControllerBase::StopBehaviorTree()
+void AAIControllerBase::StopBehaviorTree() const
 {
 	m_BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 }
 
 void AAIControllerBase::PlayBehaviorTree()
 {
-	RunBehaviorTree(m_BehaviorTree);
+	RunBehaviorTree(m_BehaviorTree.Get());
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 

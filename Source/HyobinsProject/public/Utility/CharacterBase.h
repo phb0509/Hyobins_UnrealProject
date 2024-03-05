@@ -24,9 +24,7 @@ public:
 
 	virtual void OnHitTimerEnded() {};
 	virtual void OnCalledDeathMontageEndedNotify();
-
-	virtual void SetCommonState(const EMonsterCommonStates commonState) {};
-
+	
 	// Get
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
@@ -41,6 +39,9 @@ public:
 	FORCEINLINE bool GetIsDeath() const { return m_bIsDeath; }
 	FORCEINLINE bool GetIsHitStateTrigger() const { return m_bIsHitStateTrigger; }
 	FORCEINLINE int32 GetHitDirection() const { return m_HitDirection; }
+
+	// Set
+	virtual void SetCommonState(const EMonsterCommonStates commonState) {};
 	
 protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,class AController* EventInstigator, AActor* DamageCauser) override;
@@ -88,34 +89,34 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float m_DeathTimerTime;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	float m_CurSpeed;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsIdle;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsWalking;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsRunning;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsAttacking;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsInAir;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsSuperArmor;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsDeath;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsHitStateTrigger; // 몬스터들 연속피격모션 재생을위한 변수 (피격모션을 블렌드스페이스로 재생하기때문.)
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	int32 m_HitDirection;
 	
 	float m_DeathTimerTickTime;

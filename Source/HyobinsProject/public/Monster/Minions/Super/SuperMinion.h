@@ -40,16 +40,17 @@ private:
 	void onNormalAttackMontageEnded();
 
 	UFUNCTION()
-		void onMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void onMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 public:
 	static int TagCount;
 
 private:
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
-
-	TMap<FName, FAttackInfoStruct> m_AttackInformations;
+	
 	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;
 	TWeakObjectPtr<class ASuperMinionAIController> m_OwnerAIController;
+
+	TMap<FName, FAttackInfoStruct> m_AttackInformations; 
 };

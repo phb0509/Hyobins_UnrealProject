@@ -2,8 +2,6 @@
 
 
 #include "SubSystems/UIManager.h"
-
-#include "Component/StatComponent.h"
 #include "GameFramework/Actor.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SceneComponent.h"
@@ -11,9 +9,6 @@
 
 void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize)
 {
-	// checkf(actor->GetClass()->ImplementsInterface(UStatActor::StaticClass()), TEXT("Actors don't inherit StatusActor interfaces."));
-	// const IStatActor* const castedStatActor = Cast<IStatActor>(actor);
-
 	UWidgetComponent* const widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
 	widgetComponent->SetupAttachment(mesh);
 	widgetComponent->SetRelativeLocation(relativeLocation);
@@ -23,13 +18,10 @@ void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statC
 
 	const TSubclassOf<UUserWidget> widgetClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
-
-	if (widgetClass != nullptr)
-	{
-		widgetComponent->SetWidgetClass(widgetClass);
-		widgetComponent->SetDrawSize(drawSize);
-	}
-
+	
+	widgetComponent->SetWidgetClass(widgetClass);
+	widgetComponent->SetDrawSize(drawSize);
+	
 	UUserWidget* const widgetObject = widgetComponent->GetUserWidgetObject();
 	checkf(widgetObject != nullptr, TEXT("Failed to Get UserWidgetObject"));
 
@@ -40,7 +32,7 @@ void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statC
 
 	if (m_UIWidgets.Contains(widgetClass) == false)
 	{
-		TArray<class UUserWidget*> temp;
+		TArray<UUserWidget*> temp;
 		m_UIWidgets.Add(widgetClass, temp);
 	}
 

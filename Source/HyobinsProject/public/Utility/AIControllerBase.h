@@ -29,31 +29,25 @@ public:
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
 
-	void StopBehaviorTree();
+	void StopBehaviorTree() const;
 	void PlayBehaviorTree();
 
 	UFUNCTION()
-		virtual void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus) {};
+	virtual void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus) {};
 
     // Get
-	UBlackboardComponent* GetBlackBoard() { return Blackboard; }
+	FORCEINLINE UBlackboardComponent* GetBlackBoard() const { return Blackboard; }
+
 
 protected:
-	
-
-protected:
-	UPROPERTY()
-		UBehaviorTree* m_BehaviorTree;
-	UPROPERTY()
-		UBlackboardData* m_BlackboardData;
-	UPROPERTY()
-		UBehaviorTreeComponent* m_BehaviorTreeComponent;
-	UPROPERTY()
-		UAIPerceptionComponent* m_AIPerceptionComponent;
-	UPROPERTY()
-		UAISenseConfig_Sight* m_SightConfig;
+	TWeakObjectPtr<UBehaviorTree> m_BehaviorTree;
+	TWeakObjectPtr<UBlackboardData> m_BlackboardData;
+	TWeakObjectPtr<UBehaviorTreeComponent> m_BehaviorTreeComponent;
+	TWeakObjectPtr<UAIPerceptionComponent> m_AIPerceptionComponent;
+	TWeakObjectPtr<UAISenseConfig_Sight> m_SightConfig;
 
 	FGenericTeamId m_TeamID;
+	
 	float m_SightRadius; // 인지최대거리
 	float m_LoseSightRadius; // 이미 본 타깃을 시야에서 놓치게 되는 시야최대거리. (시야상실반경)
 	float m_PeripheralVisionHalfAngle; // FieldOfView

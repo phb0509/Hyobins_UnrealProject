@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Utility/CharacterBase.h"
-#include "Component/MainPlayerSkillComponent.h"
 #include "MainPlayer.generated.h"
 
 enum class EMainPlayerStates : uint8;
@@ -68,65 +67,68 @@ private:
 	void onCalledNotify_EndedDodgeMove();
 	void printLog();
 
-public:
-	UPROPERTY(VisibleAnywhere, Category = Camera)
-		class USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
-												// 자신과의 지정된 거리 안에 유지되도록 처리한다.
-
-	UPROPERTY(VisibleAnywhere, Category = Camera)
-		class UCameraComponent* m_TargetCamera;
-
-	UPROPERTY(VisibleAnywhere, Category = Collision)
-		class UCapsuleComponent* m_SwordCollider;
-
-	UPROPERTY(VisibleAnywhere, Category = Collision)
-		class UBoxComponent* m_ShieldColliderForAttack;
-
-	UPROPERTY(VisibleAnywhere, Category = Collision)
-		class UBoxComponent* m_ShieldColliderForShield;
-
+	
 private:
-	TMap<FName, FAttackInfoStruct> m_AttackInformations; // 임시.
-	TUniquePtr<UMainPlayerSkillComponent> m_SkillComponent;
+	UPROPERTY(EditDefaultsOnly, Category = Camera)
+	class USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
+											// 자신과의 지정된 거리 안에 유지되도록 처리한다.
 	
-	
+	UPROPERTY(EditAnywhere, Category = Camera)
+	class UCameraComponent* m_TargetCamera;
+
+	UPROPERTY(EditAnywhere, Category = Collision) // 충돌체들은 실시간으로 크기보정할 일이 많을 수 있기 때문에 EditAnywhere로 지정
+	UCapsuleComponent* m_SwordCollider;
+
+	UPROPERTY(EditAnywhere, Category = Collision)
+	class UBoxComponent* m_ShieldColliderForAttack;
+
+	UPROPERTY(EditAnywhere, Category = Collision)
+	class UBoxComponent* m_ShieldColliderForShield;
+
+	TMap<FName, FAttackInfoStruct> m_AttackInformations; // 임시. SkillComponent로 옮길것.
+
+	UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent, Meta = (AllowPrivateAccess = true))
+	class UMainPlayerSkillComponent* m_SkillComponent;
+
 	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;
 
 	float m_ArmLengthTo;
-	FRotator m_ArmRotationTo;
+	//FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
-	float m_ArmRotationSpeed;
+	//float m_ArmRotationSpeed;
 
-	float m_MovdDeltaSecondsOffset;
+	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsDodgeMoving;
-	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsCombated;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+	
+	UPROPERTY(BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsHit;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bIsPressingShift;
-	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+
+	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int m_CurInputHorizontal;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int m_CurInputVertical;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int m_TempInputHorizontalForDodge;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int m_TempInputVerticalForDodge;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bTempIsAttacking;
 
+	// NormalAttack관련.. 옮길예정.
 	bool m_bCanNextCombo;
 	bool m_bIsInputOnNextCombo;
 	int32 m_CurNormalAttackCombo;

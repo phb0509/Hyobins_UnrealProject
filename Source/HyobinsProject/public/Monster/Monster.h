@@ -37,7 +37,7 @@ public:
 
 
 protected:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly) // SkillComponent쪽으로 결국 전부옮김.
 	float m_PatrolRange;
 
 	UPROPERTY(EditDefaultsOnly)

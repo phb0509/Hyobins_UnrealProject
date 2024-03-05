@@ -38,8 +38,8 @@ void ACharacterBase::PossessedBy(AController* newController)
 {
 	Super::PossessedBy(newController);
 
-	FString temp = Tags[0].ToString() + " :: CharacterBase :: PossessedBy!!";
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *temp);
+	const FString log = Tags[0].ToString() + " :: CharacterBase :: PossessedBy!!";
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
 	m_AIControllerBase = Cast<AAIControllerBase>(newController);
 	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());

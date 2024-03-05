@@ -24,12 +24,13 @@ public:
 
 private:
 	UFUNCTION()
-		void AnimNotify_OnDeathMontageEnded(); 
+	void AnimNotify_OnDeathMontageEnded(); 
 
 public:
 	FOnDeathMontageEndedDelegate OnDeathMontageEnded;
 
 protected:
+	UPROPERTY()
 	TMap<FName, UAnimMontage*> m_Montages;
 	
 };
