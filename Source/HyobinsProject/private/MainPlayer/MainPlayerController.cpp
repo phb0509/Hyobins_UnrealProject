@@ -7,7 +7,7 @@
 AMainPlayerController::AMainPlayerController():
 	m_TeamID(FGenericTeamId(1))
 {
-
+	UE_LOG(LogTemp, Warning, TEXT("MainPlayerController::Constructor"));
 }
 
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const

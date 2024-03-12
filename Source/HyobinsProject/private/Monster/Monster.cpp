@@ -3,7 +3,6 @@
 
 #include "Monster/Monster.h"
 #include "Utility/AIControllerBase.h"
-#include "Utility/AnimInstanceBase.h"
 #include <Components/CapsuleComponent.h>
 #include "SubSystems/UIManager.h"
 
@@ -58,7 +57,8 @@ void AMonster::DeActivate()
 {
 	m_bIsActivated = false;
 	m_AIControllerBase->OnUnPossess();
-	m_AnimInstanceBase->StopAllMontages(0.1f);
+	GetMesh()->GetAnimInstance()->StopAllMontages((0.1f));
+	//m_AnimInstanceBase->StopAllMontages(0.1f);
 	GetWorldTimerManager().ClearTimer(m_DeActivateTimerHandle);
 
 	SetActorTickEnabled(false);

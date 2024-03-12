@@ -24,6 +24,8 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 	checkf(IsValid(m_BlackboardData.Get()), TEXT("BlackboardData isn't Valid"));
 
 	initPerceptionSystem();
+
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::Constructor"));
 }
 
 void ASuperMinionAIController::OnPossess(APawn* pawn)

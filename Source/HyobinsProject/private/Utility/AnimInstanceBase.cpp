@@ -41,7 +41,7 @@ UAnimMontage* UAnimInstanceBase::GetMontage(const FName& montageName)
 	return nullptr;
 }
 
-void UAnimInstanceBase::AnimNotify_OnDeathMontageEnded()
+void UAnimInstanceBase::AnimNotify_OnDeathMontageEnded() const
 {
 	OnDeathMontageEnded.Broadcast();
 }

@@ -4,6 +4,7 @@
 #include "Monster/Minions/Super/SuperMinion.h"
 #include "Monster/Minions/Super/SuperMinionAnim.h"
 #include "Monster/Minions/Super/SuperMinionAIController.h"
+#include "Utility/EnumTypes.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 
@@ -29,8 +30,9 @@ ASuperMinion::ASuperMinion() :
 void ASuperMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	m_AnimInstance = Cast<USuperMinionAnim>(m_AnimInstanceBase);
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: PostInitializeComponents"));
+	
+	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::onMontageEnded); 
@@ -38,7 +40,7 @@ void ASuperMinion::PostInitializeComponents()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AnimInstance isn't Valid"));
+		UE_LOG(LogTemp, Warning, TEXT("SuperMinion::AnimInstance isn't Valid"));
 	}
 
 	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
@@ -46,13 +48,14 @@ void ASuperMinion::PostInitializeComponents()
 	{}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion AIController isn't Valid"));
+		UE_LOG(LogTemp, Warning, TEXT("SuperMinion::AIController isn't Valid"));
 	}
 }
 
 void ASuperMinion::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: BeginPlay"));
 }
 
 void ASuperMinion::Tick(float DeltaTime)

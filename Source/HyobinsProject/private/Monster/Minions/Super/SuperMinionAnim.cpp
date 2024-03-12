@@ -8,9 +8,11 @@
 USuperMinionAnim::USuperMinionAnim()
 {
 	initAssets();
+
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAnim::Constructor"));
 }
 
-void USuperMinionAnim::AnimNotify_checkAttackHit() // 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
+void USuperMinionAnim::AnimNotify_checkAttackHit() const// 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 {
 	OnAttackHitCheck.Broadcast();
 }
@@ -25,7 +27,7 @@ void USuperMinionAnim::initAssets()
 		m_Montages.Add("NormalAttack1", normalAttackMontage1.Object);
 	}
 
-
+	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage2
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_NormalAttack_B.AM_NormalAttack_B'"));
 

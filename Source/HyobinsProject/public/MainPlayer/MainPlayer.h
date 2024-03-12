@@ -15,8 +15,12 @@ class HYOBINSPROJECT_API AMainPlayer final: public ACharacterBase
 
 public:
 	AMainPlayer();
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	void RotateActorToKeyInputDirection();
+	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 	
 	// AxisMappings
 	void Turn(float value);
@@ -32,41 +36,34 @@ public:
 	void TriggerPressedSpaceBar();
 	void TriggerPressedLeftCtrl();
 	void TriggerReleasedLeftCtrl();
+	
+	FORCEINLINE void UpdateTempInput() { m_TempInputHorizontalForDodge = m_CurInputHorizontal; m_TempInputVerticalForDodge = m_CurInputVertical; }
+	FORCEINLINE	void UpdateTempIsAttacking() { m_bTempIsAttacking = m_bIsAttacking; }
+	
+	// Get
+	FORCEINLINE class UCapsuleComponent* GetSwordCollider() const { return m_SwordCollider; }
+	FORCEINLINE class UBoxComponent* GetShiledColliderForAttack() const { return m_ShieldColliderForAttack; }
+	FORCEINLINE class UBoxComponent* GetShiledColliderForShiled() const { return m_ShieldColliderForShield; }
+	FORCEINLINE bool GetIsDodgeMoving() const { return m_bIsDodgeMoving; }
+	
+
+	// Set
+	FORCEINLINE void SetIsDodgeMoving(bool bIsDodgeMing) { m_bIsDodgeMoving = bIsDodgeMing; }
 
 
-protected:
-	virtual void BeginPlay() override;
+	//UFUNCTION()
+	//void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	
 private:
 	void initAssets();
 	void updateState();
-	void normalComboAttack();
-	void updateNormalAttackStateOnStart();
-	void rotateUsingControllerYawAndInput();
-	void setRotationToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
-
-	// Overlap시 호출시킬 바인딩 할 함수. 매개변수는 고정되어 있으므로, 바뀌면 안된다.
-	UFUNCTION()
-		void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
-			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-		void checkOverlapShieldCollisionForAttack(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
-			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-		void checkOverlapShieldCollisionForShield(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
-			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	// UFUNCTION()
-	// void onMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	
-	void onCalledNotify_NormalAttackHitCheck();
-	void onCalledNotify_NormalAttackNextCheck();
-	void onCalledNotify_EndedNormalAttack();
-	void onCalledNotify_EndedDodgeMove();
-	void printLog();
-
+	void printLog() const;
+	
+public:
+	UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent, Meta = (AllowPrivateAccess = true))
+	class UMainPlayerSkillComponent* m_SkillComponent;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
@@ -84,14 +81,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Collision)
 	class UBoxComponent* m_ShieldColliderForShield;
-
-	TMap<FName, FAttackInfoStruct> m_AttackInformations; // 임시. SkillComponent로 옮길것.
-
-	UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent, Meta = (AllowPrivateAccess = true))
-	class UMainPlayerSkillComponent* m_SkillComponent;
-
-	TWeakObjectPtr<class UMainPlayerAnim> m_AnimInstance;
-
+	
+	
+	
 	float m_ArmLengthTo;
 	//FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
@@ -105,7 +97,6 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsCombated;
-
 	
 	UPROPERTY(BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsHit;
@@ -127,10 +118,5 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bTempIsAttacking;
-
-	// NormalAttack관련.. 옮길예정.
-	bool m_bCanNextCombo;
-	bool m_bIsInputOnNextCombo;
-	int32 m_CurNormalAttackCombo;
-	int32 m_NormalAttackMaxCombo;
+	
 };

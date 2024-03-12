@@ -3,11 +3,10 @@
 
 #include "Utility/CharacterBase.h"
 #include "Utility/AIControllerBase.h"
-#include "Utility/AnimInstanceBase.h"
+//#include "Utility/AnimInstanceBase.h"
 #include "Utility/Utility.h"
-#include <Components/CapsuleComponent.h>
 #include "HPGameInstance.h"
-#include "SubSystems/UIManager.h"
+
 
 ACharacterBase::ACharacterBase() :
 	m_WalkSpeed(200.0f),
@@ -42,7 +41,7 @@ void ACharacterBase::PossessedBy(AController* newController)
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
 	m_AIControllerBase = Cast<AAIControllerBase>(newController);
-	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
+	//m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)

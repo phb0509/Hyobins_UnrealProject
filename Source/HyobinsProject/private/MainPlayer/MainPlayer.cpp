@@ -1,19 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MainPlayer/MainPlayer.h"
-#include "MainPlayer/MainPlayerAnim.h"
 #include "MainPlayer/MainPlayerController.h"
+#include "Component/MainPlayerSkillComponent.h"
+#include "Utility/Utility.h"
 #include <GameFramework/SpringArmComponent.h.>
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
-#include "Component/MainPlayerSkillComponent.h"
-#include "HPGameInstance.h"
-#include "Utility/Utility.h"
 #include "DrawDebugHelpers.h"
-#include "Kismet/KismetMathLibrary.h"
-
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
@@ -30,11 +26,7 @@ AMainPlayer::AMainPlayer() :
 	m_CurInputVertical(0),
 	m_TempInputHorizontalForDodge(0),
 	m_TempInputVerticalForDodge(0),
-	m_bTempIsAttacking(false),
-	m_bCanNextCombo(false),
-	m_bIsInputOnNextCombo(false),
-	m_CurNormalAttackCombo(0),
-	m_NormalAttackMaxCombo(4)
+	m_bTempIsAttacking(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -43,30 +35,24 @@ AMainPlayer::AMainPlayer() :
 
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
+	
+	UE_LOG(LogTemp, Warning, TEXT("MainPlayer::Constructor"));
 
 	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
-	//m_SkillComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
-	// 지울예정. GameInstance말고 서브시스템으로 다 기능 분할할것임.
-	auto HPGameInstance = Cast<UHPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	HPGameInstance->InitAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'", m_AttackInformations);
-	
 	initAssets();
 }
 
 void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Warning, TEXT("MainPlayer::BeginPlay"));
 	
 	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
-	m_AnimInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-	//m_AnimInstance->OnMontageEnded.AddDynamic(this, &AMainPlayer::onMontageEnded);
-
-	// Notify
-	m_AnimInstance->OnNormalAttackHitCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackHitCheck); // 충돌검사 할 타이밍에 호출할 함수.
-	m_AnimInstance->OnNormalAttackNextCheck.AddUObject(this, &AMainPlayer::onCalledNotify_NormalAttackNextCheck); // 콤보연계를 위한 키입력을 체크하는 타이밍에 호출할 함수.
-	m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &AMainPlayer::onCalledNotify_EndedNormalAttack); // 한 콤보 끝날때마다 호출할 함수.
-	m_AnimInstance->OnEndedDodgeMove.AddUObject(this, &AMainPlayer::onCalledNotify_EndedDodgeMove);
+	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::checkOverlapSwordCollision);
+	m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::checkOverlapShieldCollisionForAttack);
+    m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::checkOverlapShieldCollisionForShield);
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -77,108 +63,6 @@ void AMainPlayer::Tick(float DeltaTime)
 	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, m_ArmLengthTo, DeltaTime, m_ArmLengthSpeed);
 
 	printLog();
-}
-
-void AMainPlayer::normalComboAttack() // 마우스좌버튼 클릭시 호출
-{
-	if (m_bIsDodgeMoving)
-	{
-		return;
-	}
-
-	if (m_bIsAttacking) // 공격중이고,
-	{
-		if (m_bCanNextCombo)
-		{
-			m_bIsInputOnNextCombo = true;
-		}
-	}
-	else
-	{
-		updateNormalAttackStateOnStart();
-		m_AnimInstance->PlayMontage("NormalAttack", 1.2f);
-		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo); // 0(비전투)에서 1로 점프
-		m_bIsAttacking = true;
-	}
-}
-
-void AMainPlayer::checkOverlapSwordCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (m_AttackInformations["NormalAttack"].checkHitActors.Contains(OtherActor) == false)
-	{
-		m_AttackInformations["NormalAttack"].checkHitActors.Add(OtherActor, true);
-		m_AttackInformations["NormalAttack"].colliderLocation = m_SwordCollider->GetComponentLocation();
-		OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
-	}
-}
-
-void AMainPlayer::checkOverlapShieldCollisionForAttack(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (m_AttackInformations["NormalAttack"].checkHitActors.Contains(OtherActor) == false)
-	{
-		m_AttackInformations["NormalAttack"].checkHitActors.Add(OtherActor, true);
-		m_AttackInformations["NormalAttack"].colliderLocation = m_SwordCollider->GetComponentLocation();
-		OtherActor->TakeDamage(0.0f, m_AttackInformations["NormalAttack"], GetController(), this);
-	}
-}
-
-void AMainPlayer::checkOverlapShieldCollisionForShield(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-
-}
-
-// void AMainPlayer::onMontageEnded(UAnimMontage* Montage, bool bInterrupted)
-// {
-// }
-
-void AMainPlayer::onCalledNotify_NormalAttackNextCheck()
-{
-	m_AttackInformations["NormalAttack"].checkHitActors.Empty();
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	if (m_CurNormalAttackCombo == 4) return;
-
-	m_bCanNextCombo = false;
-
-	if (m_bIsInputOnNextCombo) // 적절한 타이밍에 키입력 되어있으면
-	{
-		updateNormalAttackStateOnStart();
-		m_AnimInstance->JumpToMontageSection("NormalAttack", m_CurNormalAttackCombo);
-	}
-}
-
-void AMainPlayer::onCalledNotify_EndedNormalAttack()
-{
-	m_bIsAttacking = false;
-	m_bIsInputOnNextCombo = false;
-	m_bCanNextCombo = false;
-	m_CurNormalAttackCombo = 0;
-}
-
-void AMainPlayer::onCalledNotify_EndedDodgeMove()
-{
-	m_bIsDodgeMoving = false;
-}
-
-void AMainPlayer::onCalledNotify_NormalAttackHitCheck() // 충돌체크타이밍
-{
-	if (m_CurNormalAttackCombo == 3) // 방패로 공격하는 타이밍
-	{
-		m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	}
-	else // 검으로 공격하는 타이밍
-	{
-		m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	}
-}
-
-void AMainPlayer::updateNormalAttackStateOnStart() // 각 구간의 기본공격(연속공격이니까) 수행 후, 상태값 업데이트.
-{
-	rotateUsingControllerYawAndInput(); // 공격시마다 컨트롤러의 Forword방향에 따라 캐릭터를 회전.
-	m_bCanNextCombo = true;
-	m_bIsInputOnNextCombo = false;
-	m_CurNormalAttackCombo = FMath::Clamp<int32>(m_CurNormalAttackCombo + 1, 1, m_NormalAttackMaxCombo);
 }
 
 void AMainPlayer::Turn(float value)
@@ -227,33 +111,18 @@ void AMainPlayer::TriggerReleasedShift()
 
 void AMainPlayer::TriggerPressedLeftMouseButton()
 {
-	normalComboAttack();
+	// 마우스좌버튼에 등록된 스킬이 기본공격이라면
+
+	m_SkillComponent->NormalAttack();
 }
 
 void AMainPlayer::TriggerReleasedLeftMouseButton()
 {
 }
 
-void AMainPlayer::TriggerPressedSpaceBar() // 스페이스바 입력시,
+void AMainPlayer::TriggerPressedSpaceBar() 
 {
-	if (GetCharacterMovement()->IsMovingOnGround()) // 지면에 있는 상태면서,
-	{
-		if (m_bIsAttacking == true) // 공격중이면서,
-		{
-			if (m_bIsDodgeMoving == false) // 이미 Dodge수행중 아니면,
-			{
-				m_bIsDodgeMoving = true; // ABP FSM에서 Move -> Dodge 상태로 변환하기 위한 조건 1.
-				m_bTempIsAttacking = m_bIsAttacking; // ABP FSM에서 Move -> Dodge 상태로 변환하기 위한 조건 2.
-				m_AnimInstance->StopAllMontages(0.1f); // 빠른 모션변환을 위해 현재 재생중인 몽타주 Stop.
-
-				m_TempInputHorizontalForDodge = m_CurInputHorizontal; // 블렌드스페이스에 사용하기위한 값 갱신. 키입력 시점기준에서의 값만 필요하기 때문에 따로 Temp변수 사용.
-				m_TempInputVerticalForDodge = m_CurInputVertical; // 동일.
-			
-				onCalledNotify_EndedNormalAttack(); // 먼저 공격행위를 정상적으로 종료.(공격도중에 수행하는거니까)
-				setRotationToControllerYaw(); // 카메라가
-			}
-		}
-	}
+	m_SkillComponent->Dodge();
 }
 
 void AMainPlayer::TriggerPressedLeftCtrl()
@@ -326,9 +195,8 @@ void AMainPlayer::initAssets()
 	m_SwordCollider->SetGenerateOverlapEvents(true); // 블루프린트의 Generate Overlap Events에 대응되는 코드.
 	m_SwordCollider->SetNotifyRigidBodyCollision(false);
 	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision); // 필요할때만 키기
-	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::checkOverlapSwordCollision);
-
-
+	
+	
 	// ShieldCollider For Attack
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.35f} };
 
@@ -339,7 +207,7 @@ void AMainPlayer::initAssets()
 	m_ShieldColliderForAttack->SetGenerateOverlapEvents(true);
 	m_ShieldColliderForAttack->SetNotifyRigidBodyCollision(false);
 	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::checkOverlapShieldCollisionForAttack);
+	
 
 	// ShieldCollider For Shield
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.1f} };
@@ -351,6 +219,7 @@ void AMainPlayer::initAssets()
 	m_ShieldColliderForShield->SetGenerateOverlapEvents(true);
 	m_ShieldColliderForShield->SetNotifyRigidBodyCollision(false);
 	m_ShieldColliderForShield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 
 
 
@@ -403,7 +272,7 @@ void AMainPlayer::updateState()
 	}
 }
 
-void AMainPlayer::printLog()
+void AMainPlayer::printLog() const
 {
 	const FVector location = GetActorLocation();
 	const FVector velocity = GetVelocity();
@@ -413,30 +282,30 @@ void AMainPlayer::printLog()
 	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
 	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
-	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
+	//GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
 	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("is Attacking : %d"), m_bIsAttacking));
 	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is DodgeMoving : %d"), m_bIsDodgeMoving));
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
 }
 
-void AMainPlayer::rotateUsingControllerYawAndInput()
+void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
 {
 	const FRotator controllerRotation = GetControlRotation();
 	const FRotator actorRotation = GetActorRotation();
 	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
-	const FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw + degree, actorRotation.Roll };
+	const FRotator resultRotator = { actorRotation.Pitch, controllerRotation.Yaw + degree, actorRotation.Roll };
 	
-	SetActorRotation(temp);
+	SetActorRotation(resultRotator);
 }
 
-void AMainPlayer::setRotationToControllerYaw()
+void AMainPlayer::RotateActorToControllerYaw()
 {
 	const FRotator controllerRotation = GetControlRotation();
 	const FRotator actorRotation = GetActorRotation();
-	const FRotator temp = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
+	const FRotator resultRotator = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
 
-	SetActorRotation(temp);
+	SetActorRotation(resultRotator);
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

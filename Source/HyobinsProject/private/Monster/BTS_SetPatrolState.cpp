@@ -4,7 +4,7 @@
 #include "Monster/BTS_SetPatrolState.h"
 #include "Monster/Monster.h"
 #include "Utility/AIControllerBase.h"
-#include "BehaviorTree/BlackboardComponent.h"
+#include "Utility/EnumTypes.h"
 
 
 UBTS_SetPatrolState::UBTS_SetPatrolState()
@@ -20,5 +20,4 @@ void UBTS_SetPatrolState::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, ui
 	AMonster* const owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	checkf(IsValid(owner), TEXT("Monster isn't Valid"));
 	owner->SetCommonState(EMonsterCommonStates::Patrol);
-
 }

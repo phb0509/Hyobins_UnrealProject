@@ -24,7 +24,7 @@ public:
 
 private:
 	UFUNCTION()
-	void AnimNotify_OnDeathMontageEnded(); 
+	void AnimNotify_OnDeathMontageEnded() const; 
 
 public:
 	FOnDeathMontageEndedDelegate OnDeathMontageEnded;

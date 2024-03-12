@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Monster/Monster.h"
+#include "HPGameInstance.h"
 #include "SuperMinion.generated.h"
 
 enum class EMonsterCommonStates : uint8;

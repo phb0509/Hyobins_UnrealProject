@@ -2,31 +2,31 @@
 
 
 #include "MainPlayer/MainPlayerAnim.h"
-#include "MainPlayer/MainPlayer.h"
-#include "Utility/EnumTypes.h"
+
 
 UMainPlayerAnim::UMainPlayerAnim() 
 {
 	initAssets();
 	
+	UE_LOG(LogTemp, Warning, TEXT("MainPlayerAnim::Constructor"));
 }
 
-void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() //  
+void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() const 
 {
 	OnNormalAttackHitCheck.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_checkNextNormalAttack()
+void UMainPlayerAnim::AnimNotify_checkNextNormalAttack() const
 {
 	OnNormalAttackNextCheck.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_EndedNormalAttack()
+void UMainPlayerAnim::AnimNotify_EndedNormalAttack() const
 {
 	OnEndedNormalAttack.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_EndedDodgeMove()
+void UMainPlayerAnim::AnimNotify_EndedDodgeMove() const
 {
 	OnEndedDodgeMove.Broadcast();
 }

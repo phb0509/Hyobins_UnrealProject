@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 #include "Component/StatComponent.h"
 #include "ActorPool/PoolableActor.h"
-#include "Utility/CustomStructs.h"
 #include "CharacterBase.generated.h"
 
 enum class EMonsterCommonStates : uint8;
@@ -42,6 +40,8 @@ public:
 
 	// Set
 	virtual void SetCommonState(const EMonsterCommonStates commonState) {};
+	FORCEINLINE void SetIsAttacking(bool bIsAttacking) { m_bIsAttacking = bIsAttacking; }
+
 	
 protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,class AController* EventInstigator, AActor* DamageCauser) override;
@@ -63,7 +63,7 @@ protected:
 	UStatComponent* m_StatComponent;
 	
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
-	TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
+	//TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
 	TArray<UShapeComponent*> m_HitColliders;
