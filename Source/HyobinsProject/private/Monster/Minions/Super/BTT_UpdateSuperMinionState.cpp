@@ -2,9 +2,11 @@
 
 
 #include "Monster/Minions/Super/BTT_UpdateSuperMinionState.h"
-#include "Monster/Minions/Super/SuperMinionAIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Monster/Minions/Super/SuperMinion.h"
+#include "Monster/Minions/Super/SuperMinionAIController.h"
+#include "Utility/EnumTypes.h"
+#include "BehaviorTree/BlackboardComponent.h"
+
 
 UBTT_UpdateSuperMinionState::UBTT_UpdateSuperMinionState()
 {

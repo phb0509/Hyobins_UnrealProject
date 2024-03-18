@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Monster/Monster.h"
-#include "HPGameInstance.h"
 #include "SuperMinion.generated.h"
 
 enum class EMonsterCommonStates : uint8;
@@ -52,6 +51,4 @@ private:
 	
 	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;
 	TWeakObjectPtr<class ASuperMinionAIController> m_OwnerAIController;
-
-	TMap<FName, FAttackInfoStruct> m_AttackInformations; 
 };

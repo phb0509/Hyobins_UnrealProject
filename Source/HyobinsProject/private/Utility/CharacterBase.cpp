@@ -3,10 +3,8 @@
 
 #include "Utility/CharacterBase.h"
 #include "Utility/AIControllerBase.h"
-//#include "Utility/AnimInstanceBase.h"
+#include "Utility/CustomStructs.h"
 #include "Utility/Utility.h"
-#include "HPGameInstance.h"
-
 
 ACharacterBase::ACharacterBase() :
 	m_WalkSpeed(200.0f),

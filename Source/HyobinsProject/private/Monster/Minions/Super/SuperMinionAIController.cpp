@@ -3,6 +3,7 @@
 
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Monster/Minions/Super/SuperMinion.h"
+#include "Utility/EnumTypes.h"
 
 ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)

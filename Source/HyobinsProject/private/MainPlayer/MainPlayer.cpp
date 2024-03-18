@@ -9,7 +9,6 @@
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
-#include "DrawDebugHelpers.h"
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
@@ -111,8 +110,6 @@ void AMainPlayer::TriggerReleasedShift()
 
 void AMainPlayer::TriggerPressedLeftMouseButton()
 {
-	// 마우스좌버튼에 등록된 스킬이 기본공격이라면
-
 	m_SkillComponent->NormalAttack();
 }
 

@@ -2,7 +2,7 @@
 
 
 #include "FirstLevel.h"
-#include "HPGameInstance.h"
+#include "SubSystems/ActorPoolManager.h"
 #include "ActorPool/ActorPool.h"
 #include "SubSystems/UIManager.h"
 
@@ -24,10 +24,10 @@ void AFirstLevel::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("AFirstLevel :: BeginPlay"));
 
-	UHPGameInstance* gameInstance = Cast<UHPGameInstance>(GetGameInstance());
-	checkf(IsValid(gameInstance), TEXT("AFirstLevel :: GameInstance isn't Valid"));
+	const auto actorPoolManager = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>();
+	checkf(IsValid(actorPoolManager), TEXT("AFirstLevel :: ActorPoolManager isn't Valid"));
 
-	m_ActorPool = gameInstance->GetActorPool();
+	m_ActorPool = actorPoolManager->GetActorPool();
 	
 	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: ActorPool isn't Valid"));
 
