@@ -11,12 +11,12 @@ UMainPlayerAnim::UMainPlayerAnim()
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayerAnim::Constructor"));
 }
 
-void UMainPlayerAnim::AnimNotify_checkNormalAttackHit() const 
+void UMainPlayerAnim::AnimNotify_CheckNormalAttackHit() const 
 {
 	OnNormalAttackHitCheck.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_checkNextNormalAttack() const
+void UMainPlayerAnim::AnimNotify_CheckNextNormalAttack() const
 {
 	OnNormalAttackNextCheck.Broadcast();
 }

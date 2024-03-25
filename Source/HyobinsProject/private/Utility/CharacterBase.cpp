@@ -37,9 +37,8 @@ void ACharacterBase::PossessedBy(AController* newController)
 
 	const FString log = Tags[0].ToString() + " :: CharacterBase :: PossessedBy!!";
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
-
-	m_AIControllerBase = Cast<AAIControllerBase>(newController);
-	//m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
+	
+	m_AIControllerBase = Cast<AAIControllerBase>(GetController());
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -61,12 +60,10 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	if (!m_bIsDeath)
 	{
 		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 블렌드스페이스용 변수
-		ExecHitEvent(instigatorCharacter);
+		ExecHitEvent(instigatorCharacter); // 블랙보드에 적 입력하는용도. 이것도 메인플레이어한텐 필요없음. 오버라이딩이라 상관없구나.
 
 		if (!m_bIsSuperArmor)
 		{
-			SetCommonState(EMonsterCommonStates::Hit); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록.
-
 			m_bIsAttacking = false; // 피격모션을 재생하기때문에 공격x. 
 
 			// 거리넉백을 위한 속도 계산.

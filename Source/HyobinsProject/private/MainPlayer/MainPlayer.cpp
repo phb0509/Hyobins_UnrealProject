@@ -39,6 +39,8 @@ AMainPlayer::AMainPlayer() :
 
 	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
 	initAssets();
+
+	
 }
 
 void AMainPlayer::BeginPlay()
@@ -135,18 +137,10 @@ void AMainPlayer::TriggerReleasedLeftCtrl()
 void AMainPlayer::initAssets()
 {
 	// RootCapsuleComponent
-	if (GetCapsuleComponent() != nullptr)
-	{
-		GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
-		GetCapsuleComponent()->SetCapsuleRadius(40.0f);
-		
-		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent is Valid!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT(" CapsuleComponent isn't Valid!"));
-	}
-
+	checkf(GetCapsuleComponent() != nullptr, TEXT("CapsuleComponent isn't Valid"));
+	GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
+	GetCapsuleComponent()->SetCapsuleRadius(40.0f);
+	
 	// Mesh
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MainPlayerAsset/Character/MainPlayer.MainPlayer'"));
 	if (mesh.Succeeded())

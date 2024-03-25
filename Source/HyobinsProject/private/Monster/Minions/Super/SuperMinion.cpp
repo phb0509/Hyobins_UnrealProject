@@ -35,7 +35,7 @@ void ASuperMinion::PostInitializeComponents()
 	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
 	if (m_AnimInstance.IsValid())
 	{
-		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::onMontageEnded); 
+		m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &ASuperMinion::OnEndedNormalAttack);
 		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
 	}
 	else
@@ -44,6 +44,7 @@ void ASuperMinion::PostInitializeComponents()
 	}
 
 	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
+	
 	if (m_OwnerAIController.IsValid())
 	{}
 	else
@@ -114,22 +115,7 @@ void ASuperMinion::OnHitTimerEnded()
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
 
-void ASuperMinion::onMontageEnded(UAnimMontage* Montage, bool bInterrupted) 
-{
-	const uint8 curStateIndex = static_cast<uint8>(m_CurState);
-
-	switch (curStateIndex)
-	{
-	case static_cast<uint8>(ENormalMinionStates::NormalAttack):
-		onNormalAttackMontageEnded();
-		break;
-
-	default:
-		break;
-	}
-}
-
-void ASuperMinion::onNormalAttackMontageEnded()
+void ASuperMinion::OnEndedNormalAttack()
 {
 	m_bIsAttacking = false;
 	m_OwnerAIController->PlayBehaviorTree();

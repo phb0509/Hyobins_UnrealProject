@@ -21,7 +21,7 @@ public:
 	virtual void PossessedBy(AController* newController) override;
 
 	virtual void OnHitTimerEnded() {};
-	virtual void OnCalledDeathMontageEndedNotify();
+	virtual void OnCalledDeathMontageEndedNotify(); 
 	
 	// Get
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
@@ -50,7 +50,7 @@ protected:
 	virtual void SetHitState() {};
 	virtual void OnHPIsZero();
 	virtual void ExecHitEvent(ACharacterBase* instigator){};
-	virtual void ExecDeathEvent() {};
+	virtual void ExecDeathEvent() {}; // 죽음몽타주 재생완료 후 실행되는 함수. CharacterBase::OnCalledDeathMontageEnded함수안에서 호출한다.
 
 	// IPoolableActor
 	virtual void Initialize() override {};
@@ -63,12 +63,11 @@ protected:
 	UStatComponent* m_StatComponent;
 	
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
-	//TWeakObjectPtr<class UAnimInstanceBase> m_AnimInstanceBase;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
 	TArray<UShapeComponent*> m_HitColliders;
 
-	TMap<FName, TMap<AActor*, bool>> m_CheckHitActors;
+	//TMap<FName, TMap<AActor*, bool>> m_CheckHitActors;
 
 	FTimerHandle m_OnHitTimerHandle;
 	FTimerHandle m_DeathTimerHandle;

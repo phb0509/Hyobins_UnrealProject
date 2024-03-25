@@ -6,7 +6,7 @@
 #include "Utility/AnimInstanceBase.h"
 #include "SuperMinionAnim.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnAttackHitCheckDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnEndedNormalAttackDelegate);
 
 UCLASS()
 class HYOBINSPROJECT_API USuperMinionAnim : public UAnimInstanceBase
@@ -19,11 +19,11 @@ public:
 
 private:
 	void initAssets();
-
+	
 	UFUNCTION()
-	void AnimNotify_checkAttackHit() const; // Notify를 실행시키는 함수.
+	void AnimNotify_EndedNormalAttack() const; 
 
 public:
-	FOnAttackHitCheckDelegate  OnAttackHitCheck;
+	FOnEndedNormalAttackDelegate OnEndedNormalAttack;
 
 };

@@ -2,19 +2,18 @@
 
 
 #include "Monster/Minions/Super/SuperMinionAnim.h"
-#include "Monster/Minions/Super/SuperMinion.h"
 
 
 USuperMinionAnim::USuperMinionAnim()
 {
 	initAssets();
-
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAnim::Constructor"));
 }
 
-void USuperMinionAnim::AnimNotify_checkAttackHit() const// 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
+
+void USuperMinionAnim::AnimNotify_EndedNormalAttack() const
 {
-	OnAttackHitCheck.Broadcast();
+	OnEndedNormalAttack.Broadcast();
 }
 
 void USuperMinionAnim::initAssets()

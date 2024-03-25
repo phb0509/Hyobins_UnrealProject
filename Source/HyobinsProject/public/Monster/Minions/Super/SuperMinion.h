@@ -18,11 +18,15 @@ public:
 	ASuperMinion();
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
+	
 	virtual void OnHitTimerEnded() override;
-
+	void OnEndedNormalAttack();
 	void NormalAttack();
-
+	
+	// Get
 	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
+
+	// Set
 	void SetState(ENormalMinionStates state);
 
 protected:
@@ -37,10 +41,7 @@ protected:
 private:
 	void initAssets();
 	void updateState();
-	void onNormalAttackMontageEnded();
-
-	UFUNCTION()
-	void onMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	
 
 public:
 	static int TagCount;

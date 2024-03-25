@@ -2,9 +2,10 @@
 
 
 #include "Monster/Monster.h"
-#include "Utility/AIControllerBase.h"
 #include <Components/CapsuleComponent.h>
+#include "Utility/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
+#include "Utility/Utility.h"
 
 const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
@@ -23,6 +24,11 @@ AMonster::AMonster() :
 
 void AMonster::ExecHitEvent(ACharacterBase* instigator)
 {
+	if (!m_bIsSuperArmor)
+	{
+		SetCommonState(EMonsterCommonStates::Hit); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록
+	}
+	
 	m_AIControllerBase->PlayBehaviorTree();
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }

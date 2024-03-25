@@ -17,12 +17,7 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 
 	m_AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>("AIPerception_Component");
 	checkf(IsValid(m_AIPerceptionComponent.Get()), TEXT("AIPerceptionComponent is not Valid"));
-
-	//FScriptDelegate Delegate;
-	//Delegate.BindUFunction(this, "UpdatePerceptedTargetActor");
-
-	////m_AIPerceptionComponent->OnComponentActivated.Add(&AAIControllerBase::UpdatePerceptedTargetActor);
-	//m_AIPerceptionComponent->OnComponentActivated.Add(Delegate);
+	
 }
 
 void AAIControllerBase::BeginPlay()
@@ -41,7 +36,6 @@ void AAIControllerBase::OnPossess(APawn* pawn)
 
 	m_AIPerceptionComponent->Activate();
 	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), true);
-	//m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass());
 }
 
 void AAIControllerBase::OnUnPossess()

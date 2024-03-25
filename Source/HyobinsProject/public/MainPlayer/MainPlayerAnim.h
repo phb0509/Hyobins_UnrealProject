@@ -23,15 +23,12 @@ class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstanceBase
 public:
 	UMainPlayerAnim();
 
-private:
-	void initAssets();
-
 	// 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
 	UFUNCTION()
-	void AnimNotify_checkNormalAttackHit() const; // 충돌체크해야할 타이밍에 바인딩된 노티파이
+	void AnimNotify_CheckNormalAttackHit() const; // 충돌체크해야할 타이밍에 바인딩된 노티파이
 
 	UFUNCTION()
-	void AnimNotify_checkNextNormalAttack() const; // 추가키입력 검사타이밍에 바인딩된 노티파이
+	void AnimNotify_CheckNextNormalAttack() const; // 추가키입력 검사타이밍에 바인딩된 노티파이
 
 	UFUNCTION()
 	void AnimNotify_EndedNormalAttack() const; // 각 콤보모션 끝나는 타이밍에 바인딩된 노티파이
@@ -39,7 +36,11 @@ private:
 	UFUNCTION()
 	void AnimNotify_EndedDodgeMove() const; // 회피기모션 끝나는 타이밍에 바인딩된 노티파이
 
+	
+private:
+	void initAssets();
 
+	
 public:
 	FOnNormalAttackNextCheckDelegate OnNormalAttackNextCheck;
 	FOnNormalAttackHitCheckDelegate OnNormalAttackHitCheck;
