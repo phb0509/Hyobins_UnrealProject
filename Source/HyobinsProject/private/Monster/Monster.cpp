@@ -6,6 +6,7 @@
 #include "Utility/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
 #include "Utility/Utility.h"
+#include "Component/StatComponent.h"
 
 const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
@@ -29,7 +30,7 @@ void AMonster::ExecHitEvent(ACharacterBase* instigator)
 		SetCommonState(EMonsterCommonStates::Hit); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록
 	}
 	
-	m_AIControllerBase->PlayBehaviorTree();
+	m_AIControllerBase->StartBehaviorTree();
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }
 
@@ -44,7 +45,7 @@ void AMonster::Activate()
 	m_bIsActivated = true;
 	m_bIsDeath = false;
 	m_AIControllerBase->OnPossess(this);
-	m_AIControllerBase->PlayBehaviorTree();
+	m_AIControllerBase->StartBehaviorTree();
 
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);

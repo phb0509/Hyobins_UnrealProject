@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Component/StatComponent.h"
 #include "ActorPool/PoolableActor.h"
 #include "CharacterBase.generated.h"
 
@@ -24,6 +23,7 @@ public:
 	virtual void OnCalledDeathMontageEndedNotify(); 
 	
 	// Get
+	FORCEINLINE class UStatComponent* GetStatComponent() const { return m_StatComponent; }
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
 	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
@@ -60,15 +60,13 @@ protected:
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = StatComponent)
-	UStatComponent* m_StatComponent;
+	class UStatComponent* m_StatComponent;
 	
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
 	TArray<UShapeComponent*> m_HitColliders;
-
-	//TMap<FName, TMap<AActor*, bool>> m_CheckHitActors;
-
+	
 	FTimerHandle m_OnHitTimerHandle;
 	FTimerHandle m_DeathTimerHandle;
 	FTimerHandle m_DeActivateTimerHandle;

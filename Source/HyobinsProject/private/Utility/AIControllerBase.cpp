@@ -52,7 +52,7 @@ void AAIControllerBase::StopBehaviorTree() const
 	m_BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 }
 
-void AAIControllerBase::PlayBehaviorTree()
+void AAIControllerBase::StartBehaviorTree()
 {
 	RunBehaviorTree(m_BehaviorTree.Get());
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);

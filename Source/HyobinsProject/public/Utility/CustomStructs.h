@@ -67,7 +67,6 @@ struct FAttackInfoStruct : public FDamageEvent
 	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
 
 public:
-	
 	FName attackName;
 	float damage;
 	bool bIsDot; 

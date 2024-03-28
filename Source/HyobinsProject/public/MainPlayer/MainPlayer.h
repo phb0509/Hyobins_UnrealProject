@@ -83,12 +83,9 @@ private:
 	class UBoxComponent* m_ShieldColliderForShield;
 	
 	
-	
 	float m_ArmLengthTo;
-	//FRotator m_ArmRotationTo;
 	float m_ArmLengthSpeed;
-	//float m_ArmRotationSpeed;
-
+	
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 

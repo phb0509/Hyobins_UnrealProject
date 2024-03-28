@@ -23,21 +23,30 @@ protected:
 public:
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
 	FORCEINLINE void ChangeMaxHP(const float hp) { m_MaxHP = hp; }
-
+	void AddMoveSpeed(const float additionalMoveSpeed);
+	void AddAttackSpeed(const float additionalAttackSpeed);
+	
 	// Get
-	FORCEINLINE float GetHPRatio() const;
-
+	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
+	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
+	FORCEINLINE float GetAttackSpeed() const { return m_CurAttackSpeed; }
+	
 	// Set
 	void SetDamage(const float damage);
 	void SetHP(const float hp);
-
+	
 	FOnHPIsZeroDelegate OnHPIsZero;
 	FOnHPIsChangedDelegate OnHPIsChanged;
 
 private:
 	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = true))
-		float m_MaxHP;
+	float m_MaxHP;
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
-		float m_CurHP;
+	float m_CurHP;
+
+	float m_CurMoveSpeed;
+	float m_CurAdditionalMoveSpeed;
+	float m_CurAttackSpeed;
+	float m_CurAdditionalAttackSpeed;
 };

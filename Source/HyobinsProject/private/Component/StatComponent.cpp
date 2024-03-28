@@ -4,7 +4,11 @@
 
 UStatComponent::UStatComponent() :
 	m_MaxHP(200.0f),
-	m_CurHP(m_MaxHP)
+	m_CurHP(m_MaxHP),
+	m_CurMoveSpeed(1.0f),
+	m_CurAdditionalMoveSpeed(0.0f),
+	m_CurAttackSpeed(1.0f),
+	m_CurAdditionalAttackSpeed(0.0f)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	bWantsInitializeComponent = false;
@@ -15,11 +19,6 @@ void UStatComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	InitHP();
-}
-
-FORCEINLINE float UStatComponent::GetHPRatio() const
-{
-	return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP);
 }
 
 void UStatComponent::SetDamage(const float damage)
@@ -38,4 +37,18 @@ void UStatComponent::SetHP(const float hp)
 		OnHPIsZero.Broadcast();
 	}
 }
+
+void UStatComponent::AddMoveSpeed(const float additionalMoveSpeed)
+{
+	m_CurAdditionalMoveSpeed += additionalMoveSpeed;
+	m_CurMoveSpeed = 1.0f + m_CurAdditionalMoveSpeed / 100.0f;
+}
+
+void UStatComponent::AddAttackSpeed(const float additionalAttackSpeed)
+{
+	m_CurAdditionalAttackSpeed += additionalAttackSpeed;
+	m_CurAttackSpeed = 1.0f + m_CurAdditionalAttackSpeed / 100.0f;
+}
+
+
 

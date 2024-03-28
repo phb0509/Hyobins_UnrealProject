@@ -30,7 +30,7 @@ public:
 	virtual void OnUnPossess() override;
 
 	void StopBehaviorTree() const;
-	void PlayBehaviorTree();
+	void StartBehaviorTree();
 
 	UFUNCTION()
 	virtual void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus) {};

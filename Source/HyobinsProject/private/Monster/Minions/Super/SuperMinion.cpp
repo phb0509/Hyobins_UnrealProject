@@ -118,7 +118,7 @@ void ASuperMinion::OnHitTimerEnded()
 void ASuperMinion::OnEndedNormalAttack()
 {
 	m_bIsAttacking = false;
-	m_OwnerAIController->PlayBehaviorTree();
+	m_OwnerAIController->StartBehaviorTree();
 }
 
 void ASuperMinion::Die()

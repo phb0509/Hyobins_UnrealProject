@@ -60,11 +60,4 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-
-public:
-	UPROPERTY(EditAnywhere)
-		ENormalMinionStates m_NormalMinionStates;
-
 };

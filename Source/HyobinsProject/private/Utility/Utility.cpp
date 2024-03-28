@@ -65,7 +65,7 @@ void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAtta
 			if (crowdControlEnum != nullptr)
 			{
 				const int32 index = crowdControlEnum->GetIndexByName(data.crowdControlType);
-				crowdControlType = ECrowdControlType((uint8)index);
+				crowdControlType = ECrowdControlType(index);
 			}
 
 			FAttackInfoStruct attackInfoStruct;

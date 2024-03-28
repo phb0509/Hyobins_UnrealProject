@@ -5,6 +5,7 @@
 #include "Utility/AIControllerBase.h"
 #include "Utility/CustomStructs.h"
 #include "Utility/Utility.h"
+#include "Component/StatComponent.h"
 
 ACharacterBase::ACharacterBase() :
 	m_WalkSpeed(200.0f),
