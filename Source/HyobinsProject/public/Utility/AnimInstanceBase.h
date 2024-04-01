@@ -8,7 +8,7 @@
 
 
 
-DECLARE_MULTICAST_DELEGATE(FOnDeathMontageEndedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnEndedDeathDelegate);
 
 UCLASS()
 class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
@@ -24,10 +24,10 @@ public:
 
 private:
 	UFUNCTION()
-	void AnimNotify_OnDeathMontageEnded() const; 
+	void AnimNotify_EndedDeath() const; 
 
 public:
-	FOnDeathMontageEndedDelegate OnDeathMontageEnded;
+	FOnEndedDeathDelegate OnEndedDeath;
 
 protected:
 	UPROPERTY()

@@ -36,7 +36,7 @@ void ASuperMinion::PostInitializeComponents()
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &ASuperMinion::OnEndedNormalAttack);
-		m_AnimInstance->OnDeathMontageEnded.AddUObject(this, &ACharacterBase::OnCalledDeathMontageEndedNotify);
+		m_AnimInstance->OnEndedDeath.AddUObject(this, &ACharacterBase::OnCalledEndedDeathNotify);
 	}
 	else
 	{
@@ -105,7 +105,7 @@ void ASuperMinion::OnDeathEventTimerEnded()
 
 void ASuperMinion::OnHitTimerEnded()
 {
-	if (m_bIsDeath)
+	if (m_bIsDead)
 	{
 		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 		return;
@@ -126,7 +126,7 @@ void ASuperMinion::Die()
 	SetState(ENormalMinionStates::Die);
 
 	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_AnimInstance->PlayMontage("OnDeath_Front");
+	//m_AnimInstance->PlayMontage("OnDeath_Front");
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_OwnerAIController->OnUnPossess();
 }

@@ -10,7 +10,6 @@ USuperMinionAnim::USuperMinionAnim()
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAnim::Constructor"));
 }
 
-
 void USuperMinionAnim::AnimNotify_EndedNormalAttack() const
 {
 	OnEndedNormalAttack.Broadcast();

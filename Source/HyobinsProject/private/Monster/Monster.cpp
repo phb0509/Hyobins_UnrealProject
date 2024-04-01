@@ -43,7 +43,7 @@ void AMonster::Activate()
 {
 	m_StatComponent->InitHP();
 	m_bIsActivated = true;
-	m_bIsDeath = false;
+	m_bIsDead = false;
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->StartBehaviorTree();
 

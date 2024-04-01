@@ -20,7 +20,7 @@ public:
 	virtual void PossessedBy(AController* newController) override;
 
 	virtual void OnHitTimerEnded() {};
-	virtual void OnCalledDeathMontageEndedNotify(); 
+	virtual void OnCalledEndedDeathNotify(); 
 	
 	// Get
 	FORCEINLINE class UStatComponent* GetStatComponent() const { return m_StatComponent; }
@@ -34,7 +34,7 @@ public:
 	FORCEINLINE bool GetIsAttacking() const { return m_bIsAttacking; }
 	FORCEINLINE bool GetIsInAir() const { return m_bIsInAir; }
 	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
-	FORCEINLINE bool GetIsDeath() const { return m_bIsDeath; }
+	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
 	FORCEINLINE bool GetIsHitStateTrigger() const { return m_bIsHitStateTrigger; }
 	FORCEINLINE int32 GetHitDirection() const { return m_HitDirection; }
 
@@ -108,7 +108,7 @@ protected:
 	bool m_bIsSuperArmor;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsDeath;
+	bool m_bIsDead;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsHitStateTrigger; // 몬스터들 연속피격모션 재생을위한 변수 (피격모션을 블렌드스페이스로 재생하기때문.)

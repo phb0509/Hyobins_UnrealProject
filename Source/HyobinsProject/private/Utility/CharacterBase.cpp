@@ -20,7 +20,7 @@ ACharacterBase::ACharacterBase() :
 	m_bIsAttacking(false),
 	m_bIsInAir(false),
 	m_bIsSuperArmor(false),
-	m_bIsDeath(false),
+	m_bIsDead(false),
 	m_bIsHitStateTrigger(false),
 	m_DeathTimerTickTime(1.0f),
 	m_DeathTimerRemainingTime(3.0f),
@@ -58,7 +58,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
-	if (!m_bIsDeath)
+	if (!m_bIsDead)
 	{
 		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 블렌드스페이스용 변수
 		ExecHitEvent(instigatorCharacter); // 블랙보드에 적 입력하는용도. 이것도 메인플레이어한텐 필요없음. 오버라이딩이라 상관없구나.
@@ -89,14 +89,15 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void ACharacterBase::OnHPIsZero()
 {
-	m_bIsDeath = true;
+	m_bIsDead = true;
 	m_bIsAttacking = false;
 
 	Die();
 }
 
-void ACharacterBase::OnCalledDeathMontageEndedNotify()
+void ACharacterBase::OnCalledEndedDeathNotify()
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnCalled DeathNotifyEnded"));
 	ExecDeathEvent();
 
 	// 액터풀에 반환하기위한 비활성화타이머.
