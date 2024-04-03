@@ -51,9 +51,9 @@ void AMainPlayer::BeginPlay()
 	
 	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
-	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::checkOverlapSwordCollision);
-	m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::checkOverlapShieldCollisionForAttack);
-    m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::checkOverlapShieldCollisionForShield);
+	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapSwordCollision);
+	m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForAttack);
+    m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForShield);
 }
 
 void AMainPlayer::Tick(float DeltaTime)

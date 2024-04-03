@@ -11,24 +11,34 @@ UMainPlayerAnim::UMainPlayerAnim()
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayerAnim::Constructor"));
 }
 
-void UMainPlayerAnim::AnimNotify_CheckNormalAttackHit() const 
+void UMainPlayerAnim::AnimNotify_NormalAttack_Start_EachSection() const
 {
-	OnNormalAttackHitCheck.Broadcast();
+	NormalAttack_Start_EachSection.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_CheckNextNormalAttack() const
+void UMainPlayerAnim::AnimNotify_NormalAttack_Start_HitCheck() const 
 {
-	OnNormalAttackNextCheck.Broadcast();
+	NormalAttack_Start_HitCheck.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_EndedNormalAttack() const
+void UMainPlayerAnim::AnimNotify_NormalAttack_End_HitCheck() const
 {
-	OnEndedNormalAttack.Broadcast();
+	NormalAttack_End_HitCheck.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_EndedDodgeMove() const
+void UMainPlayerAnim::AnimNotify_NormalAttack_KeyInputCheck() const
 {
-	OnEndedDodgeMove.Broadcast();
+	NormalAttack_KeyInputCheck.Broadcast();
+}
+
+void UMainPlayerAnim::AnimNotify_NormalAttack_End_EachSection() const
+{
+	NormalAttack_End_EachSection.Broadcast();
+}
+
+void UMainPlayerAnim::AnimNotify_CombatDodge_End_Move() const
+{
+	CombatDodge_End_Move.Broadcast();
 }
 
 void UMainPlayerAnim::initAssets()
@@ -39,13 +49,5 @@ void UMainPlayerAnim::initAssets()
 	if (normalAttackMontage.Succeeded())
 	{
 		m_Montages.Add("NormalAttack", normalAttackMontage.Object);
-	}
-
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> combatDodgeMontage
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Dodge_NonCombat.Dodge_NonCombat'"));
-
-	if (combatDodgeMontage.Succeeded())
-	{
-		m_Montages.Add("Dodge_NonCombat", combatDodgeMontage.Object);
 	}
 }

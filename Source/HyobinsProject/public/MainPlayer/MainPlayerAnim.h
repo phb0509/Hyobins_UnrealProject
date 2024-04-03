@@ -8,11 +8,13 @@
 
 enum class EMainPlayerStates : uint8;
 
+DECLARE_MULTICAST_DELEGATE(FNormalAttack_Start_EachSection_Delegate);
+DECLARE_MULTICAST_DELEGATE(FNormalAttack_Start_HitCheck_Delegate);
+DECLARE_MULTICAST_DELEGATE(FNormalAttack_End_HitCheck_Delegate);
+DECLARE_MULTICAST_DELEGATE(FNormalAttack_KeyInputCheck_Delegate);
+DECLARE_MULTICAST_DELEGATE(FNormalAttack_End_EachSection_Delegate);
 
-DECLARE_MULTICAST_DELEGATE(FOnNormalAttackNextCheckDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnNormalAttackHitCheckDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnEndedNormalAttackDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnEndedDodgeMoveDelegate);
+DECLARE_MULTICAST_DELEGATE(FCombatDodge_End_Move_Delegate);
 
 
 UCLASS()
@@ -22,19 +24,25 @@ class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstanceBase
 
 public:
 	UMainPlayerAnim();
-
-	// 노티파이 실행 함수. 몽타주파일의 노티파이이름과 동일하게 생성해야한다.
+	
 	UFUNCTION()
-	void AnimNotify_CheckNormalAttackHit() const; // 충돌체크해야할 타이밍에 바인딩된 노티파이
-
+	void AnimNotify_NormalAttack_Start_EachSection() const; 
+	
 	UFUNCTION()
-	void AnimNotify_CheckNextNormalAttack() const; // 추가키입력 검사타이밍에 바인딩된 노티파이
-
-	UFUNCTION()
-	void AnimNotify_EndedNormalAttack() const; // 각 콤보모션 끝나는 타이밍에 바인딩된 노티파이
+	void AnimNotify_NormalAttack_Start_HitCheck() const; 
 
 	UFUNCTION()
-	void AnimNotify_EndedDodgeMove() const; // 회피기모션 끝나는 타이밍에 바인딩된 노티파이
+	void AnimNotify_NormalAttack_End_HitCheck() const; 
+
+	UFUNCTION()
+	void AnimNotify_NormalAttack_KeyInputCheck() const;
+
+	UFUNCTION()
+	void AnimNotify_NormalAttack_End_EachSection() const; 
+
+	
+	UFUNCTION()
+	void AnimNotify_CombatDodge_End_Move() const; 
 
 	
 private:
@@ -42,8 +50,11 @@ private:
 
 	
 public:
-	FOnNormalAttackNextCheckDelegate OnNormalAttackNextCheck;
-	FOnNormalAttackHitCheckDelegate OnNormalAttackHitCheck;
-	FOnEndedNormalAttackDelegate OnEndedNormalAttack;
-	FOnEndedDodgeMoveDelegate OnEndedDodgeMove;
+	FNormalAttack_Start_EachSection_Delegate NormalAttack_Start_EachSection;
+	FNormalAttack_Start_HitCheck_Delegate NormalAttack_Start_HitCheck;
+	FNormalAttack_End_HitCheck_Delegate NormalAttack_End_HitCheck;
+	FNormalAttack_KeyInputCheck_Delegate NormalAttack_KeyInputCheck;
+	FNormalAttack_End_EachSection_Delegate NormalAttack_End_EachSection;
+	
+	FCombatDodge_End_Move_Delegate CombatDodge_End_Move;
 };
