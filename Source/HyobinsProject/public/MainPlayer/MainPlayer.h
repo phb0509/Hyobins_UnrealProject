@@ -36,9 +36,9 @@ public:
 	void TriggerPressedSpaceBar();
 	void TriggerPressedLeftCtrl();
 	void TriggerReleasedLeftCtrl();
+	void TriggerPressedQ();
 	
 	FORCEINLINE void UpdateTempInput() { m_TempInputHorizontalForDodge = m_CurInputHorizontal; m_TempInputVerticalForDodge = m_CurInputVertical; }
-	FORCEINLINE	void UpdateTempIsAttacking() { m_bTempIsAttacking = m_bIsAttacking; }
 	
 	// Get
 	FORCEINLINE class UCapsuleComponent* GetSwordCollider() const { return m_SwordCollider; }
@@ -112,8 +112,5 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int m_TempInputVerticalForDodge;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	bool m_bTempIsAttacking;
 	
 };

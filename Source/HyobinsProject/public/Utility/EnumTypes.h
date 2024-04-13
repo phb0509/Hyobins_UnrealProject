@@ -13,9 +13,16 @@ enum class EMainPlayerStates : uint8
 	Idle	UMETA(DisplayName = "Idle"),
 	Walk	UMETA(DisplayName = "Walk"),
 	Run		UMETA(DisplayName = "Run"),
-	Attack	UMETA(DisplayName = "Attack"),
 	Hit		UMETA(DisplayName = "Hit"),
 	Die     UMETA(DisplayName = "Die")
+};
+
+UENUM(BlueprintType)
+enum class EMainPlayerAttackSkills : uint8
+{
+	None			UMETA(DisplayName = "None"),
+	NormalAttack	UMETA(DisplayName = "NormalAttack"),
+	UpperAttack		UMETA(DisplayName = "UpperAttack"),
 };
 
 UENUM(BlueprintType)

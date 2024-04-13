@@ -12,9 +12,7 @@
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
-	//m_ArmRotationTo(10.0f),
 	m_ArmLengthSpeed(3.0f),
-	//m_ArmRotationSpeed(0.0f),
 	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
 	m_bIsDodgeMoving(false),
@@ -24,8 +22,7 @@ AMainPlayer::AMainPlayer() :
 	m_CurInputHorizontal(0),
 	m_CurInputVertical(0),
 	m_TempInputHorizontalForDodge(0),
-	m_TempInputVerticalForDodge(0),
-	m_bTempIsAttacking(false)
+	m_TempInputVerticalForDodge(0)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -39,8 +36,6 @@ AMainPlayer::AMainPlayer() :
 
 	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
 	initAssets();
-
-	
 }
 
 void AMainPlayer::BeginPlay()
@@ -134,6 +129,11 @@ void AMainPlayer::TriggerReleasedLeftCtrl()
 
 }
 
+void AMainPlayer::TriggerPressedQ()
+{
+	m_SkillComponent->UpperAttack();
+}
+
 void AMainPlayer::initAssets()
 {
 	// RootCapsuleComponent
@@ -211,9 +211,6 @@ void AMainPlayer::initAssets()
 	m_ShieldColliderForShield->SetNotifyRigidBodyCollision(false);
 	m_ShieldColliderForShield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-
-
-
 	// 이외 CharacterMovement Detail값들
 
 	// true로 할 경우, 컨트롤러의 회전방향으로 캐릭터를 회전시켜줌.
@@ -314,7 +311,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedShift);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
-	PlayerInputComponent->BindAction(TEXT("Dodge"), IE_Pressed, this, &AMainPlayer::TriggerPressedSpaceBar);
-	PlayerInputComponent->BindAction(TEXT("Execute"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftCtrl);
-	PlayerInputComponent->BindAction(TEXT("Execute"), IE_Released, this, &AMainPlayer::TriggerPressedLeftCtrl);
+	PlayerInputComponent->BindAction(TEXT("SpaceBar"), IE_Pressed, this, &AMainPlayer::TriggerPressedSpaceBar);
+	PlayerInputComponent->BindAction(TEXT("LeftCtrl"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftCtrl);
+	PlayerInputComponent->BindAction(TEXT("Q"), IE_Pressed, this, &AMainPlayer::TriggerPressedQ);
 }
