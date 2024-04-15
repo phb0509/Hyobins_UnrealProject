@@ -14,7 +14,8 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase
 
 public:
 	AMonster();
-	
+
+	virtual void SetCommonState(int32 commonState) {};
 	FORCEINLINE float GetPatrolRange() const { return m_PatrolRange; }
 	FORCEINLINE float GetNormalAttackRange() const { return m_NormalAttackRange; }
 

@@ -26,24 +26,27 @@ enum class EMainPlayerAttackSkills : uint8
 };
 
 UENUM(BlueprintType)
-enum class ENormalMinionStates : uint8
+enum class EMonsterCommonStates : uint8 // 몬스터들 공통상태. 하기의 몬스터관련 enum class들은 반드시 이 commonState들을 제일먼저 순서맞게 명시해야한다.
 {
+	Idle			UMETA(DisplayName = "Idle"),
 	Patrol			UMETA(DisplayName = "Patrol"),
 	Chase			UMETA(DisplayName = "Chase"),
-	NormalAttack	UMETA(DisplayName = "NormalAttack"),
 	Hit				UMETA(DisplayName = "Hit"),
-	Die				UMETA(DisplayName = "Die"),
-	End				UMETA(DisplayName = "End")
+	Die				UMETA(DisplayName = "Die")
 };
 
 UENUM(BlueprintType)
-enum class EMonsterCommonStates : uint8
+enum class ENormalMinionStates : uint8
 {
+	Idle			UMETA(DisplayName = "Idle"),
 	Patrol			UMETA(DisplayName = "Patrol"),
+	Chase			UMETA(DisplayName = "Chase"),
 	Hit				UMETA(DisplayName = "Hit"),
 	Die				UMETA(DisplayName = "Die"),
-	End				UMETA(DisplayName = "End")
+	NormalAttack	UMETA(DisplayName = "NormalAttack")
 };
+
+
 
 UENUM(BlueprintType)
 enum class ECrowdControlType : uint8

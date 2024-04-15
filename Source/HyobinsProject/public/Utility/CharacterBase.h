@@ -18,7 +18,6 @@ public:
 	ACharacterBase();
 
 	virtual void PossessedBy(AController* newController) override;
-
 	virtual void OnHitTimerEnded() {};
 	virtual void OnCalledEndedDeathNotify(); 
 	
@@ -39,7 +38,6 @@ public:
 	FORCEINLINE int32 GetHitDirection() const { return m_HitDirection; }
 
 	// Set
-	virtual void SetCommonState(const EMonsterCommonStates commonState) {};
 	FORCEINLINE void SetIsAttacking(bool bIsAttacking) { m_bIsAttacking = bIsAttacking; }
 
 	

@@ -19,5 +19,5 @@ void UBTS_SetPatrolState::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, ui
 
 	AMonster* const owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	checkf(IsValid(owner), TEXT("Monster isn't Valid"));
-	owner->SetCommonState(EMonsterCommonStates::Patrol); 
+	owner->SetCommonState(static_cast<uint8>(EMonsterCommonStates::Patrol)); 
 }

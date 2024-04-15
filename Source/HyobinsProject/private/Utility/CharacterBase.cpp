@@ -67,7 +67,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 		{
 			m_bIsAttacking = false; // 피격모션을 재생하기때문에 공격x. 
 
-			// 거리넉백을 위한 속도 계산.
+			// 넉백
 			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
 			dirToInstigator.Normalize();
 			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);

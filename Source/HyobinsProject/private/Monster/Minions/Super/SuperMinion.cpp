@@ -126,7 +126,6 @@ void ASuperMinion::Die()
 	SetState(ENormalMinionStates::Die);
 
 	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//m_AnimInstance->PlayMontage("OnDeath_Front");
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_OwnerAIController->OnUnPossess();
 }
@@ -137,25 +136,35 @@ void ASuperMinion::SetState(ENormalMinionStates state)
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
-void ASuperMinion::SetCommonState(const EMonsterCommonStates commonState)
+void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 {
-	const uint8 commonStateIndex = static_cast<uint8>(commonState);
+	const UEnum* enumObject = FindObject<UEnum>(nullptr ,L"/Script/CoreUObject.Class'/Script/HyobinsProject.ENormalMinionStates'");
+	ENormalMinionStates enumValue = (ENormalMinionStates)(enumObject->GetValueByIndex(commonStateIndex));
 
 	switch (commonStateIndex)
 	{
-	case static_cast<uint8>(EMonsterCommonStates::Patrol):
+	case 0:
+		SetState(ENormalMinionStates::Idle);
+		break;
+		
+	case 1:
 		SetState(ENormalMinionStates::Patrol);
 		break;
-
-	case static_cast<uint8>(EMonsterCommonStates::Hit):
+		
+	case 2:
+		SetState(ENormalMinionStates::Chase);
+		break;
+		
+	case 3:
 		m_AnimInstance->StopAllMontages(0.1f);
 		SetState(ENormalMinionStates::Hit);
 		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
 		break;
-
-	case static_cast<uint8>(EMonsterCommonStates::Die):
+	
+	case 4:
+		SetState(ENormalMinionStates::Die);
 		break;
-
+	
 	default:
 		break;
 	}

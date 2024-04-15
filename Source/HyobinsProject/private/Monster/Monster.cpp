@@ -27,7 +27,7 @@ void AMonster::ExecHitEvent(ACharacterBase* instigator)
 {
 	if (!m_bIsSuperArmor)
 	{
-		SetCommonState(EMonsterCommonStates::Hit); // ¸ùÅ¸ÁÖ Àç»ı ¹×, curStateÀÌ¶û ºí·¢º¸µå¿¡ Hit»óÅÂ ±â·Ï
+		SetCommonState(static_cast<int32>(EMonsterCommonStates::Hit)); // ëª½íƒ€ì£¼ ì¬ìƒ ë°, curStateì´ë‘ ë¸”ë™ë³´ë“œì— Hitìƒíƒœ ê¸°ë¡
 	}
 	
 	m_AIControllerBase->StartBehaviorTree();
