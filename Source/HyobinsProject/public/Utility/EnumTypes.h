@@ -21,8 +21,16 @@ UENUM(BlueprintType)
 enum class EMainPlayerAttackSkills : uint8
 {
 	None			UMETA(DisplayName = "None"),
-	NormalAttack	UMETA(DisplayName = "NormalAttack"),
+	NormalAttack	UMETA(DisplayName = "NormalAttack"),            
 	UpperAttack		UMETA(DisplayName = "UpperAttack"),
+};
+
+UENUM(BlueprintType)
+enum class EMainPlayerSpecialSkills : uint8
+{
+	None			UMETA(DisplayName = "None"),
+	Dodge			UMETA(DisplayName = "Dodge"),
+	Parrying		UMETA(DisplayName = "Parrying"),
 };
 
 UENUM(BlueprintType)

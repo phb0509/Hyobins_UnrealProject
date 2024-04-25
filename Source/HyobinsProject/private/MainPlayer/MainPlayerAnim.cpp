@@ -36,6 +36,11 @@ void UMainPlayerAnim::AnimNotify_UpperAttack_End() const
 	UpperAttack_End.Broadcast();
 }
 
+void UMainPlayerAnim::AnimNotify_CombatDodge_Start_Move() const
+{
+	CombatDodge_Start_Move.Broadcast();
+}
+
 void UMainPlayerAnim::AnimNotify_CombatDodge_End_Move() const
 {
 	CombatDodge_End_Move.Broadcast();
@@ -70,7 +75,6 @@ void UMainPlayerAnim::initAssets()
 	{
 		m_Montages.Add("NormalAttack", normalAttackMontage.Object);
 	}
-
 	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> upperAttackMontage
 	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AM_Attack_Up_OnGround.AM_Attack_Up_OnGround'"));
@@ -78,5 +82,13 @@ void UMainPlayerAnim::initAssets()
 	if (upperAttackMontage.Succeeded())
 	{
 		m_Montages.Add("UpperAttack", upperAttackMontage.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> combatDodgeMontage
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AM_CombatDodge.AM_CombatDodge'"));
+	
+	if (combatDodgeMontage.Succeeded())
+	{
+		m_Montages.Add("CombatDodge", combatDodgeMontage.Object);
 	}
 }

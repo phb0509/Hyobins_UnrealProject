@@ -1,2 +1,2 @@
 ﻿AttackName,Damage,bIsDot,bHasCrowdControl,crowdControlType,crowdControlTime,bHasKnockBack,knockBackTime,knockBackDistance
-NormalAttack,40,FALSE,FALSE,None,0,FALSE,4,40
+NormalAttack,40,FALSE,FALSE,None,0,FALSE,2,40

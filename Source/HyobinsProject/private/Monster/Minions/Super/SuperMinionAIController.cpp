@@ -119,7 +119,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 				break;
 			}
 
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 		}
 	}
 }

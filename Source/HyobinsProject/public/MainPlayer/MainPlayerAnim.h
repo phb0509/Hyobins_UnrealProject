@@ -23,6 +23,7 @@ DECLARE_MULTICAST_DELEGATE(FUpperAttack_Start_Delegate);
 DECLARE_MULTICAST_DELEGATE(FUpperAttack_End_Delegate);
 
 // CombatDodge
+DECLARE_MULTICAST_DELEGATE(FCombatDodge_Start_Move_Delegate);
 DECLARE_MULTICAST_DELEGATE(FCombatDodge_End_Move_Delegate);
 
 
@@ -55,6 +56,9 @@ public:
 
 	// CombatDodge
 	UFUNCTION()
+	void AnimNotify_CombatDodge_Start_Move() const;
+	
+	UFUNCTION()
 	void AnimNotify_CombatDodge_End_Move() const; 
 
 	// 각 충돌체들
@@ -85,6 +89,7 @@ public:
 	FUpperAttack_End_Delegate UpperAttack_End;
 	
 	// CombatDodge
+	FCombatDodge_Start_Move_Delegate CombatDodge_Start_Move;
 	FCombatDodge_End_Move_Delegate CombatDodge_End_Move;
 
 	// 각 충돌체들

@@ -5,9 +5,11 @@
 
 
 const double Utility::m_DegreeTable[3][3] = { {-135,180,135},{-90,0,90},{-45,0,45} };
+const int32 Utility::m_DirectionIndex[3][3] = {{5,4,3}, {6,0,2}, {7,0,1}};
 
-Utility::Utility() 
+Utility::Utility()
 {
+
 }
 
 Utility::~Utility()

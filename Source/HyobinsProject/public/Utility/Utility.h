@@ -12,11 +12,14 @@ public:
 	Utility();
 	~Utility();
 	
-	static FORCEINLINE double ConvertToDegree(int inputVertical, int inputHorizontal) { return m_DegreeTable[inputVertical + 1][inputHorizontal + 1]; }
+	FORCEINLINE static double ConvertToDegree(int inputVertical, int inputHorizontal) { return m_DegreeTable[inputVertical + 1][inputHorizontal + 1]; }
+	FORCEINLINE static int32 GetDirectionIndex(const int inputVertical, const int inputHorizontal) { return m_DirectionIndex[inputVertical + 1][inputHorizontal + 1]; }
 	static int32 GetHitDirection(const AActor* hitActor, const AActor* attackActor);
 	static void InitAttackInformations(IN const FString& assetPath, OUT TMap<FName, FAttackInfoStruct>& attackInformations);
+
 	
 private:
 	static const double m_DegreeTable[3][3];
+	static const int32 m_DirectionIndex[3][3];
 
 };

@@ -41,24 +41,19 @@ public:
 	FORCEINLINE void UpdateTempInput() { m_TempInputHorizontalForDodge = m_CurInputHorizontal; m_TempInputVerticalForDodge = m_CurInputVertical; }
 	
 	// Get
+	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
+	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
 	FORCEINLINE class UCapsuleComponent* GetSwordCollider() const { return m_SwordCollider; }
 	FORCEINLINE class UBoxComponent* GetShiledColliderForAttack() const { return m_ShieldColliderForAttack; }
 	FORCEINLINE class UBoxComponent* GetShiledColliderForShiled() const { return m_ShieldColliderForShield; }
 	FORCEINLINE bool GetIsDodgeMoving() const { return m_bIsDodgeMoving; }
 	
-
 	// Set
 	FORCEINLINE void SetIsDodgeMoving(bool bIsDodgeMing) { m_bIsDodgeMoving = bIsDodgeMing; }
 
-
-	//UFUNCTION()
-	//void checkOverlapSwordCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	
 private:
 	void initAssets();
 	void updateState();
-	
 	void printLog() const;
 	
 public:
@@ -85,7 +80,6 @@ private:
 	
 	float m_ArmLengthTo;
 	float m_ArmLengthSpeed;
-	
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 
@@ -102,15 +96,15 @@ private:
 	bool m_bIsPressingShift;
 
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	int m_CurInputHorizontal;
+	int32 m_CurInputHorizontal;
 
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	int m_CurInputVertical;
+	int32 m_CurInputVertical;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	int m_TempInputHorizontalForDodge;
+	int32 m_TempInputHorizontalForDodge;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	int m_TempInputVerticalForDodge;
+	int32 m_TempInputVerticalForDodge;
 	
 };

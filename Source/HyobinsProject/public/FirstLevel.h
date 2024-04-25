@@ -20,25 +20,25 @@ public:
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-		void Create();
+	void Create();
 
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-		void Spawn();
+	void Spawn();
 
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-		void ClearActorPool();
+	void ClearActorPool();
 
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-		void HideHPBar();
+	void HideHPBar();
 
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-		void ShowHPBar();
+	void ShowHPBar();
 
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-		void ClearAllWidget();
+	void ClearAllWidget();
 
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-		void ClearHPBarWidget();
+	void ClearHPBarWidget();
 
 
 private:
