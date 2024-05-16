@@ -1,2 +1,3 @@
 ﻿AttackName,Damage,bIsDot,bHasCrowdControl,crowdControlType,crowdControlTime,bHasKnockBack,knockBackTime,knockBackDistance
-NormalAttack,40,FALSE,FALSE,None,0,FALSE,2,40
+NormalAttack_OnGround,40,FALSE,FALSE,None,0,TRUE,2,40
+UpperAttack_OnGround,50,FALSE,TRUE,Airborne,100000,TRUE,100000,200

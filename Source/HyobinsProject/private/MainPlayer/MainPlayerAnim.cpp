@@ -69,26 +69,26 @@ void UMainPlayerAnim::AnimNotify_ShieldForAttackCollider_End_HitCheck() const
 void UMainPlayerAnim::initAssets()
 {
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AM_ComboAttack1.AM_ComboAttack1'"));
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/NormalAttack_OnGround.NormalAttack_OnGround'"));
 	
 	if (normalAttackMontage.Succeeded())
 	{
-		m_Montages.Add("NormalAttack", normalAttackMontage.Object);
+		m_Montages.Add("NormalAttack_OnGround", normalAttackMontage.Object);
 	}
 	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> upperAttackMontage
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AM_Attack_Up_OnGround.AM_Attack_Up_OnGround'"));
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/UpperAttack_OnGround.UpperAttack_OnGround'"));
 	
 	if (upperAttackMontage.Succeeded())
 	{
-		m_Montages.Add("UpperAttack", upperAttackMontage.Object);
+		m_Montages.Add("UpperAttack_OnGround", upperAttackMontage.Object);
 	}
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> combatDodgeMontage
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/AM_CombatDodge.AM_CombatDodge'"));
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/CombatDodge_OnGround.CombatDodge_OnGround'"));
 	
 	if (combatDodgeMontage.Succeeded())
 	{
-		m_Montages.Add("CombatDodge", combatDodgeMontage.Object);
+		m_Montages.Add("CombatDodge_OnGround", combatDodgeMontage.Object);
 	}
 }

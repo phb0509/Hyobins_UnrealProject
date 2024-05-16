@@ -49,7 +49,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	ACharacterBase* const instigatorCharacter = Cast<ACharacterBase>(EventInstigator->GetPawn());
 	checkf(IsValid(instigatorCharacter), TEXT("InstigatorCharacter isn't Valid"));
 
-	const FAttackInfoStruct* const attackInformation = static_cast<const FAttackInfoStruct*>(&DamageEvent);
+	const FAttackInfo* const attackInformation = static_cast<const FAttackInfo*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
 	m_StatComponent->SetDamage(attackInformation->damage);
@@ -60,14 +60,14 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 	if (!m_bIsDead)
 	{
-		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 블렌드스페이스용 변수
-		ExecHitEvent(instigatorCharacter); // 블랙보드에 적 입력하는용도. 이것도 메인플레이어한텐 필요없음. 오버라이딩이라 상관없구나.
+		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 피격방향을 산출 후, 블렌드스페이스에 넘김.
+		ExecHitEvent(instigatorCharacter); 
 
 		if (!m_bIsSuperArmor)
 		{
-			m_bIsAttacking = false; // 피격모션을 재생하기때문에 공격x. 
+			m_bIsAttacking = false; 
 
-			// 넉백
+			// 넉백.. 코드변경해야됨. 넉백있는 공격정보일때만 수행하게
 			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
 			dirToInstigator.Normalize();
 			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
@@ -80,7 +80,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 				GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 			}
 
-			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnHitTimerEnded, m_OnHitTimerTime, true); // OnHitTimeEnded는 알아서 오버라이드되서 호출.
+			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnHitTimerEnded, m_OnHitTimerTime, true); // OnHitTimeEnded는 각 몬스터마다 오버라이딩함수 호출.
 		}
 	}
 	
@@ -97,7 +97,6 @@ void ACharacterBase::OnHPIsZero()
 
 void ACharacterBase::OnCalledEndedDeathNotify()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnCalled DeathNotifyEnded"));
 	ExecDeathEvent();
 
 	// 액터풀에 반환하기위한 비활성화타이머.

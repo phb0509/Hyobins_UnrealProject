@@ -78,7 +78,7 @@ void AActorPool::CreateBlueprintActorPool(const FName& path, int actorCount)
 	{
 		const FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f });
 		AActor* const spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
-		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit PoolableActorInterfaces."));
+		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit IPoolableActorInterfaces."));
 
 		IPoolableActor* const castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
 		castedSpawnedActor->Initialize();
@@ -147,8 +147,11 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const FName& path, const 
 		IPoolableActor* const castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		checkf(castedPoolableActor != nullptr, TEXT("Failed to Cast to IPoolableActor"));
 
-		if (castedPoolableActor->GetIsActivated()) continue;
-
+		if (castedPoolableActor->GetIsActivated())
+		{
+			continue;
+		}
+		
 		actor = poolableActor;
 		actor->SetActorLocation(spawnLocation);
 		castedPoolableActor->Activate();

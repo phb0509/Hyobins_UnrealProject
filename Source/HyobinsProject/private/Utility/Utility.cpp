@@ -46,7 +46,7 @@ int32 Utility::GetHitDirection(const AActor* hitActor, const AActor* attackActor
 	return -1;
 }
 
-void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAttackInfoStruct>& attackInformations)
+void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAttackInfo>& attackInformations)
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> DT_Object(*assetPath);
 
@@ -70,7 +70,7 @@ void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAtta
 				crowdControlType = ECrowdControlType(index);
 			}
 
-			FAttackInfoStruct attackInfoStruct;
+			FAttackInfo attackInfoStruct;
 			attackInfoStruct.attackName = attackName;
 			attackInfoStruct.damage = data.damage;
 			attackInfoStruct.bIsDot = data.bIsDot;

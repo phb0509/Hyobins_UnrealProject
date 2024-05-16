@@ -18,20 +18,15 @@ enum class EMainPlayerStates : uint8
 };
 
 UENUM(BlueprintType)
-enum class EMainPlayerAttackSkills : uint8
+enum class EMainPlayerSkillStates : uint8
 {
-	None			UMETA(DisplayName = "None"),
-	NormalAttack	UMETA(DisplayName = "NormalAttack"),            
-	UpperAttack		UMETA(DisplayName = "UpperAttack"),
+	None 					UMETA(DisplayName = "None"),
+	NormalAttack_OnGround	UMETA(DisplayName = "NormalAttack_OnGround"),            
+	UpperAttack_OnGround	UMETA(DisplayName = "UpperAttack_OnGround"),
+	CombatDodge_OnGround 	UMETA(DisplayName = "CombatDodge_OnGround"),
+	Parrying_OnGround		UMETA(DisplayName = "Parrying_OnGround"),
 };
 
-UENUM(BlueprintType)
-enum class EMainPlayerSpecialSkills : uint8
-{
-	None			UMETA(DisplayName = "None"),
-	Dodge			UMETA(DisplayName = "Dodge"),
-	Parrying		UMETA(DisplayName = "Parrying"),
-};
 
 UENUM(BlueprintType)
 enum class EMonsterCommonStates : uint8 // 몬스터들 공통상태. 하기의 몬스터관련 enum class들은 반드시 이 commonState들을 제일먼저 순서맞게 명시해야한다.

@@ -62,7 +62,7 @@ public:
 
 
 USTRUCT(Atomic, BlueprintType) // Atomic : 항상 하나의 단위로 직렬화. BlueprintType : 블루프린트에서 사용될 수 있음을 의미.
-struct FAttackInfoStruct : public FDamageEvent
+struct FAttackInfo : public FDamageEvent
 {
 	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
 
