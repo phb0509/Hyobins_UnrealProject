@@ -20,11 +20,9 @@ DECLARE_MULTICAST_DELEGATE(FNormalAttack_End_EachSection_Delegate);
 
 // UpperAttack
 DECLARE_MULTICAST_DELEGATE(FUpperAttack_Start_Delegate);
-DECLARE_MULTICAST_DELEGATE(FUpperAttack_End_Delegate);
 
 // CombatDodge
 DECLARE_MULTICAST_DELEGATE(FCombatDodge_Start_Move_Delegate);
-DECLARE_MULTICAST_DELEGATE(FCombatDodge_End_Move_Delegate);
 
 
 UCLASS()
@@ -44,22 +42,16 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_NormalAttack_End_EachSection() const; 
-
-
+	
 	// UpperAttack
 	UFUNCTION()
 	void AnimNotify_UpperAttack_Start() const;
+
 	
-	UFUNCTION()
-	void AnimNotify_UpperAttack_End() const; 
-
-
 	// CombatDodge
 	UFUNCTION()
 	void AnimNotify_CombatDodge_Start_Move() const;
 	
-	UFUNCTION()
-	void AnimNotify_CombatDodge_End_Move() const; 
 
 	// 각 충돌체들
 	UFUNCTION()
@@ -86,11 +78,9 @@ public:
 
 	// UpperAttack
 	FUpperAttack_Start_Delegate UpperAttack_Start;
-	FUpperAttack_End_Delegate UpperAttack_End;
 	
 	// CombatDodge
 	FCombatDodge_Start_Move_Delegate CombatDodge_Start_Move;
-	FCombatDodge_End_Move_Delegate CombatDodge_End_Move;
 
 	// 각 충돌체들
 	FSwordCollider_Start_HitCheck_Delegate SwordCollider_Start_HitCheck;

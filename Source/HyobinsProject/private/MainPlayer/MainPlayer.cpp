@@ -47,8 +47,8 @@ void AMainPlayer::BeginPlay()
 	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
 	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapSwordCollision);
-	m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForAttack);
-    m_ShieldColliderForAttack->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForShield);
+	m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForAttack);
+    m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForShield);
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -134,6 +134,36 @@ void AMainPlayer::TriggerPressedQ()
 	m_SkillComponent->UpperAttack();
 }
 
+void AMainPlayer::ActivateSwordCollider()
+{
+	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AMainPlayer::DeactivateSwordCollider()
+{
+	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AMainPlayer::ActivateShieldForAttackCollider()
+{
+	m_ShieldForAttackCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AMainPlayer::DeactivateShieldForAttackCollider()
+{
+	m_ShieldForAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AMainPlayer::ActivateShieldForDefendCollider()
+{
+	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AMainPlayer::DeactivateShieldForDefendCollider()
+{
+	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
 void AMainPlayer::initAssets()
 {
 	// RootCapsuleComponent
@@ -191,25 +221,25 @@ void AMainPlayer::initAssets()
 	// ShieldCollider For Attack
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.35f} };
 
-	m_ShieldColliderForAttack = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForAttack"));
-	m_ShieldColliderForAttack->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
-	m_ShieldColliderForAttack->SetWorldTransform(collisionTransform);
-	m_ShieldColliderForAttack->SetCollisionProfileName(TEXT("AttackCollider"));
-	m_ShieldColliderForAttack->SetGenerateOverlapEvents(true);
-	m_ShieldColliderForAttack->SetNotifyRigidBodyCollision(false);
-	m_ShieldColliderForAttack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_ShieldForAttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForAttack"));
+	m_ShieldForAttackCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
+	m_ShieldForAttackCollider->SetWorldTransform(collisionTransform);
+	m_ShieldForAttackCollider->SetCollisionProfileName(TEXT("AttackCollider"));
+	m_ShieldForAttackCollider->SetGenerateOverlapEvents(true);
+	m_ShieldForAttackCollider->SetNotifyRigidBodyCollision(false);
+	m_ShieldForAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 
 	// ShieldCollider For Shield
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.1f} };
 
-	m_ShieldColliderForShield = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForShield"));
-	m_ShieldColliderForShield->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
-	m_ShieldColliderForShield->SetWorldTransform(collisionTransform);
-	m_ShieldColliderForShield->SetCollisionProfileName(TEXT("HitCollider"));
-	m_ShieldColliderForShield->SetGenerateOverlapEvents(true);
-	m_ShieldColliderForShield->SetNotifyRigidBodyCollision(false);
-	m_ShieldColliderForShield->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_ShieldForDefendCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForShield"));
+	m_ShieldForDefendCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
+	m_ShieldForDefendCollider->SetWorldTransform(collisionTransform);
+	m_ShieldForDefendCollider->SetCollisionProfileName(TEXT("HitCollider"));
+	m_ShieldForDefendCollider->SetGenerateOverlapEvents(true);
+	m_ShieldForDefendCollider->SetNotifyRigidBodyCollision(false);
+	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	// 이외 CharacterMovement Detail값들
 
@@ -266,6 +296,8 @@ void AMainPlayer::printLog() const
 	const FVector velocity = GetVelocity();
 	const FVector forwardVector = GetActorForwardVector();
 
+	FString curSkillState = m_SkillComponent->GetSkillState();
+	
 	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
 	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
 	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
@@ -275,6 +307,7 @@ void AMainPlayer::printLog() const
 	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is DodgeMoving : %d"), m_bIsDodgeMoving));
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
+	GEngine->AddOnScreenDebugMessage(11, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *curSkillState));
 }
 
 void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.

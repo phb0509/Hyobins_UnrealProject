@@ -43,9 +43,17 @@ public:
 	// Get
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
-	FORCEINLINE class UCapsuleComponent* GetSwordCollider() const { return m_SwordCollider; }
-	FORCEINLINE class UBoxComponent* GetShiledColliderForAttack() const { return m_ShieldColliderForAttack; }
-	FORCEINLINE class UBoxComponent* GetShiledColliderForShiled() const { return m_ShieldColliderForShield; }
+	// FORCEINLINE class UCapsuleComponent* GetSwordCollider() const { return m_SwordCollider; }
+	// FORCEINLINE class UBoxComponent* GetShieldColliderForAttack() const { return m_ShieldColliderForAttack; }
+	// FORCEINLINE class UBoxComponent* GetShieldColliderForShiled() const { return m_ShieldColliderForShield; }
+
+	void ActivateSwordCollider();
+	void DeactivateSwordCollider();
+	void ActivateShieldForAttackCollider();
+	void DeactivateShieldForAttackCollider();
+	void ActivateShieldForDefendCollider();
+	void DeactivateShieldForDefendCollider();
+	
 	FORCEINLINE bool GetIsDodgeMoving() const { return m_bIsDodgeMoving; }
 	
 	// Set
@@ -72,10 +80,10 @@ private:
 	UCapsuleComponent* m_SwordCollider;
 
 	UPROPERTY(EditAnywhere, Category = Collision)
-	class UBoxComponent* m_ShieldColliderForAttack;
+	class UBoxComponent* m_ShieldForAttackCollider;
 
 	UPROPERTY(EditAnywhere, Category = Collision)
-	class UBoxComponent* m_ShieldColliderForShield;
+	class UBoxComponent* m_ShieldForDefendCollider;
 	
 	
 	float m_ArmLengthTo;

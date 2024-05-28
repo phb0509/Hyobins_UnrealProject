@@ -7,7 +7,6 @@
 UMainPlayerAnim::UMainPlayerAnim() 
 {
 	initAssets();
-	
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayerAnim::Constructor"));
 }
 
@@ -31,19 +30,9 @@ void UMainPlayerAnim::AnimNotify_UpperAttack_Start() const
 	UpperAttack_Start.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_UpperAttack_End() const
-{
-	UpperAttack_End.Broadcast();
-}
-
 void UMainPlayerAnim::AnimNotify_CombatDodge_Start_Move() const
 {
 	CombatDodge_Start_Move.Broadcast();
-}
-
-void UMainPlayerAnim::AnimNotify_CombatDodge_End_Move() const
-{
-	CombatDodge_End_Move.Broadcast();
 }
 
 void UMainPlayerAnim::AnimNotify_SwordCollider_Start_HitCheck() const 
