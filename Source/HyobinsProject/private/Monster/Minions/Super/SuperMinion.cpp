@@ -156,9 +156,8 @@ void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 		break;
 		
 	case 3:
-		m_AnimInstance->StopAllMontages(0.1f);
 		SetState(ENormalMinionStates::Hit);
-		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
+
 		break;
 	
 	case 4:
@@ -167,6 +166,18 @@ void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 	
 	default:
 		break;
+	}
+}
+
+void ASuperMinion::ExecHitEvent(ACharacterBase* instigator, int32 hitDirection)
+{
+	Super::ExecHitEvent(instigator, hitDirection);
+
+	SetState(ENormalMinionStates::Hit);
+	if (!m_bIsSuperArmor)
+	{
+		m_AnimInstance->PlayMontage("OnHit_OnGround");
+		m_AnimInstance->JumpToMontageSection("OnHit_OnGround",hitDirection);
 	}
 }
 

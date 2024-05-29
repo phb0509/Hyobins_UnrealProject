@@ -8,32 +8,17 @@
 ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
 {
-	m_TeamID = FGenericTeamId(4);
-	
-	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/SuperMinion/BT_SuperMinion.BT_SuperMinion'"));
-	if (BTObject.Succeeded())
-	{
-		m_BehaviorTree = BTObject.Object;
-	}
-	checkf(IsValid(m_BehaviorTree.Get()), TEXT("BehaviorTree isn't Valid"));
-
-	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("BlackboardData'/Game/MonsterAsset/SuperMinion/BB_SuperMinion.BB_SuperMinion'"));
-	if (BBObject.Succeeded())
-	{
-		m_BlackboardData = BBObject.Object;
-	}
-	checkf(IsValid(m_BlackboardData.Get()), TEXT("BlackboardData isn't Valid"));
-
-	initPerceptionSystem();
-
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::Constructor"));
+	
+	m_TeamID = FGenericTeamId(4);
+	initPerceptionSystem();
 }
 
 void ASuperMinionAIController::OnPossess(APawn* pawn)
 {
-	Super::OnPossess(pawn);
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::OnPossess"));
-
+	
+	Super::OnPossess(pawn);
 	m_Owner = Cast<ASuperMinion>(pawn);
 	
 	UBlackboardComponent* BlackboardComponent = Blackboard;
@@ -126,6 +111,20 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 
 void ASuperMinionAIController::initPerceptionSystem()
 {
+	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/SuperMinion/BT_SuperMinion.BT_SuperMinion'"));
+	if (BTObject.Succeeded())
+	{
+		m_BehaviorTree = BTObject.Object;
+	}
+	checkf(IsValid(m_BehaviorTree.Get()), TEXT("BehaviorTree isn't Valid"));
+
+	static ConstructorHelpers::FObjectFinder<UBlackboardData> BBObject(TEXT("BlackboardData'/Game/MonsterAsset/SuperMinion/BB_SuperMinion.BB_SuperMinion'"));
+	if (BBObject.Succeeded())
+	{
+		m_BlackboardData = BBObject.Object;
+	}
+	checkf(IsValid(m_BlackboardData.Get()), TEXT("BlackboardData isn't Valid"));
+	
 	m_SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	checkf(IsValid(m_SightConfig.Get()), TEXT("SightConfig isn't Valid"));
 

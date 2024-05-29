@@ -60,8 +60,8 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 	if (!m_bIsDead)
 	{
-		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 피격방향을 산출 후, 블렌드스페이스에 넘김.
-		ExecHitEvent(instigatorCharacter); 
+		int32 hitDireciton = Utility::GetHitDirection(this, instigatorCharacter); // 피격방향을 산출.
+		ExecHitEvent(instigatorCharacter, hitDireciton); 
 
 		if (!m_bIsSuperArmor)
 		{

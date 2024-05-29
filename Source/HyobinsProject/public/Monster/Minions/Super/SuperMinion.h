@@ -18,8 +18,8 @@ public:
 	ASuperMinion();
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
-	
 	virtual void OnHitTimerEnded() override;
+	
 	void OnEndedNormalAttack();
 	void NormalAttack();
 	
@@ -32,6 +32,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetCommonState(const int32 commonStateIndex) override;
+	virtual void ExecHitEvent(ACharacterBase* instigator, int32 hitDirection) override;
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
 

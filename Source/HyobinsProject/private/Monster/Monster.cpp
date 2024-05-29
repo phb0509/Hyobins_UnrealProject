@@ -20,18 +20,6 @@ AMonster::AMonster() :
 	m_NormalAttackRange(150.0f),
 	m_NormalAttackSpeed(1.0f)
 {
-
-}
-
-void AMonster::ExecHitEvent(ACharacterBase* instigator)
-{
-	if (!m_bIsSuperArmor)
-	{
-		SetCommonState(static_cast<int32>(EMonsterCommonStates::Hit)); // 몽타주 재생 및, curState이랑 블랙보드에 Hit상태 기록
-	}
-	
-	m_AIControllerBase->StartBehaviorTree();
-	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }
 
 void AMonster::Initialize()
@@ -61,19 +49,26 @@ void AMonster::Activate()
 	}
 }
 
-void AMonster::DeActivate()
+void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
 {
 	m_bIsActivated = false;
 	m_AIControllerBase->OnUnPossess();
-	GetMesh()->GetAnimInstance()->StopAllMontages((0.1f));
+	GetMesh()->GetAnimInstance()->StopAllMontages(0.1f);
 	GetWorldTimerManager().ClearTimer(m_DeActivateTimerHandle);
 
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
-	
+
+	// 충돌체 비활성화.
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	for (UShapeComponent* const collider : m_HitColliders)
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+}
+
+void AMonster::ExecHitEvent(ACharacterBase* instigator, int32 hitDirection)
+{
+	m_AIControllerBase->StartBehaviorTree();
+	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }

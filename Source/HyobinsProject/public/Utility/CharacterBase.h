@@ -47,7 +47,7 @@ protected:
 	virtual void Die() {};
 	virtual void SetHitState() {};
 	virtual void OnHPIsZero();
-	virtual void ExecHitEvent(ACharacterBase* instigator){};
+	virtual void ExecHitEvent(ACharacterBase* instigator, int32 hitDirection){};
 	virtual void ExecDeathEvent() {}; // 죽음몽타주 재생완료 후 실행되는 함수. CharacterBase::OnCalledDeathMontageEnded함수안에서 호출한다.
 
 	// IPoolableActor
