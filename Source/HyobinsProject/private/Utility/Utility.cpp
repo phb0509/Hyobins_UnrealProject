@@ -80,6 +80,8 @@ void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAtta
 			attackInfoStruct.bHasKnockBack = data.bHasKnockBack;
 			attackInfoStruct.knockBackTime = data.knockBackTime;
 			attackInfoStruct.knockBackDistance = data.knockBackDistance;
+			attackInfoStruct.canDodge = data.canDodge;
+			attackInfoStruct.canParrying = data.canParrying;
 
 			attackInformations.Add(attackName, attackInfoStruct);
 		}

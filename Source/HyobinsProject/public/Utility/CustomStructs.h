@@ -32,32 +32,38 @@ public:
 	knockBackTime(-1.0f), knockBackDistance(-1.0f)
 	{}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	FName attackName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	float damage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	bool bIsDot;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	bool bHasCrowdControl;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	FName crowdControlType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	float crowdControlTime;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	bool bHasKnockBack;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	float knockBackTime;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	float knockBackDistance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	bool canDodge;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	bool canParrying;
 };
 
 
@@ -77,6 +83,8 @@ public:
 	float knockBackTime; // 경직시간 -> 피격체의 힛트모션 재생시간과 대응
 	float knockBackDistance; // 밀려지는 정도
 	FVector colliderLocation;
+	bool canDodge;
+	bool canParrying;
 	TMap<AActor*, bool> checkHitActors;
 };
 
