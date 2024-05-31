@@ -17,6 +17,14 @@ void USuperMinionAnim::AnimNotify_EndedNormalAttack() const
 
 void USuperMinionAnim::initAssets()
 {
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> idle_OnGround
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Idle_OnGround.Idle_OnGround'"));
+
+	if (idle_OnGround.Succeeded())
+	{
+		m_Montages.Add("Idle_OnGround", idle_OnGround.Object);
+	}
+	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage1
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_NormalAttack_A.AM_NormalAttack_A'"));
 
@@ -24,7 +32,6 @@ void USuperMinionAnim::initAssets()
 	{
 		m_Montages.Add("NormalAttack1", normalAttackMontage1.Object);
 	}
-
 	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage2
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_NormalAttack_B.AM_NormalAttack_B'"));

@@ -111,6 +111,7 @@ void ASuperMinion::OnHitTimerEnded()
 		return;
 	}
 
+	m_AnimInstance->PlayMontage("Idle_OnGround",100.0f);
 	SetState(ENormalMinionStates::Chase);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
@@ -172,12 +173,14 @@ void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 void ASuperMinion::ExecHitEvent(ACharacterBase* instigator, int32 hitDirection)
 {
 	Super::ExecHitEvent(instigator, hitDirection);
-
-	SetState(ENormalMinionStates::Hit);
+	
 	if (!m_bIsSuperArmor)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("hitDirection is %d"), hitDirection);
+		//m_AnimInstance->StopAllMontages(0.2f);
 		m_AnimInstance->PlayMontage("OnHit_OnGround");
 		m_AnimInstance->JumpToMontageSection("OnHit_OnGround",hitDirection);
+		SetState(ENormalMinionStates::Hit);
 	}
 }
 
