@@ -8,7 +8,7 @@
 
 
 UCLASS()
-class HYOBINSPROJECT_API AMonster : public ACharacterBase
+class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActor
 {
 	GENERATED_BODY()
 
@@ -21,14 +21,14 @@ public:
 
 	
 protected:
+	virtual void ExecHitEvent(ACharacterBase* instigator) override;
+	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 
-	virtual void ExecHitEvent(ACharacterBase* instigator, int32 hitDireciton) override;
 
-	
 public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;

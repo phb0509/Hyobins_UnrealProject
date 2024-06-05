@@ -33,6 +33,7 @@ void UStatComponent::SetHP(const float hp)
 
 	if (m_CurHP < KINDA_SMALL_NUMBER)
 	{
+		
 		m_CurHP = 0.0f;
 		OnHPIsZero.Broadcast();
 	}

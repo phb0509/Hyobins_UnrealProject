@@ -18,10 +18,11 @@ public:
 	ASuperMinion();
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
+	
+	void NormalAttack();
+	void OnEndedNormalAttack();
 	virtual void OnHitTimerEnded() override;
 	
-	void OnEndedNormalAttack();
-	void NormalAttack();
 	
 	// Get
 	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
@@ -31,13 +32,16 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void SetCommonState(const int32 commonStateIndex) override;
-	virtual void ExecHitEvent(ACharacterBase* instigator, int32 hitDirection) override;
+	
+	virtual void ExecHitEvent(ACharacterBase* instigator) override;
 	virtual void Die() override;
 	virtual void ExecDeathEvent() override;
+	void OnCalled_DeathEvent();
 
-	void OnDeathEventTimerEnded();
+	virtual void SetCommonState(const int32 commonStateIndex) override;
 
+	// IPoolableActor VirtualFunction 
+	virtual void Activate() override;
 
 private:
 	void initAssets();

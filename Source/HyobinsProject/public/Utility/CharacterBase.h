@@ -10,7 +10,7 @@
 enum class EMonsterCommonStates : uint8;
 
 UCLASS(abstract)
-class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IPoolableActor
+class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -19,7 +19,7 @@ public:
 
 	virtual void PossessedBy(AController* newController) override;
 	virtual void OnHitTimerEnded() {};
-	virtual void OnCalledEndedDeathNotify(); 
+	virtual void OnCalledNotify_EndedDeath(); 
 	
 	// Get
 	FORCEINLINE class UStatComponent* GetStatComponent() const { return m_StatComponent; }
@@ -30,34 +30,24 @@ public:
 	FORCEINLINE bool GetIsIdle() const { return m_bIsIdle; }
 	FORCEINLINE bool GetIsWalking() const { return m_bIsWalking; }
 	FORCEINLINE bool GetIsRunning() const { return m_bIsRunning; }
-	FORCEINLINE bool GetIsAttacking() const { return m_bIsAttacking; }
 	FORCEINLINE bool GetIsInAir() const { return m_bIsInAir; }
 	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
 	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
 	FORCEINLINE bool GetIsHitStateTrigger() const { return m_bIsHitStateTrigger; }
 	FORCEINLINE int32 GetHitDirection() const { return m_HitDirection; }
 
-	// Set
-	FORCEINLINE void SetIsAttacking(bool bIsAttacking) { m_bIsAttacking = bIsAttacking; }
-
 	
 protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent,class AController* EventInstigator, AActor* DamageCauser) override;
-
-	virtual void Die() {};
-	virtual void SetHitState() {};
+	virtual void ExecHitEvent(ACharacterBase* instigator){};
 	virtual void OnHPIsZero();
-	virtual void ExecHitEvent(ACharacterBase* instigator, int32 hitDirection){};
+	virtual void Die() {};
 	virtual void ExecDeathEvent() {}; // 죽음몽타주 재생완료 후 실행되는 함수. CharacterBase::OnCalledDeathMontageEnded함수안에서 호출한다.
 
-	// IPoolableActor
-	virtual void Initialize() override {};
-	virtual void Activate() override {};
-	virtual void DeActivate() override {};
 
 
 protected:
-	UPROPERTY(BlueprintReadOnly, Category = StatComponent)
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = StatComponent)
 	class UStatComponent* m_StatComponent;
 	
 	TWeakObjectPtr<class AAIControllerBase> m_AIControllerBase;
@@ -69,7 +59,7 @@ protected:
 	FTimerHandle m_DeathTimerHandle;
 	FTimerHandle m_DeActivateTimerHandle;
 	
-	UPROPERTY(EditDefaultsOnly) // 블루프린트에서 수정할 수 있게..
+	UPROPERTY(EditDefaultsOnly) // 에디터(블프파일)에서 수정할 수 있게..
 	float m_WalkSpeed;
 	
 	UPROPERTY(EditDefaultsOnly)
@@ -95,10 +85,7 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsRunning;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsAttacking;
-
+	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsInAir;
 

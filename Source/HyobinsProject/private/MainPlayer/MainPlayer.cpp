@@ -9,6 +9,7 @@
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
+#include <ThirdParty/Vulkan/Include/vulkan/vulkan_core.h>
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
@@ -75,7 +76,7 @@ void AMainPlayer::InputHorizontal(float value)
 {
 	m_CurInputHorizontal = value;
 
-	if (!m_bIsAttacking && !m_bIsDodgeMoving)
+	if (m_SkillComponent->GetSkillState() == EMainPlayerSkillStates::None) // 어떠한 스킬도 시전중 아니라면
 	{
 		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
@@ -86,7 +87,7 @@ void AMainPlayer::InputVertical(float value)
 {
 	m_CurInputVertical = value;
 
-	if (!m_bIsAttacking && !m_bIsDodgeMoving)
+	if (m_SkillComponent->GetSkillState() == EMainPlayerSkillStates::None)
 	{
 		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
@@ -96,12 +97,17 @@ void AMainPlayer::InputVertical(float value)
 void AMainPlayer::TriggerPressedShift()
 {
 	m_bIsPressingShift = true;
-	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
+
+	if (m_SkillComponent->GetSkillState() == EMainPlayerSkillStates::None)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
+	}
 }
 
 void AMainPlayer::TriggerReleasedShift()
 {
 	m_bIsPressingShift = false;
+	
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
 
@@ -296,15 +302,13 @@ void AMainPlayer::printLog() const
 	const FVector velocity = GetVelocity();
 	const FVector forwardVector = GetActorForwardVector();
 
-	FString curSkillState = m_SkillComponent->GetSkillState();
+	FString curSkillState = Utility::ConvertEnumToString(m_SkillComponent->GetSkillState());
 	
 	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
 	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
 	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
 	//GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
-	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("is Attacking : %d"), m_bIsAttacking));
-	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("is DodgeMoving : %d"), m_bIsDodgeMoving));
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
 	GEngine->AddOnScreenDebugMessage(11, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *curSkillState));

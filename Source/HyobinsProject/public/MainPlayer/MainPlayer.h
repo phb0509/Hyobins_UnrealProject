@@ -65,7 +65,8 @@ private:
 	void printLog() const;
 	
 public:
-	UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent, Meta = (AllowPrivateAccess = true))
+	//UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent)
 	class UMainPlayerSkillComponent* m_SkillComponent;
 	
 private:

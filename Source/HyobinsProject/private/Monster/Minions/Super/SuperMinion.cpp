@@ -8,6 +8,8 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 
+#include "Utility/Utility.h"
+
 int ASuperMinion::TagCount(0);
 
 ASuperMinion::ASuperMinion() :
@@ -36,7 +38,7 @@ void ASuperMinion::PostInitializeComponents()
 	if (m_AnimInstance.IsValid())
 	{
 		m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &ASuperMinion::OnEndedNormalAttack);
-		m_AnimInstance->OnEndedDeath.AddUObject(this, &ACharacterBase::OnCalledEndedDeathNotify);
+		m_AnimInstance->OnEndedDeath.AddUObject(this, &ACharacterBase::OnCalledNotify_EndedDeath);
 	}
 	else
 	{
@@ -56,7 +58,7 @@ void ASuperMinion::PostInitializeComponents()
 void ASuperMinion::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: BeginPlay"));
+	//UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: BeginPlay"));
 }
 
 void ASuperMinion::Tick(float DeltaTime)
@@ -64,42 +66,57 @@ void ASuperMinion::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	updateState();
+	FString state = Utility::ConvertEnumToString(m_CurState);
 
-	//GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState : %d"), (uint8)m_CurState));
-	//GEngine->AddOnScreenDebugMessage(21, 3.f, FColor::Green, FString::Printf(TEXT("SuperMinionState :: isAttacking : %d"), m_bIsAttacking));
+	FString log = Tags[0].ToString() + " :: " + state;
+	GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
 }
 
 void ASuperMinion::NormalAttack()
 {
-	if (m_bIsAttacking)
-	{
-		return;
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: CurState : %s"), *Utility::ConvertEnumToString(m_CurState));
+	//UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: NormalAttack"));
 	
-	m_bIsAttacking = true;
-
-	SetState(ENormalMinionStates::NormalAttack);
+	// if (m_CurState == ENormalMinionStates::NormalAttack)
+	// {
+	// 	return;
+	// }
+	
+	//SetState(ENormalMinionStates::NormalAttack);
 	m_OwnerAIController->StopBehaviorTree();
 	m_AnimInstance->PlayMontage("NormalAttack1",m_NormalAttackSpeed);
 }
 
-void ASuperMinion::ExecDeathEvent()
+void ASuperMinion::OnEndedNormalAttack()
 {
-	m_DeathTimerRemainingTime = m_DeathTimerTime;
-	m_DeathTimerTickTime = m_DeathTimerTime / 100;
-	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnDeathEventTimerEnded, m_DeathTimerTickTime, true, 0.0f);
+	//m_bIsAttacking = false;
+	//SetState(ENormalMinionStates::Chase);
+	m_OwnerAIController->StartBehaviorTree();
 }
 
-void ASuperMinion::OnDeathEventTimerEnded()
+void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
 {
-	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
-	m_DiffuseRatio -= m_DeathTimerTickTime;
-
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
-
-	if (m_DeathTimerRemainingTime <= 0.0f)
+	Super::ExecHitEvent(instigator);
+	
+	// if (m_CurState == ENormalMinionStates::Hit) // 이미재생중이면
+	// {
+	// 	m_AnimInstance->JumpToMontageSection("OnHit_OnGround", m_HitDirection);
+	// }
+	// else
+	// {
+	// 	m_AnimInstance->PlayMontage("OnHit_OnGround");
+	// }
+	//m_AnimInstance->Montage_Pause(m_AnimInstance->GetMontage("OnHit_OnGround"));
+	
+	if (!m_bIsSuperArmor)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(m_DeathTimerHandle);
+		SetState(ENormalMinionStates::Hit);
+		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
+		//m_AnimInstance->StopAllMontages(0.2f);
+
+		//m_AnimInstance->StopAllMontages(0.2f);
+		m_AnimInstance->PlayMontage("OnHit_OnGround",1.0f);
+		m_AnimInstance->JumpToMontageSection("OnHit_OnGround", m_HitDirection);
 	}
 }
 
@@ -111,24 +128,45 @@ void ASuperMinion::OnHitTimerEnded()
 		return;
 	}
 
-	m_AnimInstance->PlayMontage("Idle_OnGround",100.0f);
+	m_AnimInstance->StopAllMontages(0.2f);
 	SetState(ENormalMinionStates::Chase);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-}
-
-void ASuperMinion::OnEndedNormalAttack()
-{
-	m_bIsAttacking = false;
-	m_OwnerAIController->StartBehaviorTree();
 }
 
 void ASuperMinion::Die()
 {
 	SetState(ENormalMinionStates::Die);
 
-	m_HitColliders[0]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	for (UShapeComponent* const collider : m_HitColliders)
+	{
+		collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	
+	m_OwnerAIController->StopBehaviorTree();
 	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
-	m_OwnerAIController->OnUnPossess();
+}
+
+void ASuperMinion::ExecDeathEvent() // 사망몽타주 재생완료시 호출.
+{
+	m_DeathTimerRemainingTime = m_DeathTimerTime;
+	m_DeathTimerTickTime = m_DeathTimerTime / 100;
+	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnCalled_DeathEvent, m_DeathTimerTickTime, true, 0.0f);
+
+	// 액터풀에 반환하기위한 비활성화타이머.
+	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ASuperMinion::DeActivate, m_DeathTimerTime, true);
+}
+
+void ASuperMinion::OnCalled_DeathEvent()
+{
+	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
+	m_DiffuseRatio -= m_DeathTimerTickTime;
+
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
+
+	if (m_DeathTimerRemainingTime <= 0.0f)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(m_DeathTimerHandle);
+	}
 }
 
 void ASuperMinion::SetState(ENormalMinionStates state)
@@ -170,18 +208,11 @@ void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 	}
 }
 
-void ASuperMinion::ExecHitEvent(ACharacterBase* instigator, int32 hitDirection)
+void ASuperMinion::Activate()
 {
-	Super::ExecHitEvent(instigator, hitDirection);
-	
-	if (!m_bIsSuperArmor)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("hitDirection is %d"), hitDirection);
-		//m_AnimInstance->StopAllMontages(0.2f);
-		m_AnimInstance->PlayMontage("OnHit_OnGround");
-		m_AnimInstance->JumpToMontageSection("OnHit_OnGround",hitDirection);
-		SetState(ENormalMinionStates::Hit);
-	}
+	Super::Activate();
+
+	SetState(ENormalMinionStates::Patrol);
 }
 
 void ASuperMinion::initAssets()
@@ -202,8 +233,7 @@ void ASuperMinion::initAssets()
 		GetMesh()->SetAnimInstanceClass(animInstance.Class);
 	}
 	checkf(IsValid(animInstance.Class), TEXT("AnimInstance is not Valid"));
-
-
+	
 	// HitCollider
 	UCapsuleComponent* hitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
 	hitCollider->SetupAttachment(RootComponent);

@@ -15,6 +15,12 @@ void USuperMinionAnim::AnimNotify_EndedNormalAttack() const
 	OnEndedNormalAttack.Broadcast();
 }
 
+void USuperMinionAnim::AnimNotify_EndedOnHitSection() 
+{
+	//OnEndedOnHitSection.Broadcast();
+	Montage_Pause(m_Montages["OnHit_OnGround"]);
+}
+
 void USuperMinionAnim::initAssets()
 {
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> idle_OnGround

@@ -5,7 +5,6 @@
 #include <Components/CapsuleComponent.h>
 #include "Utility/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
-#include "Utility/Utility.h"
 #include "Component/StatComponent.h"
 
 const FName AMonster::HomePosKey(TEXT("HomePos"));
@@ -22,8 +21,15 @@ AMonster::AMonster() :
 {
 }
 
+void AMonster::ExecHitEvent(ACharacterBase* instigator) // 피격시마다 호출.
+{
+	m_AIControllerBase->StartBehaviorTree(); // 공격도중에 피격되면 계속 Stop상태니까 Start해놨네 (공격하면 강제로 정지시키니까)
+	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+}
+
 void AMonster::Initialize()
 {
+	// HPBar 위젯 생성 및 부착.
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateHPBarComponent(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C",
 		FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
 }
@@ -41,8 +47,8 @@ void AMonster::Activate()
 	m_DiffuseRatio = 1.0f;
 
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
+	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
 	for (UShapeComponent* const collider : m_HitColliders)
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -61,14 +67,6 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 
 	// 충돌체 비활성화.
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	for (UShapeComponent* const collider : m_HitColliders)
-	{
-		collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+
 }
 
-void AMonster::ExecHitEvent(ACharacterBase* instigator, int32 hitDirection)
-{
-	m_AIControllerBase->StartBehaviorTree();
-	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
-}

@@ -17,7 +17,6 @@ ACharacterBase::ACharacterBase() :
 	m_bIsIdle(true),
 	m_bIsWalking(false),
 	m_bIsRunning(false),
-	m_bIsAttacking(false),
 	m_bIsInAir(false),
 	m_bIsSuperArmor(false),
 	m_bIsDead(false),
@@ -52,21 +51,19 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	const FAttackInfo* const attackInformation = static_cast<const FAttackInfo*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
-	m_StatComponent->SetDamage(attackInformation->damage);
-
 	// 로그
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
+	m_StatComponent->SetDamage(attackInformation->damage);
+	
 	if (!m_bIsDead)
 	{
-		int32 hitDireciton = Utility::GetHitDirection(this, instigatorCharacter); // 피격방향을 산출.
-		ExecHitEvent(instigatorCharacter, hitDireciton); 
+		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 피격방향을 산출.
+		ExecHitEvent(instigatorCharacter); 
 
 		if (!m_bIsSuperArmor)
 		{
-			m_bIsAttacking = false; 
-
 			// 넉백.. 코드변경해야됨. 넉백있는 공격정보일때만 수행하게
 			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
 			dirToInstigator.Normalize();
@@ -90,15 +87,12 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 void ACharacterBase::OnHPIsZero()
 {
 	m_bIsDead = true;
-	m_bIsAttacking = false;
 
 	Die();
 }
 
-void ACharacterBase::OnCalledEndedDeathNotify()
+void ACharacterBase::OnCalledNotify_EndedDeath() // 사망몽타주재생 완료시 호출.
 {
+	UE_LOG(LogTemp, Warning, TEXT("CharacterBase :: OnCalled_EndedDeathNotify"));
 	ExecDeathEvent();
-
-	// 액터풀에 반환하기위한 비활성화타이머.
-	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ACharacterBase::DeActivate, m_DeathTimerTime, true);
 }
