@@ -6,6 +6,9 @@
 #include "Monster/Monster.h"
 #include "SuperMinion.generated.h"
 
+class USuperMinionAnim;
+class ASuperMinionAIController;
+
 enum class EMonsterCommonStates : uint8;
 enum class ENormalMinionStates : uint8;
 
@@ -19,10 +22,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
 	
-	void NormalAttack();
-	void OnEndedNormalAttack();
-	virtual void OnHitTimerEnded() override;
+	void OnCalledNotify_EndedNormalAttack();
+	virtual void OnCalledTimer_OnHit() override;
+
+	UFUNCTION()
+	void SkillMontageStarted(UAnimMontage* Montage);
 	
+	UFUNCTION()
+	void SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 	
 	// Get
 	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
@@ -33,10 +40,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
-	virtual void ExecHitEvent(ACharacterBase* instigator) override;
+	virtual void ExecOnHitEvent(ACharacterBase* instigator) override;
 	virtual void Die() override;
-	virtual void ExecDeathEvent() override;
-	void OnCalled_DeathEvent();
+	virtual void ExecEvent_EndedDeathMontage() override;
+	void OnCalledTimer_EndedDeathEvent();
 
 	virtual void SetCommonState(const int32 commonStateIndex) override;
 
@@ -55,6 +62,6 @@ private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 	
-	TWeakObjectPtr<class USuperMinionAnim> m_AnimInstance;
-	TWeakObjectPtr<class ASuperMinionAIController> m_OwnerAIController;
+	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
+	TWeakObjectPtr<ASuperMinionAIController> m_OwnerAIController;
 };

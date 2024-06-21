@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Utility/CharacterBase.h"
+#include "ActorPool/PoolableActor.h"
 #include "Monster.generated.h"
 
 
@@ -21,7 +22,7 @@ public:
 
 	
 protected:
-	virtual void ExecHitEvent(ACharacterBase* instigator) override;
+	virtual void ExecOnHitEvent(ACharacterBase* instigator) override;
 	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;

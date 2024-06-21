@@ -6,6 +6,11 @@
 #include "Utility/CharacterBase.h"
 #include "MainPlayer.generated.h"
 
+class UMainPlayerSkillComponent;
+class USpringArmComponent;
+class UCameraComponent;
+class UBoxComponent;
+
 enum class EMainPlayerStates : uint8;
 
 UCLASS()
@@ -17,7 +22,7 @@ public:
 	AMainPlayer();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	void RotateActorToKeyInputDirection();
 	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
@@ -43,21 +48,19 @@ public:
 	// Get
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
-	// FORCEINLINE class UCapsuleComponent* GetSwordCollider() const { return m_SwordCollider; }
-	// FORCEINLINE class UBoxComponent* GetShieldColliderForAttack() const { return m_ShieldColliderForAttack; }
-	// FORCEINLINE class UBoxComponent* GetShieldColliderForShiled() const { return m_ShieldColliderForShield; }
 
+	// SwordCollider
 	void ActivateSwordCollider();
 	void DeactivateSwordCollider();
+
+	// ShieldColliderForAttack
 	void ActivateShieldForAttackCollider();
 	void DeactivateShieldForAttackCollider();
+
+	// ShieldColliderForDefend
 	void ActivateShieldForDefendCollider();
 	void DeactivateShieldForDefendCollider();
 	
-	FORCEINLINE bool GetIsDodgeMoving() const { return m_bIsDodgeMoving; }
-	
-	// Set
-	FORCEINLINE void SetIsDodgeMoving(bool bIsDodgeMing) { m_bIsDodgeMoving = bIsDodgeMing; }
 
 private:
 	void initAssets();
@@ -65,36 +68,32 @@ private:
 	void printLog() const;
 	
 public:
-	//UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent, Meta = (AllowPrivateAccess = true))
 	UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent)
-	class UMainPlayerSkillComponent* m_SkillComponent;
+	UMainPlayerSkillComponent* m_SkillComponent;
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
-	class USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
+	USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
 											// 자신과의 지정된 거리 안에 유지되도록 처리한다.
 	
 	UPROPERTY(EditAnywhere, Category = Camera)
-	class UCameraComponent* m_TargetCamera;
+	UCameraComponent* m_TargetCamera;
 
 	UPROPERTY(EditAnywhere, Category = Collision) // 충돌체들은 실시간으로 크기보정할 일이 많을 수 있기 때문에 EditAnywhere로 지정
 	UCapsuleComponent* m_SwordCollider;
 
 	UPROPERTY(EditAnywhere, Category = Collision)
-	class UBoxComponent* m_ShieldForAttackCollider;
+	UBoxComponent* m_ShieldForAttackCollider;
 
 	UPROPERTY(EditAnywhere, Category = Collision)
-	class UBoxComponent* m_ShieldForDefendCollider;
-	
+	UBoxComponent* m_ShieldForDefendCollider;
 	
 	float m_ArmLengthTo;
 	float m_ArmLengthSpeed;
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
-	bool m_bIsDodgeMoving;
-
+	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsCombated;
 	

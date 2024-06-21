@@ -7,7 +7,6 @@
 #include "Utility/EnumTypes.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
-
 #include "Utility/Utility.h"
 
 int ASuperMinion::TagCount(0);
@@ -37,90 +36,42 @@ void ASuperMinion::PostInitializeComponents()
 	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
 	if (m_AnimInstance.IsValid())
 	{
-		m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &ASuperMinion::OnEndedNormalAttack);
+		m_AnimInstance->OnMontageStarted.AddDynamic(this, &ASuperMinion::SkillMontageStarted);
+		m_AnimInstance->OnMontageEnded.AddDynamic(this, &ASuperMinion::SkillMontageEnded);
+		
+		m_AnimInstance->OnEndedNormalAttack.AddUObject(this, &ASuperMinion::OnCalledNotify_EndedNormalAttack);
 		m_AnimInstance->OnEndedDeath.AddUObject(this, &ACharacterBase::OnCalledNotify_EndedDeath);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion::AnimInstance isn't Valid"));
-	}
-
-	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
 	
-	if (m_OwnerAIController.IsValid())
-	{}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SuperMinion::AIController isn't Valid"));
-	}
+	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
 }
 
 void ASuperMinion::BeginPlay()
 {
 	Super::BeginPlay();
-	//UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: BeginPlay"));
-}
 
-void ASuperMinion::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	updateState();
-	FString state = Utility::ConvertEnumToString(m_CurState);
-
-	FString log = Tags[0].ToString() + " :: " + state;
-	GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-}
-
-void ASuperMinion::NormalAttack()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: CurState : %s"), *Utility::ConvertEnumToString(m_CurState));
-	//UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: NormalAttack"));
 	
-	// if (m_CurState == ENormalMinionStates::NormalAttack)
-	// {
-	// 	return;
-	// }
-	
-	//SetState(ENormalMinionStates::NormalAttack);
-	m_OwnerAIController->StopBehaviorTree();
-	m_AnimInstance->PlayMontage("NormalAttack1",m_NormalAttackSpeed);
 }
 
-void ASuperMinion::OnEndedNormalAttack()
+void ASuperMinion::OnCalledNotify_EndedNormalAttack()
 {
-	//m_bIsAttacking = false;
-	//SetState(ENormalMinionStates::Chase);
 	m_OwnerAIController->StartBehaviorTree();
 }
 
-void ASuperMinion::ExecHitEvent(ACharacterBase* instigator)
+void ASuperMinion::ExecOnHitEvent(ACharacterBase* instigator)
 {
-	Super::ExecHitEvent(instigator);
-	
-	// if (m_CurState == ENormalMinionStates::Hit) // 이미재생중이면
-	// {
-	// 	m_AnimInstance->JumpToMontageSection("OnHit_OnGround", m_HitDirection);
-	// }
-	// else
-	// {
-	// 	m_AnimInstance->PlayMontage("OnHit_OnGround");
-	// }
-	//m_AnimInstance->Montage_Pause(m_AnimInstance->GetMontage("OnHit_OnGround"));
+	Super::ExecOnHitEvent(instigator);
 	
 	if (!m_bIsSuperArmor)
 	{
 		SetState(ENormalMinionStates::Hit);
-		m_bIsHitStateTrigger = !m_bIsHitStateTrigger;
-		//m_AnimInstance->StopAllMontages(0.2f);
-
-		//m_AnimInstance->StopAllMontages(0.2f);
+		m_AnimInstance->StopAllMontages(0.0f); // OnHit이 퍼즈걸려
 		m_AnimInstance->PlayMontage("OnHit_OnGround",1.0f);
 		m_AnimInstance->JumpToMontageSection("OnHit_OnGround", m_HitDirection);
 	}
 }
 
-void ASuperMinion::OnHitTimerEnded()
+void ASuperMinion::OnCalledTimer_OnHit() // 넉백시간 끝날때마다 호출.
 {
 	if (m_bIsDead)
 	{
@@ -128,35 +79,56 @@ void ASuperMinion::OnHitTimerEnded()
 		return;
 	}
 
-	m_AnimInstance->StopAllMontages(0.2f);
+	m_AnimInstance->StopAllMontages(0.0f);
 	SetState(ENormalMinionStates::Chase);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
 
 void ASuperMinion::Die()
 {
-	SetState(ENormalMinionStates::Die);
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: Die"));
 
+	SetState(ENormalMinionStates::Dead);
+	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
+	m_OwnerAIController->StopBehaviorTree();
+	
+	m_AnimInstance->StopAllMontages(0.0f); // OnHit이 퍼즈걸려
+	m_AnimInstance->PlayMontage("Death_OnGround");
+	m_AnimInstance->JumpToMontageSection("Death_OnGround", m_HitDirection);
+	
 	for (UShapeComponent* const collider : m_HitColliders)
 	{
 		collider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-	
-	m_OwnerAIController->StopBehaviorTree();
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 }
 
-void ASuperMinion::ExecDeathEvent() // 사망몽타주 재생완료시 호출.
+void ASuperMinion::SkillMontageStarted(UAnimMontage* Montage)
+{
+	FName name = Montage->GetFName();
+	FString log = name.ToString();
+
+	UE_LOG(LogTemp, Warning, TEXT("StartedMontage :: %s"), *log);
+}
+
+void ASuperMinion::SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	FName name = Montage->GetFName();
+	FString log = name.ToString() + " :: " + FString::FromInt(bInterrupted);
+	
+	UE_LOG(LogTemp, Warning, TEXT("EndedMontage :: %s"), *log);
+}
+
+void ASuperMinion::ExecEvent_EndedDeathMontage() // 사망몽타주 재생완료시 호출.
 {
 	m_DeathTimerRemainingTime = m_DeathTimerTime;
 	m_DeathTimerTickTime = m_DeathTimerTime / 100;
-	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnCalled_DeathEvent, m_DeathTimerTickTime, true, 0.0f);
+	GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnCalledTimer_EndedDeathEvent, m_DeathTimerTickTime, true, 0.0f);
 
 	// 액터풀에 반환하기위한 비활성화타이머.
 	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ASuperMinion::DeActivate, m_DeathTimerTime, true);
 }
 
-void ASuperMinion::OnCalled_DeathEvent()
+void ASuperMinion::OnCalledTimer_EndedDeathEvent()
 {
 	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
 	m_DiffuseRatio -= m_DeathTimerTickTime;
@@ -183,24 +155,23 @@ void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 	switch (commonStateIndex)
 	{
 	case 0:
-		SetState(ENormalMinionStates::Idle);
-		break;
-		
-	case 1:
 		SetState(ENormalMinionStates::Patrol);
 		break;
 		
-	case 2:
+	case 1:
 		SetState(ENormalMinionStates::Chase);
 		break;
-		
-	case 3:
+	
+	case 2:
 		SetState(ENormalMinionStates::Hit);
-
 		break;
 	
+	case 3:
+		SetState(ENormalMinionStates::Dead);
+		break;
+
 	case 4:
-		SetState(ENormalMinionStates::Die);
+		SetState(ENormalMinionStates::NormalAttack);
 		break;
 	
 	default:
@@ -250,19 +221,15 @@ void ASuperMinion::initAssets()
 void ASuperMinion::updateState()
 {
 	m_CurSpeed = GetVelocity().Size();
-	m_bIsInAir = GetMovementComponent()->IsFalling();
+}
 
-	if (!m_bIsInAir)
-	{
-		if (m_CurSpeed < 0.1f)
-		{
-			m_bIsIdle = true;
-			m_bIsWalking = false;
-		}
-		else
-		{
-			m_bIsIdle = false;
-			m_bIsWalking = true;
-		}
-	}
+void ASuperMinion::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	updateState();
+	FString state = Utility::ConvertEnumToString(m_CurState);
+
+	FString log = Tags[0].ToString() + " :: " + state;
+	GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
 }

@@ -21,9 +21,9 @@ AMonster::AMonster() :
 {
 }
 
-void AMonster::ExecHitEvent(ACharacterBase* instigator) // 피격시마다 호출.
+void AMonster::ExecOnHitEvent(ACharacterBase* instigator) // 피격시마다 호출.
 {
-	m_AIControllerBase->StartBehaviorTree(); // 공격도중에 피격되면 계속 Stop상태니까 Start해놨네 (공격하면 강제로 정지시키니까)
+	m_AIControllerBase->StartBehaviorTree(); // 공격도중에 피격되면 계속 Stop상태니까 Start해놨네 (공격하면 강제로 정지시키니까) // 삭제예정.
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }
 
@@ -59,7 +59,7 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 {
 	m_bIsActivated = false;
 	m_AIControllerBase->OnUnPossess();
-	GetMesh()->GetAnimInstance()->StopAllMontages(0.1f);
+	GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 	GetWorldTimerManager().ClearTimer(m_DeActivateTimerHandle);
 
 	SetActorTickEnabled(false);

@@ -7,9 +7,7 @@
 #include "GenericTeamAgentInterface.h"
 #include "MainPlayerController.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, public IGenericTeamAgentInterface
 {

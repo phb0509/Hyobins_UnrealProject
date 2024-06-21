@@ -7,7 +7,7 @@
 #include "SuperMinionAnim.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FNormalAttack_End_EachSection_Delegate);
-DECLARE_MULTICAST_DELEGATE(FOnHit_End_EachSection_Delegate);
+
 
 UCLASS()
 class HYOBINSPROJECT_API USuperMinionAnim : public UAnimInstanceBase
@@ -25,10 +25,9 @@ private:
 	void AnimNotify_EndedNormalAttack() const;
 
 	UFUNCTION()
-	void AnimNotify_EndedOnHitSection(); 
+	void AnimNotify_Test() const;
 
 public:
 	FNormalAttack_End_EachSection_Delegate OnEndedNormalAttack;
-	FOnHit_End_EachSection_Delegate OnEndedOnHitSection;
-
+	
 };

@@ -39,12 +39,11 @@ public:
 	FOnHPIsChangedDelegate OnHPIsChanged;
 
 private:
-	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, Category = StatComponent, Meta = (AllowPrivateAccess = true))
 	float m_MaxHP;
 
-	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = StatComponent, Meta = (AllowPrivateAccess = true))
 	float m_CurHP;
-
 	float m_CurMoveSpeed;
 	float m_CurAdditionalMoveSpeed;
 	float m_CurAttackSpeed;

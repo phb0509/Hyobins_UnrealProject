@@ -14,19 +14,12 @@ ACharacterBase::ACharacterBase() :
 	m_OnHitTimerTime(1.0f),
 	m_DeathTimerTime(3.0f),
 	m_CurSpeed(0.0f),
-	m_bIsIdle(true),
-	m_bIsWalking(false),
-	m_bIsRunning(false),
-	m_bIsInAir(false),
 	m_bIsSuperArmor(false),
 	m_bIsDead(false),
-	m_bIsHitStateTrigger(false),
 	m_DeathTimerTickTime(1.0f),
 	m_DeathTimerRemainingTime(3.0f),
 	m_DiffuseRatio(1.0f)
 {
-	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 }
@@ -41,7 +34,7 @@ void ACharacterBase::PossessedBy(AController* newController)
 	m_AIControllerBase = Cast<AAIControllerBase>(GetController());
 }
 
-float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
@@ -60,15 +53,17 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	if (!m_bIsDead)
 	{
 		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 피격방향을 산출.
-		ExecHitEvent(instigatorCharacter); 
+		ExecOnHitEvent(instigatorCharacter); 
 
 		if (!m_bIsSuperArmor)
 		{
-			// 넉백.. 코드변경해야됨. 넉백있는 공격정보일때만 수행하게
-			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
-			dirToInstigator.Normalize();
-			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
-
+			if (attackInformation->bHasKnockBack) // 넉백을 주는 공격이라면
+			{
+				FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
+				dirToInstigator.Normalize();
+				this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
+			}
+			
 			// Timer Setting.
 			m_OnHitTimerTime = m_HitRecovery * attackInformation->knockBackTime;
 
@@ -77,7 +72,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 				GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 			}
 
-			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnHitTimerEnded, m_OnHitTimerTime, true); // OnHitTimeEnded는 각 몬스터마다 오버라이딩함수 호출.
+			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnCalledTimer_OnHit, m_OnHitTimerTime, true); // OnHitTimeEnded는 각 몬스터마다 오버라이딩함수 호출.
 		}
 	}
 	
@@ -94,5 +89,5 @@ void ACharacterBase::OnHPIsZero()
 void ACharacterBase::OnCalledNotify_EndedDeath() // 사망몽타주재생 완료시 호출.
 {
 	UE_LOG(LogTemp, Warning, TEXT("CharacterBase :: OnCalled_EndedDeathNotify"));
-	ExecDeathEvent();
+	ExecEvent_EndedDeathMontage();
 }

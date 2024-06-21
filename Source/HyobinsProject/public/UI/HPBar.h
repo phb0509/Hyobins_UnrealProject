@@ -6,16 +6,16 @@
 #include "Blueprint/UserWidget.h"
 #include "HPBar.generated.h"
 
-/**
- * 
- */
+class UStatComponent;
+class UProgressBar;
+
 UCLASS()
 class HYOBINSPROJECT_API UHPBar : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
-	void BindStatComponent(class UStatComponent* statComponent);
+	void BindStatComponent(UStatComponent* statComponent);
 	void SetExecuteState(); // 처형표시 (hp일정이하 내려갔을 시,)
 
 protected:
@@ -27,5 +27,5 @@ protected:
 	TWeakObjectPtr<UStatComponent> m_StatComponent;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TWeakObjectPtr<class UProgressBar> m_HPProgressBar;
+	TWeakObjectPtr<UProgressBar> m_HPProgressBar;
 };

@@ -2,12 +2,10 @@
 
 
 #include "Utility/AnimInstanceBase.h"
-#include "Utility/CharacterBase.h"
 
 
 UAnimInstanceBase::UAnimInstanceBase() 
 {
-
 }
 
 void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
@@ -17,6 +15,7 @@ void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
 		checkf(IsValid(m_Montages[montageName]), TEXT("Montage isn't Valid"));
 		Montage_Play(m_Montages[montageName], inPlayRate);
 	}
+
 }
 
 void UAnimInstanceBase::JumpToMontageSection(const FName& montageName, int32 newSection)
@@ -39,6 +38,15 @@ UAnimMontage* UAnimInstanceBase::GetMontage(const FName& montageName)
 	}
 
 	return nullptr;
+}
+
+void UAnimInstanceBase::AnimNotify_Pause()
+{
+	if (IsValid(GetCurrentActiveMontage()))
+	{
+		auto montage = GetCurrentActiveMontage();
+		Montage_Pause(montage);
+	}
 }
 
 void UAnimInstanceBase::AnimNotify_EndedDeath() const

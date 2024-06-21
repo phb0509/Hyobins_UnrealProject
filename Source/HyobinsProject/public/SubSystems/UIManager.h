@@ -6,7 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "UIManager.generated.h"
 
-
+class UStatComponent;
 UCLASS()
 class HYOBINSPROJECT_API UUIManager : public UGameInstanceSubsystem
 {
@@ -16,7 +16,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override {}
 	virtual void Deinitialize() override {}
 
-	void CreateHPBarComponent(class AActor* actor, class UStatComponent* const statComponent,class USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize);
+	void CreateHPBarComponent(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize);
 	void HideWidgets(const FName& path);
 	void ShowWidgets(const FName& path);
 	void ClearWidgets(const FName& path);
@@ -24,5 +24,5 @@ public:
 	
 
 public:
-	TMap<TSubclassOf<class UUserWidget>, TArray<class UUserWidget*>> m_UIWidgets;
+	TMap<TSubclassOf<UUserWidget>, TArray<UUserWidget*>> m_UIWidgets;
 };

@@ -9,10 +9,10 @@ AEnumTypes::AEnumTypes()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AEnumTypes::BeginPlay()
-{
-	Super::BeginPlay();
-}
+// void AEnumTypes::BeginPlay()
+// {
+// 	Super::BeginPlay();
+// }
 
 
 

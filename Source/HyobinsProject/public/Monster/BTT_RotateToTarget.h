@@ -6,9 +6,7 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTT_RotateToTarget.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class HYOBINSPROJECT_API UBTT_RotateToTarget : public UBTTaskNode
 {

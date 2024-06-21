@@ -6,6 +6,7 @@
 #include "LevelBase.h"
 #include "FirstLevel.generated.h"
 
+class AActorPool;
 
 UCLASS()
 class HYOBINSPROJECT_API AFirstLevel : public ALevelBase
@@ -45,5 +46,5 @@ private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;
 	float m_SpawnTimerTime_MeleeMinion;
 
-	TWeakObjectPtr<class AActorPool> m_ActorPool;
+	TWeakObjectPtr<AActorPool> m_ActorPool;
 };

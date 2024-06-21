@@ -3,25 +3,26 @@
 
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Monster/Minions/Super/SuperMinion.h"
-#include "Utility/EnumTypes.h"
+#include "Perception/AISenseConfig_Sight.h"
+
 
 ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::Constructor"));
-	
 	m_TeamID = FGenericTeamId(4);
 	initPerceptionSystem();
 }
 
 void ASuperMinionAIController::OnPossess(APawn* pawn)
 {
+	Super::OnPossess(pawn);
 	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::OnPossess"));
 	
-	Super::OnPossess(pawn);
 	m_Owner = Cast<ASuperMinion>(pawn);
 	
-	UBlackboardComponent* BlackboardComponent = Blackboard;
+	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), true);
+	
+	UBlackboardComponent* BlackboardComponent = Blackboard.Get();
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
 	
 	if (UseBlackboard(m_BlackboardData.Get(), BlackboardComponent))
@@ -30,8 +31,18 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 	}
 }
 
+void ASuperMinionAIController::OnUnPossess()
+{
+	Super::OnUnPossess();
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::OnUnPossess"));
+	
+	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
+}
+
 void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
 {
+	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::UpdatePerceptedTargetActor"));
+	
 	if (m_Owner.IsValid())
 	{
 		ACharacterBase* const perceivedCharacter = Cast<ACharacterBase>(actor);
@@ -65,14 +76,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 				}
 				else // 시야범위 밖으로 적이 나갔을 때 or 범위 안에있는데 다른 물체에 의해 가려졌을 경우
 				{
-					if (m_Owner->GetState() == ENormalMinionStates::Chase || m_Owner->GetState() == ENormalMinionStates::NormalAttack)
-					{
-						
-					}
-					else
-					{
-
-					}
+					
 				}
 
 				teamTypeName = "Enemy::";
@@ -124,34 +128,28 @@ void ASuperMinionAIController::initPerceptionSystem()
 		m_BlackboardData = BBObject.Object;
 	}
 	checkf(IsValid(m_BlackboardData.Get()), TEXT("BlackboardData isn't Valid"));
-	
-	m_SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	checkf(IsValid(m_SightConfig.Get()), TEXT("SightConfig isn't Valid"));
 
-	m_SightRadius = 1000.0f;
-	m_LoseSightRadius = 1100.0f;
-	m_PeripheralVisionHalfAngle = 180.0f;
-	m_AILastSeenLocation = 0.0f;
-	m_AISightAge = 5.0f;
-
-	checkf(IsValid(m_AIPerceptionComponent.Get()), TEXT("AIPerceptionComponent isn't Valid"));
-	SetPerceptionComponent(*m_AIPerceptionComponent);
-
-	m_SightConfig->SightRadius = m_SightRadius;
-	m_SightConfig->LoseSightRadius = m_LoseSightRadius;
-	m_SightConfig->PeripheralVisionAngleDegrees = m_PeripheralVisionHalfAngle;
-	m_SightConfig->SetMaxAge(m_AISightAge);
-	m_SightConfig->AutoSuccessRangeFromLastSeenLocation = m_AILastSeenLocation; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
-																				// 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
-
-	m_SightConfig->DetectionByAffiliation.bDetectEnemies = true; 
-	m_SightConfig->DetectionByAffiliation.bDetectNeutrals = false;
-	m_SightConfig->DetectionByAffiliation.bDetectFriendlies = true; 
-
-	m_AIPerceptionComponent->ConfigureSense(*m_SightConfig);
-	m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
-	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AAIControllerBase::UpdatePerceptedTargetActor);
 	AAIController::SetGenericTeamId(m_TeamID);
+
+	//SetPerceptionComponent(*m_AIPerceptionComponent);
+	
+	UAISenseConfig_Sight* sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	
+	sightConfig->SightRadius = 1000.0f;
+	sightConfig->LoseSightRadius = 1100.0f;
+	sightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
+	sightConfig->SetMaxAge(5.0f);
+	sightConfig->AutoSuccessRangeFromLastSeenLocation = 0.0f; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
+																				// 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
+	
+	sightConfig->DetectionByAffiliation.bDetectEnemies = true; 
+	sightConfig->DetectionByAffiliation.bDetectNeutrals = false;
+	sightConfig->DetectionByAffiliation.bDetectFriendlies = true; 
+	
+	m_AIPerceptionComponent->ConfigureSense(*sightConfig);
+	m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
+	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
+	
 }
 
 ETeamAttitude::Type ASuperMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const

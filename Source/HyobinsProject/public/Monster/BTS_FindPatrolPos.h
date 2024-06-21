@@ -6,9 +6,7 @@
 #include "BehaviorTree/BTService.h"
 #include "BTS_FindPatrolPos.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class HYOBINSPROJECT_API UBTS_FindPatrolPos : public UBTService
 {

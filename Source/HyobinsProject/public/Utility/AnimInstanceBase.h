@@ -24,6 +24,9 @@ public:
 
 private:
 	UFUNCTION()
+	void AnimNotify_Pause();
+	
+	UFUNCTION()
 	void AnimNotify_EndedDeath() const; 
 
 public:

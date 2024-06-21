@@ -6,6 +6,7 @@
 #include "Utility/AIControllerBase.h"
 #include "SuperMinionAIController.generated.h"
 
+class ASuperMinion;
 
 UCLASS()
 class HYOBINSPROJECT_API ASuperMinionAIController : public AAIControllerBase
@@ -14,11 +15,14 @@ class HYOBINSPROJECT_API ASuperMinionAIController : public AAIControllerBase
 	
 public:
 	ASuperMinionAIController(const FObjectInitializer& ObjectInitializer);
-
 	virtual void OnPossess(APawn* pawn) override;
+	virtual void OnUnPossess() override;
+
+	
 	virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override;
 
-	void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus) override;
+	UFUNCTION(BlueprintCallable)
+	void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus);
 
 
 private:
@@ -26,5 +30,6 @@ private:
 
 
 private:
-	TWeakObjectPtr<class ASuperMinion> m_Owner;
+	TWeakObjectPtr<ASuperMinion> m_Owner;
+	
 };

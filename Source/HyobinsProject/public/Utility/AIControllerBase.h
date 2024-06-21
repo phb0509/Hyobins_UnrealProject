@@ -4,19 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-//#include "DetourCrowdAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionTypes.h"
-#include "Perception/AISenseConfig_Sight.h"
-#include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "AIControllerBase.generated.h"
 
-/**
- *
- */
+
 UCLASS()
 class HYOBINSPROJECT_API AAIControllerBase : public AAIController
 {
@@ -31,10 +26,7 @@ public:
 
 	void StopBehaviorTree() const;
 	void StartBehaviorTree();
-
-	UFUNCTION()
-	virtual void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus) {};
-
+	
     // Get
 	FORCEINLINE UBlackboardComponent* GetBlackBoard() const { return Blackboard; }
 
@@ -44,8 +36,7 @@ protected:
 	TWeakObjectPtr<UBlackboardData> m_BlackboardData;
 	TWeakObjectPtr<UBehaviorTreeComponent> m_BehaviorTreeComponent;
 	TWeakObjectPtr<UAIPerceptionComponent> m_AIPerceptionComponent;
-	TWeakObjectPtr<UAISenseConfig_Sight> m_SightConfig;
-
+	
 	FGenericTeamId m_TeamID;
 	
 	float m_SightRadius; // 인지최대거리

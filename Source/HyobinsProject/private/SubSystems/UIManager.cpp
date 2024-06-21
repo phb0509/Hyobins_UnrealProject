@@ -30,7 +30,7 @@ void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statC
 
 	hpBar->BindStatComponent(statComponent);
 
-	if (m_UIWidgets.Contains(widgetClass) == false)
+	if (!m_UIWidgets.Contains(widgetClass))
 	{
 		TArray<UUserWidget*> temp;
 		m_UIWidgets.Add(widgetClass, temp);

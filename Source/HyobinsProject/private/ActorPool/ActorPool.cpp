@@ -3,7 +3,6 @@
 
 #include "ActorPool/ActorPool.h"
 #include "ActorPool/PoolableActor.h"
-#include "Kismet/GameplayStatics.h"
 
 AActorPool::AActorPool() :
 	m_DefaultSpawnCount(4)
@@ -28,7 +27,7 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 	}
 	else
 	{
-		FActors actorPool;
+		const FActors actorPool;
 		m_ActorPool.Add(classType, actorPool);
 	}
 

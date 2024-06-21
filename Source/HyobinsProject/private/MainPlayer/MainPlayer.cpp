@@ -9,14 +9,12 @@
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
-#include <ThirdParty/Vulkan/Include/vulkan/vulkan_core.h>
 
 AMainPlayer::AMainPlayer() :
 	m_ArmLengthTo(450.0f),
 	m_ArmLengthSpeed(3.0f),
 	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
-	m_bIsDodgeMoving(false),
 	m_bIsCombated(true),
 	m_bIsHit(false),
 	m_bIsPressingShift(false),
@@ -47,9 +45,9 @@ void AMainPlayer::BeginPlay()
 	
 	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
 
-	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapSwordCollision);
-	m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForAttack);
-    m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::CheckOverlapShieldCollisionForShield);
+	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::OnCalled_Overlap_SwordCollision);
+	m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::OnCalled_Overlap_ShieldCollisionForAttack);
+    m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::OnCalled_Overlap_ShieldCollisionForDefend);
 }
 
 void AMainPlayer::Tick(float DeltaTime)
@@ -113,7 +111,10 @@ void AMainPlayer::TriggerReleasedShift()
 
 void AMainPlayer::TriggerPressedLeftMouseButton()
 {
-	m_SkillComponent->NormalAttack();
+	if (GetMovementComponent()->IsMovingOnGround())
+	{
+		m_SkillComponent->NormalAttack_OnGround();
+	}
 }
 
 void AMainPlayer::TriggerReleasedLeftMouseButton()
@@ -122,7 +123,18 @@ void AMainPlayer::TriggerReleasedLeftMouseButton()
 
 void AMainPlayer::TriggerPressedSpaceBar() 
 {
-	m_SkillComponent->Dodge();
+	if (GetMovementComponent()->IsMovingOnGround())
+	{
+		m_SkillComponent->Dodge_OnGround();
+	}
+}
+
+void AMainPlayer::TriggerPressedQ()
+{
+	if (GetMovementComponent()->IsMovingOnGround())
+	{
+		m_SkillComponent->UpperAttack_OnGround();
+	}
 }
 
 void AMainPlayer::TriggerPressedLeftCtrl()
@@ -133,11 +145,6 @@ void AMainPlayer::TriggerPressedLeftCtrl()
 void AMainPlayer::TriggerReleasedLeftCtrl()
 {
 
-}
-
-void AMainPlayer::TriggerPressedQ()
-{
-	m_SkillComponent->UpperAttack();
 }
 
 void AMainPlayer::ActivateSwordCollider()
@@ -264,33 +271,12 @@ void AMainPlayer::initAssets()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
+
 void AMainPlayer::updateState()
 {
 	m_CurSpeed = GetVelocity().Size();
-	m_bIsInAir = GetCharacterMovement()->IsFalling();
 
-	if (!m_bIsInAir)
-	{
-		if (m_CurSpeed < 0.1)
-		{
-			m_bIsIdle = true;
-			m_bIsWalking = false;
-			m_bIsRunning = false;
-		}
-		else if (m_CurSpeed > 0.1 && m_CurSpeed <= m_WalkSpeed)
-		{
-			m_bIsIdle = false;
-			m_bIsWalking = true;
-			m_bIsRunning = false;
-		}
-		else if (m_CurSpeed > m_WalkSpeed && m_CurSpeed <= m_RunSpeed)
-		{
-			m_bIsIdle = false;
-			m_bIsWalking = false;
-			m_bIsRunning = true;
-		}
-	}
-	else
+	if (GetCharacterMovement()->IsFalling())
 	{
 		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
 	}

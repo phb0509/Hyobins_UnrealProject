@@ -15,22 +15,13 @@ void USuperMinionAnim::AnimNotify_EndedNormalAttack() const
 	OnEndedNormalAttack.Broadcast();
 }
 
-void USuperMinionAnim::AnimNotify_EndedOnHitSection() 
+void USuperMinionAnim::AnimNotify_Test() const
 {
-	//OnEndedOnHitSection.Broadcast();
-	Montage_Pause(m_Montages["OnHit_OnGround"]);
+	UE_LOG(LogTemp, Warning, TEXT("OnCalled Test Notify"));
 }
 
 void USuperMinionAnim::initAssets()
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> idle_OnGround
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Idle_OnGround.Idle_OnGround'"));
-
-	if (idle_OnGround.Succeeded())
-	{
-		m_Montages.Add("Idle_OnGround", idle_OnGround.Object);
-	}
-	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage1
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_NormalAttack_A.AM_NormalAttack_A'"));
 
@@ -38,6 +29,7 @@ void USuperMinionAnim::initAssets()
 	{
 		m_Montages.Add("NormalAttack1", normalAttackMontage1.Object);
 	}
+
 	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage2
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_NormalAttack_B.AM_NormalAttack_B'"));
@@ -47,7 +39,7 @@ void USuperMinionAnim::initAssets()
 		m_Montages.Add("NormalAttack2",normalAttackMontage2.Object);
 	}
 
-
+	
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> criticalAttackMontage
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_CriticalAttack.AM_CriticalAttack'"));
 
@@ -58,26 +50,18 @@ void USuperMinionAnim::initAssets()
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> onHit_OnGround
 	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/OnHit_OnGround.OnHit_OnGround'"));
-
+	
 	if (onHit_OnGround.Succeeded())
 	{
 		m_Montages.Add("OnHit_OnGround",onHit_OnGround.Object);
 	}
+
 	
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> onDeath_Front
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_Death_Front.AM_Death_Front'"));
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> death_OnGround
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Death_OnGround.Death_OnGround'"));
 
-	if (onDeath_Front.Succeeded())
+	if (death_OnGround.Succeeded())
 	{
-		m_Montages.Add("OnDeath_Front",onDeath_Front.Object);
-	}
-
-
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> onDeath_Back
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_Death_Back.AM_Death_Back'"));
-
-	if (onDeath_Back.Succeeded())
-	{
-		m_Montages.Add("OnDeath_Back",onDeath_Back.Object);
+		m_Montages.Add("Death_OnGround",death_OnGround.Object);
 	}
 }
