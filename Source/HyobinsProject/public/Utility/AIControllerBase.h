@@ -11,6 +11,7 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "AIControllerBase.generated.h"
 
+class ACharacterBase;
 
 UCLASS()
 class HYOBINSPROJECT_API AAIControllerBase : public AAIController
@@ -19,7 +20,7 @@ class HYOBINSPROJECT_API AAIControllerBase : public AAIController
 
 public:
 	AAIControllerBase(const FObjectInitializer& ObjectInitializer);
-
+	
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
@@ -32,17 +33,11 @@ public:
 
 
 protected:
+	TWeakObjectPtr<ACharacterBase> m_OwnerBase;
 	TWeakObjectPtr<UBehaviorTree> m_BehaviorTree;
 	TWeakObjectPtr<UBlackboardData> m_BlackboardData;
 	TWeakObjectPtr<UBehaviorTreeComponent> m_BehaviorTreeComponent;
-	TWeakObjectPtr<UAIPerceptionComponent> m_AIPerceptionComponent;
 	
 	FGenericTeamId m_TeamID;
 	
-	float m_SightRadius; // 인지최대거리
-	float m_LoseSightRadius; // 이미 본 타깃을 시야에서 놓치게 되는 시야최대거리. (시야상실반경)
-	float m_PeripheralVisionHalfAngle; // FieldOfView
-	float m_AISightAge;
-	float m_AILastSeenLocation;
-
 };

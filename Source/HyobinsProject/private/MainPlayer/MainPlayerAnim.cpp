@@ -15,16 +15,6 @@ void UMainPlayerAnim::AnimNotify_NormalAttack_Start_EachSection() const
 	NormalAttack_Start_EachSection.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_NormalAttack_KeyInputCheck() const
-{
-	NormalAttack_KeyInputCheck.Broadcast();
-}
-
-void UMainPlayerAnim::AnimNotify_NormalAttack_End_EachSection() const
-{
-	NormalAttack_End_EachSection.Broadcast();
-}
-
 void UMainPlayerAnim::AnimNotify_UpperAttack_Start() const
 {
 	UpperAttack_Start.Broadcast();

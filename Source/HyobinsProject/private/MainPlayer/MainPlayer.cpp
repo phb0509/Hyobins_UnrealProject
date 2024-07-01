@@ -11,13 +11,11 @@
 #include <Components/BoxComponent.h>
 
 AMainPlayer::AMainPlayer() :
-	m_ArmLengthTo(450.0f),
-	m_ArmLengthSpeed(3.0f),
 	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
 	m_bIsCombated(true),
 	m_bIsHit(false),
-	m_bIsPressingShift(false),
+	m_bIsPressedShift(false),
 	m_CurInputHorizontal(0),
 	m_CurInputVertical(0),
 	m_TempInputHorizontalForDodge(0),
@@ -55,7 +53,7 @@ void AMainPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	updateState();
-	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, m_ArmLengthTo, DeltaTime, m_ArmLengthSpeed);
+	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, 450.0f, DeltaTime, 3.0f);
 
 	printLog();
 }
@@ -94,7 +92,7 @@ void AMainPlayer::InputVertical(float value)
 
 void AMainPlayer::TriggerPressedShift()
 {
-	m_bIsPressingShift = true;
+	m_bIsPressedShift = true;
 
 	if (m_SkillComponent->GetSkillState() == EMainPlayerSkillStates::None)
 	{
@@ -104,7 +102,7 @@ void AMainPlayer::TriggerPressedShift()
 
 void AMainPlayer::TriggerReleasedShift()
 {
-	m_bIsPressingShift = false;
+	m_bIsPressedShift = false;
 	
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
@@ -294,7 +292,6 @@ void AMainPlayer::printLog() const
 	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
 	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
-	//GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("CurCombo : %d"), m_CurNormalAttackCombo));
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
 	GEngine->AddOnScreenDebugMessage(11, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *curSkillState));
@@ -310,7 +307,7 @@ void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로
 	SetActorRotation(resultRotator);
 }
 
-void AMainPlayer::RotateActorToControllerYaw()
+void AMainPlayer::RotateActorToControllerYaw() // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 {
 	const FRotator controllerRotation = GetControlRotation();
 	const FRotator actorRotation = GetActorRotation();

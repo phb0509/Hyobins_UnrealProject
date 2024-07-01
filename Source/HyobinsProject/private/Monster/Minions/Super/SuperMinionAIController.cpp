@@ -10,17 +10,32 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 	Super(ObjectInitializer)
 {
 	m_TeamID = FGenericTeamId(4);
-	initPerceptionSystem();
+	initAssets();
+}
+
+void ASuperMinionAIController::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: PostInitializeComponents"));
+	
+}
+
+void ASuperMinionAIController::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: BeginPlay"));
 }
 
 void ASuperMinionAIController::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::OnPossess"));
-	
+
 	m_Owner = Cast<ASuperMinion>(pawn);
-	
-	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), true);
+
+	GetAIPerceptionComponent()->Activate();
+	GetAIPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), true);
 	
 	UBlackboardComponent* BlackboardComponent = Blackboard.Get();
 	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
@@ -34,15 +49,13 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 void ASuperMinionAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::OnUnPossess"));
 	
-	m_AIPerceptionComponent->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
+	GetAIPerceptionComponent()->Deactivate();
+	GetAIPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
 }
 
 void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAIController::UpdatePerceptedTargetActor"));
-	
 	if (m_Owner.IsValid())
 	{
 		ACharacterBase* const perceivedCharacter = Cast<ACharacterBase>(actor);
@@ -113,7 +126,7 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 	}
 }
 
-void ASuperMinionAIController::initPerceptionSystem()
+void ASuperMinionAIController::initAssets()
 {
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/SuperMinion/BT_SuperMinion.BT_SuperMinion'"));
 	if (BTObject.Succeeded())
@@ -131,7 +144,8 @@ void ASuperMinionAIController::initPerceptionSystem()
 
 	AAIController::SetGenericTeamId(m_TeamID);
 
-	//SetPerceptionComponent(*m_AIPerceptionComponent);
+	auto perceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
+	perceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
 	
 	UAISenseConfig_Sight* sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	
@@ -140,16 +154,14 @@ void ASuperMinionAIController::initPerceptionSystem()
 	sightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
 	sightConfig->SetMaxAge(5.0f);
 	sightConfig->AutoSuccessRangeFromLastSeenLocation = 0.0f; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
-																				// 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
+															  // 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
 	
 	sightConfig->DetectionByAffiliation.bDetectEnemies = true; 
 	sightConfig->DetectionByAffiliation.bDetectNeutrals = false;
 	sightConfig->DetectionByAffiliation.bDetectFriendlies = true; 
 	
-	m_AIPerceptionComponent->ConfigureSense(*sightConfig);
-	m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
-	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
-	
+	perceptionComponent->ConfigureSense(*sightConfig);
+	perceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
 }
 
 ETeamAttitude::Type ASuperMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const

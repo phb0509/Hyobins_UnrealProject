@@ -4,6 +4,7 @@
 #include "ActorPool/ActorPool.h"
 #include "ActorPool/PoolableActor.h"
 
+
 AActorPool::AActorPool() :
 	m_DefaultSpawnCount(4)
 {

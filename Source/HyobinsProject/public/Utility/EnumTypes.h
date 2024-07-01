@@ -20,11 +20,12 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
-	None 					UMETA(DisplayName = "None"),
-	NormalAttack_OnGround	UMETA(DisplayName = "NormalAttack_OnGround"),            
-	UpperAttack_OnGround	UMETA(DisplayName = "UpperAttack_OnGround"),
-	CombatDodge_OnGround 	UMETA(DisplayName = "CombatDodge_OnGround"),
-	Parrying_OnGround		UMETA(DisplayName = "Parrying_OnGround"),
+	None 						UMETA(DisplayName = "None"),
+	NormalAttack_OnGround		UMETA(DisplayName = "NormalAttack_OnGround"),
+	NormalStrikeAttack_OnGround UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
+	UpperAttack_OnGround		UMETA(DisplayName = "UpperAttack_OnGround"),
+	CombatDodge_OnGround 		UMETA(DisplayName = "CombatDodge_OnGround"),
+	Parrying_OnGround			UMETA(DisplayName = "Parrying_OnGround"),
 };
 
 
@@ -56,6 +57,7 @@ enum class ECrowdControlType : uint8
 	Stun	UMETA(DisplayName = "Stun"),
 	Airborne UMETA(DisplayName = "Airborne")
 };
+
 
 UCLASS()
 class HYOBINSPROJECT_API AEnumTypes : public AActor

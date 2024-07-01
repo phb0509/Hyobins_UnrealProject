@@ -8,6 +8,7 @@
 
 class USuperMinionAnim;
 class ASuperMinionAIController;
+class UAIPerceptionComponent;
 
 enum class EMonsterCommonStates : uint8;
 enum class ENormalMinionStates : uint8;
@@ -19,8 +20,10 @@ class HYOBINSPROJECT_API ASuperMinion final: public AMonster
 
 public:
 	ASuperMinion();
-	virtual void Tick(float DeltaTime) override;
+	
 	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	
 	void OnCalledNotify_EndedNormalAttack();
 	virtual void OnCalledTimer_OnHit() override;
@@ -30,6 +33,13 @@ public:
 	
 	UFUNCTION()
 	void SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION(BlueprintCallable)
+	void TestPrint()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TestPrint!!!!!!!!!!!!!"));
+	}
+	
 	
 	// Get
 	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
@@ -38,8 +48,6 @@ public:
 	void SetState(ENormalMinionStates state);
 
 protected:
-	virtual void BeginPlay() override;
-	
 	virtual void ExecOnHitEvent(ACharacterBase* instigator) override;
 	virtual void Die() override;
 	virtual void ExecEvent_EndedDeathMontage() override;
@@ -62,6 +70,8 @@ private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 	
+	UPROPERTY(BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
+	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
+
 	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
-	TWeakObjectPtr<ASuperMinionAIController> m_OwnerAIController;
 };

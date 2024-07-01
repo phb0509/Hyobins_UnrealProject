@@ -8,6 +8,7 @@
 
 class UStatComponent;
 class AAIControllerBase;
+class UAIPerceptionComponent;
 
 enum class EMonsterCommonStates : uint8;
 
@@ -18,13 +19,13 @@ class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 
 public:
 	ACharacterBase();
-
-	virtual void PossessedBy(AController* newController) override;
+	
 	virtual void OnCalledTimer_OnHit() {};
 	virtual void OnCalledNotify_EndedDeath(); 
 	
 	// Get
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
+	FORCEINLINE UAIPerceptionComponent* GetAIPerceptionComponent() const { return m_AIPerceptionComponent; }
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
 	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
@@ -42,16 +43,15 @@ protected:
 	virtual void ExecEvent_EndedDeathMontage() {}; 
 										  
 
-
-
 protected:
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = StatComponent)
-	UStatComponent* m_StatComponent;
-	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Colliders, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = Colliders)
 	TArray<UShapeComponent*> m_HitColliders;
+	
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+	UStatComponent* m_StatComponent;
 
-	TWeakObjectPtr<AAIControllerBase> m_AIControllerBase;
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+	UAIPerceptionComponent* m_AIPerceptionComponent;
 	
 	FTimerHandle m_OnHitTimerHandle;
 	FTimerHandle m_DeathTimerHandle;

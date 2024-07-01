@@ -8,6 +8,7 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 #include "Utility/Utility.h"
+#include "Perception/AISenseConfig_Sight.h"
 
 int ASuperMinion::TagCount(0);
 
@@ -17,12 +18,10 @@ ASuperMinion::ASuperMinion() :
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = ASuperMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
-
+	
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
-
-	m_NormalAttackSpeed = 1.0f;
+	
 	m_HitRecovery = 1.0f;
-	m_PatrolRange = 500.0f;
 	m_DeathTimerTime = 3.0f;
 
 	initAssets();
@@ -31,7 +30,7 @@ ASuperMinion::ASuperMinion() :
 void ASuperMinion::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinion :: PostInitializeComponents"));
+
 	
 	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
 	if (m_AnimInstance.IsValid())
@@ -43,19 +42,20 @@ void ASuperMinion::PostInitializeComponents()
 		m_AnimInstance->OnEndedDeath.AddUObject(this, &ACharacterBase::OnCalledNotify_EndedDeath);
 	}
 	
-	m_OwnerAIController = Cast<ASuperMinionAIController>(m_AIControllerBase);
+	m_AIController = Cast<ASuperMinionAIController>(GetController());
+
 }
 
 void ASuperMinion::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
+	const FString log = Tags[0].ToString() + " :: ASuperMinion :: BeginPlay!!";
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }
 
 void ASuperMinion::OnCalledNotify_EndedNormalAttack()
 {
-	m_OwnerAIController->StartBehaviorTree();
+	m_AIController->StartBehaviorTree();
 }
 
 void ASuperMinion::ExecOnHitEvent(ACharacterBase* instigator)
@@ -65,7 +65,7 @@ void ASuperMinion::ExecOnHitEvent(ACharacterBase* instigator)
 	if (!m_bIsSuperArmor)
 	{
 		SetState(ENormalMinionStates::Hit);
-		m_AnimInstance->StopAllMontages(0.0f); // OnHit이 퍼즈걸려
+		m_AnimInstance->StopAllMontages(0.0f); 
 		m_AnimInstance->PlayMontage("OnHit_OnGround",1.0f);
 		m_AnimInstance->JumpToMontageSection("OnHit_OnGround", m_HitDirection);
 	}
@@ -80,6 +80,7 @@ void ASuperMinion::OnCalledTimer_OnHit() // 넉백시간 끝날때마다 호출.
 	}
 
 	m_AnimInstance->StopAllMontages(0.0f);
+	m_AIController->StartBehaviorTree();
 	SetState(ENormalMinionStates::Chase);
 	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
 }
@@ -89,10 +90,10 @@ void ASuperMinion::Die()
 	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: Die"));
 
 	SetState(ENormalMinionStates::Dead);
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
-	m_OwnerAIController->StopBehaviorTree();
+	m_AIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
+	m_AIController->StopBehaviorTree();
 	
-	m_AnimInstance->StopAllMontages(0.0f); // OnHit이 퍼즈걸려
+	m_AnimInstance->StopAllMontages(0.0f); 
 	m_AnimInstance->PlayMontage("Death_OnGround");
 	m_AnimInstance->JumpToMontageSection("Death_OnGround", m_HitDirection);
 	
@@ -107,7 +108,7 @@ void ASuperMinion::SkillMontageStarted(UAnimMontage* Montage)
 	FName name = Montage->GetFName();
 	FString log = name.ToString();
 
-	UE_LOG(LogTemp, Warning, TEXT("StartedMontage :: %s"), *log);
+	//UE_LOG(LogTemp, Warning, TEXT("StartedMontage :: %s"), *log);
 }
 
 void ASuperMinion::SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -115,7 +116,7 @@ void ASuperMinion::SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	FName name = Montage->GetFName();
 	FString log = name.ToString() + " :: " + FString::FromInt(bInterrupted);
 	
-	UE_LOG(LogTemp, Warning, TEXT("EndedMontage :: %s"), *log);
+	//UE_LOG(LogTemp, Warning, TEXT("EndedMontage :: %s"), *log);
 }
 
 void ASuperMinion::ExecEvent_EndedDeathMontage() // 사망몽타주 재생완료시 호출.
@@ -144,7 +145,7 @@ void ASuperMinion::OnCalledTimer_EndedDeathEvent()
 void ASuperMinion::SetState(ENormalMinionStates state)
 {
 	m_CurState = state;
-	m_OwnerAIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+	m_AIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
 void ASuperMinion::SetCommonState(const int32 commonStateIndex)
@@ -182,7 +183,7 @@ void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 void ASuperMinion::Activate()
 {
 	Super::Activate();
-
+	
 	SetState(ENormalMinionStates::Patrol);
 }
 
@@ -232,4 +233,5 @@ void ASuperMinion::Tick(float DeltaTime)
 
 	FString log = Tags[0].ToString() + " :: " + state;
 	GEngine->AddOnScreenDebugMessage(20, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	
 }

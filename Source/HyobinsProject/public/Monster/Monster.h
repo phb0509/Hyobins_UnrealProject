@@ -15,10 +15,8 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActo
 
 public:
 	AMonster();
-
+	virtual void BeginPlay() override;
 	virtual void SetCommonState(int32 commonState) {};
-	FORCEINLINE float GetPatrolRange() const { return m_PatrolRange; }
-	FORCEINLINE float GetNormalAttackRange() const { return m_NormalAttackRange; }
 
 	
 protected:
@@ -37,15 +35,9 @@ public:
 	static const FName StateKey;
 	static const FName NormalAttackSpeedKey;
 
+	
 
-protected:
-	UPROPERTY(EditDefaultsOnly) // SkillComponent쪽으로 결국 전부옮김.
-	float m_PatrolRange;
-
-	UPROPERTY(EditDefaultsOnly)
-	float m_NormalAttackRange;
-
-	UPROPERTY(EditDefaultsOnly)
-	float m_NormalAttackSpeed;
-
+private:
+	TWeakObjectPtr<AAIControllerBase> m_AIControllerBase;
+	
 };

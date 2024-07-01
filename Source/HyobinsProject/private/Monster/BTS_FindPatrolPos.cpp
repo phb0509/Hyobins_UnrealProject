@@ -24,9 +24,10 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 	checkf(IsValid(NavSystem), TEXT("NavSystem isn't Valid"));
 
 	const FVector origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AMonster::HomePosKey);
-	FNavLocation nextPatrol;
-
-	if (NavSystem->GetRandomPointInNavigableRadius(origin, owner->GetPatrolRange(), nextPatrol))
+	FNavLocation nextPatrol;  
+	float patrolRange = 500.0f;
+	
+	if (NavSystem->GetRandomPointInNavigableRadius(origin, patrolRange, nextPatrol))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMonster::PatrolPosKey, nextPatrol.Location);
 	}

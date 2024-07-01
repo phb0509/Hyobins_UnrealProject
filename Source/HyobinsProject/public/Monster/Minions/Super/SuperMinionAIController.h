@@ -15,6 +15,9 @@ class HYOBINSPROJECT_API ASuperMinionAIController : public AAIControllerBase
 	
 public:
 	ASuperMinionAIController(const FObjectInitializer& ObjectInitializer);
+
+	virtual void PostInitializeComponents() override;
+	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
 
@@ -26,8 +29,7 @@ public:
 
 
 private:
-	void initPerceptionSystem();
-
+	void initAssets();
 
 private:
 	TWeakObjectPtr<ASuperMinion> m_Owner;

@@ -7,6 +7,16 @@
 #include "AnimInstanceBase.generated.h"
 
 
+DECLARE_DELEGATE(FSkillMontageEvent_Delegate);
+USTRUCT(Atomic) 
+struct FMontageFunc 
+{
+	GENERATED_USTRUCT_BODY() 
+
+public:
+	FSkillMontageEvent_Delegate funcOnCalledMontageStarted;
+	FSkillMontageEvent_Delegate funcOnCalledMontageEnded;
+};
 
 DECLARE_MULTICAST_DELEGATE(FOnEndedDeathDelegate);
 
@@ -22,6 +32,34 @@ public:
 	void JumpToMontageSection(const FName& montageName, int32 newSection);
 	UAnimMontage* GetMontage(const FName& montageName);
 
+	template <typename UObjectTemplate>
+	void BindFuncOnMontageStarted(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
+	{
+		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+		{
+			FMontageFunc montageFunc;
+			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
+		}
+		
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.BindUFunction(InUserObject, InFunctionName);
+	};
+
+	template <typename UObjectTemplate>
+	void BindFuncOnMontageEnded(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
+	{
+		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+		{
+			FMontageFunc montageFunc;
+			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
+		}
+		
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.BindUFunction(InUserObject, InFunctionName);
+	};
+
+	void ExecFuncOnMontageStarted(const FName& montageName);
+	void ExecFuncOnMontageEnded(const FName& montageName);
+
+
 private:
 	UFUNCTION()
 	void AnimNotify_Pause();
@@ -35,5 +73,8 @@ public:
 protected:
 	UPROPERTY()
 	TMap<FName, UAnimMontage*> m_Montages;
+	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
 	
 };
+
+

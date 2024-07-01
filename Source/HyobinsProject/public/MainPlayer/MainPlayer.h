@@ -46,9 +46,11 @@ public:
 	FORCEINLINE void UpdateTempInput() { m_TempInputHorizontalForDodge = m_CurInputHorizontal; m_TempInputVerticalForDodge = m_CurInputVertical; }
 	
 	// Get
+	FORCEINLINE UMainPlayerSkillComponent* GetSkillComponent() const { return m_SkillComponent; }
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
-
+	FORCEINLINE int32 GetIsPressedShiftKey() const { return m_bIsPressedShift; }
+	
 	// SwordCollider
 	void ActivateSwordCollider();
 	void DeactivateSwordCollider();
@@ -68,17 +70,13 @@ private:
 	void printLog() const;
 	
 public:
-	UPROPERTY(VisibleDefaultsOnly, Category = SkillComponent)
-	UMainPlayerSkillComponent* m_SkillComponent;
+	// UPROPERTY(VisibleDefaultsOnly)
+	// UMainPlayerSkillComponent* m_SkillComponent;
 	
 private:
-	UPROPERTY(EditDefaultsOnly, Category = Camera)
-	USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
-											// 자신과의 지정된 거리 안에 유지되도록 처리한다.
+	UPROPERTY(VisibleDefaultsOnly)
+	UMainPlayerSkillComponent* m_SkillComponent;
 	
-	UPROPERTY(EditAnywhere, Category = Camera)
-	UCameraComponent* m_TargetCamera;
-
 	UPROPERTY(EditAnywhere, Category = Collision) // 충돌체들은 실시간으로 크기보정할 일이 많을 수 있기 때문에 EditAnywhere로 지정
 	UCapsuleComponent* m_SwordCollider;
 
@@ -88,11 +86,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = Collision)
 	UBoxComponent* m_ShieldForDefendCollider;
 	
-	float m_ArmLengthTo;
-	float m_ArmLengthSpeed;
+	UPROPERTY(EditDefaultsOnly, Category = Camera)
+	USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
+									  // 자신과의 지정된 거리 안에 유지되도록 처리한다.
+	
+	UPROPERTY(EditAnywhere, Category = Camera)
+	UCameraComponent* m_TargetCamera;
+
+	
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
-
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
 	bool m_bIsCombated;
@@ -101,7 +104,7 @@ private:
 	bool m_bIsHit;
 
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	bool m_bIsPressingShift;
+	bool m_bIsPressedShift;
 
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputHorizontal;

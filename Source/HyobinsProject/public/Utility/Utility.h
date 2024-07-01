@@ -22,6 +22,12 @@ public:
 	{ 
 		return StaticEnum<T>()->GetNameStringByValue(static_cast<int64>(enumType)); 
 	}
+
+	template <typename T> 
+	static FORCEINLINE FName ConvertEnumToName(const T enumType) 
+	{ 
+		return FName(*StaticEnum<T>()->GetNameStringByValue(static_cast<int64>(enumType))); 
+	}
 	
 	
 private:

@@ -53,12 +53,12 @@ void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAtta
 	if (DT_Object.Succeeded())
 	{
 		const UDataTable* const DT_AttackInformations = DT_Object.Object;
-		const TArray<FName> attackNames = DT_AttackInformations->GetRowNames();
+		const TArray<FName> rowNames = DT_AttackInformations->GetRowNames();
 
-		for (auto& attackName : attackNames)
+		for (FName rowName : rowNames)
 		{
 			const FHPAttackInformationData data =
-				*(DT_AttackInformations->FindRow<FHPAttackInformationData>(attackName, attackName.ToString()));
+				*(DT_AttackInformations->FindRow<FHPAttackInformationData>(rowName, rowName.ToString()));
 
 			ECrowdControlType crowdControlType = ECrowdControlType::None;
 
@@ -71,7 +71,7 @@ void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAtta
 			}
 
 			FAttackInfo attackInfoStruct;
-			attackInfoStruct.attackName = attackName;
+			attackInfoStruct.attackName = data.attackName;
 			attackInfoStruct.damage = data.damage;
 			attackInfoStruct.bIsDot = data.bIsDot;
 			attackInfoStruct.bHasCrowdControl = data.bHasCrowdControl;
@@ -83,7 +83,7 @@ void Utility::InitAttackInformations(const FString& assetPath, TMap<FName, FAtta
 			attackInfoStruct.canDodge = data.canDodge;
 			attackInfoStruct.canParrying = data.canParrying;
 
-			attackInformations.Add(attackName, attackInfoStruct);
+			attackInformations.Add(attackInfoStruct.attackName, attackInfoStruct);
 		}
 	}
 }

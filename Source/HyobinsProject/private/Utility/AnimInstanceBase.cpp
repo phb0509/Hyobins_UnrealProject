@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Utility/AnimInstanceBase.h"
@@ -15,7 +14,6 @@ void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
 		checkf(IsValid(m_Montages[montageName]), TEXT("Montage isn't Valid"));
 		Montage_Play(m_Montages[montageName], inPlayRate);
 	}
-
 }
 
 void UAnimInstanceBase::JumpToMontageSection(const FName& montageName, int32 newSection)
@@ -38,6 +36,26 @@ UAnimMontage* UAnimInstanceBase::GetMontage(const FName& montageName)
 	}
 
 	return nullptr;
+}
+
+void UAnimInstanceBase::ExecFuncOnMontageStarted(const FName& montageName)
+{
+	bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.ExecuteIfBound();
+
+	if (!bIsBound)
+	{
+		checkf(IsValid(m_Montages[montageName]), TEXT("The function is not bound"));
+	}
+}
+
+void UAnimInstanceBase::ExecFuncOnMontageEnded(const FName& montageName)
+{
+	bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.ExecuteIfBound();
+
+	if (!bIsBound)
+	{
+		checkf(IsValid(m_Montages[montageName]), TEXT("The function is not bound"));
+	}
 }
 
 void UAnimInstanceBase::AnimNotify_Pause()

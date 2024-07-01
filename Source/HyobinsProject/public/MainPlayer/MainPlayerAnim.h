@@ -15,8 +15,6 @@ DECLARE_MULTICAST_DELEGATE(FShieldForAttackCollider_End_HitCheck_Delegate);
 
 // NormalAttack
 DECLARE_MULTICAST_DELEGATE(FNormalAttack_Start_EachSection_Delegate);
-DECLARE_MULTICAST_DELEGATE(FNormalAttack_KeyInputCheck_Delegate);
-DECLARE_MULTICAST_DELEGATE(FNormalAttack_End_EachSection_Delegate);
 
 // UpperAttack
 DECLARE_MULTICAST_DELEGATE(FUpperAttack_Start_Delegate);
@@ -36,12 +34,6 @@ public:
 	// NormalAttack
 	UFUNCTION()
 	void AnimNotify_NormalAttack_Start_EachSection() const;
-	
-	UFUNCTION()
-	void AnimNotify_NormalAttack_KeyInputCheck() const;
-
-	UFUNCTION()
-	void AnimNotify_NormalAttack_End_EachSection() const; 
 	
 	// UpperAttack
 	UFUNCTION()
@@ -73,8 +65,6 @@ private:
 public:
 	// NormalAttack
 	FNormalAttack_Start_EachSection_Delegate NormalAttack_Start_EachSection;
-	FNormalAttack_KeyInputCheck_Delegate NormalAttack_KeyInputCheck;
-	FNormalAttack_End_EachSection_Delegate NormalAttack_End_EachSection;
 
 	// UpperAttack
 	FUpperAttack_Start_Delegate UpperAttack_Start;

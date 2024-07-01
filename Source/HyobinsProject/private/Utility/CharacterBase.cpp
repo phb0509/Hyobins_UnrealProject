@@ -24,16 +24,6 @@ ACharacterBase::ACharacterBase() :
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 }
 
-void ACharacterBase::PossessedBy(AController* newController)
-{
-	Super::PossessedBy(newController);
-
-	const FString log = Tags[0].ToString() + " :: CharacterBase :: PossessedBy!!";
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
-	
-	m_AIControllerBase = Cast<AAIControllerBase>(GetController());
-}
-
 float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -45,10 +35,10 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
 	// 로그
-	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(attackInformation->damage) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
+	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(DamageAmount) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
-	m_StatComponent->SetDamage(attackInformation->damage);
+	m_StatComponent->SetDamage(DamageAmount);
 	
 	if (!m_bIsDead)
 	{
@@ -88,6 +78,5 @@ void ACharacterBase::OnHPIsZero()
 
 void ACharacterBase::OnCalledNotify_EndedDeath() // 사망몽타주재생 완료시 호출.
 {
-	UE_LOG(LogTemp, Warning, TEXT("CharacterBase :: OnCalled_EndedDeathNotify"));
 	ExecEvent_EndedDeathMontage();
 }
