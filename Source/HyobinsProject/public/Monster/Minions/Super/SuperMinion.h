@@ -21,12 +21,13 @@ class HYOBINSPROJECT_API ASuperMinion final: public AMonster
 public:
 	ASuperMinion();
 	
-	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+	void OnCalled_NormalAttack_End();
 	
-	void OnCalledNotify_EndedNormalAttack();
-	virtual void OnCalledTimer_OnHit() override;
+	virtual void OnCalledTimer_EndedOnHitKnockback() override;
 
 	UFUNCTION()
 	void SkillMontageStarted(UAnimMontage* Montage);
@@ -34,12 +35,6 @@ public:
 	UFUNCTION()
 	void SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	UFUNCTION(BlueprintCallable)
-	void TestPrint()
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TestPrint!!!!!!!!!!!!!"));
-	}
-	
 	
 	// Get
 	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
@@ -57,21 +52,28 @@ protected:
 
 	// IPoolableActor VirtualFunction 
 	virtual void Activate() override;
-
+	virtual void DeActivate() override;
+	
 private:
 	void initAssets();
 	void updateState();
-	
+	void bindFuncOnMontageEvent();
 
 public:
-	static int TagCount;
-
+	static const FName HitColliderName;
+	
 private:
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere)
+	UCapsuleComponent* m_HitCollider;
+	
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 	
-	UPROPERTY(BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
 
 	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
+	
+	static int32 TagCount;
+	static const FName HitMontages[8]; // 8πÊ«‚
+	static const FName DeathMontages[8];
 };

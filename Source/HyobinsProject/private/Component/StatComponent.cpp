@@ -3,6 +3,7 @@
 #include "Component/StatComponent.h"
 
 UStatComponent::UStatComponent() :
+	m_DefaultDamage(100.0f),
 	m_MaxHP(200.0f),
 	m_CurHP(m_MaxHP),
 	m_CurMoveSpeed(1.0f),
@@ -33,23 +34,12 @@ void UStatComponent::SetHP(const float hp)
 
 	if (m_CurHP < KINDA_SMALL_NUMBER)
 	{
-		
 		m_CurHP = 0.0f;
 		OnHPIsZero.Broadcast();
 	}
 }
 
-void UStatComponent::AddMoveSpeed(const float additionalMoveSpeed)
-{
-	m_CurAdditionalMoveSpeed += additionalMoveSpeed;
-	m_CurMoveSpeed = 1.0f + m_CurAdditionalMoveSpeed / 100.0f;
-}
 
-void UStatComponent::AddAttackSpeed(const float additionalAttackSpeed)
-{
-	m_CurAdditionalAttackSpeed += additionalAttackSpeed;
-	m_CurAttackSpeed = 1.0f + m_CurAdditionalAttackSpeed / 100.0f;
-}
 
 
 

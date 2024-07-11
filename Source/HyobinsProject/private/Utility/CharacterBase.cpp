@@ -2,10 +2,12 @@
 
 
 #include "Utility/CharacterBase.h"
-#include "Utility/AIControllerBase.h"
+#include "Utility/AnimInstanceBase.h"
 #include "Utility/CustomStructs.h"
 #include "Utility/Utility.h"
 #include "Component/StatComponent.h"
+
+int32 attackCount = 0;
 
 ACharacterBase::ACharacterBase() :
 	m_WalkSpeed(200.0f),
@@ -24,6 +26,16 @@ ACharacterBase::ACharacterBase() :
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 }
 
+void ACharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
+	animInstance->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death);
+
+	attackCount = 0;
+}
+
 float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -34,8 +46,10 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	const FAttackInfo* const attackInformation = static_cast<const FAttackInfo*>(&DamageEvent);
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
+	++attackCount;
 	// 로그
-	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(DamageAmount) + " damage from " + instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString();
+	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(DamageAmount) + " damage from " +
+		instigatorCharacter->Tags[0].ToString() + "::" + attackInformation->attackName.ToString() + "::" + FString::FromInt(attackCount);
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 
 	m_StatComponent->SetDamage(DamageAmount);
@@ -56,13 +70,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			
 			// Timer Setting.
 			m_OnHitTimerTime = m_HitRecovery * attackInformation->knockBackTime;
-
-			if (GetWorldTimerManager().IsTimerActive(m_OnHitTimerHandle))
-			{
-				GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
-			}
-
-			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnCalledTimer_OnHit, m_OnHitTimerTime, true); // OnHitTimeEnded는 각 몬스터마다 오버라이딩함수 호출.
+			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnCalledTimer_EndedOnHitKnockback, m_OnHitTimerTime, false); 
 		}
 	}
 	
@@ -76,7 +84,7 @@ void ACharacterBase::OnHPIsZero()
 	Die();
 }
 
-void ACharacterBase::OnCalledNotify_EndedDeath() // 사망몽타주재생 완료시 호출.
+void ACharacterBase::OnCalledNotify_End_Death() // 사망몽타주재생 완료시 호출.
 {
 	ExecEvent_EndedDeathMontage();
 }

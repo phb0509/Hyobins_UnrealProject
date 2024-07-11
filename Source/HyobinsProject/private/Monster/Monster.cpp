@@ -52,11 +52,7 @@ void AMonster::Activate()
 
 	// 충돌체들 활성화
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	for (UShapeComponent* const collider : m_HitColliders)
-	{
-		collider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	}
-
+	
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 }

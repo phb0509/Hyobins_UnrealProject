@@ -5,6 +5,15 @@
 
 UAnimInstanceBase::UAnimInstanceBase() 
 {
+	
+}
+
+void UAnimInstanceBase::NativeBeginPlay()
+{
+	Super::NativeBeginPlay();
+	
+	OnMontageStarted.AddDynamic(this, &UAnimInstanceBase::onMontageStarted);
+	OnMontageEnded.AddDynamic(this, &UAnimInstanceBase::onMontageEnded);
 }
 
 void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
@@ -40,6 +49,11 @@ UAnimMontage* UAnimInstanceBase::GetMontage(const FName& montageName)
 
 void UAnimInstanceBase::ExecFuncOnMontageStarted(const FName& montageName)
 {
+	if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+	{
+		return;
+	}
+	
 	bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.ExecuteIfBound();
 
 	if (!bIsBound)
@@ -50,12 +64,31 @@ void UAnimInstanceBase::ExecFuncOnMontageStarted(const FName& montageName)
 
 void UAnimInstanceBase::ExecFuncOnMontageEnded(const FName& montageName)
 {
+	if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+	{
+		return;
+	}
+	
 	bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.ExecuteIfBound();
 
 	if (!bIsBound)
 	{
 		checkf(IsValid(m_Montages[montageName]), TEXT("The function is not bound"));
 	}
+}
+
+void UAnimInstanceBase::onMontageStarted(UAnimMontage* Montage)
+{
+	FName montageName = Montage->GetFName(); // enum 문자열이랑 동일.
+	ExecFuncOnMontageStarted(montageName);
+
+	//UE_LOG(LogTemp, Warning, TEXT("Started Montage : %s"), *montageName.ToString());
+}
+
+void UAnimInstanceBase::onMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	FName montageName = Montage->GetFName(); // enum 문자열이랑 동일.
+	ExecFuncOnMontageEnded(montageName);
 }
 
 void UAnimInstanceBase::AnimNotify_Pause()
@@ -67,7 +100,7 @@ void UAnimInstanceBase::AnimNotify_Pause()
 	}
 }
 
-void UAnimInstanceBase::AnimNotify_EndedDeath() const
+void UAnimInstanceBase::AnimNotify_End_Death() const
 {
-	OnEndedDeath.Broadcast();
+	End_Death.Broadcast();
 }

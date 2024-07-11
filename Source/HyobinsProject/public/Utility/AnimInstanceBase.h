@@ -8,6 +8,7 @@
 
 
 DECLARE_DELEGATE(FSkillMontageEvent_Delegate);
+
 USTRUCT(Atomic) 
 struct FMontageFunc 
 {
@@ -16,6 +17,7 @@ struct FMontageFunc
 public:
 	FSkillMontageEvent_Delegate funcOnCalledMontageStarted;
 	FSkillMontageEvent_Delegate funcOnCalledMontageEnded;
+	FSkillMontageEvent_Delegate funcOnCalledMontageInterruptedEnded;
 };
 
 DECLARE_MULTICAST_DELEGATE(FOnEndedDeathDelegate);
@@ -27,11 +29,13 @@ class HYOBINSPROJECT_API UAnimInstanceBase : public UAnimInstance
 
 public:
 	UAnimInstanceBase();
-
+	
+	void NativeBeginPlay() override;
+	
 	void PlayMontage(const FName& montageName, float inPlayRate = 1.0f);
 	void JumpToMontageSection(const FName& montageName, int32 newSection);
 	UAnimMontage* GetMontage(const FName& montageName);
-
+	
 	template <typename UObjectTemplate>
 	void BindFuncOnMontageStarted(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
 	{
@@ -59,16 +63,22 @@ public:
 	void ExecFuncOnMontageStarted(const FName& montageName);
 	void ExecFuncOnMontageEnded(const FName& montageName);
 
+public:
+	UFUNCTION()
+	virtual void onMontageStarted(UAnimMontage* Montage);
+	
+	UFUNCTION()
+	virtual void onMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 private:
 	UFUNCTION()
 	void AnimNotify_Pause();
 	
 	UFUNCTION()
-	void AnimNotify_EndedDeath() const; 
+	void AnimNotify_End_Death() const; 
 
 public:
-	FOnEndedDeathDelegate OnEndedDeath;
+	FOnEndedDeathDelegate End_Death;
 
 protected:
 	UPROPERTY()

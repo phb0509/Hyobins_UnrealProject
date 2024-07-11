@@ -34,8 +34,8 @@ public:
 	void InputVertical(float value);
 
 	// ActionMappings
-	void TriggerPressedShift();
-	void TriggerReleasedShift();
+	void TriggerPressedLeftShift();
+	void TriggerReleasedLeftShift();
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
 	void TriggerPressedSpaceBar();
@@ -49,41 +49,41 @@ public:
 	FORCEINLINE UMainPlayerSkillComponent* GetSkillComponent() const { return m_SkillComponent; }
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
-	FORCEINLINE int32 GetIsPressedShiftKey() const { return m_bIsPressedShift; }
+	FORCEINLINE bool GetIsPressedKey(const FName& key) const { return m_PressedKeyInfo[key]; }
+
 	
-	// SwordCollider
-	void ActivateSwordCollider();
-	void DeactivateSwordCollider();
+	// Overlap시 호출시킬 바인딩 할 함수. 매개변수는 고정되어 있으므로, 바뀌면 안된다.
+	UFUNCTION()
+	void OnCalled_Overlap_SwordCollider(UPrimitiveComponent* HitComp, class AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// ShieldColliderForAttack
-	void ActivateShieldForAttackCollider();
-	void DeactivateShieldForAttackCollider();
+	UFUNCTION()
+	void OnCalled_Overlap_ShieldForAttackCollider(UPrimitiveComponent* HitComp, class AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	// ShieldColliderForDefend
-	void ActivateShieldForDefendCollider();
-	void DeactivateShieldForDefendCollider();
+	UFUNCTION()
+	void OnCalled_Overlap_ShieldForDefendCollider(UPrimitiveComponent* HitComp, class AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
-
+	
 private:
 	void initAssets();
 	void updateState();
 	void printLog() const;
 	
 public:
-	// UPROPERTY(VisibleDefaultsOnly)
-	// UMainPlayerSkillComponent* m_SkillComponent;
+	static const FName SwordColliderName;
+	static const FName ShieldForAttackColliderName;
+	static const FName ShieldForDefendColliderName;
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 	UMainPlayerSkillComponent* m_SkillComponent;
 	
-	UPROPERTY(EditAnywhere, Category = Collision) // 충돌체들은 실시간으로 크기보정할 일이 많을 수 있기 때문에 EditAnywhere로 지정
+	UPROPERTY(EditAnywhere) // 충돌체들은 실시간으로 크기보정할 일이 많을 수 있기 때문에 EditAnywhere로 지정
 	UCapsuleComponent* m_SwordCollider;
 
-	UPROPERTY(EditAnywhere, Category = Collision)
+	UPROPERTY(EditAnywhere)
 	UBoxComponent* m_ShieldForAttackCollider;
 
-	UPROPERTY(EditAnywhere, Category = Collision)
+	UPROPERTY(EditAnywhere)
 	UBoxComponent* m_ShieldForDefendCollider;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
@@ -93,6 +93,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Camera)
 	UCameraComponent* m_TargetCamera;
 
+	TMap<FName, bool> m_PressedKeyInfo;
 	
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;

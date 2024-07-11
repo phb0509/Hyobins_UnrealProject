@@ -57,10 +57,9 @@ public:
 
 	UFUNCTION()
 	void AnimNotify_ShieldForAttackCollider_End_HitCheck() const;
-	
+
 private:
 	void initAssets();
-
 	
 public:
 	// NormalAttack

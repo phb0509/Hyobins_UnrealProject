@@ -85,6 +85,6 @@ public:
 	FVector colliderLocation;
 	bool canDodge;
 	bool canParrying;
-	TMap<AActor*, bool> checkHitActors;
+	TMap<TWeakObjectPtr<AActor>, bool> checkedHitActors;
 };
 

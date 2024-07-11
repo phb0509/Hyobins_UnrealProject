@@ -7,7 +7,8 @@
 #include "Utility/EnumTypes.h"
 
 
-UBTT_UpdateSuperMinionState::UBTT_UpdateSuperMinionState()
+UBTT_UpdateSuperMinionState::UBTT_UpdateSuperMinionState():
+m_NormalAttackRange(400.0f)
 {
 	NodeName = TEXT("UpdateSuperMinionState");
 }
@@ -19,13 +20,12 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 	ASuperMinion* const owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
 	const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 	const float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
-
-	float normalAttackRange = 500.0f;
-	if (distanceToEnemy > normalAttackRange) // 공격범위 밖이면
+	
+	if (distanceToEnemy > m_NormalAttackRange) // 공격범위 밖이면
 	{
 		owner->SetState(ENormalMinionStates::Chase); // 공격할 수 있는 거리 될 때까지 추적.
 	}
-	else if (distanceToEnemy <= normalAttackRange)
+	else if (distanceToEnemy <= m_NormalAttackRange)
 	{
 		owner->SetState(ENormalMinionStates::NormalAttack);
 	}

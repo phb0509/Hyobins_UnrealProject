@@ -7,12 +7,6 @@
 USuperMinionAnim::USuperMinionAnim()
 {
 	initAssets();
-	UE_LOG(LogTemp, Warning, TEXT("SuperMinionAnim::Constructor"));
-}
-
-void USuperMinionAnim::AnimNotify_EndedNormalAttack() const
-{
-	OnEndedNormalAttack.Broadcast();
 }
 
 void USuperMinionAnim::AnimNotify_Test() const
@@ -22,46 +16,72 @@ void USuperMinionAnim::AnimNotify_Test() const
 
 void USuperMinionAnim::initAssets()
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage1
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_NormalAttack_A.AM_NormalAttack_A'"));
-
-	if (normalAttackMontage1.Succeeded())
+	// NormalAttack
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> NormalAttack0
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/NormalAttack0.NormalAttack0'"));
+	if (NormalAttack0.Succeeded())
 	{
-		m_Montages.Add("NormalAttack1", normalAttackMontage1.Object);
+		m_Montages.Add("NormalAttack0",NormalAttack0.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> NormalAttack1
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/NormalAttack1.NormalAttack1'"));
+	if (NormalAttack1.Succeeded())
+	{
+		m_Montages.Add("NormalAttack1",NormalAttack1.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> CriticalAttack
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/CriticalAttack.CriticalAttack'"));
+	if (CriticalAttack.Succeeded())
+	{
+		m_Montages.Add("CriticalAttack",CriticalAttack.Object);
 	}
 
 	
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> normalAttackMontage2
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_NormalAttack_B.AM_NormalAttack_B'"));
-
-	if (normalAttackMontage2.Succeeded())
+	// OnHit
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> OnHit0
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/OnHit0.OnHit0'"));
+	if (OnHit0.Succeeded())
 	{
-		m_Montages.Add("NormalAttack2",normalAttackMontage2.Object);
+		m_Montages.Add("OnHit0",OnHit0.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> OnHit1
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/OnHit1.OnHit1'"));
+	if (OnHit1.Succeeded())
+	{
+		m_Montages.Add("OnHit1",OnHit1.Object);
+	}
+	
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> OnHit2
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/OnHit2.OnHit2'"));
+	if (OnHit2.Succeeded())
+	{
+		m_Montages.Add("OnHit2",OnHit2.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> OnHit3
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/OnHit3.OnHit3'"));
+	if (OnHit3.Succeeded())
+	{
+		m_Montages.Add("OnHit3",OnHit3.Object);
 	}
 
 	
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> criticalAttackMontage
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/AM_CriticalAttack.AM_CriticalAttack'"));
-
-	if (criticalAttackMontage.Succeeded())
+	// Death
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Death0 
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Death0.Death0'"));
+	if (Death0.Succeeded())
 	{
-		m_Montages.Add("CriticalAttack",criticalAttackMontage.Object);
+		m_Montages.Add("Death0",Death0.Object);
 	}
 
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> onHit_OnGround
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/OnHit_OnGround.OnHit_OnGround'"));
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Death1
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Death1.Death1'"));
+	if (Death1.Succeeded())
+	{
+		m_Montages.Add("Death1",Death1.Object);
+	}
 	
-	if (onHit_OnGround.Succeeded())
-	{
-		m_Montages.Add("OnHit_OnGround",onHit_OnGround.Object);
-	}
-
-	
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> death_OnGround
-	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Death_OnGround.Death_OnGround'"));
-
-	if (death_OnGround.Succeeded())
-	{
-		m_Montages.Add("Death_OnGround",death_OnGround.Object);
-	}
 }

@@ -16,4 +16,8 @@ public:
 	UBTT_UpdateSuperMinionState();
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+private:
+	UPROPERTY(EditAnywhere)
+	float m_NormalAttackRange;
 };

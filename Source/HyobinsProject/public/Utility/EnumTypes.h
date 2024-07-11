@@ -20,10 +20,9 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
-	None 						UMETA(DisplayName = "None"),
+	Idle 						UMETA(DisplayName = "Idle"),
 	NormalAttack_OnGround		UMETA(DisplayName = "NormalAttack_OnGround"),
 	NormalStrikeAttack_OnGround UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
-	UpperAttack_OnGround		UMETA(DisplayName = "UpperAttack_OnGround"),
 	CombatDodge_OnGround 		UMETA(DisplayName = "CombatDodge_OnGround"),
 	Parrying_OnGround			UMETA(DisplayName = "Parrying_OnGround"),
 };

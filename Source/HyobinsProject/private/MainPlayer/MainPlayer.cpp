@@ -10,6 +10,12 @@
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
 
+#include "Component/StatComponent.h"
+
+const FName AMainPlayer::SwordColliderName = "SwordCollider";
+const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider";
+const FName AMainPlayer::ShieldForDefendColliderName = "ShieldForDefendCollider";
+
 AMainPlayer::AMainPlayer() :
 	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
@@ -24,13 +30,12 @@ AMainPlayer::AMainPlayer() :
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
 
-	this->Tags.Add(FName("MainPlayer"));
+	this->Tags.Add(TEXT("MainPlayer"));
 
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
 	
-	UE_LOG(LogTemp, Warning, TEXT("MainPlayer::Constructor"));
-
+	Utility::InitAttackInformations("DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'", m_AttackInformations);
 	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
 	initAssets();
 }
@@ -42,13 +47,13 @@ void AMainPlayer::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayer::BeginPlay"));
 	
 	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
-
-	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::OnCalled_Overlap_SwordCollision);
-	m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::OnCalled_Overlap_ShieldCollisionForAttack);
-    m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(m_SkillComponent, &UMainPlayerSkillComponent::OnCalled_Overlap_ShieldCollisionForDefend);
+	
+	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::OnCalled_Overlap_SwordCollider);
+	m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::OnCalled_Overlap_ShieldForAttackCollider);
+	m_ShieldForDefendCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::OnCalled_Overlap_ShieldForDefendCollider);
 }
 
-void AMainPlayer::Tick(float DeltaTime)
+void AMainPlayer::Tick(float DeltaTime) // 
 {
 	Super::Tick(DeltaTime);
 
@@ -71,8 +76,8 @@ void AMainPlayer::LookUp(float value)
 void AMainPlayer::InputHorizontal(float value)
 {
 	m_CurInputHorizontal = value;
-
-	if (m_SkillComponent->GetSkillState() == EMainPlayerSkillStates::None) // 어떠한 스킬도 시전중 아니라면
+	
+	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle) // 어떠한 스킬도 시전중 아니라면
 	{
 		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
@@ -83,32 +88,43 @@ void AMainPlayer::InputVertical(float value)
 {
 	m_CurInputVertical = value;
 
-	if (m_SkillComponent->GetSkillState() == EMainPlayerSkillStates::None)
+	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle)
 	{
 		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
 		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
 	}
 }
 
-void AMainPlayer::TriggerPressedShift()
+void AMainPlayer::TriggerPressedLeftShift()
 {
-	m_bIsPressedShift = true;
-
-	if (m_SkillComponent->GetSkillState() == EMainPlayerSkillStates::None)
+	m_PressedKeyInfo["LeftShift"] = true;
+	
+	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
 	}
 }
 
-void AMainPlayer::TriggerReleasedShift()
+void AMainPlayer::TriggerReleasedLeftShift()
 {
-	m_bIsPressedShift = false;
+	m_PressedKeyInfo["LeftShift"] = false;
 	
-	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::NormalAttack_OnGround ||
+	m_SkillComponent->GetState() == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
+	{
+		m_SkillComponent->UpdateShiftDecisionTime();
+	}
+
+	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+	}
 }
 
 void AMainPlayer::TriggerPressedLeftMouseButton()
 {
+	m_PressedKeyInfo["LeftMouseButton"] = true;
+	
 	if (GetMovementComponent()->IsMovingOnGround())
 	{
 		m_SkillComponent->NormalAttack_OnGround();
@@ -117,10 +133,13 @@ void AMainPlayer::TriggerPressedLeftMouseButton()
 
 void AMainPlayer::TriggerReleasedLeftMouseButton()
 {
+	m_PressedKeyInfo["LeftMouseButton"] = false;
 }
 
 void AMainPlayer::TriggerPressedSpaceBar() 
 {
+	m_PressedKeyInfo["SpaceBar"] = true;
+	
 	if (GetMovementComponent()->IsMovingOnGround())
 	{
 		m_SkillComponent->Dodge_OnGround();
@@ -129,10 +148,7 @@ void AMainPlayer::TriggerPressedSpaceBar()
 
 void AMainPlayer::TriggerPressedQ()
 {
-	if (GetMovementComponent()->IsMovingOnGround())
-	{
-		m_SkillComponent->UpperAttack_OnGround();
-	}
+	
 }
 
 void AMainPlayer::TriggerPressedLeftCtrl()
@@ -145,40 +161,39 @@ void AMainPlayer::TriggerReleasedLeftCtrl()
 
 }
 
-void AMainPlayer::ActivateSwordCollider()
+void AMainPlayer::OnCalled_Overlap_SwordCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	const FName attackName = Utility::ConvertEnumToName(m_SkillComponent->GetState());	
+	if (!m_AttackInformations[attackName].checkedHitActors.Contains(OtherActor))
+	{
+		float finalDamage = m_StatComponent->GetDefaultDamage() * m_AttackInformations[attackName].damage;
+		m_AttackInformations[attackName].checkedHitActors.Add(OtherActor,true);
+		OtherActor->TakeDamage(finalDamage, m_AttackInformations[attackName], GetController(), this);
+	}
 }
 
-void AMainPlayer::DeactivateSwordCollider()
+void AMainPlayer::OnCalled_Overlap_ShieldForAttackCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	m_SwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	const FName attackName = Utility::ConvertEnumToName(m_SkillComponent->GetState());
+	
+	if (!m_AttackInformations[attackName].checkedHitActors.Contains(OtherActor))
+	{
+		float finalDamage = m_StatComponent->GetDefaultDamage() * m_AttackInformations[attackName].damage;
+		m_AttackInformations[attackName].checkedHitActors.Add(OtherActor,true);
+		OtherActor->TakeDamage(finalDamage, m_AttackInformations[attackName], GetController(), this);
+	}
 }
 
-void AMainPlayer::ActivateShieldForAttackCollider()
+void AMainPlayer::OnCalled_Overlap_ShieldForDefendCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	m_ShieldForAttackCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-}
-
-void AMainPlayer::DeactivateShieldForAttackCollider()
-{
-	m_ShieldForAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
-void AMainPlayer::ActivateShieldForDefendCollider()
-{
-	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-}
-
-void AMainPlayer::DeactivateShieldForDefendCollider()
-{
-	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMainPlayer::initAssets()
 {
 	// RootCapsuleComponent
-	checkf(GetCapsuleComponent() != nullptr, TEXT("CapsuleComponent isn't Valid"));
 	GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(40.0f);
 	
@@ -218,11 +233,11 @@ void AMainPlayer::initAssets()
 	// SwordCollider
 	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
 
-	m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
+	m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Sword"));
 	m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
 	m_SwordCollider->SetWorldTransform(collisionTransform);
 	m_SwordCollider->SetCapsuleHalfHeight(50.0f);
-	m_SwordCollider->SetCapsuleRadius(10.0f);
+	m_SwordCollider->SetCapsuleRadius(18.0f);
 	m_SwordCollider->SetCollisionProfileName(TEXT("AttackCollider"));
 	m_SwordCollider->SetGenerateOverlapEvents(true); // 블루프린트의 Generate Overlap Events에 대응되는 코드.
 	m_SwordCollider->SetNotifyRigidBodyCollision(false);
@@ -232,7 +247,7 @@ void AMainPlayer::initAssets()
 	// ShieldCollider For Attack
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.35f} };
 
-	m_ShieldForAttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForAttack"));
+	m_ShieldForAttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForAttack"));
 	m_ShieldForAttackCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
 	m_ShieldForAttackCollider->SetWorldTransform(collisionTransform);
 	m_ShieldForAttackCollider->SetCollisionProfileName(TEXT("AttackCollider"));
@@ -244,13 +259,17 @@ void AMainPlayer::initAssets()
 	// ShieldCollider For Shield
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.1f} };
 
-	m_ShieldForDefendCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldColliderForShield"));
+	m_ShieldForDefendCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForDefend"));
 	m_ShieldForDefendCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
 	m_ShieldForDefendCollider->SetWorldTransform(collisionTransform);
 	m_ShieldForDefendCollider->SetCollisionProfileName(TEXT("HitCollider"));
 	m_ShieldForDefendCollider->SetGenerateOverlapEvents(true);
 	m_ShieldForDefendCollider->SetNotifyRigidBodyCollision(false);
 	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	m_Colliders.Add(SwordColliderName,m_SwordCollider);
+	m_Colliders.Add(ShieldForAttackColliderName,m_ShieldForAttackCollider);
+	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForDefendCollider);
 	
 	// 이외 CharacterMovement Detail값들
 
@@ -259,6 +278,7 @@ void AMainPlayer::initAssets()
 
 	// true로 할 경우, 캐릭터가 움직이려는 방향으로 캐릭터를 자동으로 회전시켜 준다.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	
 
 	// 컨트롤러가 "원하는" 방향으로 캐릭터를 회전한다.
 	// 즉, 오른쪽+위를 누르면 "정확히" 45도 방향으로 캐릭터가 회전해서 이동하는 식이다.
@@ -273,11 +293,7 @@ void AMainPlayer::initAssets()
 void AMainPlayer::updateState()
 {
 	m_CurSpeed = GetVelocity().Size();
-
-	if (GetCharacterMovement()->IsFalling())
-	{
-		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
-	}
+	
 }
 
 void AMainPlayer::printLog() const
@@ -286,15 +302,17 @@ void AMainPlayer::printLog() const
 	const FVector velocity = GetVelocity();
 	const FVector forwardVector = GetActorForwardVector();
 
-	FString curSkillState = Utility::ConvertEnumToString(m_SkillComponent->GetSkillState());
-	
+
 	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
 	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
 	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
-	GEngine->AddOnScreenDebugMessage(11, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *curSkillState));
+	if (GetCharacterMovement()->IsFalling())
+	{
+		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
+	}
 }
 
 void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
@@ -327,11 +345,17 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &AMainPlayer::InputVertical); // 전,후 (W,S)
 
 	// ActionMappings
-	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Pressed, this, &AMainPlayer::TriggerPressedShift);
-	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedShift);
+	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftShift);
+	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftShift);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
 	PlayerInputComponent->BindAction(TEXT("SpaceBar"), IE_Pressed, this, &AMainPlayer::TriggerPressedSpaceBar);
 	PlayerInputComponent->BindAction(TEXT("LeftCtrl"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftCtrl);
 	PlayerInputComponent->BindAction(TEXT("Q"), IE_Pressed, this, &AMainPlayer::TriggerPressedQ);
+
+	m_PressedKeyInfo.Add("LeftShift",false);
+	m_PressedKeyInfo.Add("LeftMouseButton",false);
+	m_PressedKeyInfo.Add("SpaceBar",false);
+	m_PressedKeyInfo.Add("LeftCtrl",false);
+
 }

@@ -3,12 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CustomStructs.h"
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
 class UStatComponent;
 class AAIControllerBase;
 class UAIPerceptionComponent;
+class UShapeComponent;
 
 enum class EMonsterCommonStates : uint8;
 
@@ -19,9 +21,12 @@ class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 
 public:
 	ACharacterBase();
+	virtual void BeginPlay() override;
 	
-	virtual void OnCalledTimer_OnHit() {};
-	virtual void OnCalledNotify_EndedDeath(); 
+	virtual void OnCalledTimer_EndedOnHitKnockback() {};
+
+	UFUNCTION()
+	virtual void OnCalledNotify_End_Death(); 
 	
 	// Get
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
@@ -33,6 +38,23 @@ public:
 	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
 	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
 	FORCEINLINE int32 GetHitDirection() const { return m_HitDirection; }
+	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) { return m_Colliders[colliderName].Get(); }
+	
+	
+	bool HasContainHitActor(const FName& attackName, AActor* hitActor)
+	{
+		return m_AttackInformations[attackName].checkedHitActors.Contains(hitActor);
+	}
+	
+	void AddCheckedHitActor(const FName& attackName, AActor* hitActor)
+	{
+		m_AttackInformations[attackName].checkedHitActors.Add(hitActor,true);
+	}
+
+	void EmptyCheckedHitActor(const FName& attackName)
+	{
+		m_AttackInformations[attackName].checkedHitActors.Empty();
+	}
 
 	
 protected:
@@ -44,8 +66,8 @@ protected:
 										  
 
 protected:
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly, Category = Colliders)
-	TArray<UShapeComponent*> m_HitColliders;
+	TMap<FName, FAttackInfo> m_AttackInformations;
+	TMap<FName, TWeakObjectPtr<UShapeComponent>> m_Colliders;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 	UStatComponent* m_StatComponent;
