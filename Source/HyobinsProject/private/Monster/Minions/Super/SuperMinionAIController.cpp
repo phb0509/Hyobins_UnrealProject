@@ -13,14 +13,6 @@ ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& Obj
 	initAssets();
 }
 
-void ASuperMinionAIController::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: PostInitializeComponents"));
-	
-}
-
 void ASuperMinionAIController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -144,7 +136,7 @@ void ASuperMinionAIController::initAssets()
 
 	AAIController::SetGenericTeamId(m_TeamID);
 
-	auto perceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
+	UAIPerceptionComponent* perceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
 	perceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
 	
 	UAISenseConfig_Sight* sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));

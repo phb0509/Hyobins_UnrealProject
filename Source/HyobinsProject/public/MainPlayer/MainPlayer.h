@@ -38,6 +38,8 @@ public:
 	void TriggerReleasedLeftShift();
 	void TriggerPressedLeftMouseButton();
 	void TriggerReleasedLeftMouseButton();
+	void TriggerPressedRightMouseButton();
+	void TriggerReleasedRightMouseButton();
 	void TriggerPressedSpaceBar();
 	void TriggerPressedLeftCtrl();
 	void TriggerReleasedLeftCtrl();
@@ -99,11 +101,11 @@ private:
 	float m_RotationDeltaSecondsOffset;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
-	bool m_bIsCombated;
+	bool m_bIsTargeting;
 	
-	UPROPERTY(BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
-	bool m_bIsHit;
 
+	// KeyInput
+	
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bIsPressedShift;
 

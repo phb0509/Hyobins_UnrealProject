@@ -16,31 +16,28 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FHPAttackInformationData : public FTableRowBase
+struct FAttackInformationData : public FTableRowBase
 {
 	GENERATED_BODY()
 
 public:
-	FHPAttackInformationData() :
+	FAttackInformationData() :
 	attackName(""),
-	damage(-1.0f),
-	bIsDot(false),
+	damageRatio(1.0f),
 	bHasCrowdControl(false),
 	crowdControlType("None"),
-	crowdControlTime(-1.0f),
-	bHasKnockBack(false),
-	knockBackTime(-1.0f), knockBackDistance(-1.0f)
+	crowdControlTime(0.0f),
+	knockBackDistance(0.0f),
+	canDodge(false),
+	canParrying(false)
 	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	FName attackName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	float damage;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	bool bIsDot;
-
+	float damageRatio;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	bool bHasCrowdControl;
 
@@ -49,13 +46,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	float crowdControlTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	bool bHasKnockBack;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	float knockBackTime;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	float knockBackDistance;
 
@@ -74,17 +65,14 @@ struct FAttackInfo : public FDamageEvent
 
 public:
 	FName attackName;
-	float damage;
-	bool bIsDot; 
+	float damageRatio;
 	bool bHasCrowdControl;
 	ECrowdControlType crowdControlType; // CC기 종류
 	float crowdControlTime; // CC기 지속시간
-	bool bHasKnockBack; 
-	float knockBackTime; // 경직시간 -> 피격체의 힛트모션 재생시간과 대응
 	float knockBackDistance; // 밀려지는 정도
 	FVector colliderLocation;
 	bool canDodge;
 	bool canParrying;
-	TMap<TWeakObjectPtr<AActor>, bool> checkedHitActors;
+	//TMap<TWeakObjectPtr<AActor>, bool> checkedHitActors;
 };
 

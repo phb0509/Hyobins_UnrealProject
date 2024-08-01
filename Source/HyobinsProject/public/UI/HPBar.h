@@ -15,13 +15,14 @@ class HYOBINSPROJECT_API UHPBar : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	virtual void NativeConstruct() override;
 	void BindStatComponent(UStatComponent* statComponent);
 	void SetExecuteState(); // 처형표시 (hp일정이하 내려갔을 시,)
+	
 
-protected:
-	virtual void NativeConstruct() override;
-	void UpdateHPWidget();
-
+private:
+	void updateHPWidget();
+	
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TWeakObjectPtr<UStatComponent> m_StatComponent;

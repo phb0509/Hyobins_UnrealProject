@@ -21,10 +21,12 @@ UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
 	Idle 						UMETA(DisplayName = "Idle"),
-	NormalAttack_OnGround		UMETA(DisplayName = "NormalAttack_OnGround"),
-	NormalStrikeAttack_OnGround UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
-	CombatDodge_OnGround 		UMETA(DisplayName = "CombatDodge_OnGround"),
-	Parrying_OnGround			UMETA(DisplayName = "Parrying_OnGround"),
+	NormalAttack				UMETA(DisplayName = "NormalAttack"),
+	NormalStrikeAttack			UMETA(DisplayName = "NormalStrikeAttack"),
+	Dodge_NonTargeting 			UMETA(DisplayName = "Dodge_NonTargeting"),
+	Dodge_Targeting 			UMETA(DisplayName = "Dodge_Targeting"),
+	Parrying					UMETA(DisplayName = "Parrying"),
+	ParryingAttack				UMETA(DisplayName = "ParryingAttack")
 };
 
 
@@ -42,7 +44,8 @@ enum class ENormalMinionStates : uint8
 {
 	Patrol			UMETA(DisplayName = "Patrol"),
 	Chase			UMETA(DisplayName = "Chase"),
-	Hit				UMETA(DisplayName = "Hit"),
+	Knockback		UMETA(DisplayName = "Knockback"),
+	Groggy			UMETA(DisplayName = "Groggy"),
 	Dead			UMETA(DisplayName = "Dead"),
 	NormalAttack	UMETA(DisplayName = "NormalAttack")
 };
@@ -50,11 +53,10 @@ enum class ENormalMinionStates : uint8
 UENUM(BlueprintType)
 enum class ECrowdControlType : uint8
 {
-	None    UMETA(DisplayName = "None"),
-	Slow	UMETA(DisplayName = "Slow"),
-	Bind	UMETA(DisplayName = "Bind"),
-	Stun	UMETA(DisplayName = "Stun"),
-	Airborne UMETA(DisplayName = "Airborne")
+	None		UMETA(DisplayName = "None"),
+	Knockback	UMETA(DisplayName = "Knockback"),
+	Down		UMETA(DisplayName = "Down"),
+	Groggy		UMETA(DisplayName = "Groggy"),
 };
 
 

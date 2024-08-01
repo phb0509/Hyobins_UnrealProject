@@ -12,7 +12,10 @@ class AAIControllerBase;
 class UAIPerceptionComponent;
 class UShapeComponent;
 
+enum class ECrowdControlType : uint8;
 enum class EMonsterCommonStates : uint8;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnCrowdControl_Delegate, ACharacterBase*);
 
 UCLASS(abstract)
 class HYOBINSPROJECT_API ACharacterBase : public ACharacter
@@ -22,18 +25,20 @@ class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 public:
 	ACharacterBase();
 	virtual void BeginPlay() override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
-	virtual void OnCalledTimer_EndedOnHitKnockback() {};
+	virtual void OnCalledTimer_Knockback_End() {};
 
 	UFUNCTION()
 	virtual void OnCalledNotify_End_Death(); 
+
+	void Attack(const FName& attackName, TWeakObjectPtr<AActor> target);
 	
 	// Get
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
 	FORCEINLINE UAIPerceptionComponent* GetAIPerceptionComponent() const { return m_AIPerceptionComponent; }
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
-	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
 	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
 	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
 	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
@@ -43,30 +48,34 @@ public:
 	
 	bool HasContainHitActor(const FName& attackName, AActor* hitActor)
 	{
-		return m_AttackInformations[attackName].checkedHitActors.Contains(hitActor);
+		return m_HitActorsByMe[attackName].Contains(hitActor);
 	}
 	
 	void AddCheckedHitActor(const FName& attackName, AActor* hitActor)
 	{
-		m_AttackInformations[attackName].checkedHitActors.Add(hitActor,true);
+		m_HitActorsByMe[attackName].Add(hitActor,true);
 	}
 
 	void EmptyCheckedHitActor(const FName& attackName)
 	{
-		m_AttackInformations[attackName].checkedHitActors.Empty();
+		m_HitActorsByMe[attackName].Empty();
 	}
 
 	
 protected:
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-	virtual void ExecOnHitEvent(ACharacterBase* instigator){};
-	virtual void OnHPIsZero();
+	//UFUNCTION()
+	virtual void ExecEvent_Knockback(ACharacterBase* instigator){};
+	//UFUNCTION()
+	virtual void ExecEvent_Groggy(ACharacterBase* instigator){};
+	virtual void ExecEvent_OnHPIsZero();
 	virtual void Die() {};
 	virtual void ExecEvent_EndedDeathMontage() {}; 
-										  
+
+	
 
 protected:
-	TMap<FName, FAttackInfo> m_AttackInformations;
+	TMap<FName, TMap<TWeakObjectPtr<AActor>, bool>> m_HitActorsByMe;
+	
 	TMap<FName, TWeakObjectPtr<UShapeComponent>> m_Colliders;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
@@ -74,9 +83,21 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 	UAIPerceptionComponent* m_AIPerceptionComponent;
+
+	TMap<ECrowdControlType, FOnCrowdControl_Delegate> m_CrowdControlDelegates;
 	
-	FTimerHandle m_OnHitTimerHandle;
+	FTimerHandle m_CrowdControlTimerHandle;
+	
+	UPROPERTY(EditDefaultsOnly)
+	float m_CrowdControlTime;
+	
 	FTimerHandle m_DeathTimerHandle;
+
+
+	
+	UPROPERTY(EditDefaultsOnly)
+	float m_DeathTimerTime;
+	
 	FTimerHandle m_DeActivateTimerHandle;
 	
 	UPROPERTY(EditDefaultsOnly) 
@@ -84,16 +105,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly)
 	float m_RunSpeed;
-
-	UPROPERTY(EditDefaultsOnly)
-	float m_HitRecovery;
-
-	UPROPERTY(EditDefaultsOnly)
-	float m_OnHitTimerTime;
-
-	UPROPERTY(EditDefaultsOnly)
-	float m_DeathTimerTime;
-
+	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	float m_CurSpeed;
 	
@@ -105,8 +117,5 @@ protected:
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	int32 m_HitDirection;
-	
-	float m_DeathTimerTickTime;
-	float m_DeathTimerRemainingTime;
-	float m_DiffuseRatio;
+
 };

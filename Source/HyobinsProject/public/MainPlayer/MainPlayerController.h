@@ -15,7 +15,7 @@ class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, publi
 
 public:
 	AMainPlayerController();
-	virtual FGenericTeamId GetGenericTeamId() const override; 
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 private:
 	FGenericTeamId m_TeamID;

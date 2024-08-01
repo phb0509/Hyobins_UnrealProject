@@ -16,11 +16,10 @@ class HYOBINSPROJECT_API UStatComponent : public UActorComponent
 
 public:
 	UStatComponent();
-
-protected:
+	
 	virtual void BeginPlay() override;
 
-public:
+
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
 	FORCEINLINE void ChangeMaxHP(const float hp) { m_MaxHP = hp; }
 	
@@ -39,6 +38,7 @@ public:
 	// Get
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
 	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
+	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
 	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
 	FORCEINLINE float GetAttackSpeed() const { return m_CurAttackSpeed; }
 	
@@ -46,17 +46,24 @@ public:
 	void SetDamage(const float damage);
 	void SetHP(const float hp);
 	
-	FOnHPIsZeroDelegate OnHPIsZero;
 	FOnHPIsChangedDelegate OnHPIsChanged;
-
+	FOnHPIsZeroDelegate OnHPIsZero;
+	
 private:
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_DefaultDamage;
+
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	float m_Defense;
 	
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_MaxHP;
 
-	UPROPERTY(Transient, VisibleInstanceOnly, Category = StatComponent, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, Meta = (AllowPrivateAccess = true))
 	float m_CurHP;
+	
+	UPROPERTY(VisibleInstanceOnly, Meta = (AllowPrivateAccess = true))
+	float m_HitRecovery;
 	
 	float m_CurMoveSpeed;
 	float m_CurAdditionalMoveSpeed;

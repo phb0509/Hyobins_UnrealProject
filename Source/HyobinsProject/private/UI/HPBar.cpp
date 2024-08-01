@@ -6,10 +6,17 @@
 #include "Component/StatComponent.h"
 #include "Components/ProgressBar.h"
 
+void UHPBar::NativeConstruct()
+{
+	Super::NativeConstruct();
+	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
+	updateHPWidget();
+}
+
 void UHPBar::BindStatComponent(UStatComponent* statComponent)
 {
 	m_StatComponent = statComponent;
-	m_StatComponent->OnHPIsChanged.AddUObject(this, &UHPBar::UpdateHPWidget);
+	m_StatComponent->OnHPIsChanged.AddUObject(this, &UHPBar::updateHPWidget);
 }
 
 void UHPBar::SetExecuteState()
@@ -17,14 +24,7 @@ void UHPBar::SetExecuteState()
 	m_HPProgressBar->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void UHPBar::NativeConstruct()
-{
-	Super::NativeConstruct();
-	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
-	UpdateHPWidget();
-}
-
-void UHPBar::UpdateHPWidget()
+void UHPBar::updateHPWidget()
 {
 	if (m_StatComponent->IsValidLowLevel())
 	{

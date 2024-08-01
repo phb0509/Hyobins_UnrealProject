@@ -188,9 +188,9 @@ void AActorPool::ClearBlueprintActorPool()
 	for (const auto& iter : m_BlueprintActorPool)
 	{
 		const TSubclassOf<AActor>& classType = iter.Key;
-		const FActors& actors = m_BlueprintActorPool[classType];
+		const FActors& blueprintActorPoolActors = m_BlueprintActorPool[classType];
 
-		for (const auto& actor : actors.actors)
+		for (const auto& actor : blueprintActorPoolActors.actors)
 		{
 			actor->Destroy();
 		}

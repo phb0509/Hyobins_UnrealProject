@@ -6,6 +6,7 @@ UStatComponent::UStatComponent() :
 	m_DefaultDamage(100.0f),
 	m_MaxHP(200.0f),
 	m_CurHP(m_MaxHP),
+	m_HitRecovery(1.0f),
 	m_CurMoveSpeed(1.0f),
 	m_CurAdditionalMoveSpeed(0.0f),
 	m_CurAttackSpeed(1.0f),
@@ -24,6 +25,7 @@ void UStatComponent::BeginPlay()
 
 void UStatComponent::SetDamage(const float damage)
 {
+	// 방어력이나 속성저항력등에 의해 실제로 깎아야하는 hp를 구한다.
 	SetHP(FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP));
 }
 

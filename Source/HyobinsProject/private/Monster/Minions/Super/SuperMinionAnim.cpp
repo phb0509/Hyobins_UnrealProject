@@ -3,6 +3,9 @@
 
 #include "Monster/Minions/Super/SuperMinionAnim.h"
 
+const FName USuperMinionAnim::HitMontages[4] = {"OnHit0","OnHit1","OnHit2","OnHit3"};
+const FName USuperMinionAnim::GroggyMontage = "Groggy";
+const FName USuperMinionAnim::DeathMontages[4] = {"Death0","Death1","Death2","Death3"};
 
 USuperMinionAnim::USuperMinionAnim()
 {
@@ -83,5 +86,25 @@ void USuperMinionAnim::initAssets()
 	{
 		m_Montages.Add("Death1",Death1.Object);
 	}
-	
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Death2
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Death2.Death2'"));
+	if (Death2.Succeeded())
+	{
+		m_Montages.Add("Death2",Death2.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Death3
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Death3.Death3'"));
+	if (Death3.Succeeded())
+	{
+		m_Montages.Add("Death3",Death3.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Groggy
+	(TEXT("AnimMontage'/Game/MonsterAsset/SuperMinion/Groggy.Groggy'"));
+	if (Groggy.Succeeded())
+	{
+		m_Montages.Add("Groggy",Groggy.Object);
+	}
 }

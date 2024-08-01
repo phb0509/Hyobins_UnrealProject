@@ -20,5 +20,9 @@ private:
 	UFUNCTION()
 	void AnimNotify_Test() const;
 
+private:
+	static const FName HitMontages[4]; 
+	static const FName GroggyMontage; 
+	static const FName DeathMontages[4];
 
 };

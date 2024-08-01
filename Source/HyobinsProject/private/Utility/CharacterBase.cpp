@@ -3,37 +3,47 @@
 
 #include "Utility/CharacterBase.h"
 #include "Utility/AnimInstanceBase.h"
-#include "Utility/CustomStructs.h"
 #include "Utility/Utility.h"
 #include "Component/StatComponent.h"
+#include "SubSystems/DataManager.h"
 
-int32 attackCount = 0;
+int32 attackCount = 0; // 로그확인용.
 
 ACharacterBase::ACharacterBase() :
-	m_WalkSpeed(200.0f),
-	m_RunSpeed(400.0f),
-	m_HitRecovery(1.0f),
-	m_OnHitTimerTime(1.0f),
+	m_CrowdControlTime(1.0f),
 	m_DeathTimerTime(3.0f),
+    m_WalkSpeed(200.0f),
+    m_RunSpeed(400.0f),
 	m_CurSpeed(0.0f),
 	m_bIsSuperArmor(false),
-	m_bIsDead(false),
-	m_DeathTimerTickTime(1.0f),
-	m_DeathTimerRemainingTime(3.0f),
-	m_DiffuseRatio(1.0f)
+	m_bIsDead(false)
 {
+	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
+	if (enumPtr != nullptr)
+	{
+		for (int i = 0; i < enumPtr->NumEnums(); ++i)
+		{
+			ECrowdControlType state = (ECrowdControlType)(enumPtr->GetValueByIndex(i));
+			FOnCrowdControl_Delegate deletage;
+			m_CrowdControlDelegates.Add(state,deletage);
+		}
+	}
+	
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
-	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
+	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::ExecEvent_OnHPIsZero);
 }
 
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	attackCount = 0;
+	
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
 	animInstance->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death);
 
-	attackCount = 0;
+	m_CrowdControlDelegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_Knockback);
+	
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -57,34 +67,35 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	if (!m_bIsDead)
 	{
 		m_HitDirection = Utility::GetHitDirection(this, instigatorCharacter); // 피격방향을 산출.
-		ExecOnHitEvent(instigatorCharacter); 
+		m_CrowdControlDelegates[attackInformation->crowdControlType].Broadcast(instigatorCharacter);
 
-		if (!m_bIsSuperArmor)
+		if (attackInformation->knockBackDistance > 0.0f)
 		{
-			if (attackInformation->bHasKnockBack) // 넉백을 주는 공격이라면
-			{
-				FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
-				dirToInstigator.Normalize();
-				this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
-			}
-			
-			// Timer Setting.
-			m_OnHitTimerTime = m_HitRecovery * attackInformation->knockBackTime;
-			GetWorldTimerManager().SetTimer(m_OnHitTimerHandle, this, &ACharacterBase::OnCalledTimer_EndedOnHitKnockback, m_OnHitTimerTime, false); 
+			FVector dirToInstigator = instigatorCharacter->GetActorLocation() - this->GetActorLocation(); 
+			dirToInstigator.Normalize();
+			this->SetActorLocation(GetActorLocation() + dirToInstigator * -1 * attackInformation->knockBackDistance, false);
 		}
 	}
 	
 	return FinalDamage;
 }
 
-void ACharacterBase::OnHPIsZero()
+void ACharacterBase::ExecEvent_OnHPIsZero()
 {
 	m_bIsDead = true;
-
 	Die();
 }
 
 void ACharacterBase::OnCalledNotify_End_Death() // 사망몽타주재생 완료시 호출.
 {
 	ExecEvent_EndedDeathMontage();
+}
+
+void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
+{
+	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
+	const FAttackInfo* attackInfo = dataManager->GetAttackInformation(this->GetClass(), attackName);
+	
+	float finalDamage = m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio;
+	target->TakeDamage(finalDamage, *attackInfo, this->GetController(), this);
 }

@@ -17,7 +17,8 @@ public:
 	AFirstLevel();
 
 	virtual void BeginPlay() override;
-	virtual void PostInitializeComponents() override;
+
+	
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")

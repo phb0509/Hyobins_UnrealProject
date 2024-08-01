@@ -9,6 +9,7 @@
 class USuperMinionAnim;
 class ASuperMinionAIController;
 class UAIPerceptionComponent;
+class UBoxComponent;
 
 enum class EMonsterCommonStates : uint8;
 enum class ENormalMinionStates : uint8;
@@ -27,7 +28,7 @@ public:
 	UFUNCTION()
 	void OnCalled_NormalAttack_End();
 	
-	virtual void OnCalledTimer_EndedOnHitKnockback() override;
+	virtual void OnCalledTimer_Knockback_End() override;
 
 	UFUNCTION()
 	void SkillMontageStarted(UAnimMontage* Montage);
@@ -43,10 +44,11 @@ public:
 	void SetState(ENormalMinionStates state);
 
 protected:
-	virtual void ExecOnHitEvent(ACharacterBase* instigator) override;
+	virtual void ExecEvent_Knockback(ACharacterBase* instigator) override;
+	virtual void ExecEvent_Groggy(ACharacterBase* instigator) override;
 	virtual void Die() override;
 	virtual void ExecEvent_EndedDeathMontage() override;
-	void OnCalledTimer_EndedDeathEvent();
+	void onCalledTimer_EndedDeathEvent();
 
 	virtual void SetCommonState(const int32 commonStateIndex) override;
 
@@ -57,23 +59,26 @@ protected:
 private:
 	void initAssets();
 	void updateState();
-	void bindFuncOnMontageEvent();
 
-public:
-	static const FName HitColliderName;
 	
 private:
 	UPROPERTY(EditAnywhere)
 	UCapsuleComponent* m_HitCollider;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* m_LeftSwordCollider;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* m_RightSwordCollider;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
 	
 	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
-
 	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
 	
 	static int32 TagCount;
-	static const FName HitMontages[8]; // 8πÊ«‚
-	static const FName DeathMontages[8];
+	static const FName HitColliderName;
+	static const FName LeftSwordColliderName;
+	static const FName RightSwordColliderName;
 };

@@ -13,51 +13,46 @@ void UMainPlayerAnim::AnimNotify_NormalAttack_Start_EachSection() const
 	NormalAttack_Start_EachSection.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_UpperAttack_Start() const
-{
-	UpperAttack_Start.Broadcast();
-}
-
 void UMainPlayerAnim::AnimNotify_CombatDodge_Start_Move() const
 {
 	CombatDodge_Start_Move.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_SwordCollider_Start_HitCheck() const 
-{
-	SwordCollider_Start_HitCheck.Broadcast();
-}
-
-void UMainPlayerAnim::AnimNotify_SwordCollider_End_HitCheck() const
-{
-	SwordCollider_End_HitCheck.Broadcast();
-}
-
-void UMainPlayerAnim::AnimNotify_ShieldForAttackCollider_Start_HitCheck() const
-{
-	ShieldForAttackCollider_Start_HitCheck.Broadcast();
-}
-
-void UMainPlayerAnim::AnimNotify_ShieldForAttackCollider_End_HitCheck() const
-{
-	ShieldForAttackCollider_End_HitCheck.Broadcast();
-}
-
 void UMainPlayerAnim::initAssets()
 {
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> NormalAttack_OnGround
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/NormalAttack_OnGround.NormalAttack_OnGround'"));
-	if (NormalAttack_OnGround.Succeeded())
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> NormalAttack
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/NormalAttack.NormalAttack'"));
+	if (NormalAttack.Succeeded())
 	{
-		m_Montages.Add("NormalAttack_OnGround",NormalAttack_OnGround.Object);
+		m_Montages.Add("NormalAttack",NormalAttack.Object);
+	}
+	
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Dodge_NonTargeting
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Dodge_NonTargeting.Dodge_NonTargeting'"));
+	if (Dodge_NonTargeting.Succeeded())
+	{
+		m_Montages.Add("Dodge_NonTargeting",Dodge_NonTargeting.Object);
 	}
 
-	
-	static ConstructorHelpers::FObjectFinder <UAnimMontage> CombatDodge_OnGround
-	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/CombatDodge_OnGround.CombatDodge_OnGround'"));
-	if (CombatDodge_OnGround.Succeeded())
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Dodge_Targeting
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Dodge_Targeting.Dodge_Targeting'"));
+	if (Dodge_Targeting.Succeeded())
 	{
-		m_Montages.Add("CombatDodge_OnGround",CombatDodge_OnGround.Object);
+		m_Montages.Add("Dodge_Targeting",Dodge_Targeting.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> Parry
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/Parry.Parry'"));
+	if (Parry.Succeeded())
+	{
+		m_Montages.Add("Parry",Parry.Object);
+	}
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> ParryingAttack
+	(TEXT("AnimMontage'/Game/MainPlayerAsset/Animations/ParryingAttack.ParryingAttack'"));
+	if (ParryingAttack.Succeeded())
+	{
+		m_Montages.Add("ParryingAttack",ParryingAttack.Object);
 	}
 }
 

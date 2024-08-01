@@ -13,9 +13,11 @@ const FName AMonster::EnemyKey(TEXT("Enemy"));
 const FName AMonster::StateKey(TEXT("State"));
 
 
-AMonster::AMonster() 
+AMonster::AMonster() :
+m_DeathTimerTickTime(1.0f),
+m_DeathTimerRemainingTime(3.0f),
+m_DiffuseRatio(1.0f)
 {
-	
 }
 
 void AMonster::BeginPlay()
@@ -26,13 +28,24 @@ void AMonster::BeginPlay()
 	
 }
 
- void AMonster::ExecOnHitEvent(ACharacterBase* instigator) // 피격시마다 호출.
+void AMonster::ExecEvent_Knockback(ACharacterBase* instigator) // 피격시마다 호출.
 {
+	if (!m_bIsSuperArmor) // 슈퍼아머상태면 넉백모션을 재생안시킬것이기 때문에 예외.
+	{
+		m_AIControllerBase->StopBehaviorTree();
+		m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+	}
+}
+
+void AMonster::ExecEvent_Groggy(ACharacterBase* instigator)
+{
+	Super::ExecEvent_Groggy(instigator);
+
 	m_AIControllerBase->StopBehaviorTree();
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 }
 
-void AMonster::Initialize()
+ void AMonster::Initialize()
 {
 	// HPBar 위젯 생성 및 부착.
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateHPBarComponent(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget", "/Game/UI/Monster/UI_HPBar.UI_HPBar_C",

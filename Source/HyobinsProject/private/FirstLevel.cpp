@@ -10,12 +10,6 @@
 AFirstLevel::AFirstLevel() :
 	m_SpawnTimerTime_MeleeMinion(2.0f)
 {
-
-}
-
-void AFirstLevel::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
 }
 
 void AFirstLevel::BeginPlay()
@@ -23,20 +17,14 @@ void AFirstLevel::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("AFirstLevel :: BeginPlay"));
-
-	const auto actorPoolManager = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>();
-	checkf(IsValid(actorPoolManager), TEXT("AFirstLevel :: ActorPoolManager isn't Valid"));
-
-	m_ActorPool = actorPoolManager->GetActorPool();
 	
-	checkf(m_ActorPool->IsValidLowLevel(), TEXT("AFirstLevel :: ActorPool isn't Valid"));
-
+	m_ActorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
 	Create();
 }
 
 void AFirstLevel::Create()
 {
-	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 1);
+	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 10);
 }
 
 void AFirstLevel::Spawn()

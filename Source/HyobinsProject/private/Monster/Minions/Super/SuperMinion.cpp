@@ -6,14 +6,13 @@
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Utility/EnumTypes.h"
 #include <Components/CapsuleComponent.h>
-
-#include "Components/SphereComponent.h"
+#include <Components/BoxComponent.h>
 #include "Utility/Utility.h"
 
-const FName ASuperMinion::HitColliderName = "HitCollider";
 int32 ASuperMinion::TagCount(0);
-const FName ASuperMinion::HitMontages[8] = {"OnHit0","OnHit1","OnHit2","OnHit3","0","0","0","0"};
-const FName ASuperMinion::DeathMontages[8] = {"Death0","Death0","Death1","Death1","0","0","0","0"};
+const FName ASuperMinion::HitColliderName = "HitCollider";
+const FName ASuperMinion::LeftSwordColliderName = "LeftSwordCollider";
+const FName ASuperMinion::RightSwordColliderName = "RightSwordCollider";
 
 ASuperMinion::ASuperMinion() :
 	m_CurState(ENormalMinionStates::Patrol)
@@ -24,7 +23,6 @@ ASuperMinion::ASuperMinion() :
 	
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
 	
-	m_HitRecovery = 1.0f;
 	m_DeathTimerTime = 3.0f;
 
 	initAssets();
@@ -39,7 +37,8 @@ void ASuperMinion::BeginPlay()
 
 	if (m_AnimInstance != nullptr)
 	{
-		bindFuncOnMontageEvent();
+		m_AnimInstance->BindFunc_OnMontageEnded(TEXT("NormalAttack0"),this,TEXT("OnCalled_NormalAttack_End"));
+		m_AnimInstance->BindFunc_OnMontageEnded(TEXT("NormalAttack1"),this,TEXT("OnCalled_NormalAttack_End"));
 	}
 }
 
@@ -51,58 +50,65 @@ void ASuperMinion::OnCalled_NormalAttack_End()
 	}
 }
 
-void ASuperMinion::ExecOnHitEvent(ACharacterBase* instigator)
+void ASuperMinion::ExecEvent_Knockback(ACharacterBase* instigator)
 {
-	Super::ExecOnHitEvent(instigator);
+	Super::ExecEvent_Knockback(instigator);
 	
 	if (!m_bIsSuperArmor)
 	{
-		SetState(ENormalMinionStates::Hit);
+		SetState(ENormalMinionStates::Knockback);
 		m_AnimInstance->StopAllMontages(0.0f);
-		m_AnimInstance->PlayMontage(HitMontages[m_HitDirection],1.0f);
+		//m_AnimInstance->PlayMontage(USuperMinionAnim::HitMontages[m_HitDirection],1.0f);
 	}
 }
 
-void ASuperMinion::OnCalledTimer_EndedOnHitKnockback() // 넉백시간 끝날때마다 호출.
+void ASuperMinion::OnCalledTimer_Knockback_End() // 넉백시간 끝날때마다 호출.
 {
 	if (m_bIsDead)
 	{
-		GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 		return;
 	}
 
 	m_AnimInstance->StopAllMontages(0.0f);
 	m_AIController->StartBehaviorTree();
 	SetState(ENormalMinionStates::Chase);
-	GetWorldTimerManager().ClearTimer(m_OnHitTimerHandle);
+	GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+}
+
+void ASuperMinion::ExecEvent_Groggy(ACharacterBase* instigator)
+{
+	Super::ExecEvent_Groggy(instigator);
+	
+	SetState(ENormalMinionStates::Groggy);
+	m_AnimInstance->StopAllMontages(0.0f);
+	//m_AnimInstance->PlayMontage(HitMontages[m_HitDirection],1.0f);
 }
 
 void ASuperMinion::Die()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: Die"));
-
 	SetState(ENormalMinionStates::Dead);
 	m_AIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_AIController->StopBehaviorTree();
 	
-	m_AnimInstance->StopAllMontages(0.0f);
-	m_AnimInstance->PlayMontage(DeathMontages[m_HitDirection]);
+	m_AnimInstance->StopAllMontages(0.0f);  
+	//m_AnimInstance->PlayMontage(DeathMontages[m_HitDirection]);
 	
-	m_Colliders["HitCollider"]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASuperMinion::ExecEvent_EndedDeathMontage() // 사망몽타주 재생완료시 호출.
 {
 	m_DeathTimerRemainingTime = m_DeathTimerTime;
 	m_DeathTimerTickTime = m_DeathTimerTime / 100;
-	//GetWorld()->GetTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnCalledTimer_EndedDeathEvent, m_DeathTimerTickTime, true, 0.0f);
-	GetWorldTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::OnCalledTimer_EndedDeathEvent, m_DeathTimerTickTime, true, 0.0f);
+	
+	GetWorldTimerManager().SetTimer(m_DeathTimerHandle, this, &ASuperMinion::onCalledTimer_EndedDeathEvent, m_DeathTimerTickTime, true, 0.0f);
 
 	// 액터풀에 반환하기위한 비활성화타이머.
 	GetWorldTimerManager().SetTimer(m_DeActivateTimerHandle, this, &ASuperMinion::DeActivate, m_DeathTimerTime, true);
 }
 
-void ASuperMinion::OnCalledTimer_EndedDeathEvent()
+void ASuperMinion::onCalledTimer_EndedDeathEvent()
 {
 	m_DeathTimerRemainingTime -= m_DeathTimerTickTime;
 	m_DiffuseRatio -= m_DeathTimerTickTime;
@@ -128,8 +134,8 @@ void ASuperMinion::SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 	FName montageName = Montage->GetFName();
 	FString log = montageName.ToString() + " :: " + FString::FromInt(bInterrupted);
 
-	m_AnimInstance->ExecFuncOnMontageEnded(montageName);
-	UE_LOG(LogTemp, Warning, TEXT("EndedMontage :: %s"), *log);
+	// m_AnimInstance->ExecBindedFunc_OnMontageEnded(montageName);
+	// UE_LOG(LogTemp, Warning, TEXT("EndedMontage :: %s"), *log);
 }
 
 void ASuperMinion::SetState(ENormalMinionStates state)
@@ -154,7 +160,7 @@ void ASuperMinion::SetCommonState(const int32 commonStateIndex)
 		break;
 	
 	case 2:
-		SetState(ENormalMinionStates::Hit);
+		SetState(ENormalMinionStates::Knockback);
 		break;
 	
 	case 3:
@@ -176,14 +182,14 @@ void ASuperMinion::Activate()
 	
 	SetState(ENormalMinionStates::Patrol);
 	
-	m_Colliders["HitCollider"]->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 void ASuperMinion::DeActivate()
 {
 	Super::DeActivate();
 
-	m_Colliders["HitCollider"]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASuperMinion::initAssets()
@@ -210,23 +216,54 @@ void ASuperMinion::initAssets()
 	m_HitCollider->SetupAttachment(RootComponent);
 	m_HitCollider->SetCapsuleHalfHeight(60.0f);
 	m_HitCollider->SetCapsuleRadius(60.0f);
-	m_HitCollider->SetCollisionProfileName(TEXT("HitCollider")); 
+	m_HitCollider->SetCollisionProfileName(TEXT("HitCollider_Monster")); 
 	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	m_HitCollider->SetNotifyRigidBodyCollision(false);
 	m_HitCollider->SetGenerateOverlapEvents(true);
 	
-	m_Colliders.Add(TEXT("HitCollider"), m_HitCollider);
+
+	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
+	// location.x, location.y, location. z
+	// scale.x,scale.y,scale.z
+	// 
+	// m_ShieldForAttackCollider->SetWorldTransform(collisionTransform);
+
+
+	FTransform collisionTransform = {
+		{0.0f, 0.0f, 20.0f},
+		{-11.111f, 115.6134, 10.4},
+		{0.375f, 1.5f, 0.625f} };
+	// LeftSwordCollider
+	m_LeftSwordCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftSwordCollider"));
+	m_LeftSwordCollider->SetWorldTransform(collisionTransform);
+	m_LeftSwordCollider->SetupAttachment(GetMesh(), FName(TEXT("weapon_l")));
+	m_LeftSwordCollider->SetCollisionProfileName(TEXT("AttackCollider_Monster")); 
+	m_LeftSwordCollider->SetGenerateOverlapEvents(true);
+	m_LeftSwordCollider->SetNotifyRigidBodyCollision(false);
+	m_LeftSwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	collisionTransform = {
+		{0.0f, 0.0f, 160.0f},
+		{0.0f, -113.333f, -13.3333f},
+		{0.25f, 1.5f, 0.625f} };
+	
+	// RightSwordCollider
+	m_RightSwordCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("RightSwordCollider"));
+	m_RightSwordCollider->SetWorldTransform(collisionTransform);
+	m_RightSwordCollider->SetupAttachment(GetMesh(), FName(TEXT("weapon_r")));
+	m_RightSwordCollider->SetCollisionProfileName(TEXT("AttackCollider_Monster")); 
+	m_RightSwordCollider->SetGenerateOverlapEvents(true);
+	m_RightSwordCollider->SetNotifyRigidBodyCollision(false);
+	m_RightSwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	m_Colliders.Add(HitColliderName, m_HitCollider);
+	m_Colliders.Add(LeftSwordColliderName, m_LeftSwordCollider);
+	m_Colliders.Add(RightSwordColliderName, m_RightSwordCollider);
 }
 
 void ASuperMinion::updateState()
 {
 	m_CurSpeed = GetVelocity().Size();
-}
-
-void ASuperMinion::bindFuncOnMontageEvent()
-{
-	m_AnimInstance->BindFuncOnMontageEnded(TEXT("NormalAttack0"),this,TEXT("OnCalled_NormalAttack_End"));
-	m_AnimInstance->BindFuncOnMontageEnded(TEXT("NormalAttack1"),this,TEXT("OnCalled_NormalAttack_End"));
 }
 
 void ASuperMinion::Tick(float DeltaTime)
