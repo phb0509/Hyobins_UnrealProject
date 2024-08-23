@@ -3,12 +3,12 @@
 
 #include "MainPlayer/MainPlayerController.h"
 
-int count = 0;
 
 AMainPlayerController::AMainPlayerController():
 	m_TeamID(FGenericTeamId(1))
 {
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayerController::Constructor"));
+	
 }
 
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const

@@ -3,8 +3,7 @@
 #include "Utility/AnimInstanceBase.h"
 
 
-UAnimInstanceBase::UAnimInstanceBase() :
-m_bAfterInitAttackInfo(false)
+UAnimInstanceBase::UAnimInstanceBase() 
 {
 }
 
@@ -21,6 +20,7 @@ void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
 	if (m_Montages.Contains(montageName))
 	{
 		checkf(IsValid(m_Montages[montageName]), TEXT("Montage isn't Valid"));
+		
 		Montage_Play(m_Montages[montageName], inPlayRate);
 	}
 }
@@ -41,6 +41,7 @@ UAnimMontage* UAnimInstanceBase::GetMontage(const FName& montageName)
 	if (m_Montages.Contains(montageName))
 	{
 		checkf(IsValid(m_Montages[montageName]), TEXT("Montage isn't Valid"));
+		
 		return m_Montages[montageName];
 	}
 
@@ -75,27 +76,27 @@ void UAnimInstanceBase::ExecBindedFunc_OnMontageEnded(const FName& montageName)
 	}
 }
 
-void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* Montage)
+void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* Montage) // 몽타주 start할때마다 호출.
 {
 	FName montageName = Montage->GetFName(); // enum 문자열이랑 동일.
 	ExecBindedFunc_OnMontageStarted(montageName);
 
-	UE_LOG(LogTemp, Warning, TEXT("Started Montage : %s"), *montageName.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Started Montage : %s"), *montageName.ToString());
 }
 
-void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted) // 몽타주 End할때마다 호출.
 {
-	FName montageName = Montage->GetFName(); // enum 문자열이랑 동일.
+	FName montageName = Montage->GetFName(); 
 	ExecBindedFunc_OnMontageEnded(montageName);
 	
-	UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
 }
 
 void UAnimInstanceBase::AnimNotify_Pause()
 {
 	if (IsValid(GetCurrentActiveMontage()))
 	{
-		auto montage = GetCurrentActiveMontage();
+		UAnimMontage* montage = GetCurrentActiveMontage();
 		Montage_Pause(montage);
 	}
 }
@@ -103,4 +104,14 @@ void UAnimInstanceBase::AnimNotify_Pause()
 void UAnimInstanceBase::AnimNotify_End_Death() const
 {
 	End_Death.Broadcast();
+}
+
+void UAnimInstanceBase::AnimNotify_End_Down() 
+{
+	PlayMontage("GetUp",1.0f); // 땅에 닿았을 때의 몽타주 재생.
+}
+
+void UAnimInstanceBase::AnimNotify_End_GetUp()
+{
+	End_GetUp.Broadcast();
 }

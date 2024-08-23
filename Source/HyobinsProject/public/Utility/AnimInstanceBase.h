@@ -97,20 +97,27 @@ public:
 private:
 	UFUNCTION()
 	void AnimNotify_Pause();
+
+	UFUNCTION()
+	void AnimNotify_End_Down();
+
+	UFUNCTION()
+	void AnimNotify_End_GetUp();
 	
 	UFUNCTION()
-	void AnimNotify_End_Death() const; 
+	void AnimNotify_End_Death() const;
+
+
 
 public:
 	FOnEndedDeathDelegate End_Death;
+	FOnEndedDeathDelegate End_GetUp;
 
 protected:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TMap<FName, UAnimMontage*> m_Montages;
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
-
-	bool m_bAfterInitAttackInfo; // 연계공격몽타주용 변수. 다음 연계섹션으로 넘어가기전에 공격정보초기화가 안되는 경우를 위함.
-								 // 이 변수를 사용한 몽타주는, Ended에서 반드시 false로 바꾸는 코드를 바인딩할 것.
+	
 };
 
 

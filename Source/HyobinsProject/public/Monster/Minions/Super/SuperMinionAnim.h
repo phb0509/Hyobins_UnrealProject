@@ -14,9 +14,8 @@ class HYOBINSPROJECT_API USuperMinionAnim : public UAnimInstanceBase
 public:
 	USuperMinionAnim();
 
-private:
-	void initAssets();
 	
+private:
 	UFUNCTION()
 	void AnimNotify_Test() const;
 

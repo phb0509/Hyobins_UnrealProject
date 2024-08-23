@@ -9,9 +9,8 @@
 class USuperMinionAnim;
 class ASuperMinionAIController;
 class UAIPerceptionComponent;
-class UBoxComponent;
 
-enum class EMonsterCommonStates : uint8;
+
 enum class ENormalMinionStates : uint8;
 
 UCLASS()
@@ -28,14 +27,7 @@ public:
 	UFUNCTION()
 	void OnCalled_NormalAttack_End();
 	
-	virtual void OnCalledTimer_Knockback_End() override;
-
-	UFUNCTION()
-	void SkillMontageStarted(UAnimMontage* Montage);
 	
-	UFUNCTION()
-	void SkillMontageEnded(UAnimMontage* Montage, bool bInterrupted);
-
 	
 	// Get
 	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
@@ -44,13 +36,27 @@ public:
 	void SetState(ENormalMinionStates state);
 
 protected:
-	virtual void ExecEvent_Knockback(ACharacterBase* instigator) override;
-	virtual void ExecEvent_Groggy(ACharacterBase* instigator) override;
+	virtual void ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo) override;
+	virtual void OnCalledTimer_KnockbackOnStanding_End() override;
+	virtual void OnCalledTimer_KnockbackInAir_Loop() override;
+	virtual void OnCalledTimer_KnockbackInAir_End() override;
+
+	virtual void ExecEvent_TakeAirborneAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo) override;
+	virtual void OnCalledTimer_Airborne_Loop() override;
+	
+	virtual void ExecEvent_TakeGroggyAttack(ACharacterBase* instigatorconst, const FAttackInfo* attackInfo) override;
+	virtual void OnCalledTimer_Groggy_End() override;
+	
 	virtual void Die() override;
 	virtual void ExecEvent_EndedDeathMontage() override;
-	void onCalledTimer_EndedDeathEvent();
+	virtual void OnCalledNotify_End_GetUp() override;
+	virtual void OnCalledTimer_EndedDeathMontage() override {};
 
-	virtual void SetCommonState(const int32 commonStateIndex) override;
+	UFUNCTION()
+	void OnCalledTimelineEvent_Loop_AfterDeath(float curveValue);
+
+	UFUNCTION()
+	void OnCalledTimelineEvent_End_AfterDeath();
 
 	// IPoolableActor VirtualFunction 
 	virtual void Activate() override;
@@ -58,18 +64,20 @@ protected:
 	
 private:
 	void initAssets();
+	void bindFuncOnMontagEvent();
 	void updateState();
 
 	
 private:
 	UPROPERTY(EditAnywhere)
-	UCapsuleComponent* m_HitCollider;
+	TObjectPtr<UCapsuleComponent> m_HitCollider;
+	
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* m_LeftSwordCollider;
-
+	TObjectPtr<UBoxComponent> m_LeftSwordCollider;
+		
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* m_RightSwordCollider;
+	TObjectPtr<UBoxComponent> m_RightSwordCollider;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
 	ENormalMinionStates m_CurState;
@@ -81,4 +89,7 @@ private:
 	static const FName HitColliderName;
 	static const FName LeftSwordColliderName;
 	static const FName RightSwordColliderName;
+	static const FName KnockbackMontageNames[4];
+	static const FName DeathMontageNames[2];
+	
 };

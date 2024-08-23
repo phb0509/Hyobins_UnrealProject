@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "Component/MainPlayerSkillComponent.h"
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
+#include "Component/MainPlayerSkillComponent.h"
 #include <GameFramework/CharacterMovementComponent.h>
+#include "MotionWarpingComponent.h"
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
 
@@ -32,6 +32,7 @@ void UMainPlayerSkillComponent::BeginPlay()
 	
 	m_Owner = Cast<AMainPlayer>(GetOwner());
 	m_OwnerAnimInstance = Cast<UMainPlayerAnim>(m_Owner->GetMesh()->GetAnimInstance());
+	
 	bindFuncOnMontageEvent();
 }
 
@@ -52,9 +53,24 @@ void UMainPlayerSkillComponent::NormalAttack()
 	}
 }
 
+void UMainPlayerSkillComponent::UpperAttack()
+{
+	if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
+		m_CurSkillState == EMainPlayerSkillStates::NormalAttack ||
+		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack)
+	{
+		m_CurSkillState = EMainPlayerSkillStates::UpperAttack;
+		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
+		m_OwnerAnimInstance->PlayMontage("UpperAttack");
+		
+		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		FName("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * 100.0f);
+	}
+}
+
 void UMainPlayerSkillComponent::OnCalledNotify_NormalAttack_Start_EachSection() // 각 공격섹션 시작 시 호출.
 {
-	if (m_CurNormalAttackSection <= 4)
+	if (m_CurNormalAttackSection % 2 != 0)
 	{
 		m_CurSkillState = EMainPlayerSkillStates::NormalAttack;
 	}
@@ -64,7 +80,8 @@ void UMainPlayerSkillComponent::OnCalledNotify_NormalAttack_Start_EachSection() 
 	}
 	
 	m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-	m_Owner->GetCharacterMovement()->AddImpulse(m_Owner->GetActorForwardVector() * 3000.0f, true);
+	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		FName("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * 120.0f);
 }
 
 void UMainPlayerSkillComponent::linqNextNormalAttackCombo()
@@ -84,7 +101,7 @@ void UMainPlayerSkillComponent::linqNextNormalAttackCombo()
 	{
 		if (m_Owner->GetIsPressedKey("LeftShift") || m_bHasleftShiftDecision)
 		{
-			m_CurNormalAttackSection += 2;
+			m_CurNormalAttackSection = FMath::Clamp(m_CurNormalAttackSection + 2, 1, m_MaxNormalAttackSection);
 		}
 		else
 		{
@@ -98,8 +115,10 @@ void UMainPlayerSkillComponent::linqNextNormalAttackCombo()
 
 void UMainPlayerSkillComponent::Dodge()
 {
-	if (m_CurSkillState != EMainPlayerSkillStates::Idle) // 어떠한 공격이든 수행중이면
+	if (m_CurSkillState != EMainPlayerSkillStates::Dodge_NonTargeting &&
+		m_CurSkillState != EMainPlayerSkillStates::Idle) // 어떠한 공격이든 수행중이면
 	{
+		
 		m_Owner->RotateActorToControllerYaw(); // 카메라 정면(컨트롤러의 Yaw로 회전)
 		m_OwnerAnimInstance->StopAllMontages(0.0f); // 빠른 모션변환을 위해 현재 재생중인 몽타주 Stop.
 
@@ -114,7 +133,7 @@ void UMainPlayerSkillComponent::Parry()
 	if (m_OwnerAnimInstance->Montage_IsPlaying(m_OwnerAnimInstance->GetMontage(ParryName)))
 	{
 		m_OwnerAnimInstance->PlayMontage(ParryingAttackName);
-		m_Owner->GetCharacterMovement()->AddImpulse(m_Owner->GetActorForwardVector() * 10000.0f, true);
+	
 	}
 	else
 	{
@@ -154,6 +173,14 @@ void UMainPlayerSkillComponent::ExtendShiftDecisionTime()
     	false);
 }
 
+void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted)
+{
+	if (!bInterrupted)
+	{
+		m_CurSkillState = EMainPlayerSkillStates::Idle;
+	}
+}
+
 void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 {
 	// NormalAttack_OnGround
@@ -163,7 +190,10 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	
 	// CombatDodge_OnGround
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(Dodge_NonTargeting,
-		[this](){m_CurSkillState = EMainPlayerSkillStates::Dodge_NonTargeting;});
+		[this]()
+		{
+			m_CurSkillState = EMainPlayerSkillStates::Dodge_NonTargeting;
+		});
 	
 	// OnMontageEnded
 	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle);
@@ -176,7 +206,8 @@ void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
-	GEngine->AddOnScreenDebugMessage(13, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), m_CurNormalAttackSection));
-	GEngine->AddOnScreenDebugMessage(14, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
-	GEngine->AddOnScreenDebugMessage(15, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bHasleftShiftDecision || m_Owner->GetIsPressedKey("LeftShift")));
+	GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), m_CurNormalAttackSection));
+	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
+	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bHasleftShiftDecision || m_Owner->GetIsPressedKey("LeftShift")));
+	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

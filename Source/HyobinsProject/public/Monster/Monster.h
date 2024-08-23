@@ -17,17 +17,14 @@ public:
 	AMonster();
 	virtual void BeginPlay() override;
 	
-	virtual void SetCommonState(int32 commonState) {};
-
 
 protected:
+	virtual void execEvent_CommonCrowdControl(ACharacterBase* instigator) override;
+	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
-	
-	virtual void ExecEvent_Knockback(ACharacterBase* instigator) override;
-	virtual void ExecEvent_Groggy(ACharacterBase* instigator) override;
 	
 
 public:
@@ -38,8 +35,6 @@ public:
 	static const FName NormalAttackSpeedKey;
 
 protected:
-	float m_DeathTimerTickTime;
-	float m_DeathTimerRemainingTime;
 	float m_DiffuseRatio;
 	
 private:

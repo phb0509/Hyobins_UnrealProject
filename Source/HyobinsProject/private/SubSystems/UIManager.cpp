@@ -14,7 +14,7 @@ void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statC
 	widgetComponent->SetRelativeLocation(relativeLocation);
 	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-	widgetComponent->RegisterComponentWithWorld(GetWorld());
+	widgetComponent->RegisterComponentWithWorld(GetWorld()); // tt
 
 	const TSubclassOf<UUserWidget> widgetClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
 	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));

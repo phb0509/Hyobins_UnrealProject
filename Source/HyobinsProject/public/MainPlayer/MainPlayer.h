@@ -10,6 +10,7 @@ class UMainPlayerSkillComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UBoxComponent;
+class UMotionWarpingComponent;
 
 enum class EMainPlayerStates : uint8;
 
@@ -49,6 +50,7 @@ public:
 	
 	// Get
 	FORCEINLINE UMainPlayerSkillComponent* GetSkillComponent() const { return m_SkillComponent; }
+	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
 	FORCEINLINE bool GetIsPressedKey(const FName& key) const { return m_PressedKeyInfo[key]; }
@@ -77,24 +79,27 @@ public:
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly)
-	UMainPlayerSkillComponent* m_SkillComponent;
+	TObjectPtr<UMainPlayerSkillComponent> m_SkillComponent;
 	
 	UPROPERTY(EditAnywhere) // 충돌체들은 실시간으로 크기보정할 일이 많을 수 있기 때문에 EditAnywhere로 지정
-	UCapsuleComponent* m_SwordCollider;
-
+	TObjectPtr<UCapsuleComponent> m_SwordCollider;
+	
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* m_ShieldForAttackCollider;
-
+	TObjectPtr<UBoxComponent> m_ShieldForAttackCollider;
+    
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* m_ShieldForDefendCollider;
+	TObjectPtr<UBoxComponent> m_ShieldForDefendCollider;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
-	USpringArmComponent* m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
+	TObjectPtr<USpringArmComponent> m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
 									  // 자신과의 지정된 거리 안에 유지되도록 처리한다.
-	
-	UPROPERTY(EditAnywhere, Category = Camera)
-	UCameraComponent* m_TargetCamera;
 
+	UPROPERTY(EditAnywhere, Category = Camera)
+	TObjectPtr<UCameraComponent> m_TargetCamera;
+	
 	TMap<FName, bool> m_PressedKeyInfo;
 	
 	float m_MoveDeltaSecondsOffset;
@@ -120,5 +125,9 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_TempInputVerticalForDodge;
-	
+
+
+	// Tets
+	UPROPERTY(EditAnywhere)
+	TMap<FName,float> testMap;
 };

@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Utility/EnumTypes.h"
 #include "Engine/DataTable.h"
 #include "CustomStructs.generated.h"
 
+enum class ECrowdControlType : uint8;
 
 class HYOBINSPROJECT_API CustomStructs
 {
@@ -28,6 +28,7 @@ public:
 	crowdControlType("None"),
 	crowdControlTime(0.0f),
 	knockBackDistance(0.0f),
+	airbornePower(0.0f),
 	canDodge(false),
 	canParrying(false)
 	{}
@@ -51,6 +52,9 @@ public:
 	float knockBackDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	float airbornePower;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	bool canDodge;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
@@ -70,9 +74,9 @@ public:
 	ECrowdControlType crowdControlType; // CC기 종류
 	float crowdControlTime; // CC기 지속시간
 	float knockBackDistance; // 밀려지는 정도
+	float airbornePower;
 	FVector colliderLocation;
 	bool canDodge;
 	bool canParrying;
-	//TMap<TWeakObjectPtr<AActor>, bool> checkedHitActors;
 };
 

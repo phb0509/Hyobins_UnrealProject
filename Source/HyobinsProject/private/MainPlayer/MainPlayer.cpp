@@ -4,12 +4,11 @@
 #include "MainPlayer/MainPlayerController.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "Utility/Utility.h"
+#include "Utility/EnumTypes.h"
 #include <GameFramework/SpringArmComponent.h.>
-#include <GameFramework/CharacterMovementComponent.h>
 #include <Camera/CameraComponent.h>
-#include <Components/CapsuleComponent.h>
-#include <Components/BoxComponent.h>
 #include "SubSystems/DataManager.h"
+#include "MotionWarpingComponent.h"
 
 
 const FName AMainPlayer::SwordColliderName = "SwordCollider";
@@ -34,7 +33,6 @@ AMainPlayer::AMainPlayer() :
 	m_WalkSpeed = 300.0f;
 	m_RunSpeed = 1300.0f;
 	
-	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
 	initAssets();
 }
 
@@ -60,7 +58,7 @@ void AMainPlayer::Tick(float DeltaTime) //
 	Super::Tick(DeltaTime);
 
 	updateState();
-	m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, 450.0f, DeltaTime, 3.0f);
+	//m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, 450.0f, DeltaTime, 3.0f);
 	printLog();
 }
 
@@ -161,7 +159,7 @@ void AMainPlayer::TriggerPressedSpaceBar()
 
 void AMainPlayer::TriggerPressedQ()
 {
-	
+	m_SkillComponent->UpperAttack();
 }
 
 void AMainPlayer::TriggerPressedLeftCtrl()
@@ -177,7 +175,7 @@ void AMainPlayer::TriggerReleasedLeftCtrl()
 void AMainPlayer::OnCalled_Overlap_SwordCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	 
 }
 
 void AMainPlayer::OnCalled_Overlap_ShieldForAttackCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
@@ -194,6 +192,10 @@ void AMainPlayer::OnCalled_Overlap_ShieldForDefendCollider(UPrimitiveComponent* 
 
 void AMainPlayer::initAssets()
 {
+	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
+	
+	m_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarping"));
+	
 	// RootCapsuleComponent
 	GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(40.0f);
@@ -307,17 +309,19 @@ void AMainPlayer::printLog() const
 	const FVector forwardVector = GetActorForwardVector();
 
 
-	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
-	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
-	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
-	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
-	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
+	GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
+	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
+	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
 	
 	if (GetCharacterMovement()->IsFalling())
 	{
-		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
+		GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
 	}
+
+	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
 
 void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.

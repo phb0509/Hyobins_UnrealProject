@@ -9,6 +9,7 @@
 class UStatComponent;
 class UProgressBar;
 
+
 UCLASS()
 class HYOBINSPROJECT_API UHPBar : public UUserWidget
 {
@@ -23,10 +24,11 @@ public:
 private:
 	void updateHPWidget();
 	
-protected:
+private:
 	UPROPERTY(EditDefaultsOnly)
 	TWeakObjectPtr<UStatComponent> m_StatComponent;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TWeakObjectPtr<UProgressBar> m_HPProgressBar;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UProgressBar> m_HPProgressBar;
+	
 };

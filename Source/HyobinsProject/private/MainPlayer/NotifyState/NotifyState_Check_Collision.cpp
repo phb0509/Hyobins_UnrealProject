@@ -21,7 +21,7 @@ void UNotifyState_Check_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp,
 
 		if (m_AttackName != "Empty")
 		{
-			m_Owner->EmptyCheckedHitActor(m_AttackName);
+			m_Owner->EmptyHitActorsByMe(m_AttackName);
 		}
 	}
 }
@@ -42,7 +42,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 			{
 				if (!m_Owner->HasContainHitActor(m_AttackName,overlappingEnemy))
 				{
-					m_Owner->AddCheckedHitActor(m_AttackName, overlappingEnemy);
+					m_Owner->AddHitActorsByMe(m_AttackName, overlappingEnemy);
 					m_Owner->Attack(m_AttackName, overlappingEnemy);
 				}
 			}

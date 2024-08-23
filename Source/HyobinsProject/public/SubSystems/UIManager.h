@@ -7,6 +7,8 @@
 #include "UIManager.generated.h"
 
 class UStatComponent;
+
+
 UCLASS()
 class HYOBINSPROJECT_API UUIManager : public UGameInstanceSubsystem
 {

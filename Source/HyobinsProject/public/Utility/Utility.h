@@ -15,7 +15,6 @@ public:
 	FORCEINLINE static double ConvertToDegree(int inputVertical, int inputHorizontal) { return m_DegreeTable[inputVertical + 1][inputHorizontal + 1]; }
 	FORCEINLINE static int32 GetDirectionIndex(const int inputVertical, const int inputHorizontal) { return m_DirectionIndex[inputVertical + 1][inputHorizontal + 1]; }
 	static int32 GetHitDirection(const AActor* hitActor, const AActor* attackActor);
-	//static void InitAttackInformations(IN const FString& assetPath, OUT TMap<FName, FAttackInfo>& attackInformations);
 	
 	template <typename T> 
 	static FORCEINLINE FString ConvertEnumToString(const T enumType) 
