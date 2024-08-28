@@ -8,6 +8,8 @@
 #include "MainPlayerController.generated.h"
 
 
+class UEnvironmentSettings;
+
 UCLASS()
 class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, public IGenericTeamAgentInterface
 {
@@ -16,8 +18,16 @@ class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, publi
 public:
 	AMainPlayerController();
 	virtual FGenericTeamId GetGenericTeamId() const override;
+	
+	void ChangeEnvironmentSettingsState();
+
+	
 
 private:
 	FGenericTeamId m_TeamID;
+
+	FInputModeGameOnly m_GameInputMode;
+    FInputModeUIOnly   m_UIInputMode;
 	
+	bool m_bIsOpenedEnvironmentSettings;
 };

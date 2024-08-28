@@ -1,0 +1,2 @@
+﻿AttackName,Damage,bIsDot,bHasCrowdControl,crowdControlType,crowdControlTime,bHasKnockBack,knockBackTime,knockBackDistance,canDodge,canParrying
+NormalAttack,10,FALSE,FALSE,None,0,FALSE,0.5,20,FALSE,FALSE

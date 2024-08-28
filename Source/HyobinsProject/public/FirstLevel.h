@@ -17,31 +17,12 @@ public:
 	AFirstLevel();
 
 	virtual void BeginPlay() override;
-
-	
+	void Create();
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-	void Create();
-
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
 	void Spawn();
-
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-	void ClearActorPool();
-
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-	void HideHPBar();
-
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-	void ShowHPBar();
-
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-	void ClearAllWidget();
-
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-	void ClearHPBarWidget();
-
+	
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;

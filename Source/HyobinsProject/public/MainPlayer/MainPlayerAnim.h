@@ -36,7 +36,6 @@ public:
 	void AnimNotify_CombatDodge_Start_Move() const;
 	
 
-
 public:
 	// NormalAttack
 	FNormalAttack_Start_EachSection_Delegate NormalAttack_Start_EachSection;
@@ -48,7 +47,5 @@ public:
 	FCombatDodge_Start_Move_Delegate CombatDodge_Start_Move;
 
 
-private:
-	UPROPERTY(EditAnywhere)
-	TMap<FName, UAnimMontage*> testMontages;
+
 };

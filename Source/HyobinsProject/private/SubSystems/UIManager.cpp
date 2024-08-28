@@ -6,20 +6,34 @@
 #include "Components/WidgetComponent.h"
 #include "Components/SceneComponent.h"
 #include "UI/HPBar.h"
+#include "UI/System/EnvironmentSettings.h"
 
-void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FString& assetPath, const FVector& relativeLocation, const FVector2D& drawSize)
+
+void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	m_MonsterHPBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
+	m_EnvironmentSettingsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Widget_SettingPopup.Widget_SettingPopup_C'"));
+
+	int32 tt = 0;
+}
+
+void UUIManager::Deinitialize()
+{
+	Super::Deinitialize();
+}
+
+void UUIManager::CreateMonsterHPBarComponent(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FVector& relativeLocation, const FVector2D& drawSize)
 {
 	UWidgetComponent* const widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
 	widgetComponent->SetupAttachment(mesh);
 	widgetComponent->SetRelativeLocation(relativeLocation);
 	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-	widgetComponent->RegisterComponentWithWorld(GetWorld()); // tt
-
-	const TSubclassOf<UUserWidget> widgetClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
-	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
+	widgetComponent->RegisterComponentWithWorld(GetWorld());
 	
-	widgetComponent->SetWidgetClass(widgetClass);
+	widgetComponent->SetWidgetClass(m_MonsterHPBarClass);
 	widgetComponent->SetDrawSize(drawSize);
 	
 	UUserWidget* const widgetObject = widgetComponent->GetUserWidgetObject();
@@ -30,13 +44,22 @@ void UUIManager::CreateHPBarComponent(AActor* actor, UStatComponent* const statC
 
 	hpBar->BindStatComponent(statComponent);
 
-	if (!m_UIWidgets.Contains(widgetClass))
+	if (!m_UIWidgets.Contains(m_MonsterHPBarClass))
 	{
 		TArray<UUserWidget*> temp;
-		m_UIWidgets.Add(widgetClass, temp);
+		m_UIWidgets.Add(m_MonsterHPBarClass, temp);
 	}
 
-	m_UIWidgets[widgetClass].Add(widgetObject);
+	m_UIWidgets[m_MonsterHPBarClass].Add(widgetObject);
+}
+
+void UUIManager::CreateEnvironmentSettings()
+{
+	if (m_EnvironmentSettings != nullptr) return;
+	
+	m_EnvironmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), m_EnvironmentSettingsClass));
+	m_EnvironmentSettings->AddToViewport();
+	m_EnvironmentSettings->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UUIManager::HideWidgets(const FName& path)
@@ -47,7 +70,7 @@ void UUIManager::HideWidgets(const FName& path)
 	for (UUserWidget* const widget : m_UIWidgets[widgetClass])
 	{
 		checkf(widget != nullptr, TEXT("Widget is Nullptr!!"));
-		widget->SetVisibility(ESlateVisibility::Hidden);
+		widget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -77,4 +100,40 @@ void UUIManager::ClearAllWidgets()
 	{
 		iter.Value.Empty();
 	}
+}
+
+void UUIManager::ShowMonsterHPBar()
+{
+	for (UUserWidget* const widget : m_UIWidgets[m_MonsterHPBarClass])
+	{
+		widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+}
+
+void UUIManager::HideMonsterHPBar()
+{
+	for (UUserWidget* const widget : m_UIWidgets[m_MonsterHPBarClass])
+	{
+		widget->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void UUIManager::ShowEnvironmentSettings()
+{
+	if (m_EnvironmentSettings == nullptr)
+	{
+		CreateEnvironmentSettings();
+	}
+
+	m_EnvironmentSettings->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UUIManager::HideEnvironmentSettings()
+{
+	if (m_EnvironmentSettings == nullptr)
+	{
+		CreateEnvironmentSettings();
+	}
+
+	m_EnvironmentSettings->SetVisibility(ESlateVisibility::Collapsed);
 }

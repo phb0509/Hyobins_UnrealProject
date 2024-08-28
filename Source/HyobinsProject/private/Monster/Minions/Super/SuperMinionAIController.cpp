@@ -16,7 +16,7 @@ void ASuperMinionAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: BeginPlay"));
+	//UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: BeginPlay"));
 }
 
 void ASuperMinionAIController::OnPossess(APawn* pawn)

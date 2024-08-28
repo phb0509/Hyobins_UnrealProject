@@ -116,8 +116,8 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	TMap<FName, UAnimMontage*> m_Montages;
+
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
-	
 };
 
 

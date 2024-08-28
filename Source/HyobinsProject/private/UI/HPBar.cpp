@@ -11,16 +11,6 @@ void UHPBar::NativeConstruct()
 	Super::NativeConstruct();
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
 	updateHPWidget(); 
-
-
-	if (m_HPProgressBar != nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UHPBar :: NOT NULL"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UHPBar :: null"));
-	}
 }
 
 void UHPBar::BindStatComponent(UStatComponent* statComponent)
@@ -31,7 +21,7 @@ void UHPBar::BindStatComponent(UStatComponent* statComponent)
 
 void UHPBar::SetExecuteState()
 {
-	m_HPProgressBar->SetVisibility(ESlateVisibility::Hidden);
+	m_HPProgressBar->SetVisibility(ESlateVisibility::Collapsed);
 } 
 
 void UHPBar::updateHPWidget()

@@ -9,6 +9,9 @@
 #include <Camera/CameraComponent.h>
 #include "SubSystems/DataManager.h"
 #include "MotionWarpingComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+
 
 
 const FName AMainPlayer::SwordColliderName = "SwordCollider";
@@ -42,15 +45,11 @@ void AMainPlayer::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayer::BeginPlay"));
 	
-	SetActorLocation(FVector(0.0f, 0.0f, 200.0f));
+	SetActorLocation(FVector(0.0f, 0.0f, 150.0f));
 
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
-	
-	m_SwordCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::OnCalled_Overlap_SwordCollider);
-	m_ShieldForAttackCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::OnCalled_Overlap_ShieldForAttackCollider);
-	m_ShieldForDefendCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::OnCalled_Overlap_ShieldForDefendCollider);
 }
 
 void AMainPlayer::Tick(float DeltaTime) // 
@@ -58,136 +57,44 @@ void AMainPlayer::Tick(float DeltaTime) //
 	Super::Tick(DeltaTime);
 
 	updateState();
-	//m_SpringArm->TargetArmLength = FMath::FInterpTo(m_SpringArm->TargetArmLength, 450.0f, DeltaTime, 3.0f);
 	printLog();
 }
 
-void AMainPlayer::Turn(float value)
+
+
+void AMainPlayer::NormalAttack()
 {
-	AddControllerYawInput(value * GetWorld()->GetDeltaSeconds() * m_RotationDeltaSecondsOffset);
-}
-
-void AMainPlayer::LookUp(float value)
-{
-	AddControllerPitchInput(value * GetWorld()->GetDeltaSeconds() * m_RotationDeltaSecondsOffset);
-}
-
-void AMainPlayer::InputHorizontal(float value)
-{
-	m_CurInputHorizontal = value;
-	
-	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle) // 어떠한 스킬도 시전중 아니라면
-	{
-		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::Y);
-		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
-	}
-}
-
-void AMainPlayer::InputVertical(float value)
-{
-	m_CurInputVertical = value;
-
-	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle)
-	{
-		const FVector worldDirection = FRotationMatrix(FRotator(0.0f, GetControlRotation().Yaw, 0.0f)).GetUnitAxis(EAxis::X);
-		AddMovementInput(worldDirection, value * GetWorld()->GetDeltaSeconds() * m_MoveDeltaSecondsOffset);
-	}
-}
-
-void AMainPlayer::TriggerPressedLeftShift()
-{
-	m_PressedKeyInfo["LeftShift"] = true;
-	
-	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
-	}
-}
-
-void AMainPlayer::TriggerReleasedLeftShift()
-{
-	m_PressedKeyInfo["LeftShift"] = false;
-	
-	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::NormalAttack ||
-	m_SkillComponent->GetState() == EMainPlayerSkillStates::NormalStrikeAttack)
-	{
-		m_SkillComponent->ExtendShiftDecisionTime();
-	}
-
-	if (m_SkillComponent->GetState() == EMainPlayerSkillStates::Idle)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
-	}
-}
-
-void AMainPlayer::TriggerPressedLeftMouseButton()
-{
-	m_PressedKeyInfo["LeftMouseButton"] = true;
-	
 	if (GetMovementComponent()->IsMovingOnGround())
 	{
 		m_SkillComponent->NormalAttack();
 	}
 }
 
-void AMainPlayer::TriggerReleasedLeftMouseButton()
+void AMainPlayer::Dodge() 
 {
-	m_PressedKeyInfo["LeftMouseButton"] = false;
-}
-
-void AMainPlayer::TriggerPressedRightMouseButton()
-{
-	m_PressedKeyInfo["RightMouseButton"] = true;
-	
-	m_SkillComponent->Parry();
-}
-
-void AMainPlayer::TriggerReleasedRightMouseButton()
-{
-	m_PressedKeyInfo["RightMouseButton"] = false;
-}
-
-void AMainPlayer::TriggerPressedSpaceBar() 
-{
-	m_PressedKeyInfo["SpaceBar"] = true;
-	
 	if (GetMovementComponent()->IsMovingOnGround())
 	{
 		m_SkillComponent->Dodge();
 	}
 }
 
-void AMainPlayer::TriggerPressedQ()
+void AMainPlayer::UpperAttack()
 {
 	m_SkillComponent->UpperAttack();
 }
 
-void AMainPlayer::TriggerPressedLeftCtrl()
+void AMainPlayer::Run()
 {
-
+	m_PressedKeyInfo["LeftShift"] = true;
+	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
 }
 
-void AMainPlayer::TriggerReleasedLeftCtrl()
+void AMainPlayer::StopRun()
 {
+	m_PressedKeyInfo["LeftShift"] = false;
+	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 
-}
-
-void AMainPlayer::OnCalled_Overlap_SwordCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	 
-}
-
-void AMainPlayer::OnCalled_Overlap_ShieldForAttackCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	
-}
-
-void AMainPlayer::OnCalled_Overlap_ShieldForDefendCollider(UPrimitiveComponent* HitComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	
+	m_SkillComponent->ExtendShiftDecisionTime();
 }
 
 void AMainPlayer::initAssets()
@@ -294,12 +201,13 @@ void AMainPlayer::initAssets()
 	// 회전을 부드럽게 만들어 주기 위해 RotationRate 를 조정한다. 값이 낮을수록 카메라 회전시 캐릭터가 한박자 느리게 회전.
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+
+	
 }
 
 void AMainPlayer::updateState()
 {
 	m_CurSpeed = GetVelocity().Size();
-	
 }
 
 void AMainPlayer::printLog() const
@@ -343,31 +251,59 @@ void AMainPlayer::RotateActorToControllerYaw() // 액터의 z축회전값을 컨
 	SetActorRotation(resultRotator);
 }
 
+void AMainPlayer::Move(const FInputActionValue& value)
+{
+	FVector2d movementVector = value.Get<FVector2D>();
+	
+	const FRotator rotation = GetControlRotation();
+	const FRotator yawRotation(0, rotation.Yaw, 0);
+
+	// ForwardVector
+	const FVector forwardDireciton = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
+
+	// RightVector
+	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
+
+	// Add Movement
+	this->AddMovementInput(forwardDireciton, movementVector.X);
+	this->AddMovementInput(rightDirection, movementVector.Y);
+
+	m_CurInputHorizontal = movementVector.Y;
+	m_CurInputVertical = movementVector.X;
+	
+}
+
+void AMainPlayer::Look(const FInputActionValue& value)
+{
+	FVector2d axisVector = value.Get<FVector2d>();
+
+	this->AddControllerYawInput(axisVector.X);
+	this->AddControllerPitchInput(axisVector.Y);
+}
+
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	APlayerController* playerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
+	subSystem->ClearAllMappings();
+	subSystem->AddMappingContext(m_InputMappingContext,0);
+	
+	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
+	
+	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
+	EIC->BindAction(m_InputActions["OpenEnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::ChangeEnvironmentSettingsState);
+	
+	EIC->BindAction(m_InputActions["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
+	EIC->BindAction(m_InputActions["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
 
-	// AxisMappings
-	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AMainPlayer::Turn); // Mouse X 
-	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AMainPlayer::LookUp); // Mouse Y
-	PlayerInputComponent->BindAxis(TEXT("Horizontal"), this, &AMainPlayer::InputHorizontal); // 좌, 우 (A,D) 
-	PlayerInputComponent->BindAxis(TEXT("Vertical"), this, &AMainPlayer::InputVertical); // 전,후 (W,S)
-
-	// ActionMappings
-	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftShift);
-	PlayerInputComponent->BindAction(TEXT("LeftShift"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftShift);
-	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftMouseButton);
-	PlayerInputComponent->BindAction(TEXT("LeftMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedLeftMouseButton);
-	PlayerInputComponent->BindAction(TEXT("RightMouseButton"), IE_Pressed, this, &AMainPlayer::TriggerPressedRightMouseButton);
-	PlayerInputComponent->BindAction(TEXT("RightMouseButton"), IE_Released, this, &AMainPlayer::TriggerReleasedRightMouseButton);
-	PlayerInputComponent->BindAction(TEXT("SpaceBar"), IE_Pressed, this, &AMainPlayer::TriggerPressedSpaceBar);
-	PlayerInputComponent->BindAction(TEXT("LeftCtrl"), IE_Pressed, this, &AMainPlayer::TriggerPressedLeftCtrl);
-	PlayerInputComponent->BindAction(TEXT("Q"), IE_Pressed, this, &AMainPlayer::TriggerPressedQ);
-
+	EIC->BindAction(m_InputActions["NormalAttack"], ETriggerEvent::Triggered, this,&AMainPlayer::NormalAttack);
+	EIC->BindAction(m_InputActions["UpperAttack"], ETriggerEvent::Triggered, this,&AMainPlayer::UpperAttack);
+	EIC->BindAction(m_InputActions["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
+	EIC->BindAction(m_InputActions["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
+	EIC->BindAction(m_InputActions["Dodge"], ETriggerEvent::Triggered, this,&AMainPlayer::Dodge);
+	
+	
 	m_PressedKeyInfo.Add("LeftShift",false);
-	m_PressedKeyInfo.Add("LeftMouseButton",false);
-	m_PressedKeyInfo.Add("RightMouseButton",false);
-	m_PressedKeyInfo.Add("SpaceBar",false);
-	m_PressedKeyInfo.Add("LeftCtrl",false);
-
 }

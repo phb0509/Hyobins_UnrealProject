@@ -11,7 +11,7 @@
 
 
 
-int32 attackCount = 0; // ë¡œê·¸í™•ì¸ìš©.
+int32 attackCount = 0; // ·Î±×È®ÀÎ¿ë.
 
 ACharacterBase::ACharacterBase() :
 	m_CrowdControlTime(1.0f),
@@ -46,7 +46,7 @@ void ACharacterBase::BeginPlay()
 	attackCount = 0;
 	
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	animInstance->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // DeathëŠ” Endedë¥¼ í˜¸ì¶œí•˜ì§€ì•Šê¸°ì—, ë…¸í‹°íŒŒì´ ì‹¬ì–´ì•¼í•¨.
+	animInstance->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // Death´Â Ended¸¦ È£ÃâÇÏÁö¾Ê±â¿¡, ³ëÆ¼ÆÄÀÌ ½É¾î¾ßÇÔ.
 	animInstance->End_GetUp.AddUObject(this, &ACharacterBase::OnCalledNotify_End_GetUp); 
 	
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_TakeKnockbackAttack);
@@ -69,7 +69,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
 
 	++attackCount;
-	// ë¡œê·¸
+	// ·Î±×
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(DamageAmount) + " damage from " +
 		instigator->Tags[0].ToString() + "::" + attackInformation->attackName.ToString() + "::" + FString::FromInt(attackCount);
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
@@ -83,7 +83,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 			execEvent_CommonCrowdControl(instigator);
 			
 			ECrowdControlType crowdControl = attackInformation->crowdControlType;
-			m_HitDirection = Utility::GetHitDirection(this, instigator); // í”¼ê²©ë°©í–¥ì„ ì‚°ì¶œ.
+			m_HitDirection = Utility::GetHitDirection(this, instigator); // ÇÇ°İ¹æÇâÀ» »êÃâ.
 			m_CrowdControl_Start_Delegates[crowdControl].Broadcast(instigator, attackInformation);
 		
 			if (attackInformation->knockBackDistance > 0.0f)

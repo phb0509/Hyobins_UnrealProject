@@ -37,27 +37,3 @@ void AFirstLevel::Spawn()
 	}
 }
 
-void AFirstLevel::ClearActorPool()
-{
-	m_ActorPool->ClearBlueprintActorPool();
-}
-
-void AFirstLevel::HideHPBar()
-{
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->HideWidgets("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'");
-}
-
-void AFirstLevel::ShowHPBar()
-{
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowWidgets("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'");
-}
-
-void AFirstLevel::ClearAllWidget()
-{
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowWidgets("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'");
-}
-
-void AFirstLevel::ClearHPBarWidget()
-{
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ClearAllWidgets();
-}

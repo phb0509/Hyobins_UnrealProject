@@ -6,11 +6,17 @@
 #include "Utility/CharacterBase.h"
 #include "MainPlayer.generated.h"
 
+struct FInputActionValue;
 class UMainPlayerSkillComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UBoxComponent;
 class UMotionWarpingComponent;
+struct FInputActionValue;
+class AMainPlayer;
+class UInputMappingContext;
+class UInputAction;
+//class UInputConfigData;
 
 enum class EMainPlayerStates : uint8;
 
@@ -25,26 +31,20 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
-	void RotateActorToKeyInputDirection();
-	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
-	
 	// AxisMappings
-	void Turn(float value);
-	void LookUp(float value);
-	void InputHorizontal(float value);
-	void InputVertical(float value);
+	void Move(const FInputActionValue& value);
+	void Look(const FInputActionValue& value);
 
 	// ActionMappings
-	void TriggerPressedLeftShift();
-	void TriggerReleasedLeftShift();
-	void TriggerPressedLeftMouseButton();
-	void TriggerReleasedLeftMouseButton();
-	void TriggerPressedRightMouseButton();
-	void TriggerReleasedRightMouseButton();
-	void TriggerPressedSpaceBar();
-	void TriggerPressedLeftCtrl();
-	void TriggerReleasedLeftCtrl();
-	void TriggerPressedQ();
+
+	void NormalAttack();
+	void Dodge();
+	void UpperAttack();
+	void Run();
+	void StopRun();
+
+	void RotateActorToKeyInputDirection();
+	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 	
 	FORCEINLINE void UpdateTempInput() { m_TempInputHorizontalForDodge = m_CurInputHorizontal; m_TempInputVerticalForDodge = m_CurInputVertical; }
 	
@@ -56,16 +56,7 @@ public:
 	FORCEINLINE bool GetIsPressedKey(const FName& key) const { return m_PressedKeyInfo[key]; }
 
 	
-	// Overlap시 호출시킬 바인딩 할 함수. 매개변수는 고정되어 있으므로, 바뀌면 안된다.
-	UFUNCTION()
-	void OnCalled_Overlap_SwordCollider(UPrimitiveComponent* HitComp, class AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
-	void OnCalled_Overlap_ShieldForAttackCollider(UPrimitiveComponent* HitComp, class AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnCalled_Overlap_ShieldForDefendCollider(UPrimitiveComponent* HitComp, class AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
 	
 private:
 	void initAssets();
@@ -110,6 +101,12 @@ private:
 	
 
 	// KeyInput
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput", Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputMappingContext> m_InputMappingContext;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput", Meta = (AllowPrivateAccess = true))
+	TMap<FName, TObjectPtr<UInputAction>> m_InputActions;
+
 	
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bIsPressedShift;
@@ -126,8 +123,5 @@ private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_TempInputVerticalForDodge;
 
-
-	// Tets
-	UPROPERTY(EditAnywhere)
-	TMap<FName,float> testMap;
+	
 };

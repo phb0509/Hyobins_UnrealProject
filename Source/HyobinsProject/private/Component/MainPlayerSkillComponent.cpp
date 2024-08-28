@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Component/MainPlayerSkillComponent.h"
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
-#include "Component/MainPlayerSkillComponent.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include "MotionWarpingComponent.h"
 #include "Utility/Utility.h"
@@ -12,8 +12,7 @@ const FName UMainPlayerSkillComponent::NormalAttackName = "NormalAttack";
 const FName UMainPlayerSkillComponent::NormalStrikeAttackName = "NormalStrikeAttack";
 const FName UMainPlayerSkillComponent::Dodge_NonTargeting = "Dodge_NonTargeting";
 const FName UMainPlayerSkillComponent::Dodge_Targeting = "Dodge_Targeting";
-const FName UMainPlayerSkillComponent::ParryName = "Parry";
-const FName UMainPlayerSkillComponent::ParryingAttackName = "ParryingAttack";
+
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_CurSkillState(EMainPlayerSkillStates::Idle),
@@ -50,21 +49,6 @@ void UMainPlayerSkillComponent::NormalAttack()
 			m_bHasStartedComboKeyInputCheck = false;
 			linqNextNormalAttackCombo(); // 섹션점프
 		}
-	}
-}
-
-void UMainPlayerSkillComponent::UpperAttack()
-{
-	if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
-		m_CurSkillState == EMainPlayerSkillStates::NormalAttack ||
-		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack)
-	{
-		m_CurSkillState = EMainPlayerSkillStates::UpperAttack;
-		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-		m_OwnerAnimInstance->PlayMontage("UpperAttack");
-		
-		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-		FName("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * 100.0f);
 	}
 }
 
@@ -112,6 +96,20 @@ void UMainPlayerSkillComponent::linqNextNormalAttackCombo()
 	m_OwnerAnimInstance->JumpToMontageSection(NormalAttackName, m_CurNormalAttackSection);
 }
 
+void UMainPlayerSkillComponent::UpperAttack()
+{
+	if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
+		m_CurSkillState == EMainPlayerSkillStates::NormalAttack ||
+		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack)
+	{
+		m_CurSkillState = EMainPlayerSkillStates::UpperAttack;
+		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
+		m_OwnerAnimInstance->PlayMontage("UpperAttack");
+		
+		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		FName("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * 100.0f);
+	}
+}
 
 void UMainPlayerSkillComponent::Dodge()
 {
@@ -128,49 +126,23 @@ void UMainPlayerSkillComponent::Dodge()
 	}
 }
 
-void UMainPlayerSkillComponent::Parry()
-{
-	if (m_OwnerAnimInstance->Montage_IsPlaying(m_OwnerAnimInstance->GetMontage(ParryName)))
-	{
-		m_OwnerAnimInstance->PlayMontage(ParryingAttackName);
-	
-	}
-	else
-	{
-		m_OwnerAnimInstance->PlayMontage(ParryName);
-	}
-	
-	
-	// if (m_bSucceededParrying)
-	// {
-	// 	ParryingAttack();
-	// }
-	// else
-	// {
-	// 	m_OwnerAnimInstance->PlayMontage(ParryName);
-	// 	m_bSucceededParrying = true;
-	// }
-	
-}
-
-void UMainPlayerSkillComponent::ParryingAttack()
-{
-	m_OwnerAnimInstance->PlayMontage(ParryingAttackName);
-	m_bSucceededParrying = false;
-}
 
 
 void UMainPlayerSkillComponent::ExtendShiftDecisionTime()
 {
-	m_bHasleftShiftDecision = true;
+	if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack ||
+		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack)
+	{
+		m_bHasleftShiftDecision = true;
 	
-	m_Owner->GetWorldTimerManager().SetTimer
-    	(
-    		m_ShiftDecisionTimerHandle,
-    		[this]()
-    			{ m_bHasleftShiftDecision = false; },
-    	0.1f,
-    	false);
+		m_Owner->GetWorldTimerManager().SetTimer
+			(
+				m_ShiftDecisionTimerHandle,
+				[this]()
+					{ m_bHasleftShiftDecision = false; },
+			0.1f,
+			false);
+	}
 }
 
 void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted)
