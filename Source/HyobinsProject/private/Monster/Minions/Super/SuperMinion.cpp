@@ -5,8 +5,8 @@
 #include "Monster/Minions/Super/SuperMinionAnim.h"
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Utility/EnumTypes.h"
-#include "Utility/Utility.h"
 #include "Utility/CustomStructs.h"
+#include "Utility/Utility.h"
 
 
 int32 ASuperMinion::TagCount(0);
@@ -55,20 +55,22 @@ void ASuperMinion::ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, con
 	{
 		m_AnimInstance->StopAllMontages(0.0f);
 		
-		if (m_CurState == ENormalMinionStates::Down) // 다운상태에서 피격당하면,
+		if (m_CurState == ENormalMinionStates::Down) // 다운상태에서 피격시,,
 		{
-			m_AnimInstance->PlayMontage("Down",1.0f);
+			m_AnimInstance->PlayMontage(TEXT("Down"));
 			
 		}
-		else if (m_CurState == ENormalMinionStates::KnockbackInAir) // 공중넉백시,
+		else if (m_CurState == ENormalMinionStates::KnockbackInAir) // 공중넉백상태에서 넉백공격 피격시,
 		{
+			UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: ExecEvent_TakeKnockbackAttack"));
+			
 			GetCharacterMovement()->Deactivate();
-			m_AnimInstance->PlayMontage("Knockback_Air",1.0f); 
+			m_AnimInstance->PlayMontage(TEXT("Knockback_Air")); 
 			
 			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
 				this,
 				&ASuperMinion::OnCalledTimer_KnockbackInAir_End,
-					0.3f, false); // 넉백시간만큼하면 너무 길어서 일단 0.5f로
+					0.2f, false); // 넉백시간만큼하면 너무 길어서 일단 0.3f로
 		}
 		else // 스탠딩상태에서 피격일 때
 		{
@@ -81,6 +83,21 @@ void ASuperMinion::ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, con
 					m_CrowdControlTime, false);
 		}
 	}
+}
+
+
+void ASuperMinion::OnCalledTimer_KnockbackInAir_End() // 공중넉백상태에서 넉백공격피격 시, 0.5초후 호출.
+{
+	Super::OnCalledTimer_KnockbackInAir_End();
+	
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: OnCalledTimer_KnockbackInAir_End"));
+	
+	GetCharacterMovement()->Activate();
+	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+			this,
+				&ASuperMinion::OnCalledTimer_KnockbackInAir_Loop,	
+				GetWorld()->DeltaTimeSeconds, true,-1);
+	
 }
 
 void ASuperMinion::OnCalledTimer_KnockbackOnStanding_End() // 임의로 지정한 넉백시간 끝날 때 호출.
@@ -97,30 +114,16 @@ void ASuperMinion::OnCalledTimer_KnockbackOnStanding_End() // 임의로 지정�
 	SetState(ENormalMinionStates::Chase);
 }
 
-void ASuperMinion::OnCalledTimer_KnockbackInAir_End()
-{
-	Super::OnCalledTimer_KnockbackInAir_End();
-
-	GetCharacterMovement()->Activate();
-	 UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: OnCalledTimer_KnockbackInAir_End"));
-
-	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
-			this,
-				&ASuperMinion::OnCalledTimer_KnockbackInAir_Loop,	
-				GetWorld()->DeltaTimeSeconds, true,-1);
-	
-}
-
-void ASuperMinion::OnCalledTimer_KnockbackInAir_Loop()
+void ASuperMinion::OnCalledTimer_KnockbackInAir_Loop() // 바닥에 닿을때까지 호출.
 {
 	Super::OnCalledTimer_KnockbackInAir_Loop();
 	
-	if (!GetCharacterMovement()->IsFalling()) // 땅에 닿으면
+	if (GetCharacterMovement()->IsMovingOnGround()) // 땅에 닿으면
 	{
 		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle); // 일단 타이머 끄고
 		
 		m_CurState = ENormalMinionStates::Down;
-		m_AnimInstance->PlayMontage("Down",1.0f); // 땅에 닿았을 때의 몽타주 재생.
+		m_AnimInstance->PlayMontage(TEXT("Down")); // 땅에 닿았을 때의 몽타주 재생.
 		// 끝까지 재생하면 애님인스턴스베이스에서 GetUp 재생.
 	}
 }
@@ -139,12 +142,12 @@ void ASuperMinion::ExecEvent_TakeAirborneAttack(ACharacterBase* instigator, cons
 		if (m_CurState == ENormalMinionStates::Down) // 다운상태에서 에어본공격맞으면, 모션만 재생한다. 조금 덜띄운다.
 		{
 			airbornePower.Z /= 2; // 다운상태라서 조금 덜띄운다. 없어도 상관없는 코드.
-			m_AnimInstance->PlayMontage("Down",1.0f);
+			m_AnimInstance->PlayMontage(TEXT("Down"));
 		}
 		else // 공중넉백상태거나, 스탠딩상태거나. 타이머 호출.
 		{
 			SetState(ENormalMinionStates::KnockbackInAir);
-			m_AnimInstance->PlayMontage("Knockback_Air",1.0f);
+			m_AnimInstance->PlayMontage(TEXT("Knockback_Air"));
 
 			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
 			this,
@@ -166,12 +169,12 @@ void ASuperMinion::OnCalledTimer_Airborne_Loop()
 		return;
 	}
 	
-	if (!GetCharacterMovement()->IsFalling()) // 땅에 닿으면
+	if (GetCharacterMovement()->IsMovingOnGround()) // 땅에 닿으면
 	{
 		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 		
 		m_CurState = ENormalMinionStates::Down;
-		m_AnimInstance->PlayMontage("Down",1.0f); // 땅에 닿았을 때의 몽타주 재생.
+		m_AnimInstance->PlayMontage(TEXT("Down")); // 땅에 닿았을 때의 몽타주 재생.
 		// 끝까지 재생하면 애님인스턴스베이스에서 GetUp 재생.
 	}
 }
@@ -341,18 +344,17 @@ void ASuperMinion::bindFuncOnMontagEvent()
 	}
 }
 
-void ASuperMinion::updateState()
-{
-	m_CurSpeed = GetVelocity().Size();
-}
-
 void ASuperMinion::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	updateState();
+	
 	m_DeathTimeline.TickTimeline(DeltaTime);
-
+	
+	const FString movementMode = GetCharacterMovement()->GetMovementName();
+	FString log3 = TEXT("SuperMinion Mode :: ");
+	log3 += movementMode;
+	GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	
 	// FString log = "IsFalling :: ";
 	// log += FString::FromInt(GetCharacterMovement()->IsFalling());
 	// GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
@@ -369,12 +371,8 @@ void ASuperMinion::Tick(float DeltaTime)
 	// log3 += FString::FromInt(GetCharacterMovement()->IsMovingOnGround());
 	// GEngine->AddOnScreenDebugMessage(103, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
 	//
-	// FString state = Utility::ConvertEnumToString(m_CurState);
-	// FString log5 = Tags[0].ToString() + " :: " + state;
-	// GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
-	//
-	// FString log6 = Tags[0].ToString() + " :: " + FString::SanitizeFloat(GetCharacterMovement()->GravityScale);
-	// GEngine->AddOnScreenDebugMessage(105, 7.f, FColor::Green, FString::Printf(TEXT("%s"), *log6));
-	// GEngine->AddOnScreenDebugMessage(106, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	FString state = Utility::ConvertEnumToString(m_CurState);
+	FString log5 = Tags[0].ToString() + " :: " + state;
+	GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
 	
 }

@@ -65,7 +65,6 @@ protected:
 private:
 	void initAssets();
 	void bindFuncOnMontagEvent();
-	void updateState();
 
 	
 private:

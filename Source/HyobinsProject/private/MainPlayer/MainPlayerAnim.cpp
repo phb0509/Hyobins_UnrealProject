@@ -3,6 +3,7 @@
 
 #include "MainPlayer/MainPlayerAnim.h"
 
+
 UMainPlayerAnim::UMainPlayerAnim() 
 {
 }
@@ -16,5 +17,4 @@ void UMainPlayerAnim::AnimNotify_CombatDodge_Start_Move() const
 {
 	CombatDodge_Start_Move.Broadcast();
 }
-
 

@@ -45,8 +45,8 @@ void AMainPlayer::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayer::BeginPlay"));
 	
-	SetActorLocation(FVector(0.0f, 0.0f, 150.0f));
-
+	SetActorLocation(FVector(0.0f, 0.0f, 100.0f));
+	
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
@@ -55,52 +55,57 @@ void AMainPlayer::BeginPlay()
 void AMainPlayer::Tick(float DeltaTime) // 
 {
 	Super::Tick(DeltaTime);
-
-	updateState();
+	
 	printLog();
-}
-
-
-
-void AMainPlayer::NormalAttack()
-{
-	if (GetMovementComponent()->IsMovingOnGround())
-	{
-		m_SkillComponent->NormalAttack();
-	}
-}
-
-void AMainPlayer::Dodge() 
-{
-	if (GetMovementComponent()->IsMovingOnGround())
-	{
-		m_SkillComponent->Dodge();
-	}
-}
-
-void AMainPlayer::UpperAttack()
-{
-	m_SkillComponent->UpperAttack();
 }
 
 void AMainPlayer::Run()
 {
-	m_PressedKeyInfo["LeftShift"] = true;
 	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
 }
 
 void AMainPlayer::StopRun()
 {
-	m_PressedKeyInfo["LeftShift"] = false;
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 
 	m_SkillComponent->ExtendShiftDecisionTime();
 }
 
+void AMainPlayer::Check_IsPressed_LeftShift()
+{
+	m_PressedKeyInfo["LeftShift"] = true;
+}
+
+void AMainPlayer::Check_IsReleased_LeftShift()
+{
+	m_PressedKeyInfo["LeftShift"] = false;
+}
+
+void AMainPlayer::AddInputContextMappingInAir()
+{
+	APlayerController* playerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
+
+	if (!subSystem->HasMappingContext(m_InputMappingContextInAir))
+	{
+		subSystem->AddMappingContext(m_InputMappingContextInAir,1);
+	}
+}
+
+void AMainPlayer::RemoveInputContextMappingInAir()
+{
+	APlayerController* playerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
+
+	if (subSystem->HasMappingContext(m_InputMappingContextInAir))
+	{
+		subSystem->RemoveMappingContext(m_InputMappingContextInAir);
+	}
+}
+
 void AMainPlayer::initAssets()
 {
 	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
-	
 	m_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarping"));
 	
 	// RootCapsuleComponent
@@ -181,8 +186,6 @@ void AMainPlayer::initAssets()
 	m_Colliders.Add(SwordColliderName,m_SwordCollider);
 	m_Colliders.Add(ShieldForAttackColliderName,m_ShieldForAttackCollider);
 	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForDefendCollider);
-
-
 	
 	// 이외 CharacterMovement Detail값들
 
@@ -192,7 +195,6 @@ void AMainPlayer::initAssets()
 	// true로 할 경우, 캐릭터가 움직이려는 방향으로 캐릭터를 자동으로 회전시켜 준다.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	
-
 	// 컨트롤러가 "원하는" 방향으로 캐릭터를 회전한다.
 	// 즉, 오른쪽+위를 누르면 "정확히" 45도 방향으로 캐릭터가 회전해서 이동하는 식이다.
 	// 실제로 캐릭터의 회전 방향이 "딱딱 떨어지는" 느낌을 준다.
@@ -201,13 +203,6 @@ void AMainPlayer::initAssets()
 	// 회전을 부드럽게 만들어 주기 위해 RotationRate 를 조정한다. 값이 낮을수록 카메라 회전시 캐릭터가 한박자 느리게 회전.
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
-
-	
-}
-
-void AMainPlayer::updateState()
-{
-	m_CurSpeed = GetVelocity().Size();
 }
 
 void AMainPlayer::printLog() const
@@ -215,7 +210,7 @@ void AMainPlayer::printLog() const
 	const FVector location = GetActorLocation();
 	const FVector velocity = GetVelocity();
 	const FVector forwardVector = GetActorForwardVector();
-
+	
 
 	GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
@@ -223,12 +218,11 @@ void AMainPlayer::printLog() const
 	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
 	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
-	
-	if (GetCharacterMovement()->IsFalling())
-	{
-		GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("Is Jumping!!!!!")));
-	}
 
+	const FString movementMode = GetCharacterMovement()->GetMovementName();
+	FString log3 = "MainPlyaerMovement Mode :: ";
+	log3 += movementMode;
+	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
 	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
 
@@ -270,7 +264,6 @@ void AMainPlayer::Move(const FInputActionValue& value)
 
 	m_CurInputHorizontal = movementVector.Y;
 	m_CurInputVertical = movementVector.X;
-	
 }
 
 void AMainPlayer::Look(const FInputActionValue& value)
@@ -288,21 +281,30 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 	subSystem->ClearAllMappings();
-	subSystem->AddMappingContext(m_InputMappingContext,0);
+	subSystem->AddMappingContext(m_InputMappingContextOnGround,0);
 	
 	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
 	
 	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
-	EIC->BindAction(m_InputActions["OpenEnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::ChangeEnvironmentSettingsState);
 	
-	EIC->BindAction(m_InputActions["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
-	EIC->BindAction(m_InputActions["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
+	// UI
+	EIC->BindAction(m_InputActionsOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
+	
+	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
+	EIC->BindAction(m_InputActionsOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
+	EIC->BindAction(m_InputActionsOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
+	EIC->BindAction(m_InputActionsOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
+	EIC->BindAction(m_InputActionsOnGround["IsPressed_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsPressed_LeftShift);
+	EIC->BindAction(m_InputActionsOnGround["IsReleased_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsReleased_LeftShift);
 
-	EIC->BindAction(m_InputActions["NormalAttack"], ETriggerEvent::Triggered, this,&AMainPlayer::NormalAttack);
-	EIC->BindAction(m_InputActions["UpperAttack"], ETriggerEvent::Triggered, this,&AMainPlayer::UpperAttack);
-	EIC->BindAction(m_InputActions["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
-	EIC->BindAction(m_InputActions["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
-	EIC->BindAction(m_InputActions["Dodge"], ETriggerEvent::Triggered, this,&AMainPlayer::Dodge);
+	// Skill_OnGround
+	EIC->BindAction(m_InputActionsOnGround["NormalAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_OnGround);
+	EIC->BindAction(m_InputActionsOnGround["UpperAttack"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack);
+	EIC->BindAction(m_InputActionsOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge);
+
+	// Skill_InAir
+	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
+	EIC->BindAction(m_InputActionsInAir["AirToGroundAttack"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::AirToGroundAttack_InAir);
 	
 	
 	m_PressedKeyInfo.Add("LeftShift",false);

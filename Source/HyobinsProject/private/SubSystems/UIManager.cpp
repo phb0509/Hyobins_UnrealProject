@@ -15,8 +15,6 @@ void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 
 	m_MonsterHPBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
 	m_EnvironmentSettingsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Widget_SettingPopup.Widget_SettingPopup_C'"));
-
-	int32 tt = 0;
 }
 
 void UUIManager::Deinitialize()
@@ -102,6 +100,17 @@ void UUIManager::ClearAllWidgets()
 	}
 }
 
+UEnvironmentSettings* UUIManager::GetEnvironmentSettings()
+{
+	if (m_EnvironmentSettings == nullptr)
+	{
+		CreateEnvironmentSettings();
+	}
+
+	return m_EnvironmentSettings;
+}
+
+
 void UUIManager::ShowMonsterHPBar()
 {
 	for (UUserWidget* const widget : m_UIWidgets[m_MonsterHPBarClass])
@@ -124,8 +133,10 @@ void UUIManager::ShowEnvironmentSettings()
 	{
 		CreateEnvironmentSettings();
 	}
-
+	
 	m_EnvironmentSettings->SetVisibility(ESlateVisibility::Visible);
+	m_EnvironmentSettings->SetKeyboardFocus();
+	
 }
 
 void UUIManager::HideEnvironmentSettings()

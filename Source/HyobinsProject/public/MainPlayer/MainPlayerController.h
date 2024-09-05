@@ -17,17 +17,15 @@ class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, publi
 
 public:
 	AMainPlayerController();
+
+	virtual void BeginPlay() override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	
-	void ChangeEnvironmentSettingsState();
-
-	
+	void OpenEnvironmentSettingsState();
 
 private:
 	FGenericTeamId m_TeamID;
-
-	FInputModeGameOnly m_GameInputMode;
-    FInputModeUIOnly   m_UIInputMode;
 	
+	TWeakObjectPtr<UEnvironmentSettings> m_EnvironmentSettings;
 	bool m_bIsOpenedEnvironmentSettings;
 };

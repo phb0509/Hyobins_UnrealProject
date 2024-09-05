@@ -2,7 +2,7 @@
 
 
 #include "MainPlayer/MainPlayerController.h"
-#include "Kismet/GameplayStatics.h"
+#include "UI/System/EnvironmentSettings.h"
 #include "SubSystems/UIManager.h"
 
 AMainPlayerController::AMainPlayerController():
@@ -12,27 +12,26 @@ AMainPlayerController::AMainPlayerController():
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayerController::Constructor"));
 }
 
+void AMainPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	m_EnvironmentSettings = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetEnvironmentSettings();
+}
+
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const
 {
 	return m_TeamID;
 }
 
-void AMainPlayerController::ChangeEnvironmentSettingsState()
+void AMainPlayerController::OpenEnvironmentSettingsState()
 {
-	if (m_bIsOpenedEnvironmentSettings)
+	if (!m_bIsOpenedEnvironmentSettings) // 창을 닫고 게임모드로 전환.
 	{
-		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->HideEnvironmentSettings();
-		SetShowMouseCursor(false);
-	}
-	else
-	{
-		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowEnvironmentSettings();
+		SetPause(true);
 		SetShowMouseCursor(true);
+		m_EnvironmentSettings->SetVisibility(ESlateVisibility::Visible);
 	}
 	
 	m_bIsOpenedEnvironmentSettings = !m_bIsOpenedEnvironmentSettings;
-	
-	//SetPause(true);
-	//SetInputMode(m_UIInputMode);
-	//UGameplayStatics::SetGamePaused(GetWorld(),true);
 }

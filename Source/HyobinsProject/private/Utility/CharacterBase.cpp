@@ -10,7 +10,6 @@
 #include "SubSystems/DataManager.h"
 
 
-
 int32 attackCount = 0; // 로그확인용.
 
 ACharacterBase::ACharacterBase() :
@@ -56,6 +55,16 @@ void ACharacterBase::BeginPlay()
 	
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Groggy].AddUObject(this, &ACharacterBase::ExecEvent_TakeGroggyAttack);
 	m_CrowdControl_End_Delegates[ECrowdControlType::Groggy].AddUObject(this, &ACharacterBase::OnCalledTimer_Groggy_End);
+}
+
+void ACharacterBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	m_CurSpeed = GetVelocity().Size();
+	m_bIsOnGround = GetCharacterMovement()->IsMovingOnGround();
+	m_bIsFalling = GetCharacterMovement()->IsFalling();
+	m_bIsFlying = GetCharacterMovement()->IsFlying();
 }
 
 float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

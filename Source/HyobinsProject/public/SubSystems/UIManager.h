@@ -23,18 +23,19 @@ public:
 	void CreateMonsterHPBarComponent(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FVector& relativeLocation, const FVector2D& drawSize);
 	void CreateEnvironmentSettings();
 	
-
 	void ShowMonsterHPBar();
 	void HideMonsterHPBar();
 	void ShowEnvironmentSettings();
 	void HideEnvironmentSettings();
-
 	
 	void HideWidgets(const FName& path);
 	void ShowWidgets(const FName& path);
 	void ClearWidgets(const FName& path);
 	void ClearAllWidgets(); // ¹Ì¿Ï¼º.
-	
+
+	UEnvironmentSettings* GetEnvironmentSettings();
+
+
 private:
 	TMap<TSubclassOf<UUserWidget>, TArray<UUserWidget*>> m_UIWidgets;
 

@@ -108,7 +108,7 @@ void UAnimInstanceBase::AnimNotify_End_Death() const
 
 void UAnimInstanceBase::AnimNotify_End_Down() 
 {
-	PlayMontage("GetUp",1.0f); // 땅에 닿았을 때의 몽타주 재생.
+	PlayMontage(TEXT("GetUp")); // 땅에 닿았을 때의 몽타주 재생.
 }
 
 void UAnimInstanceBase::AnimNotify_End_GetUp()

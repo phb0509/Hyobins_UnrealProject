@@ -29,6 +29,7 @@ class HYOBINSPROJECT_API ACharacterBase : public ACharacter
 public:
 	ACharacterBase();
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
 	void Attack(const FName& attackName, TWeakObjectPtr<AActor> target);
@@ -56,6 +57,10 @@ public:
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
 	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
 	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
+	FORCEINLINE bool GetIsOnGround() const { return m_bIsOnGround; }
+	FORCEINLINE bool GetIsFalling() const { return m_bIsFalling; }
+	FORCEINLINE bool GetIsFlying() const { return m_bIsFlying; }
+	
 	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
 	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) { return m_Colliders[colliderName].Get(); }
 	
@@ -116,6 +121,15 @@ protected:
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	float m_CurSpeed;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsOnGround;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsFalling;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsFlying;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsSuperArmor;

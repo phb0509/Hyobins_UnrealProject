@@ -19,7 +19,7 @@ void UNotifyState_Check_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	{
 		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-		if (m_AttackName != "Empty")
+		if (m_AttackName != TEXT("Empty"))
 		{
 			m_Owner->EmptyHitActorsByMe(m_AttackName);
 		}

@@ -36,13 +36,17 @@ public:
 	void Look(const FInputActionValue& value);
 
 	// ActionMappings
-
-	void NormalAttack();
-	void Dodge();
-	void UpperAttack();
 	void Run();
 	void StopRun();
+	void Check_IsPressed_LeftShift();
+	void Check_IsReleased_LeftShift();
 
+	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
+	void AddInputContextMappingInAir();
+
+	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
+	void RemoveInputContextMappingInAir();
+	
 	void RotateActorToKeyInputDirection();
 	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 	
@@ -57,10 +61,8 @@ public:
 
 	
 
-	
 private:
 	void initAssets();
-	void updateState();
 	void printLog() const;
 	
 public:
@@ -101,12 +103,18 @@ private:
 	
 
 	// KeyInput
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput", Meta = (AllowPrivateAccess = true))
-	TObjectPtr<UInputMappingContext> m_InputMappingContext;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputMappingContext> m_InputMappingContextOnGround;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput", Meta = (AllowPrivateAccess = true))
-	TMap<FName, TObjectPtr<UInputAction>> m_InputActions;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
+	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsOnGround;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputMappingContext> m_InputMappingContextInAir;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
+	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsInAir;
+	
 	
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bIsPressedShift;
