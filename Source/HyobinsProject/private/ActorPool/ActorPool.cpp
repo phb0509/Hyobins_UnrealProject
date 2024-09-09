@@ -46,17 +46,10 @@ void AActorPool::CreateActorPool(TSubclassOf<AActor> classType, int actorCount)
 	}
 }
 
-void AActorPool::CreateBlueprintActorPool(const FName& path, int actorCount)
+void AActorPool::CreateBlueprintActorPool(const TSubclassOf<AActor> classType, int actorCount)
 {
-	const UObject* const loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
-	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath is Not Valid"));
-
-	const UBlueprint* const blueprintActor = Cast<UBlueprint>(loadedActor);
-	checkf(IsValid(blueprintActor), TEXT("Failed to Cast to Blueprint"));
-
-	const TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
-	checkf(IsValid(blueprintActor), TEXT("Failed to Cast to Actor"));
-
+	checkf(IsValid(classType), TEXT("classType Is Not Valid"));
+	
 	if (m_BlueprintActorPool.Contains(classType)) // 이미 만들어진게 있다면
 	{
 		if (m_BlueprintActorPool[classType].actors.Num() >= actorCount) // 현재 만들어진게 요청받은것보다 많거나 같다면 -> 새로 만들필요없다.
@@ -123,20 +116,13 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(TSubclassOf<AActor> classType, con
 	return actor;
 }
 
-TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const FName& path, const FVector& spawnLocation)
+TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation)
 {
-	UObject* const loadedActor = StaticLoadObject(UObject::StaticClass(), nullptr, *path.ToString());
-	checkf(IsValid(loadedActor), TEXT("BlueprintFilePath isn't Valid"));
-
-	const UBlueprint* const blueprintActor = Cast<UBlueprint>(loadedActor);
-	checkf(IsValid(blueprintActor), TEXT("Failed to Cast to Blueprint"));
-
-	const TSubclassOf<AActor> classType = (UClass*)blueprintActor->GeneratedClass;
-	checkf(IsValid(classType), TEXT("Failed to Cast to Actor"));
+	checkf(IsValid(classType), TEXT("classType Is Not Valid"));
 
 	if (m_BlueprintActorPool.Contains(classType) == false) // 이미 만들어진적이 아예 없다면 (키값자체가 없다면)
 	{
-		CreateBlueprintActorPool(path, m_DefaultSpawnCount);
+		CreateBlueprintActorPool(classType, m_DefaultSpawnCount);
 		UE_LOG(LogTemp, Warning, TEXT("A new actor pool was created because no actor pool was created for the requested actor."));
 	}
 
@@ -160,8 +146,8 @@ TWeakObjectPtr<AActor> AActorPool::SpawnBlueprintActor(const FName& path, const 
 
 	if (actor == nullptr)
 	{
-		CreateBlueprintActorPool(path, m_BlueprintActorPool[classType].actors.Num() * 2);
-		actor = SpawnBlueprintActor(path);
+		CreateBlueprintActorPool(classType, m_BlueprintActorPool[classType].actors.Num() * 2);
+		actor = SpawnBlueprintActor(classType);
 	}
 
 	return actor;
@@ -197,4 +183,39 @@ void AActorPool::ClearBlueprintActorPool()
 	}
 
 	m_BlueprintActorPool.Empty();
+}
+
+void AActorPool::CreateUsingClass(TSubclassOf<AActor> classType)
+{
+	int32 actorCount = 10;
+	
+	if (m_BlueprintActorPool.Contains(classType)) // 이미 만들어진게 있다면
+	{
+		if (m_BlueprintActorPool[classType].actors.Num() >= actorCount) // 현재 만들어진게 요청받은것보다 많거나 같다면 -> 새로 만들필요없다.
+		{
+			return;
+		}
+		else // 현재 만들어진게 요청받은것보다 적다면
+		{
+			actorCount -= m_BlueprintActorPool[classType].actors.Num();
+		}
+	}
+	else
+	{
+		const FActors actorPool;
+		m_BlueprintActorPool.Add(classType, actorPool);
+	}
+
+	for (int i = 0; i < actorCount; ++i)
+	{
+		const FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f });
+		AActor* const spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
+		checkf(spawnedActor->GetClass()->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit IPoolableActorInterfaces."));
+
+		IPoolableActor* const castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
+		castedSpawnedActor->Initialize();
+		castedSpawnedActor->DeActivate();
+
+		m_BlueprintActorPool[classType].actors.Add(spawnedActor);
+	}
 }

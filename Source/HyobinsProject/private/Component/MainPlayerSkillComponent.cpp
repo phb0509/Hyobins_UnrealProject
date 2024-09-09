@@ -7,6 +7,9 @@
 #include "MotionWarpingComponent.h"
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "MatineeCameraShake.h"
 
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
@@ -16,9 +19,11 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_MaxNormalAttackSection(7),
 	m_bHasleftShiftDecision(false),
 	m_NormalAttackMoveDistance(120.0f),
-	m_UpperAttackToAirJumpDistance(300.0f)
+	m_UpperAttackToAirJumpDistance(300.0f),
+	m_DodgeMoveDistance(400.0f)
 {
 	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
+	
 }
 
 void UMainPlayerSkillComponent::BeginPlay()
@@ -160,7 +165,7 @@ void UMainPlayerSkillComponent::UpperAttack()
 
 			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying);
 
-			FVector targetLocation = m_Owner->GetActorLocation() +
+			const FVector targetLocation = m_Owner->GetActorLocation() +
 				(m_Owner->GetActorUpVector() * m_UpperAttackToAirJumpDistance) +
 					(m_Owner->GetActorForwardVector() * m_NormalAttackMoveDistance);
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
@@ -190,9 +195,14 @@ void UMainPlayerSkillComponent::Dodge()
 			m_Owner->RotateActorToControllerYaw(); // 카메라 정면(컨트롤러의 Yaw로 회전)
 			m_OwnerAnimInstance->StopAllMontages(0.0f); // 빠른 모션변환을 위해 현재 재생중인 몽타주 Stop.
 
-			int32 combatDodgeSection = Utility::GetDirectionIndex(m_Owner->GetCurInputVertical(), m_Owner->GetCurInputHorizontal());
+			const int32 combatDodgeSection = Utility::GetDirectionIndex(m_Owner->GetCurInputVertical(), m_Owner->GetCurInputHorizontal());
 			m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_NonTargeting"));
 			m_OwnerAnimInstance->JumpToMontageSection(TEXT("Dodge_NonTargeting"), combatDodgeSection);
+
+			const FVector targetVerticalVector = m_Owner->GetActorForwardVector() * m_DodgeMoveDistance * m_Owner->GetCurInputVertical();
+			const FVector targetHorizontalVector = m_Owner->GetActorRightVector() * m_DodgeMoveDistance * m_Owner->GetCurInputHorizontal();
+			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
 		}
 	}
 }
@@ -218,7 +228,7 @@ void UMainPlayerSkillComponent::ExtendShiftDecisionTime()
 void UMainPlayerSkillComponent::AirToGroundAttack_InAir()
 {
 	m_OwnerAnimInstance->PlayMontage(TEXT("AirToGroundAttack_InAir"));
-
+	m_Owner->GetCharacterMovement()->GravityScale = 6.0f;
 	m_Owner->GetWorldTimerManager().SetTimer
 		(
 			m_AirToGroundAttackTimer,
@@ -227,6 +237,7 @@ void UMainPlayerSkillComponent::AirToGroundAttack_InAir()
 				if (m_Owner->GetIsOnGround())
 				{
 					AirToGroundAttack_OnGround();
+					AirToGroundAttack_CollisionCheck();
 				}
 			},
 		GetWorld()->DeltaTimeSeconds,
@@ -238,6 +249,65 @@ void UMainPlayerSkillComponent::AirToGroundAttack_OnGround()
 	m_Owner->GetWorldTimerManager().ClearTimer(m_AirToGroundAttackTimer);
 	m_OwnerAnimInstance->PlayMontage(TEXT("AirToGroundAttack_OnGround"));
 }
+
+void UMainPlayerSkillComponent::AirToGroundAttack_CollisionCheck()
+{
+	FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
+	
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
+	TArray<AActor*> IgnoreActors = {m_Owner.Get()};
+	TArray<AActor*> overlappedActors;
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(),
+		startLocation,
+		500.0f, // 구체 반지름
+		ObjectTypes,
+		nullptr,
+		IgnoreActors,
+		overlappedActors);
+
+	if (overlappedActors.Num() > 0)
+	{
+		for (AActor* overlappedEnemy : overlappedActors)
+		{
+			m_Owner->Attack(TEXT("AirToGroundAttack"), overlappedEnemy);
+		}
+	}
+	
+	AirToGroundAttack_PlayEffect();
+}
+
+void UMainPlayerSkillComponent::AirToGroundAttack_PlayEffect()
+{
+	UNiagaraComponent* niagaraComponent;
+	
+	if (m_AirToGroundAttackEffect != nullptr)
+	{
+		niagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_AirToGroundAttackEffect,
+		m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation(),
+		FRotator(0.0f),FVector(1.0f, 1.0f, 1.0f)
+		);
+	}
+
+	FTimerHandle destroyTimer;
+	m_Owner->GetWorldTimerManager().SetTimer
+		(
+			destroyTimer,
+			[=]()
+			{ niagaraComponent->DeactivateImmediate(); },
+		3.0f,
+		false);
+
+	// Camera Shake
+	if (m_AirToGroundAttackCameraShake != nullptr)
+	{
+		m_Owner->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AirToGroundAttackCameraShake);
+		int tt =0;
+	}
+	
+	
+}
+
 
 void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted)
 {
@@ -268,6 +338,12 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 		m_CurNormalAttackSection = 1;
 		m_Owner->GetCharacterMovement()->SetMovementMode(
 		MOVE_Falling);
+	});
+
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("AirToGroundAttack_OnGround"),
+[this]()
+	{
+		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
 	});
 
 	

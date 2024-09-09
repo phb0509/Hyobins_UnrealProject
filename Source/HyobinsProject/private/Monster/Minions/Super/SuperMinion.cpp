@@ -120,7 +120,7 @@ void ASuperMinion::OnCalledTimer_KnockbackInAir_Loop() // 바닥에 닿을때까
 	
 	if (GetCharacterMovement()->IsMovingOnGround()) // 땅에 닿으면
 	{
-		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle); // 일단 타이머 끄고
+		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 		
 		m_CurState = ENormalMinionStates::Down;
 		m_AnimInstance->PlayMontage(TEXT("Down")); // 땅에 닿았을 때의 몽타주 재생.

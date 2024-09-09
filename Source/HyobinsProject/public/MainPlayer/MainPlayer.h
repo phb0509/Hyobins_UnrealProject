@@ -74,7 +74,7 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 	TObjectPtr<UMainPlayerSkillComponent> m_SkillComponent;
 	
-	UPROPERTY(EditAnywhere) // 충돌체들은 실시간으로 크기보정할 일이 많을 수 있기 때문에 EditAnywhere로 지정
+	UPROPERTY(EditAnywhere) 
 	TObjectPtr<UCapsuleComponent> m_SwordCollider;
 	
 	UPROPERTY(EditAnywhere)
@@ -82,6 +82,10 @@ private:
     
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_ShieldForDefendCollider;
+
+	UPROPERTY(EditAnywhere) 
+	TObjectPtr<UCapsuleComponent> m_ShieldBottomCollider;
+	
 	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;

@@ -183,9 +183,19 @@ void AMainPlayer::initAssets()
 	m_ShieldForDefendCollider->SetNotifyRigidBodyCollision(false);
 	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	
+	m_ShieldBottomCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ShieldBottomCollider"));
+	m_ShieldBottomCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
+	m_ShieldBottomCollider->SetWorldTransform(collisionTransform);
+	m_ShieldBottomCollider->SetCollisionProfileName(TEXT("ShieldBottomCollider_Player"));
+	m_ShieldBottomCollider->SetGenerateOverlapEvents(false);
+	m_ShieldBottomCollider->SetNotifyRigidBodyCollision(false);
+	m_ShieldBottomCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	m_Colliders.Add(SwordColliderName,m_SwordCollider);
 	m_Colliders.Add(ShieldForAttackColliderName,m_ShieldForAttackCollider);
 	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForDefendCollider);
+	m_Colliders.Add(TEXT("ShieldBottomCollider"),m_ShieldBottomCollider);
 	
 	// 이외 CharacterMovement Detail값들
 

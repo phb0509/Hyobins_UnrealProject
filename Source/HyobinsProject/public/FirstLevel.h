@@ -7,6 +7,7 @@
 #include "FirstLevel.generated.h"
 
 class AActorPool;
+class AMonster;
 
 UCLASS()
 class HYOBINSPROJECT_API AFirstLevel : public ALevelBase
@@ -29,4 +30,8 @@ private:
 	float m_SpawnTimerTime_MeleeMinion;
 
 	TWeakObjectPtr<AActorPool> m_ActorPool;
+
+
+	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
+	TSubclassOf<AActor> m_SuperMinionClass;
 };

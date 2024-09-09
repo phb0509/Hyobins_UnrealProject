@@ -13,10 +13,7 @@ enum class EMainPlayerStates : uint8;
 DECLARE_MULTICAST_DELEGATE(FNormalAttack_Start_EachSection_Delegate);
 
 // UpperAttack
-DECLARE_MULTICAST_DELEGATE(FUpperAttack_Start_Delegate);
-
-// CombatDodge
-DECLARE_MULTICAST_DELEGATE(FCombatDodge_Start_Move_Delegate);
+DECLARE_MULTICAST_DELEGATE(FAirToGroundAttack_CollisionCheck);
 
 
 UCLASS()
@@ -30,22 +27,17 @@ public:
 	// NormalAttack
 	UFUNCTION()
 	void AnimNotify_NormalAttack_Start_EachSection() const;
-	
-	// CombatDodge
+
+    // AirToGroundAttack
 	UFUNCTION()
-	void AnimNotify_CombatDodge_Start_Move() const;
+	void AnimNotify_AirToGroundAttack_CollisionCheck() const;
+	
+
 
 
 public:
-	// NormalAttack
 	FNormalAttack_Start_EachSection_Delegate NormalAttack_Start_EachSection;
-
-	// UpperAttack
-	FUpperAttack_Start_Delegate UpperAttack_Start;
+	FAirToGroundAttack_CollisionCheck AirToGroundAttack_CollisionCheck;
 	
-	// CombatDodge
-	FCombatDodge_Start_Move_Delegate CombatDodge_Start_Move;
-
-
-
+	
 };

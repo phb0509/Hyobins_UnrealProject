@@ -33,12 +33,12 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 	
 	if (m_Owner != nullptr)
 	{
-		TArray<AActor*> overlappingEnemies;
-		m_Owner->GetCollider(m_ColliderName)->GetOverlappingActors(overlappingEnemies);
+		TArray<AActor*> overlappedActors;
+		m_Owner->GetCollider(m_ColliderName)->GetOverlappingActors(overlappedActors);
 
-		if (overlappingEnemies.Num() > 0)
+		if (overlappedActors.Num() > 0)
 		{
-			for (AActor* overlappingEnemy : overlappingEnemies)
+			for (AActor* overlappingEnemy : overlappedActors)
 			{
 				if (!m_Owner->HasContainHitActor(m_AttackName,overlappingEnemy))
 				{

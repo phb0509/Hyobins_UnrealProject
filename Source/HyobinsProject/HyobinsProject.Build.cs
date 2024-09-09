@@ -9,7 +9,7 @@ public class HyobinsProject : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem",
-			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput" });
+			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput", "Niagara", "GameplayCameras" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

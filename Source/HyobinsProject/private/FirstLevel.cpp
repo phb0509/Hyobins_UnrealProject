@@ -24,7 +24,8 @@ void AFirstLevel::BeginPlay()
 
 void AFirstLevel::Create()
 {
-	m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 10);
+	//m_ActorPool->CreateBlueprintActorPool("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", 10);
+	m_ActorPool->CreateUsingClass(m_SuperMinionClass);
 }
 
 void AFirstLevel::Spawn()
@@ -33,7 +34,7 @@ void AFirstLevel::Spawn()
 
 	for (int i = 0; i < 1; ++i)
 	{
-		m_ActorPool->SpawnBlueprintActor("Blueprint'/Game/MonsterAsset/SuperMinion/BP_SuperMinion.BP_SuperMinion'", positions[i]);
+		m_ActorPool->SpawnBlueprintActor(m_SuperMinionClass, positions[i]);
 	}
 }
 

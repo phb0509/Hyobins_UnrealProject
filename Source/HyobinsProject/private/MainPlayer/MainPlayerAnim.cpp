@@ -13,8 +13,9 @@ void UMainPlayerAnim::AnimNotify_NormalAttack_Start_EachSection() const
 	NormalAttack_Start_EachSection.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_CombatDodge_Start_Move() const
+void UMainPlayerAnim::AnimNotify_AirToGroundAttack_CollisionCheck() const
 {
-	CombatDodge_Start_Move.Broadcast();
+	AirToGroundAttack_CollisionCheck.Broadcast();
 }
+
 
