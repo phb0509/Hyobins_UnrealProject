@@ -4,6 +4,7 @@
 #include "MainPlayer/MainPlayerController.h"
 #include "UI/System/EnvironmentSettings.h"
 #include "SubSystems/UIManager.h"
+#include "UI/System/Combo.h"
 
 AMainPlayerController::AMainPlayerController():
 	m_TeamID(FGenericTeamId(1)),
@@ -16,7 +17,8 @@ void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_EnvironmentSettings = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetEnvironmentSettings();
+	m_EnvironmentSettings = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetEnvironmentSettingsWidjet();
+	m_ComboWidjet = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetComboWidjet();
 }
 
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const

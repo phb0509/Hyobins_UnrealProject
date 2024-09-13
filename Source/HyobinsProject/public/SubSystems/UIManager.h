@@ -9,6 +9,7 @@
 class UStatComponent;
 class UHPBar;
 class UEnvironmentSettings;
+class UCombo;
 
 UCLASS()
 class HYOBINSPROJECT_API UUIManager : public UGameInstanceSubsystem
@@ -19,28 +20,33 @@ class HYOBINSPROJECT_API UUIManager : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-
-	void CreateMonsterHPBarComponent(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FVector& relativeLocation, const FVector2D& drawSize);
-	void CreateEnvironmentSettings();
 	
-	void ShowMonsterHPBar();
-	void HideMonsterHPBar();
+	void CreateEnvironmentSettings();
 	void ShowEnvironmentSettings();
 	void HideEnvironmentSettings();
+	UEnvironmentSettings* GetEnvironmentSettingsWidjet();
+
+	void CreateComboWidjet();
+	UCombo* GetComboWidjet();
+	
+	
+	void CreateMonsterHPBar(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FVector& relativeLocation, const FVector2D& drawSize);
+	void ShowMonsterHPBar();
+	void HideMonsterHPBar();
 	
 	void HideWidgets(const FName& path);
 	void ShowWidgets(const FName& path);
 	void ClearWidgets(const FName& path);
 	void ClearAllWidgets(); // ¹Ì¿Ï¼º.
 
-	UEnvironmentSettings* GetEnvironmentSettings();
-
 
 private:
 	TMap<TSubclassOf<UUserWidget>, TArray<UUserWidget*>> m_UIWidgets;
 
 	TObjectPtr<UEnvironmentSettings> m_EnvironmentSettings;
-
+	TObjectPtr<UCombo> m_Combo;
+	
 	TSubclassOf<UUserWidget> m_MonsterHPBarClass;
 	TSubclassOf<UUserWidget> m_EnvironmentSettingsClass;
+	TSubclassOf<UUserWidget> m_ComboClass;
 };

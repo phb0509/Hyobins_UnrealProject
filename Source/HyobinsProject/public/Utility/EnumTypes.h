@@ -20,20 +20,22 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
-	KnockbackOnStanding					UMETA(DisplayName = "Knockback"),
+	KnockbackOnStanding			UMETA(DisplayName = "Knockback"),
 	Groggy						UMETA(DisplayName = "Groggy"),
 	Down						UMETA(DisplayName = "Down"),
 	GetUp						UMETA(DisplayName = "GetUp"),
 	Idle 						UMETA(DisplayName = "Idle"),
-	NormalAttack				UMETA(DisplayName = "NormalAttack"),
-	NormalAttackInAir			UMETA(DisplayName = "NormalAttackInAir"),
-	UpperAttack					UMETA(DisplayName = "UpperAttack"),
-	UpperAttackToAir			UMETA(DisplayName = "UpperAttackToAir"),
-	NormalStrikeAttack			UMETA(DisplayName = "NormalStrikeAttack"),
-	Dodge_NonTargeting 			UMETA(DisplayName = "Dodge_NonTargeting"),
+	NormalAttack_OnGround				UMETA(DisplayName = "NormalAttack"),
+	NormalStrikeAttack_OnGround			UMETA(DisplayName = "NormalStrikeAttack"),
+	DashAttack_OnGround					UMETA(DisplayName = "DashAttack"),
+	UpperAttack_OnGround					UMETA(DisplayName = "UpperAttack"),
+	UpperAttack_GroundToAir			UMETA(DisplayName = "UpperAttackToAir"),
+	NormalAttack_InAir			UMETA(DisplayName = "NormalAttackInAir"),
+	EarthStrike_FallingToGround		UMETA(DisplayName = "AirToGroundAttackInAir"),
+	EarthStrike_OnGround	UMETA(DisplayName = "AirToGroundAttackOnGround"),
+	Dodge_OnGround 			UMETA(DisplayName = "Dodge_NonTargeting"),
 	Dodge_Targeting 			UMETA(DisplayName = "Dodge_Targeting"),
-	Parrying					UMETA(DisplayName = "Parrying"),
-	ParryingAttack				UMETA(DisplayName = "ParryingAttack")
+
 };
 
 

@@ -5,8 +5,9 @@
 #include "Utility/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
 #include "Component/StatComponent.h"
+#include "UI/System/Combo.h"
 
-const FName AMonster::HomePosKey(TEXT("HomePos"));
+ const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
 const FName AMonster::EnemyKey(TEXT("Enemy"));
 const FName AMonster::StateKey(TEXT("State"));
@@ -15,6 +16,15 @@ const FName AMonster::StateKey(TEXT("State"));
 AMonster::AMonster() :
 m_DiffuseRatio(1.0f)
 {
+}
+
+void AMonster::Initialize()
+{
+	// HPBar 위젯 생성 및 부착.
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget",
+		FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
+		
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetComboWidjet()->BindStatComponent(m_StatComponent);
 }
 
 void AMonster::BeginPlay()
@@ -33,12 +43,15 @@ void AMonster::execEvent_CommonCrowdControl(ACharacterBase* instigator)
 	}
 }
 
-void AMonster::Initialize()
+float AMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	 AActor* DamageCauser)
 {
-	// HPBar 위젯 생성 및 부착.
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBarComponent(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget",
-		FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
+	UE_LOG(LogTemp, Warning, TEXT("AMonster :: TakeDamage"));
+	
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
+
+
 
 void AMonster::Activate()
 {

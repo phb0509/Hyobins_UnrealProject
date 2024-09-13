@@ -62,7 +62,7 @@ void ASuperMinion::ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, con
 		}
 		else if (m_CurState == ENormalMinionStates::KnockbackInAir) // 공중넉백상태에서 넉백공격 피격시,
 		{
-			UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: ExecEvent_TakeKnockbackAttack"));
+			//UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: ExecEvent_TakeKnockbackAttack"));
 			
 			GetCharacterMovement()->Deactivate();
 			m_AnimInstance->PlayMontage(TEXT("Knockback_Air")); 
@@ -90,8 +90,6 @@ void ASuperMinion::OnCalledTimer_KnockbackInAir_End() // 공중넉백상태에�
 {
 	Super::OnCalledTimer_KnockbackInAir_End();
 	
-	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: OnCalledTimer_KnockbackInAir_End"));
-	
 	GetCharacterMovement()->Activate();
 	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
 			this,
@@ -108,7 +106,6 @@ void ASuperMinion::OnCalledTimer_KnockbackOnStanding_End() // 임의로 지정�
 		return;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: OnCalledTimer_KnockbackOnStanding_End"));
 	m_AnimInstance->StopAllMontages(0.0f);
 	m_AIController->StartBehaviorTree();
 	SetState(ENormalMinionStates::Chase);

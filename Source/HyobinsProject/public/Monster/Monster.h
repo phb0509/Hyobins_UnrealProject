@@ -20,6 +20,7 @@ public:
 
 protected:
 	virtual void execEvent_CommonCrowdControl(ACharacterBase* instigator) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;

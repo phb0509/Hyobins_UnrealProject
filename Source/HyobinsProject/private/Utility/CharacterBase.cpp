@@ -49,12 +49,11 @@ void ACharacterBase::BeginPlay()
 	animInstance->End_GetUp.AddUObject(this, &ACharacterBase::OnCalledNotify_End_GetUp); 
 	
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_TakeKnockbackAttack);
-	m_CrowdControl_End_Delegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::OnCalledTimer_KnockbackOnStanding_End);
-
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Airborne].AddUObject(this, &ACharacterBase::ExecEvent_TakeAirborneAttack);
-	
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Groggy].AddUObject(this, &ACharacterBase::ExecEvent_TakeGroggyAttack);
-	m_CrowdControl_End_Delegates[ECrowdControlType::Groggy].AddUObject(this, &ACharacterBase::OnCalledTimer_Groggy_End);
+	
+	//m_CrowdControl_End_Delegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::OnCalledTimer_KnockbackOnStanding_End);
+	//m_CrowdControl_End_Delegates[ECrowdControlType::Groggy].AddUObject(this, &ACharacterBase::OnCalledTimer_Groggy_End);
 }
 
 void ACharacterBase::Tick(float DeltaSeconds)
@@ -72,16 +71,7 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	ACharacterBase* const instigator = Cast<ACharacterBase>(EventInstigator->GetPawn());
-	checkf(IsValid(instigator), TEXT("InstigatorCharacter isn't Valid"));
-
 	const FAttackInfo* const attackInformation = static_cast<const FAttackInfo*>(&DamageEvent);
-	checkf(IsValid(DamageCauser), TEXT("DamageCauser isn't Valid"));
-
-	++attackCount;
-	// 로그
-	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(DamageAmount) + " damage from " +
-		instigator->Tags[0].ToString() + "::" + attackInformation->attackName.ToString() + "::" + FString::FromInt(attackCount);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 	
 	m_StatComponent->SetDamage(DamageAmount);
 	
@@ -102,17 +92,17 @@ float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 				dirToInstigator *= -1 * attackInformation->knockBackDistance;
 				dirToInstigator.Z = 0.0f;
 				this->SetActorLocation(GetActorLocation() + dirToInstigator, false);
-				
 			}
 		
 			m_CrowdControlTime = m_StatComponent->GetHitRecovery() * attackInformation->crowdControlTime;
-			
-			// GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
-			// 	[=]()
-			// 		{ m_CrowdControl_End_Delegates[crowdControl].Broadcast(); },
-			// 		m_CrowdControlTime, false);
 		}
 	}
+
+	// 로그
+	++attackCount;
+	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(DamageAmount) + " damage from " +
+		instigator->Tags[0].ToString() + "::" + attackInformation->attackName.ToString() + "::" + FString::FromInt(attackCount);
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 	
 	return FinalDamage;
 }

@@ -6,6 +6,7 @@
 
 UMainPlayerAnim::UMainPlayerAnim() 
 {
+	
 }
 
 void UMainPlayerAnim::AnimNotify_NormalAttack_Start_EachSection() const

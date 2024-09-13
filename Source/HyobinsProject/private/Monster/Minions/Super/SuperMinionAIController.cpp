@@ -29,7 +29,7 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 	GetAIPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), true);
 	
 	UBlackboardComponent* BlackboardComponent = Blackboard.Get();
-	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset);
+	BlackboardComponent->InitializeBlackboard(*m_BehaviorTree->BlackboardAsset); // 드래그로 레벨에 갖다놓으면 블랙보드컴포넌트가 null.
 	
 	if (UseBlackboard(m_BlackboardData.Get(), BlackboardComponent))
 	{

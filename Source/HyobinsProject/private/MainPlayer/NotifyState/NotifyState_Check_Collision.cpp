@@ -4,6 +4,8 @@
 #include "MainPlayer/NotifyState/NotifyState_Check_Collision.h"
 #include "Utility/CharacterBase.h"
 #include "Components/ShapeComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 
 UNotifyState_Check_Collision::UNotifyState_Check_Collision()
 {
@@ -44,6 +46,11 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 				{
 					m_Owner->AddHitActorsByMe(m_AttackName, overlappingEnemy);
 					m_Owner->Attack(m_AttackName, overlappingEnemy);
+
+					if (m_HitSound != nullptr)
+					{
+						UGameplayStatics::PlaySound2D(m_Owner.Get(), m_HitSound, 2.5f);
+					}
 				}
 			}
 		}

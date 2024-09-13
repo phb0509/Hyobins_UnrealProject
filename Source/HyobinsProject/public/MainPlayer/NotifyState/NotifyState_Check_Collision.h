@@ -8,6 +8,7 @@
 
 class ACharacterBase;
 class UDataManager;
+class USoundWave;
 
 UCLASS()
 class HYOBINSPROJECT_API UNotifyState_Check_Collision : public UAnimNotifyState
@@ -29,5 +30,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	FName m_AttackName;
-	
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundWave> m_HitSound;
 };

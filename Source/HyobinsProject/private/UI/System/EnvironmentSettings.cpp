@@ -2,8 +2,6 @@
 
 
 #include "UI/System/EnvironmentSettings.h"
-
-#include "Channels/MovieSceneChannelTraits.h"
 #include "SubSystems/UIManager.h"
 #include "Components/CheckBox.h"
 #include "Components/Image.h"

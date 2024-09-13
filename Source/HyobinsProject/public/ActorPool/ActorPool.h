@@ -7,6 +7,8 @@
 #include "ActorPool.generated.h"
 
 
+class IPoolableActor;
+
 USTRUCT()
 struct FActors
 {
@@ -26,20 +28,13 @@ public:
 	AActorPool();
 	
 	void CreateActorPool(TSubclassOf<AActor> classType, int actorCount);
-	void CreateBlueprintActorPool(const TSubclassOf<AActor> classType, int actorCount);
+	TWeakObjectPtr<AActor> SpawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation = { 0.0f, 0.0f, 0.0f });
 
-	TWeakObjectPtr<AActor> SpawnActor(TSubclassOf<AActor> classType, const FVector& spawnLocation = {0.0f, 0.0f, 0.0f});
-	TWeakObjectPtr<AActor> SpawnBlueprintActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation = { 0.0f, 0.0f, 0.0f });
-
-	void ClearActorPool();
 	void ClearBlueprintActorPool();
 
-	void CreateUsingClass(TSubclassOf<AActor> classType);
-	
-private:
-	UPROPERTY(VisibleInstanceOnly)
-	TMap<TSubclassOf<AActor>, FActors> m_ActorPool;
 
+
+private:
 	UPROPERTY(VisibleInstanceOnly)
 	TMap<TSubclassOf<AActor>, FActors> m_BlueprintActorPool;
 

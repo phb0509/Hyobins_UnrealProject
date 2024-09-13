@@ -7,8 +7,19 @@
 /Plugins
 *.sln
 *_BuiltData.uasset
-Assets
 /Sword_and_Shield.png
 /HyobinsProject.zip
-/Content/Assets
+/Content/Assets/BlinkAndDashVFX
+/Content/Assets/BossEnemy
+/Content/Assets/FXVarietyPack
+/Content/Assets/InfinityBladeEffects
+/Content/Assets/ParagonGreystone
+/Content/Assets/ParagonMinions
+/Content/Assets/ParagonSevarog
+/Content/Assets/MegaMagicVFXBundle
+/Content/Assets/Realistic_Starter_VFX_Pack_Vol2
+/Content/Assets/Sword_and_Shield
+
+
+
 

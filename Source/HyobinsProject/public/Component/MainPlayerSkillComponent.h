@@ -12,6 +12,7 @@ class UMainPlayerAnim;
 class UNiagaraSystem;
 class UNiagaraComponent;
 class UCameraShakeBase;
+class USoundWave;
 
 enum class EMainPlayerSkillStates : uint8;
 struct FMontageFunc;
@@ -28,18 +29,18 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
-	void NormalAttack();
 	void NormalAttack_OnGround();
 	void NormalAttack_InAir();
-	void UpperAttack();
+	void UpperAttack_OnGround();
+	void DashAttack_OnGround();
 	void ExtendShiftDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
 	
-	void AirToGroundAttack_InAir();
-	void AirToGroundAttack_OnGround();
-	void AirToGroundAttack_CollisionCheck();
-	void AirToGroundAttack_PlayEffect();
+	void EarthStrike_InAir();
+	void EarthStrike_OnGround();
+	void EarthStrike_HitCheck();
+	void EarthStrike_PlayEffect();
 	
-	void Dodge();
+	void Dodge_OnGround();
 
 	
 	//NormalAttack
@@ -73,26 +74,32 @@ private:
 	bool m_bHasleftShiftDecision;
 	FTimerHandle m_ShiftDecisionTimerHandle;
 
-	UPROPERTY(EditAnywhere, Category = "NormalAttack")
-	float m_NormalAttackMoveDistance;
+	UPROPERTY(EditAnywhere, Category = "NormalAttack_OnGround")
+	float m_NormalAttackOnGroundMoveDistance;
 	
 	// UpperAttack
-	UPROPERTY(EditAnywhere, Category = "UpperAttackToAir")
-	float m_UpperAttackToAirJumpDistance;
+	UPROPERTY(EditAnywhere, Category = "UpperAttack_GroundToAir")
+	float m_UpperAttackGroundToAirJumpDistance;
 
+	UPROPERTY(EditAnywhere, Category = "DashAttack_OnGround")
+	float m_DashAttackOnGroundMoveDistance;
+	
 	// AirToGroundAttack
-	FTimerHandle m_AirToGroundAttackTimer;
+	FTimerHandle m_EarthStrikeTimer;
 	
-	UPROPERTY(EditAnywhere, Category = "AirToGroundAttack | Effect")
-	TObjectPtr<UNiagaraSystem> m_AirToGroundAttackEffect;
+	UPROPERTY(EditAnywhere, Category = "EarthStrike | Effect")
+	TObjectPtr<UNiagaraSystem> m_EarthStrikeEffect;
 	
-	UPROPERTY(EditAnywhere, Category = "AirToGroundAttack | CameraShake")
-	TSubclassOf<UMatineeCameraShake> m_AirToGroundAttackCameraShake;
+	UPROPERTY(EditAnywhere, Category = "EarthStrike | CameraShake")
+	TSubclassOf<UMatineeCameraShake> m_EarthStrikeCameraShake;
 
+	UPROPERTY(EditAnywhere, Category = "EarthStrike | CameraShake")
+	TObjectPtr<USoundWave> m_EarthStrikeSound;
+	
 	// Dodge
-	float m_DodgeMoveDistance;
+	float m_DodgeOnGroundMoveDistance;
 
-	//Effect
+	
 	
 };
 

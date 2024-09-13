@@ -9,6 +9,7 @@
 
 
 class UEnvironmentSettings;
+class UCombo;
 
 UCLASS()
 class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, public IGenericTeamAgentInterface
@@ -28,4 +29,6 @@ private:
 	
 	TWeakObjectPtr<UEnvironmentSettings> m_EnvironmentSettings;
 	bool m_bIsOpenedEnvironmentSettings;
+
+	TWeakObjectPtr<UCombo> m_ComboWidjet;
 };
