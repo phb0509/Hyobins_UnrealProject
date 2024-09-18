@@ -24,7 +24,7 @@ void AFirstLevel::BeginPlay()
 
 void AFirstLevel::Create()
 {
-	m_ActorPool->CreateActorPool(m_MonsterClass,10);
+	m_ActorPool->CreateActorPool(m_MonsterClass,5);
 }
 
 void AFirstLevel::Spawn()

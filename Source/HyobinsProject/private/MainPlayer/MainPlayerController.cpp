@@ -10,7 +10,7 @@ AMainPlayerController::AMainPlayerController():
 	m_TeamID(FGenericTeamId(1)),
 	m_bIsOpenedEnvironmentSettings(false)
 {
-	UE_LOG(LogTemp, Warning, TEXT("MainPlayerController::Constructor"));
+	
 }
 
 void AMainPlayerController::BeginPlay()
@@ -18,7 +18,6 @@ void AMainPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	m_EnvironmentSettings = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetEnvironmentSettingsWidjet();
-	m_ComboWidjet = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetComboWidjet();
 }
 
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const
@@ -28,7 +27,7 @@ FGenericTeamId AMainPlayerController::GetGenericTeamId() const
 
 void AMainPlayerController::OpenEnvironmentSettingsState()
 {
-	if (!m_bIsOpenedEnvironmentSettings) // 창을 닫고 게임모드로 전환.
+	if (!m_bIsOpenedEnvironmentSettings) // 환경설정창 오픈.
 	{
 		SetPause(true);
 		SetShowMouseCursor(true);

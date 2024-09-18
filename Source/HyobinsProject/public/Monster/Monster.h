@@ -36,7 +36,7 @@ public:
 	static const FName NormalAttackSpeedKey;
 
 protected:
-	float m_DiffuseRatio;
+	FTimerHandle m_DiffuseRatioOnHitTimer;
 	
 private:
 	TWeakObjectPtr<AAIControllerBase> m_AIControllerBase;

@@ -40,7 +40,7 @@ FReply UEnvironmentSettings::NativeOnMouseButtonDown(const FGeometry& InGeometry
 
 void UEnvironmentSettings::CloseEnvironmentSettings()
 {
-	SetKeyboardFocus();
+	SetKeyboardFocus(); 
 }
 
 FReply UEnvironmentSettings::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
@@ -48,7 +48,7 @@ FReply UEnvironmentSettings::NativeOnKeyDown(const FGeometry& InGeometry, const 
 	FKey inputKey = InKeyEvent.GetKey();
 	FString keyString = inputKey.GetFName().ToString();
 	
-	if (keyString == "P")
+	if (keyString == "P") // 환경설정창을 닫고 게임진행.
 	{
 		GetOwningPlayer()->SetPause(false);
 		GetOwningPlayer()->SetShowMouseCursor(false);

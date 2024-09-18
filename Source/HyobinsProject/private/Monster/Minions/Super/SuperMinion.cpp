@@ -199,14 +199,14 @@ void ASuperMinion::Die()
 	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-void ASuperMinion::ExecEvent_EndedDeathMontage() // 사망몽타주 재생완료 후 호출.
+void ASuperMinion::ExecEvent_EndedDeathMontage() // 사망몽타주 재생완료 후 호출.		
 {
 	m_DeathTimeline.Play();
 }
 
 void ASuperMinion::OnCalledTimelineEvent_Loop_AfterDeath(float curveValue)
 {
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), 1-(curveValue*2));
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatioOnDeath"), 1-(curveValue*2));
 }
 
 void ASuperMinion::OnCalledTimelineEvent_End_AfterDeath()
@@ -232,7 +232,6 @@ void ASuperMinion::SetState(ENormalMinionStates state)
 	m_AIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
 }
 
-
 void ASuperMinion::Activate()
 {
 	Super::Activate();
@@ -247,6 +246,61 @@ void ASuperMinion::DeActivate()
 	Super::DeActivate();
 
 	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ASuperMinion::bindFuncOnMontagEvent()
+{
+	if (m_AnimInstance != nullptr)
+	{
+		// NormalAttack
+		m_AnimInstance->BindFunc_OnMontageEnded(TEXT("NormalAttack0"), this,TEXT("OnCalled_NormalAttack_End"));
+		m_AnimInstance->BindFunc_OnMontageEnded(TEXT("NormalAttack1"), this,TEXT("OnCalled_NormalAttack_End"));
+	}
+
+	if (m_DeathCurveFloat != nullptr)
+	{
+		m_DeathTimeline.SetLooping(false);
+		
+		FOnTimelineFloat afterDeathTimeline_Loop;
+		afterDeathTimeline_Loop.BindDynamic(this, &ASuperMinion::OnCalledTimelineEvent_Loop_AfterDeath);
+		m_DeathTimeline.AddInterpFloat(m_DeathCurveFloat, afterDeathTimeline_Loop);
+
+		FOnTimelineEvent afterDeathTimeline_End;
+		afterDeathTimeline_End.BindDynamic(this, &ASuperMinion::OnCalledTimelineEvent_End_AfterDeath);
+		m_DeathTimeline.SetTimelineFinishedFunc(afterDeathTimeline_End);
+	}
+}
+
+void ASuperMinion::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	m_DeathTimeline.TickTimeline(DeltaTime);
+	
+	const FString movementMode = GetCharacterMovement()->GetMovementName();
+	FString log3 = TEXT("SuperMinion Mode :: ");
+	log3 += movementMode;
+	GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	
+	// FString log = "IsFalling :: ";
+	// log += FString::FromInt(GetCharacterMovement()->IsFalling());
+	// GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	//
+	// FString log1 = "IsFlying :: ";
+	// log1 += FString::FromInt(GetCharacterMovement()->IsFlying());
+	// GEngine->AddOnScreenDebugMessage(101, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
+	//
+	// FString log2 = "IsWalking :: ";
+	// log2 += FString::FromInt(GetCharacterMovement()->IsWalking());
+	// GEngine->AddOnScreenDebugMessage(102, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	//
+	// FString log3 = "IsMovingOnGround?? :: ";
+	// log3 += FString::FromInt(GetCharacterMovement()->IsMovingOnGround());
+	// GEngine->AddOnScreenDebugMessage(103, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	//
+	FString state = Utility::ConvertEnumToString(m_CurState);
+	FString log5 = Tags[0].ToString() + " :: " + state;
+	GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
 }
 
 void ASuperMinion::initAssets()
@@ -316,60 +370,4 @@ void ASuperMinion::initAssets()
 	m_Colliders.Add(HitColliderName, m_HitCollider);
 	m_Colliders.Add(LeftSwordColliderName, m_LeftSwordCollider);
 	m_Colliders.Add(RightSwordColliderName, m_RightSwordCollider);
-}
-
-void ASuperMinion::bindFuncOnMontagEvent()
-{
-	if (m_AnimInstance != nullptr)
-	{
-		// NormalAttack
-		m_AnimInstance->BindFunc_OnMontageEnded(TEXT("NormalAttack0"), this,TEXT("OnCalled_NormalAttack_End"));
-		m_AnimInstance->BindFunc_OnMontageEnded(TEXT("NormalAttack1"), this,TEXT("OnCalled_NormalAttack_End"));
-	}
-
-	if (m_DeathCurveFloat != nullptr)
-	{
-		m_DeathTimeline.SetLooping(false);
-		
-		FOnTimelineFloat afterDeathTimeline_Loop;
-		afterDeathTimeline_Loop.BindDynamic(this, &ASuperMinion::OnCalledTimelineEvent_Loop_AfterDeath);
-		m_DeathTimeline.AddInterpFloat(m_DeathCurveFloat, afterDeathTimeline_Loop);
-
-		FOnTimelineEvent afterDeathTimeline_End;
-		afterDeathTimeline_End.BindDynamic(this, &ASuperMinion::OnCalledTimelineEvent_End_AfterDeath);
-		m_DeathTimeline.SetTimelineFinishedFunc(afterDeathTimeline_End);
-	}
-}
-
-void ASuperMinion::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	
-	m_DeathTimeline.TickTimeline(DeltaTime);
-	
-	const FString movementMode = GetCharacterMovement()->GetMovementName();
-	FString log3 = TEXT("SuperMinion Mode :: ");
-	log3 += movementMode;
-	GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	
-	// FString log = "IsFalling :: ";
-	// log += FString::FromInt(GetCharacterMovement()->IsFalling());
-	// GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-	//
-	// FString log1 = "IsFlying :: ";
-	// log1 += FString::FromInt(GetCharacterMovement()->IsFlying());
-	// GEngine->AddOnScreenDebugMessage(101, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
-	//
-	// FString log2 = "IsWalking :: ";
-	// log2 += FString::FromInt(GetCharacterMovement()->IsWalking());
-	// GEngine->AddOnScreenDebugMessage(102, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
-	//
-	// FString log3 = "IsMovingOnGround?? :: ";
-	// log3 += FString::FromInt(GetCharacterMovement()->IsMovingOnGround());
-	// GEngine->AddOnScreenDebugMessage(103, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	//
-	FString state = Utility::ConvertEnumToString(m_CurState);
-	FString log5 = Tags[0].ToString() + " :: " + state;
-	GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
-	
 }

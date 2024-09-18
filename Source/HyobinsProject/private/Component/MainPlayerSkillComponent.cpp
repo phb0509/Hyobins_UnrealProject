@@ -143,31 +143,34 @@ void UMainPlayerSkillComponent::linqNextNormalAttackInAirCombo()
 
 void UMainPlayerSkillComponent::UpperAttack_OnGround()
 {
-	if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
+	if (m_Owner->GetIsOnGround())
+	{
+		if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
 		m_CurSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
 		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
-	{
-		m_Owner->RotateActorToKeyInputDirection(); 
+		{
+			m_Owner->RotateActorToKeyInputDirection(); 
 		
-		if (m_Owner->GetIsPressedKey(TEXT("LeftShift")))
-		{
-			m_CurSkillState = EMainPlayerSkillStates::UpperAttack_GroundToAir;
-			m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
+			if (m_Owner->GetIsPressedKey(TEXT("LeftShift")))
+			{
+				m_CurSkillState = EMainPlayerSkillStates::UpperAttack_GroundToAir;
+				m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
+				m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying);
 
-			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying);
-
-			const FVector targetLocation = m_Owner->GetActorLocation() +
-				(m_Owner->GetActorUpVector() * m_UpperAttackGroundToAirJumpDistance) +
-					(m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), targetLocation);
-		}
-		else
-		{
-			m_CurSkillState = EMainPlayerSkillStates::UpperAttack_OnGround;
-			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
+				const FVector targetLocation = m_Owner->GetActorLocation() +
+					(m_Owner->GetActorUpVector() * m_UpperAttackGroundToAirJumpDistance) +
+						(m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
+				m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+				TEXT("Forward"), targetLocation);
+			}
+			else
+			{
+				m_CurSkillState = EMainPlayerSkillStates::UpperAttack_OnGround;
+				m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
+			
+				m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+				TEXT("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
+			}
 		}
 	}
 }
@@ -179,6 +182,7 @@ void UMainPlayerSkillComponent::DashAttack_OnGround()
 		m_CurSkillState = EMainPlayerSkillStates::DashAttack_OnGround;
 		m_Owner->RotateActorToKeyInputDirection(); 
 		m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
+		
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 				TEXT("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_DashAttackOnGroundMoveDistance);
 	}

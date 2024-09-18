@@ -14,6 +14,7 @@ class UStatComponent;
 class AAIControllerBase;
 class UAIPerceptionComponent;
 class UShapeComponent;
+class UNiagaraSystem;
 
 struct FAttackInfo;
 enum class ECrowdControlType : uint8;
@@ -136,5 +137,7 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsDead;
-	
+
+	UPROPERTY(EditAnywhere, Category = "HitEffect")
+	TObjectPtr<UNiagaraSystem> m_HitEffect;
 };

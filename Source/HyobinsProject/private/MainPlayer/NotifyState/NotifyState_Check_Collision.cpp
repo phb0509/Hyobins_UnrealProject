@@ -19,8 +19,8 @@ void UNotifyState_Check_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	m_Owner = Cast<ACharacterBase>(MeshComp->GetOwner());
 	if (m_Owner != nullptr)
 	{
-		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
+		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
 		if (m_AttackName != TEXT("Empty"))
 		{
 			m_Owner->EmptyHitActorsByMe(m_AttackName);
@@ -37,7 +37,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 	{
 		TArray<AActor*> overlappedActors;
 		m_Owner->GetCollider(m_ColliderName)->GetOverlappingActors(overlappedActors);
-
+		
 		if (overlappedActors.Num() > 0)
 		{
 			for (AActor* overlappingEnemy : overlappedActors)

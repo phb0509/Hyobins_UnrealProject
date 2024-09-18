@@ -24,11 +24,12 @@ public:
 	void CreateEnvironmentSettings();
 	void ShowEnvironmentSettings();
 	void HideEnvironmentSettings();
-	UEnvironmentSettings* GetEnvironmentSettingsWidjet();
+	FORCEINLINE UEnvironmentSettings* GetEnvironmentSettingsWidjet();
 
 	void CreateComboWidjet();
-	UCombo* GetComboWidjet();
-	
+	void BindStatComponentToComboWidget(UStatComponent* const statComponent);
+
+	void RenderDamageToScreen(const FVector& worldPosition, float damage);
 	
 	void CreateMonsterHPBar(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FVector& relativeLocation, const FVector2D& drawSize);
 	void ShowMonsterHPBar();
@@ -41,7 +42,8 @@ public:
 
 
 private:
-	TMap<TSubclassOf<UUserWidget>, TArray<UUserWidget*>> m_UIWidgets;
+	//TMap<TSubclassOf<UUserWidget>, TArray<UUserWidget*>> m_UIWidgets;
+	TMap<TSubclassOf<UUserWidget>, TArray<TWeakObjectPtr<UUserWidget>>> m_UIWidgets;
 
 	TObjectPtr<UEnvironmentSettings> m_EnvironmentSettings;
 	TObjectPtr<UCombo> m_Combo;
@@ -49,4 +51,5 @@ private:
 	TSubclassOf<UUserWidget> m_MonsterHPBarClass;
 	TSubclassOf<UUserWidget> m_EnvironmentSettingsClass;
 	TSubclassOf<UUserWidget> m_ComboClass;
+	TSubclassOf<UUserWidget> m_DamageClass;
 };

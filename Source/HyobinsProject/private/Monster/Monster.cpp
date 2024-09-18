@@ -5,26 +5,16 @@
 #include "Utility/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
 #include "Component/StatComponent.h"
-#include "UI/System/Combo.h"
 
- const FName AMonster::HomePosKey(TEXT("HomePos"));
+
+const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
 const FName AMonster::EnemyKey(TEXT("Enemy"));
 const FName AMonster::StateKey(TEXT("State"));
 
 
-AMonster::AMonster() :
-m_DiffuseRatio(1.0f)
+AMonster::AMonster()
 {
-}
-
-void AMonster::Initialize()
-{
-	// HPBar 위젯 생성 및 부착.
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget",
-		FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
-		
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetComboWidjet()->BindStatComponent(m_StatComponent);
 }
 
 void AMonster::BeginPlay()
@@ -46,12 +36,34 @@ void AMonster::execEvent_CommonCrowdControl(ACharacterBase* instigator)
 float AMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	 AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AMonster :: TakeDamage"));
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f);
+
+	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
+	this->GetWorldTimerManager().SetTimer
+		(
+			m_DiffuseRatioOnHitTimer,
+			[this]()
+			{ GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 1.0f); },
+		0.25f,
+		false);
+
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->RenderDamageToScreen(this->GetActorLocation(), DamageAmount);
+
 	
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 
+void AMonster::Initialize()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AMonster :: Initialize"));
+	
+	// HPBar 위젯 생성 및 부착.
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget",
+		FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
+		
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindStatComponentToComboWidget(m_StatComponent);
+}
 
 void AMonster::Activate()
 {
@@ -61,8 +73,8 @@ void AMonster::Activate()
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->StartBehaviorTree();
 	
-	m_DiffuseRatio = 1.0f;
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), m_DiffuseRatio);
+	
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), 1.0f);
 
 	// 충돌체들 활성화
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
