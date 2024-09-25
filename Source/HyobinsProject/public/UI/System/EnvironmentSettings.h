@@ -6,7 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "EnvironmentSettings.generated.h"
 
-class UImage;
 class UCheckBox;
 
 
@@ -22,17 +21,15 @@ public:
 	void ChangeMonsterHPBarState(bool bIsChecked);
 	
 	virtual FReply NativeOnKeyDown( const FGeometry& InGeometry, const FKeyEvent& InKeyEvent ) override;
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	
-	UFUNCTION()
-	void CloseEnvironmentSettings();
+	void Open();
+	void Close();
 	
+
 private:
 	UPROPERTY(BlueprintReadWrite, Meta = (BindWidget), Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCheckBox> m_bHideCheckBox;
-
-	UPROPERTY(BlueprintReadWrite, Meta = (BindWidget), Meta = (AllowPrivateAccess = true))
-	TObjectPtr<UImage> m_BackGroundImage;
+	
 };
 
 

@@ -9,6 +9,8 @@
 #include "UI/System/EnvironmentSettings.h"
 #include "UI/System/Combo.h"
 #include "UI/System/Damage.h"
+#include "Utility/CharacterBase.h"
+#include "Utility/CustomStructs.h"
 
 
 void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -26,46 +28,11 @@ void UUIManager::Deinitialize()
 	Super::Deinitialize();
 }
 
-void UUIManager::CreateEnvironmentSettings()
+void UUIManager::OpenEnvironmentSettings()
 {
-	if (m_EnvironmentSettings != nullptr) return;
-	
-	m_EnvironmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), m_EnvironmentSettingsClass));
-	m_EnvironmentSettings->AddToViewport();
-	m_EnvironmentSettings->SetVisibility(ESlateVisibility::Collapsed);
-
-	
-}
-
-UEnvironmentSettings* UUIManager::GetEnvironmentSettingsWidjet()
-{
-	if (m_EnvironmentSettings == nullptr)
-	{
-		CreateEnvironmentSettings();
-	}
-
-	return m_EnvironmentSettings;
-}
-
-void UUIManager::ShowEnvironmentSettings()
-{
-	if (m_EnvironmentSettings == nullptr)
-	{
-		CreateEnvironmentSettings();
-	}
-	
-	m_EnvironmentSettings->SetVisibility(ESlateVisibility::Visible);
-	m_EnvironmentSettings->SetKeyboardFocus();
-}
-
-void UUIManager::HideEnvironmentSettings()
-{
-	if (m_EnvironmentSettings == nullptr)
-	{
-		CreateEnvironmentSettings();
-	}
-
-	m_EnvironmentSettings->SetVisibility(ESlateVisibility::Collapsed);
+	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), m_EnvironmentSettingsClass));
+	environmentSettings->AddToViewport();
+	environmentSettings->Open();
 }
 
 void UUIManager::CreateComboWidjet()
@@ -78,25 +45,25 @@ void UUIManager::CreateComboWidjet()
 }
 
 
-void UUIManager::BindStatComponentToComboWidget(UStatComponent* const statComponent)
+void UUIManager::BindActorToComboWidget(ACharacterBase* const hitActor)
 {
 	if (m_Combo == nullptr)
 	{
 		CreateComboWidjet();
 	}
 	
-	m_Combo->BindStatComponent(statComponent);
+	m_Combo->BindActor(hitActor);
 }
 
-void UUIManager::RenderDamageToScreen(const FVector& worldPosition, float damage)
+void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 {
 	UDamage* damageWidget = Cast<UDamage>(CreateWidget(GetWorld(), m_DamageClass));
 	
 	FVector2D screenPosition;
-	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(worldPosition, screenPosition);
+	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(hitInfo.hitActorLocation, screenPosition);
 	screenPosition.Y -= 100.0f;
 	damageWidget->SetPositionInViewport(screenPosition);
-	damageWidget->SetDamage(damage);
+	damageWidget->SetDamage(hitInfo.damage);
 	damageWidget->AddToViewport();
 	damageWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 	
@@ -110,6 +77,11 @@ void UUIManager::RenderDamageToScreen(const FVector& worldPosition, float damage
 			},
 		1.0f,
 		false);
+}
+
+void UUIManager::BindActorToDamageWidget(ACharacterBase* const hitActor)
+{
+	hitActor->OnTakeDamage.AddUObject(this, &UUIManager::RenderDamageToScreen);
 }
 
 

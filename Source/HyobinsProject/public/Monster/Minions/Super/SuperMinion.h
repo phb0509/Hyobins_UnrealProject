@@ -36,15 +36,15 @@ public:
 	void SetState(ENormalMinionStates state);
 
 protected:
-	virtual void ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo) override;
+	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
 	virtual void OnCalledTimer_KnockbackOnStanding_End() override;
 	virtual void OnCalledTimer_KnockbackInAir_Loop() override;
 	virtual void OnCalledTimer_KnockbackInAir_End() override;
 
-	virtual void ExecEvent_TakeAirborneAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo) override;
+	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
 	virtual void OnCalledTimer_Airborne_Loop() override;
 	
-	virtual void ExecEvent_TakeGroggyAttack(ACharacterBase* instigatorconst, const FAttackInfo* attackInfo) override;
+	virtual void ExecEvent_TakeGroggyAttack(const ACharacterBase* instigatorconst, const FAttackInformation* attackInfo) override;
 	virtual void OnCalledTimer_Groggy_End() override;
 	
 	virtual void Die() override;

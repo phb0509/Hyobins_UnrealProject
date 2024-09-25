@@ -10,16 +10,19 @@
 #include <Components/BoxComponent.h>
 #include "CharacterBase.generated.h"
 
+class ACharacterBase;
 class UStatComponent;
 class AAIControllerBase;
 class UAIPerceptionComponent;
 class UShapeComponent;
 class UNiagaraSystem;
 
-struct FAttackInfo;
+struct FHitInformation;
+struct FAttackInformation;
 enum class ECrowdControlType : uint8;
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, ACharacterBase*, const FAttackInfo*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, const ACharacterBase*, const FAttackInformation*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTakeDamage, const FHitInformation&);
 DECLARE_MULTICAST_DELEGATE(FOnCrowdControl_End_Delegate);
 
 UCLASS(abstract)
@@ -31,10 +34,9 @@ public:
 	ACharacterBase();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator);
 	
 	void Attack(const FName& attackName, TWeakObjectPtr<AActor> target);
-
 	
 	bool HasContainHitActor(const FName& attackName, AActor* hitActor)
 	{
@@ -64,18 +66,18 @@ public:
 	
 	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
 	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) { return m_Colliders[colliderName].Get(); }
+
 	
 protected:
-	
-	virtual void ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo){};
+	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) {}
 	virtual void OnCalledTimer_KnockbackOnStanding_End() {};
 	virtual void OnCalledTimer_KnockbackInAir_Loop() {};
 	virtual void OnCalledTimer_KnockbackInAir_End() {};
 
-	virtual void ExecEvent_TakeAirborneAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo){};
+	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) {}
 	virtual void OnCalledTimer_Airborne_Loop() {};
 	
-	virtual void ExecEvent_TakeGroggyAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo){};
+	virtual void ExecEvent_TakeGroggyAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) {}
 	virtual void OnCalledTimer_Groggy_End() {};
 	
 	virtual void ExecEvent_OnHPIsZero();
@@ -88,8 +90,10 @@ protected:
 	virtual void OnCalledTimer_EndedDeathMontage() {}; 
 
 private:
-	virtual void execEvent_CommonCrowdControl(ACharacterBase* instigator) {};
+	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) {};
 
+public:
+	FOnTakeDamage OnTakeDamage;
 	
 protected:
 	TMap<FName, TMap<TWeakObjectPtr<AActor>, bool>> m_HitActorsByMe;
@@ -106,10 +110,9 @@ protected:
 	
 	FTimerHandle m_CrowdControlTimerHandle;
 	float m_CrowdControlTime;
-	
 	int32 m_HitDirection;
 	
-	FTimeline m_DeathTimeline;					// Timeline 생성
+	FTimeline m_DeathTimeline;					
 
 	UPROPERTY(EditAnywhere, Category = "Timeline | Death")
 	UCurveFloat* m_DeathCurveFloat;	

@@ -29,8 +29,8 @@ ACharacterBase::ACharacterBase() :
 			FOnCrowdControl_Start_Delegate startDelegate;
 			m_CrowdControl_Start_Delegates.Add(state,startDelegate);
 
-			FOnCrowdControl_End_Delegate endDelegate;
-			m_CrowdControl_End_Delegates.Add(state,endDelegate);
+			// FOnCrowdControl_End_Delegate endDelegate;
+			// m_CrowdControl_End_Delegates.Add(state,endDelegate);
 		}
 	}
 	
@@ -66,45 +66,53 @@ void ACharacterBase::Tick(float DeltaSeconds)
 	m_bIsFlying = GetCharacterMovement()->IsFlying();
 }
 
-float ACharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
 {
-	const float FinalDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	ACharacterBase* const instigator = Cast<ACharacterBase>(EventInstigator->GetPawn());
-	const FAttackInfo* const attackInformation = static_cast<const FAttackInfo*>(&DamageEvent);
+	ACharacterBase* targetActor = Cast<ACharacterBase>(target);
+	const UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
+	const FAttackInformation* attackInfo = dataManager->GetAttackInformation(this->GetClass(), attackName);
 	
-	m_StatComponent->SetDamage(DamageAmount);
+	const bool bIsCriticalAttack = FMath::FRandRange(0, 100) <= m_StatComponent->GetCriticalAttackChance();
+	const float finalDamage = (m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio) * (bIsCriticalAttack ? 2.0f : 1.0f);
+	
+	targetActor->OnDamage(finalDamage, bIsCriticalAttack, attackInfo, this);
+}
+
+void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, const ACharacterBase* instigator)
+{
+	const FHitInformation hitInfo = { attackInfo->attackName, this->Tags[0], this->GetActorLocation(), damage, bIsCriticalAttack};
+	
+	OnTakeDamage.Broadcast(hitInfo);
+	m_StatComponent->SetDamage(damage);
 	
 	if (!m_bIsDead)
 	{
-		if (attackInformation->bHasCrowdControl)
+		if (attackInfo->bHasCrowdControl)
 		{
 			execEvent_CommonCrowdControl(instigator);
 			
-			ECrowdControlType crowdControl = attackInformation->crowdControlType;
+			ECrowdControlType crowdControl = attackInfo->crowdControlType;
 			m_HitDirection = Utility::GetHitDirection(this, instigator); // 피격방향을 산출.
-			m_CrowdControl_Start_Delegates[crowdControl].Broadcast(instigator, attackInformation);
+			m_CrowdControl_Start_Delegates[crowdControl].Broadcast(instigator, attackInfo);
 		
-			if (attackInformation->knockBackDistance > 0.0f)
+			if (attackInfo->knockBackDistance > 0.0f)
 			{
 				FVector dirToInstigator = instigator->GetActorLocation() - this->GetActorLocation(); 
 				dirToInstigator.Normalize();
-				dirToInstigator *= -1 * attackInformation->knockBackDistance;
+				dirToInstigator *= -1 * attackInfo->knockBackDistance;
 				dirToInstigator.Z = 0.0f;
 				this->SetActorLocation(GetActorLocation() + dirToInstigator, false);
 			}
 		
-			m_CrowdControlTime = m_StatComponent->GetHitRecovery() * attackInformation->crowdControlTime;
+			m_CrowdControlTime = m_StatComponent->GetHitRecovery() * attackInfo->crowdControlTime;
 		}
 	}
 
 	// 로그
 	++attackCount;
-	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(DamageAmount) + " damage from " +
-		instigator->Tags[0].ToString() + "::" + attackInformation->attackName.ToString() + "::" + FString::FromInt(attackCount);
+	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
+		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
-	
-	return FinalDamage;
 }
 
 void ACharacterBase::ExecEvent_OnHPIsZero()
@@ -118,11 +126,4 @@ void ACharacterBase::OnCalledNotify_End_Death()
 	ExecEvent_EndedDeathMontage();
 }
 
-void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
-{
-	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
-	const FAttackInfo* attackInfo = dataManager->GetAttackInformation(this->GetClass(), attackName);
-	
-	float finalDamage = m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio;
-	target->TakeDamage(finalDamage, *attackInfo, this->GetController(), this);
-}
+

@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MainPlayer/MainPlayer.h"
+#include "MainPlayer/MainPlayerAnim.h"
 #include "MainPlayer/MainPlayerController.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "Utility/Utility.h"
-#include "Utility/EnumTypes.h"
 #include <GameFramework/SpringArmComponent.h.>
 #include <Camera/CameraComponent.h>
 #include "SubSystems/DataManager.h"
@@ -50,6 +50,10 @@ void AMainPlayer::BeginPlay()
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
+
+	UMainPlayerAnim* animInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
+	animInstance->OnEnteredState_Falling.AddDynamic(this, &AMainPlayer::AddInputContextMappingInAir);
+	animInstance->OnEnteredState_MoveOnGround.AddDynamic(this, &AMainPlayer::RemoveInputContextMappingInAir);
 }
 
 void AMainPlayer::Tick(float DeltaTime) // 
@@ -221,7 +225,6 @@ void AMainPlayer::printLog() const
 	const FVector velocity = GetVelocity();
 	const FVector forwardVector = GetActorForwardVector();
 	
-
 	GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
 	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
 	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
@@ -316,7 +319,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Skill_InAir
 	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
 	EIC->BindAction(m_InputActionsInAir["EarthStrike_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::EarthStrike_InAir);
-	
+	EIC->BindAction(m_InputActionsInAir["DashAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_InAir);
 	
 	m_PressedKeyInfo.Add("LeftShift",false);
 }

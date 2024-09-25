@@ -10,11 +10,10 @@ enum class EMainPlayerStates : uint8;
 
 
 // NormalAttack
-DECLARE_MULTICAST_DELEGATE(FNormalAttack_Start_EachSection_Delegate);
+DECLARE_MULTICAST_DELEGATE(FNormalAttack_Start_EachSection);
 
-// UpperAttack
-DECLARE_MULTICAST_DELEGATE(FAirToGroundAttack_CollisionCheck);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnteredState_Falling);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnteredState_MoveOnGround);
 
 UCLASS()
 class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstanceBase
@@ -27,17 +26,16 @@ public:
 	// NormalAttack
 	UFUNCTION()
 	void AnimNotify_NormalAttack_Start_EachSection() const;
-
-    // AirToGroundAttack
-	UFUNCTION()
-	void AnimNotify_AirToGroundAttack_CollisionCheck() const;
 	
+	UFUNCTION(BlueprintCallable)
+	void ExecEvent_OnEnteredState_Falling() const;
 
-
+	UFUNCTION(BlueprintCallable)
+	void ExecEvent_OnEnteredState_MoveOnGround() const;
 
 public:
-	FNormalAttack_Start_EachSection_Delegate NormalAttack_Start_EachSection;
-	FAirToGroundAttack_CollisionCheck AirToGroundAttack_CollisionCheck;
+	FNormalAttack_Start_EachSection NormalAttack_Start_EachSection;
 	
-	
+	FOnEnteredState_Falling OnEnteredState_Falling;
+	FOnEnteredState_MoveOnGround OnEnteredState_MoveOnGround;
 };

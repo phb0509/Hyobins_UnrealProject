@@ -7,6 +7,8 @@
 #include "ActorPool/PoolableActor.h"
 #include "Monster.generated.h"
 
+//struct FHitInformation;
+struct FAttackInformation;
 
 UCLASS()
 class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActor
@@ -19,15 +21,16 @@ public:
 	
 
 protected:
-	virtual void execEvent_CommonCrowdControl(ACharacterBase* instigator) override;
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) override;
 	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 	
-
+private:
+	void activateHitEffect(const FHitInformation&);
+		
 public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;

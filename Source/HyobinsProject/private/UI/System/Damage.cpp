@@ -12,7 +12,8 @@ void UDamage::NativeConstruct()
 	m_DamageText = Cast<UTextBlock>(GetWidgetFromName(TEXT("m_DamageText")));
 }
 
-void UDamage::SetDamage(float damage) const
+void UDamage::SetDamage(float damage)
 {
 	m_DamageText->SetText(FText::AsNumber(damage));
+	PlayAnimation(m_DamageAnimation);
 }

@@ -16,9 +16,12 @@ class HYOBINSPROJECT_API UDamage : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void SetDamage(float damage) const;
+	void SetDamage(float damage);
 
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
     TObjectPtr<UTextBlock> m_DamageText;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim), Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UWidgetAnimation> m_DamageAnimation;
 };

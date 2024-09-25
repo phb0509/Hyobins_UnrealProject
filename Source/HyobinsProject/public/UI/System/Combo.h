@@ -6,9 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "Combo.generated.h"
 
+class ACharacterBase;
 class UTextBlock;
-class UStatComponent;
 
+struct FHitInformation;
 
 UCLASS()
 class HYOBINSPROJECT_API UCombo : public UUserWidget
@@ -18,10 +19,10 @@ class HYOBINSPROJECT_API UCombo : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void BindStatComponent(UStatComponent* const statComponent);
+	void BindActor(ACharacterBase* takeDamageActor);
 
 private:
-	void updateComboCount();
+	void updateComboCount(const FHitInformation& hitInfo);
 	
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))

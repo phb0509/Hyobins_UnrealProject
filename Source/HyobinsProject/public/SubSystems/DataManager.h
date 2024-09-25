@@ -20,11 +20,11 @@ public:
 	void DeleteAttackInformation(TSubclassOf<AActor> classType);
 	void InitHitActors(TSubclassOf<AActor> classType, OUT TMap<FName, TMap<TWeakObjectPtr<AActor>, bool>>& hitActors);
 	
-	const FAttackInfo* GetAttackInformation(TSubclassOf<AActor> classType, const FName& attackName) const
+	const FAttackInformation* GetAttackInformation(TSubclassOf<AActor> classType, const FName& attackName) const
 	{
 		return &m_AttackInformations[classType][attackName];
 	}
 	
 private:
-	TMap<TSubclassOf<AActor>, TMap<FName,FAttackInfo>> m_AttackInformations;
+	TMap<TSubclassOf<AActor>, TMap<FName,FAttackInformation>> m_AttackInformations;
 };

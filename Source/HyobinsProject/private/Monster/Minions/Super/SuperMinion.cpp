@@ -47,7 +47,7 @@ void ASuperMinion::OnCalled_NormalAttack_End()
 	}
 }
 
-void ASuperMinion::ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo)
+void ASuperMinion::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
 	Super::ExecEvent_TakeKnockbackAttack(instigator, attackInfo);
 	
@@ -58,12 +58,9 @@ void ASuperMinion::ExecEvent_TakeKnockbackAttack(ACharacterBase* instigator, con
 		if (m_CurState == ENormalMinionStates::Down) // 다운상태에서 피격시,,
 		{
 			m_AnimInstance->PlayMontage(TEXT("Down"));
-			
 		}
 		else if (m_CurState == ENormalMinionStates::KnockbackInAir) // 공중넉백상태에서 넉백공격 피격시,
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: ExecEvent_TakeKnockbackAttack"));
-			
 			GetCharacterMovement()->Deactivate();
 			m_AnimInstance->PlayMontage(TEXT("Knockback_Air")); 
 			
@@ -125,7 +122,7 @@ void ASuperMinion::OnCalledTimer_KnockbackInAir_Loop() // 바닥에 닿을때까
 	}
 }
 
-void ASuperMinion::ExecEvent_TakeAirborneAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo) // 띄우기공격 당하면,
+void ASuperMinion::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) // 띄우기공격 당하면,
 {
 	Super::ExecEvent_TakeAirborneAttack(instigator, attackInfo);
 	
@@ -215,7 +212,7 @@ void ASuperMinion::OnCalledTimelineEvent_End_AfterDeath()
 	m_DeathTimeline.SetNewTime(0.0f);
 }
 
-void ASuperMinion::ExecEvent_TakeGroggyAttack(ACharacterBase* instigator, const FAttackInfo* attackInfo)
+void ASuperMinion::ExecEvent_TakeGroggyAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
 	Super::ExecEvent_TakeGroggyAttack(instigator, attackInfo);
 

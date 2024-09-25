@@ -28,9 +28,7 @@ public:
 	crowdControlType("None"),
 	crowdControlTime(0.0f),
 	knockBackDistance(0.0f),
-	airbornePower(0.0f),
-	canDodge(false),
-	canParrying(false)
+	airbornePower(0.0f)
 	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
@@ -53,17 +51,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	float airbornePower;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	bool canDodge;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	bool canParrying;
 };
 
 
 USTRUCT(Atomic, BlueprintType) // Atomic : 항상 하나의 단위로 직렬화. BlueprintType : 블루프린트에서 사용될 수 있음을 의미.
-struct FAttackInfo : public FDamageEvent
+struct FAttackInformation
 {
 	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
 
@@ -76,7 +68,18 @@ public:
 	float knockBackDistance; // 밀려지는 정도
 	float airbornePower;
 	FVector colliderLocation;
-	bool canDodge;
-	bool canParrying;
+};
+
+USTRUCT(Atomic, BlueprintType) // Atomic : 항상 하나의 단위로 직렬화. BlueprintType : 블루프린트에서 사용될 수 있음을 의미.
+struct FHitInformation
+{
+	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
+
+public:
+	FName attackName;
+	FName hitActorName;
+	FVector hitActorLocation;	
+	float damage;
+	bool bIsCriticalHit;
 };
 

@@ -3,8 +3,8 @@
 
 #include "UI/System/Combo.h"
 #include "Components/TextBlock.h"
-#include "Component/StatComponent.h"
 #include "TimerManager.h"
+#include "Utility/CharacterBase.h"
 
 
 void UCombo::NativeConstruct()
@@ -12,18 +12,15 @@ void UCombo::NativeConstruct()
 	Super::NativeConstruct();
 	
 	m_ComboCountText = Cast<UTextBlock>(GetWidgetFromName(TEXT("m_ComboCountText")));
-	m_ComboCountDecisionTime = 2.0f;
 }
 
-void UCombo::BindStatComponent(UStatComponent* const statComponent)
+void UCombo::BindActor(ACharacterBase* takeDamageActor)
 {
-	statComponent->OnHPIsChanged.AddUObject(this, &UCombo::updateComboCount);
+	takeDamageActor->OnTakeDamage.AddUObject(this, &UCombo::updateComboCount);
 }
 
-void UCombo::updateComboCount()
+void UCombo::updateComboCount(const FHitInformation& hitInfo)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UCombo :: updateComboCount"));
-	
 	++m_ComboCount;
 	m_ComboCountText->SetText(FText::AsNumber(m_ComboCount));
 	this->SetVisibility(ESlateVisibility::HitTestInvisible);

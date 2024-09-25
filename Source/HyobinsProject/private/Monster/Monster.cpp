@@ -24,45 +24,23 @@ void AMonster::BeginPlay()
 	m_AIControllerBase = Cast<AAIControllerBase>(GetController());
 }
 
-void AMonster::execEvent_CommonCrowdControl(ACharacterBase* instigator)
+void AMonster::execEvent_CommonCrowdControl(const ACharacterBase* instigator)
 {
-	if (!m_bIsSuperArmor) // 슈퍼아머상태면 넉백모션을 재생안시킬것이기 때문에 예외.
+	ACharacterBase* nonConstInstigator = const_cast<ACharacterBase*>(instigator);
+	
+	if (!m_bIsSuperArmor) // 슈퍼아머상태면 피격모션을 재생안시킬것이기 때문에 예외.
 	{
 		 m_AIControllerBase->StopBehaviorTree();
-		 m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+		 m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nonConstInstigator);
 	}
-}
-
-float AMonster::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	 AActor* DamageCauser)
-{
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f);
-
-	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
-	this->GetWorldTimerManager().SetTimer
-		(
-			m_DiffuseRatioOnHitTimer,
-			[this]()
-			{ GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 1.0f); },
-		0.25f,
-		false);
-
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->RenderDamageToScreen(this->GetActorLocation(), DamageAmount);
-
-	
-	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 
 void AMonster::Initialize()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AMonster :: Initialize"));
-	
 	// HPBar 위젯 생성 및 부착.
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget",
 		FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
-		
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindStatComponentToComboWidget(m_StatComponent);
 }
 
 void AMonster::Activate()
@@ -73,7 +51,6 @@ void AMonster::Activate()
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->StartBehaviorTree();
 	
-	
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), 1.0f);
 
 	// 충돌체들 활성화
@@ -81,6 +58,10 @@ void AMonster::Activate()
 	
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
+
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToComboWidget(this);
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToDamageWidget(this);
+	this->OnTakeDamage.AddUObject(this, &AMonster::activateHitEffect);
 }
 
 void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
@@ -95,5 +76,21 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
+
+	this->OnTakeDamage.Clear();
+}
+
+void AMonster::activateHitEffect(const FHitInformation& hitInfo)
+{
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f);
+
+	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
+	this->GetWorldTimerManager().SetTimer(m_DiffuseRatioOnHitTimer,
+		[this]()
+		{
+			GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 1.0f);
+		},
+		0.25f,false
+		);
 }
 

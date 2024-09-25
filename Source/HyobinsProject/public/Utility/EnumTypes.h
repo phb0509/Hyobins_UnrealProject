@@ -20,22 +20,22 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
-	KnockbackOnStanding			UMETA(DisplayName = "Knockback"),
-	Groggy						UMETA(DisplayName = "Groggy"),
-	Down						UMETA(DisplayName = "Down"),
-	GetUp						UMETA(DisplayName = "GetUp"),
-	Idle 						UMETA(DisplayName = "Idle"),
-	NormalAttack_OnGround				UMETA(DisplayName = "NormalAttack"),
-	NormalStrikeAttack_OnGround			UMETA(DisplayName = "NormalStrikeAttack"),
-	DashAttack_OnGround					UMETA(DisplayName = "DashAttack"),
-	UpperAttack_OnGround					UMETA(DisplayName = "UpperAttack"),
-	UpperAttack_GroundToAir			UMETA(DisplayName = "UpperAttackToAir"),
-	NormalAttack_InAir			UMETA(DisplayName = "NormalAttackInAir"),
-	EarthStrike_FallingToGround		UMETA(DisplayName = "AirToGroundAttackInAir"),
-	EarthStrike_OnGround	UMETA(DisplayName = "AirToGroundAttackOnGround"),
-	Dodge_OnGround 			UMETA(DisplayName = "Dodge_NonTargeting"),
-	Dodge_Targeting 			UMETA(DisplayName = "Dodge_Targeting"),
-
+	KnockbackOnStanding				UMETA(DisplayName = "Knockback"),
+	Groggy							UMETA(DisplayName = "Groggy"),
+	Down							UMETA(DisplayName = "Down"),
+	GetUp							UMETA(DisplayName = "GetUp"),
+	Idle 							UMETA(DisplayName = "Idle"),
+	NormalAttack_OnGround			UMETA(DisplayName = "NormalAttack_OnGround"),
+	NormalStrikeAttack_OnGround		UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
+	DashAttack_OnGround				UMETA(DisplayName = "DashAttack_OnGround"),
+	DashAttack_InAir				UMETA(DisplayName = "DashAttack_InAir"),
+	UpperAttack_OnGround			UMETA(DisplayName = "UpperAttack_OnGround"),
+	UpperAttack_GroundToAir			UMETA(DisplayName = "UpperAttack_GroundToAir"),
+	NormalAttack_InAir				UMETA(DisplayName = "NormalAttack_InAir"),
+	EarthStrike_FallingToGround		UMETA(DisplayName = "EarthStrike_FallingToGround"),
+	EarthStrike_OnGround			UMETA(DisplayName = "EarthStrike_OnGround"),
+	Dodge_OnGround 					UMETA(DisplayName = "Dodge_OnGround"),
+	Dodge_Targeting 				UMETA(DisplayName = "Dodge_Targeting"),
 };
 
 

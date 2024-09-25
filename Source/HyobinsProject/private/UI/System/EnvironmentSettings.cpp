@@ -4,7 +4,6 @@
 #include "UI/System/EnvironmentSettings.h"
 #include "SubSystems/UIManager.h"
 #include "Components/CheckBox.h"
-#include "Components/Image.h"
 
 
 void UEnvironmentSettings::NativeConstruct()
@@ -13,9 +12,34 @@ void UEnvironmentSettings::NativeConstruct()
 	
 	m_bHideCheckBox = Cast<UCheckBox>(GetWidgetFromName(TEXT("m_bHideCheckBox")));
 	m_bHideCheckBox->OnCheckStateChanged.AddDynamic(this, &UEnvironmentSettings::ChangeMonsterHPBarState);
+}
 
-	m_BackGroundImage = Cast<UImage>(GetWidgetFromName(TEXT("m_BackGroundImage")));
-	m_BackGroundImage->OnMouseButtonDownEvent.BindUFunction(this, FName("CloseEnvironmentSettings"));
+FReply UEnvironmentSettings::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	if (InKeyEvent.GetKey() == EKeys::P)
+	{
+		Close();
+		return FReply::Handled();
+	}
+	
+	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+}
+
+void UEnvironmentSettings::Open()
+{
+	GetOwningPlayer()->SetPause(true);
+	GetOwningPlayer()->SetShowMouseCursor(true);
+	GetOwningPlayer()->SetInputMode(FInputModeUIOnly());
+	SetKeyboardFocus();
+}
+
+void UEnvironmentSettings::Close()
+{
+	GetOwningPlayer()->SetPause(false);
+	GetOwningPlayer()->SetShowMouseCursor(false);
+	GetOwningPlayer()->SetInputMode(FInputModeGameOnly());
+	
+	this->RemoveFromParent();
 }
 
 void UEnvironmentSettings::ChangeMonsterHPBarState(bool bIsChecked)
@@ -29,36 +53,6 @@ void UEnvironmentSettings::ChangeMonsterHPBarState(bool bIsChecked)
 		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->HideMonsterHPBar();
 	}
 }
-
-FReply UEnvironmentSettings::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	bIsFocusable = true;
-	SetKeyboardFocus();
-	
-	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
-}
-
-void UEnvironmentSettings::CloseEnvironmentSettings()
-{
-	SetKeyboardFocus(); 
-}
-
-FReply UEnvironmentSettings::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
-{
-	FKey inputKey = InKeyEvent.GetKey();
-	FString keyString = inputKey.GetFName().ToString();
-	
-	if (keyString == "P") // 환경설정창을 닫고 게임진행.
-	{
-		GetOwningPlayer()->SetPause(false);
-		GetOwningPlayer()->SetShowMouseCursor(false);
-		this->SetVisibility(ESlateVisibility::Collapsed);
-	}
-	
-	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
-}
-
-
 
 
 

@@ -18,7 +18,7 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 	}
 	
 	const UDataTable* const dataTable = LoadObject<UDataTable>(NULL, *assetPath, NULL, LOAD_None, NULL);
-	TMap<FName,FAttackInfo> attackInfos;
+	TMap<FName,FAttackInformation> attackInfos;
 	
 	if (dataTable != nullptr)
 	{
@@ -38,7 +38,7 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 				crowdControlType = ECrowdControlType(index);
 			}
 
-			FAttackInfo attackInfo;
+			FAttackInformation attackInfo;
 			attackInfo.attackName = data.attackName;
 			attackInfo.damageRatio = data.damageRatio;
 			attackInfo.bHasCrowdControl = data.bHasCrowdControl;
@@ -46,8 +46,6 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 			attackInfo.crowdControlTime = data.crowdControlTime;
 			attackInfo.knockBackDistance = data.knockBackDistance;
 			attackInfo.airbornePower = data.airbornePower;
-			attackInfo.canDodge = data.canDodge;
-			attackInfo.canParrying = data.canParrying;
 
 			attackInfos.Add(attackInfo.attackName, attackInfo);
 		}

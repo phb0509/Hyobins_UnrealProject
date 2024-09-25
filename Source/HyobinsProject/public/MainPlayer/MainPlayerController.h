@@ -8,9 +8,6 @@
 #include "MainPlayerController.generated.h"
 
 
-class UEnvironmentSettings;
-class UCombo;
-
 UCLASS()
 class HYOBINSPROJECT_API AMainPlayerController : public APlayerController, public IGenericTeamAgentInterface
 {
@@ -22,13 +19,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
 	
-	void OpenEnvironmentSettingsState();
+	void OpenEnvironmentSettingsState() const;
 
 private:
 	FGenericTeamId m_TeamID;
 	
-	TWeakObjectPtr<UEnvironmentSettings> m_EnvironmentSettings;
-	bool m_bIsOpenedEnvironmentSettings;
-
-	TWeakObjectPtr<UCombo> m_ComboWidjet;
 };

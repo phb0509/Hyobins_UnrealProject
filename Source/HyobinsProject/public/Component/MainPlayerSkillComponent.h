@@ -31,9 +31,11 @@ public:
 	
 	void NormalAttack_OnGround();
 	void NormalAttack_InAir();
+	
 	void UpperAttack_OnGround();
+	
 	void DashAttack_OnGround();
-	void ExtendShiftDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
+	void DashAttack_InAir();
 	
 	void EarthStrike_InAir();
 	void EarthStrike_OnGround();
@@ -42,6 +44,7 @@ public:
 	
 	void Dodge_OnGround();
 
+	void ExtendShiftDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
 	
 	//NormalAttack
 	UFUNCTION()
@@ -49,7 +52,7 @@ public:
 
 	
 	FORCEINLINE EMainPlayerSkillStates GetState() const { return m_CurSkillState; }
-	FORCEINLINE void SetHasStartedComboKeyInputCheck(bool bHasStartedKeyInputCheck) { m_bHasStartedComboKeyInputCheck = bHasStartedKeyInputCheck;}
+	FORCEINLINE void SetHasStartedComboKeyInputCheck(const bool bHasStartedKeyInputCheck) { m_bHasStartedComboKeyInputCheck = bHasStartedKeyInputCheck;}
 	FORCEINLINE void SetState(EMainPlayerSkillStates state) { m_CurSkillState = state; }
 	
 	UFUNCTION()
@@ -58,8 +61,9 @@ public:
 	
 private:
 	void bindFuncOnMontageEvent();
-	void linqNextNormalAttackCombo();
+	void linqNextNormalAttackOnGroundCombo();
 	void linqNextNormalAttackInAirCombo();
+	void initGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 	
 
 private:
@@ -99,7 +103,6 @@ private:
 	// Dodge
 	float m_DodgeOnGroundMoveDistance;
 
-	
-	
+	float m_GravityScaleInAir;
 };
 

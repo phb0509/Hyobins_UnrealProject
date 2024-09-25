@@ -37,6 +37,7 @@ public:
 	
 	// Get
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
+	FORCEINLINE int32 GetCriticalAttackChance() const { return m_CriticalAttackChance; }
 	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
 	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
 	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
@@ -52,6 +53,9 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_DefaultDamage;
+
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	int32 m_CriticalAttackChance;
 
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_Defense;

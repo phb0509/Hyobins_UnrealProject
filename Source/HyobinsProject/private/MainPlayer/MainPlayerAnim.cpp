@@ -14,9 +14,15 @@ void UMainPlayerAnim::AnimNotify_NormalAttack_Start_EachSection() const
 	NormalAttack_Start_EachSection.Broadcast();
 }
 
-void UMainPlayerAnim::AnimNotify_AirToGroundAttack_CollisionCheck() const
+void UMainPlayerAnim::ExecEvent_OnEnteredState_Falling() const
 {
-	AirToGroundAttack_CollisionCheck.Broadcast();
+	OnEnteredState_Falling.Broadcast();
 }
+
+void UMainPlayerAnim::ExecEvent_OnEnteredState_MoveOnGround() const
+{
+	OnEnteredState_MoveOnGround.Broadcast();
+}
+
 
 
