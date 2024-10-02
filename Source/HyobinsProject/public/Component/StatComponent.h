@@ -18,8 +18,7 @@ public:
 	UStatComponent();
 	
 	virtual void BeginPlay() override;
-
-
+	
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
 	FORCEINLINE void ChangeMaxHP(const float hp) { m_MaxHP = hp; }
 	
@@ -44,7 +43,7 @@ public:
 	FORCEINLINE float GetAttackSpeed() const { return m_CurAttackSpeed; }
 	
 	// Set
-	void SetDamage(const float damage);
+	void OnDamage(const float damage);
 	void SetHP(const float hp);
 	
 	FOnHPIsChangedDelegate OnHPIsChanged;

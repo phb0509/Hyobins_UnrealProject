@@ -13,12 +13,12 @@
 int32 attackCount = 0; // 로그확인용.
 
 ACharacterBase::ACharacterBase() :
-	m_CrowdControlTime(1.0f),
     m_WalkSpeed(200.0f),
     m_RunSpeed(400.0f),
 	m_CurSpeed(0.0f),
 	m_bIsSuperArmor(false),
-	m_bIsDead(false)
+	m_bIsDead(false),
+	m_CrowdControlTime(1.0f)
 {
 	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
 	if (enumPtr != nullptr)
@@ -28,9 +28,6 @@ ACharacterBase::ACharacterBase() :
 			ECrowdControlType state = (ECrowdControlType)(enumPtr->GetValueByIndex(i));
 			FOnCrowdControl_Start_Delegate startDelegate;
 			m_CrowdControl_Start_Delegates.Add(state,startDelegate);
-
-			// FOnCrowdControl_End_Delegate endDelegate;
-			// m_CrowdControl_End_Delegates.Add(state,endDelegate);
 		}
 	}
 	
@@ -46,14 +43,10 @@ void ACharacterBase::BeginPlay()
 	
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
 	animInstance->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // Death는 Ended를 호출하지않기에, 노티파이 심어야함.
-	animInstance->End_GetUp.AddUObject(this, &ACharacterBase::OnCalledNotify_End_GetUp); 
 	
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_TakeKnockbackAttack);
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Airborne].AddUObject(this, &ACharacterBase::ExecEvent_TakeAirborneAttack);
-	m_CrowdControl_Start_Delegates[ECrowdControlType::Groggy].AddUObject(this, &ACharacterBase::ExecEvent_TakeGroggyAttack);
-	
-	//m_CrowdControl_End_Delegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::OnCalledTimer_KnockbackOnStanding_End);
-	//m_CrowdControl_End_Delegates[ECrowdControlType::Groggy].AddUObject(this, &ACharacterBase::OnCalledTimer_Groggy_End);
+	m_CrowdControl_Start_Delegates[ECrowdControlType::Down].AddUObject(this, &ACharacterBase::ExecEvent_TakeDownAttack);
 }
 
 void ACharacterBase::Tick(float DeltaSeconds)
@@ -80,10 +73,12 @@ void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> targ
 
 void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, const ACharacterBase* instigator)
 {
-	const FHitInformation hitInfo = { attackInfo->attackName, this->Tags[0], this->GetActorLocation(), damage, bIsCriticalAttack};
+	m_CrowdControlTime = m_StatComponent->GetHitRecovery() * attackInfo->crowdControlTime;
+	const FHitInformation hitInfo = { attackInfo->attackName, this->Tags[0], this->GetActorLocation(),
+		damage, m_CrowdControlTime,bIsCriticalAttack};
 	
 	OnTakeDamage.Broadcast(hitInfo);
-	m_StatComponent->SetDamage(damage);
+	m_StatComponent->OnDamage(damage);
 	
 	if (!m_bIsDead)
 	{
@@ -103,8 +98,6 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 				dirToInstigator.Z = 0.0f;
 				this->SetActorLocation(GetActorLocation() + dirToInstigator, false);
 			}
-		
-			m_CrowdControlTime = m_StatComponent->GetHitRecovery() * attackInfo->crowdControlTime;
 		}
 	}
 

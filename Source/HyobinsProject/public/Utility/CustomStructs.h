@@ -80,6 +80,7 @@ public:
 	FName hitActorName;
 	FVector hitActorLocation;	
 	float damage;
+	float crowdControlTime;
 	bool bIsCriticalHit;
 };
 

@@ -6,7 +6,7 @@
 #include "Utility/EnumTypes.h"
 
 UBTS_SuperMinion_SetState::UBTS_SuperMinion_SetState() :
-m_State(ENormalMinionStates::Patrol)
+m_State(ESuperMinionFSMStates::Patrol)
 {
 	bNotifyBecomeRelevant = true;
 	NodeName = TEXT("SuperMinion_SetState");
@@ -20,6 +20,6 @@ void UBTS_SuperMinion_SetState::OnBecomeRelevant(UBehaviorTreeComponent& OwnerCo
 	
 	if (owner != nullptr)
 	{
-		owner->SetState(m_State); 
+		owner->SetFSMState(m_State); 
 	}
 }

@@ -6,7 +6,7 @@
 #include "BehaviorTree/BTService.h"
 #include "BTS_SuperMinion_SetState.generated.h"
 
-enum class ENormalMinionStates : uint8;
+enum class ESuperMinionFSMStates : uint8;
 
 UCLASS()
 class HYOBINSPROJECT_API UBTS_SuperMinion_SetState : public UBTService
@@ -20,5 +20,5 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere)
-	ENormalMinionStates m_State;
+	ESuperMinionFSMStates m_State;
 };

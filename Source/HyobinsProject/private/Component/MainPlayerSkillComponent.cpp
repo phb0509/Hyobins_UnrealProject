@@ -131,7 +131,8 @@ void UMainPlayerSkillComponent::NormalAttack_InAir()
 		}
 		else
 		{
-			if (m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround)
+			if (m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround &&
+				m_CurSkillState == EMainPlayerSkillStates::Idle)
 			{
 				m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_InAir"));
 			}
@@ -230,6 +231,8 @@ void UMainPlayerSkillComponent::Dodge_OnGround()
 		if (m_CurSkillState != EMainPlayerSkillStates::Dodge_OnGround &&
 		m_CurSkillState != EMainPlayerSkillStates::Idle) // 어떠한 공격이든 수행중이면
 		{
+			m_CurSkillState = EMainPlayerSkillStates::Dodge_OnGround;
+			
 			m_Owner->RotateActorToControllerYaw(); // 카메라 정면(컨트롤러의 Yaw로 회전)
 			m_OwnerAnimInstance->StopAllMontages(0.0f); 
 
@@ -300,10 +303,13 @@ void UMainPlayerSkillComponent::EarthStrike_HitCheck()
 {
 	FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
 	
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
-	TArray<AActor*> IgnoreActors = {m_Owner.Get()};
+	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	// ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
+
+	const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
+	const TArray<AActor*> IgnoreActors = {m_Owner.Get()};
 	TArray<AActor*> overlappedActors;
+	
 	UKismetSystemLibrary::SphereOverlapActors(GetWorld(),
 		startLocation,
 		500.0f, // 구체 반지름
@@ -316,7 +322,11 @@ void UMainPlayerSkillComponent::EarthStrike_HitCheck()
 	{
 		for (AActor* overlappedEnemy : overlappedActors)
 		{
-			m_Owner->Attack(TEXT("EarthStrike"), overlappedEnemy);
+			ACharacterBase* enemy = Cast<ACharacterBase>(overlappedEnemy);
+			if (enemy->GetIsOnGround())
+			{
+				m_Owner->Attack(TEXT("EarthStrike"), overlappedEnemy);
+			}
 		}
 	}
 	
@@ -346,6 +356,7 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 {
 	if (!bInterrupted)
 	{
+		m_CurNormalAttackSection = 1;
 		m_CurSkillState = EMainPlayerSkillStates::Idle;
 	}
 }
@@ -354,9 +365,7 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 {
 	// Attack_OnGround
 	m_OwnerAnimInstance->NormalAttack_Start_EachSection.AddUObject(this, &UMainPlayerSkillComponent::OnCalledNotify_NormalAttack_Start_EachSection);
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("NormalAttack_OnGround"),
-	[this]() { m_CurNormalAttackSection = 1; });
-
+	
 	// Attack_InAir
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("UpperAttack_GroundToAir"),
 	[this]()
@@ -368,7 +377,6 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("NormalAttack_InAir"),
 	[this]()
 	{
-		m_CurNormalAttackSection = 1;
 		initGravityScaleAfterAttack();
 	});
 
@@ -383,17 +391,9 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	{
 		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
 	});
-
-	
-	// CombatDodge_OnGround
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("Dodge_OnGround"),
-		[this]()
-		{
-			m_CurSkillState = EMainPlayerSkillStates::Dodge_OnGround;
-		});
 	
 	// OnMontageEnded
-	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle);
+	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // 어떤 스킬이든 '끝까지(not Interrupted)' 재생 후 Idle로 전환.
 }
 
 void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, // 로그출력용 틱

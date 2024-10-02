@@ -18,7 +18,7 @@ const FName ASuperMinion::DeathMontageNames[2] = {"Death0", "Death1"};
 
 
 ASuperMinion::ASuperMinion() :
-	m_CurState(ENormalMinionStates::Patrol)
+	m_CurFSMState(ESuperMinionFSMStates::Patrol)
 {
 	PrimaryActorTick.bCanEverTick = true; // 로그출력용.
 	AIControllerClass = ASuperMinionAIController::StaticClass();
@@ -41,7 +41,7 @@ void ASuperMinion::BeginPlay()
 
 void ASuperMinion::OnCalled_NormalAttack_End()
 {
-	if (m_CurState == ENormalMinionStates::NormalAttack)
+	if (m_CurFSMState == ESuperMinionFSMStates::NormalAttack)
 	{
 		m_AIController->StartBehaviorTree();
 	}
@@ -55,44 +55,29 @@ void ASuperMinion::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigato
 	{
 		m_AnimInstance->StopAllMontages(0.0f);
 		
-		if (m_CurState == ENormalMinionStates::Down) // 다운상태에서 피격시,,
+		if (m_CurFSMState == ESuperMinionFSMStates::Down) // 다운상태에서 피격시,,
 		{
-			m_AnimInstance->PlayMontage(TEXT("Down"));
+			CallTimer_ExecDownEvent_WhenOnGround();
 		}
-		else if (m_CurState == ENormalMinionStates::KnockbackInAir) // 공중넉백상태에서 넉백공격 피격시,
+		else if (m_CurFSMState == ESuperMinionFSMStates::KnockbackInAir) // 공중넉백상태에서 넉백공격 피격시,
 		{
-			GetCharacterMovement()->Deactivate();
-			m_AnimInstance->PlayMontage(TEXT("Knockback_Air")); 
+			m_AnimInstance->PlayMontage(TEXT("Knockback_Air"));
 			
-			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
-				this,
-				&ASuperMinion::OnCalledTimer_KnockbackInAir_End,
-					0.2f, false); // 넉백시간만큼하면 너무 길어서 일단 0.3f로
+			DisableMovementForDuration(0.2f);
+			CallTimer_ExecDownEvent_WhenOnGround();
 		}
-		else // 스탠딩상태에서 피격일 때
+		else // 스탠딩상태 or 그 외의 FSM상태일 때
 		{
-			SetState(ENormalMinionStates::KnockbackOnStanding);
 			m_AnimInstance->PlayMontage(KnockbackMontageNames[m_HitDirection],1.0f);
-
+			SetFSMState(ESuperMinionFSMStates::KnockbackOnStanding);
+			//this->SetCrowdControlState(ECrowdControlState::KnockbackOnStanding);
+			
 			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
 				this,
 					&ASuperMinion::OnCalledTimer_KnockbackOnStanding_End,	
 					m_CrowdControlTime, false);
 		}
 	}
-}
-
-
-void ASuperMinion::OnCalledTimer_KnockbackInAir_End() // 공중넉백상태에서 넉백공격피격 시, 0.5초후 호출.
-{
-	Super::OnCalledTimer_KnockbackInAir_End();
-	
-	GetCharacterMovement()->Activate();
-	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
-			this,
-				&ASuperMinion::OnCalledTimer_KnockbackInAir_Loop,	
-				GetWorld()->DeltaTimeSeconds, true,-1);
-	
 }
 
 void ASuperMinion::OnCalledTimer_KnockbackOnStanding_End() // 임의로 지정한 넉백시간 끝날 때 호출.
@@ -105,21 +90,6 @@ void ASuperMinion::OnCalledTimer_KnockbackOnStanding_End() // 임의로 지정�
 	
 	m_AnimInstance->StopAllMontages(0.0f);
 	m_AIController->StartBehaviorTree();
-	SetState(ENormalMinionStates::Chase);
-}
-
-void ASuperMinion::OnCalledTimer_KnockbackInAir_Loop() // 바닥에 닿을때까지 호출.
-{
-	Super::OnCalledTimer_KnockbackInAir_Loop();
-	
-	if (GetCharacterMovement()->IsMovingOnGround()) // 땅에 닿으면
-	{
-		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
-		
-		m_CurState = ENormalMinionStates::Down;
-		m_AnimInstance->PlayMontage(TEXT("Down")); // 땅에 닿았을 때의 몽타주 재생.
-		// 끝까지 재생하면 애님인스턴스베이스에서 GetUp 재생.
-	}
 }
 
 void ASuperMinion::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) // 띄우기공격 당하면,
@@ -128,34 +98,38 @@ void ASuperMinion::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator
 	
 	if (!m_bIsSuperArmor)
 	{
-		// 어떤 State든간에 일단 IsFalling이 true됨.
-		
 		m_AnimInstance->StopAllMontages(0.0f);
 		FVector airbornePower = {0.0f, 0.0f, attackInfo->airbornePower};
 		
-		if (m_CurState == ENormalMinionStates::Down) // 다운상태에서 에어본공격맞으면, 모션만 재생한다. 조금 덜띄운다.
+		if (m_CurFSMState == ESuperMinionFSMStates::Down) // 다운상태에서 에어본공격맞으면, 모션만 재생한다. 조금 덜띄운다.
 		{
-			airbornePower.Z /= 2; // 다운상태라서 조금 덜띄운다. 없어도 상관없는 코드.
+			airbornePower.Z /= 2; // 다운상태라서 조금 덜띄운다.
 			m_AnimInstance->PlayMontage(TEXT("Down"));
 		}
 		else // 공중넉백상태거나, 스탠딩상태거나. 타이머 호출.
 		{
-			SetState(ENormalMinionStates::KnockbackInAir);
 			m_AnimInstance->PlayMontage(TEXT("Knockback_Air"));
-
-			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
-			this,
-				&ASuperMinion::OnCalledTimer_Airborne_Loop,	
-				GetWorld()->DeltaTimeSeconds, true,-1);
+			SetFSMState(ESuperMinionFSMStates::KnockbackInAir);
 		}
 		
-		this->GetCharacterMovement()->AddImpulse(airbornePower, true);
+		CallTimer_ExecDownEvent_WhenOnGround();
+		
+		FVector LaunchVelocity = airbornePower; 
+		this->LaunchCharacter(LaunchVelocity, true, true);
 	}
 }
 
-void ASuperMinion::OnCalledTimer_Airborne_Loop()
+void ASuperMinion::CallTimer_ExecDownEvent_WhenOnGround()
 {
-	Super::OnCalledTimer_Airborne_Loop();
+	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+		this,
+			&ASuperMinion::ExecEvent_Down_WhenOnGround,	
+			GetWorld()->DeltaTimeSeconds, true,-1);
+}
+
+void ASuperMinion::ExecEvent_Down_WhenOnGround()
+{
+	Super::ExecEvent_Down_WhenOnGround();
 	
 	if (m_bIsDead)
 	{
@@ -167,19 +141,63 @@ void ASuperMinion::OnCalledTimer_Airborne_Loop()
 	{
 		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 		
-		m_CurState = ENormalMinionStates::Down;
-		m_AnimInstance->PlayMontage(TEXT("Down")); // 땅에 닿았을 때의 몽타주 재생.
-		// 끝까지 재생하면 애님인스턴스베이스에서 GetUp 재생.
+		m_AnimInstance->PlayMontage(TEXT("Down"));
+		SetFSMState(ESuperMinionFSMStates::Down);
+			
+		const float downPlayTime = m_AnimInstance->GetMontagePlayTime(TEXT("Down")) + 0.2f;
+			
+		GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+			this,
+				&ASuperMinion::OnCalledTimer_Down_End,	
+				m_CrowdControlTime > downPlayTime ? m_CrowdControlTime : downPlayTime,
+				false);
 	}
 }
 
-void ASuperMinion::OnCalledNotify_End_GetUp()
+void ASuperMinion::ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
-	Super::OnCalledNotify_End_GetUp();
+	Super::ExecEvent_TakeDownAttack(instigator, attackInfo);
 
-	m_AnimInstance->StopAllMontages(0.0f);
-	m_AIController->StartBehaviorTree();
-	SetState(ENormalMinionStates::Chase);
+	if (!m_bIsSuperArmor)
+	{
+		m_AnimInstance->StopAllMontages(0.0f);
+		
+		if (m_CurFSMState == ESuperMinionFSMStates::KnockbackInAir) // 공중넉백상태에서 다운공격맞더라도 공중넉백유지. 그냥 다운공격아니라 넉백공격했다는 판정.
+		{
+			m_AnimInstance->PlayMontage(TEXT("Knockback_Air"));
+
+			DisableMovementForDuration(0.2f);
+		}
+		else // 스탠딩, 다운상태이거나 그 외의상태(공격도중, 순찰 등)일 때, 다운시키기.
+		{
+			m_AnimInstance->PlayMontage(TEXT("Down"));
+			SetFSMState(ESuperMinionFSMStates::Down);
+			
+			const float montagePlayTime = m_AnimInstance->GetMontagePlayTime(TEXT("Down")) + 0.2f;
+			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+				this,
+					&ASuperMinion::OnCalledTimer_Down_End,	
+					m_CrowdControlTime > montagePlayTime ? m_CrowdControlTime : montagePlayTime,
+					false);
+		}
+	}
+}
+
+void ASuperMinion::OnCalledTimer_Down_End()
+{
+	Super::OnCalledTimer_Down_End();
+
+	m_AnimInstance->PlayMontage(TEXT("GetUp"));
+
+	const float getupPlayTime = m_AnimInstance->GetMontagePlayTime(TEXT("GetUp")) + 0.2f;
+	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+        		[this]()
+        		{
+					m_AIController->StartBehaviorTree();
+        		},
+        	getupPlayTime,
+        	false);
+
 }
 
 void ASuperMinion::Die()
@@ -187,7 +205,8 @@ void ASuperMinion::Die()
 	GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 
 	GetCharacterMovement()->Activate();
-	SetState(ENormalMinionStates::Dead);
+	SetFSMState(ESuperMinionFSMStates::Dead);
+	
 	m_AIController->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_AIController->StopBehaviorTree();
 	m_AnimInstance->StopAllMontages(0.0f);  
@@ -212,28 +231,30 @@ void ASuperMinion::OnCalledTimelineEvent_End_AfterDeath()
 	m_DeathTimeline.SetNewTime(0.0f);
 }
 
-void ASuperMinion::ExecEvent_TakeGroggyAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
+void ASuperMinion::DisableMovementForDuration(float duration) const
 {
-	Super::ExecEvent_TakeGroggyAttack(instigator, attackInfo);
+	GetCharacterMovement()->Deactivate();
 
-	SetState(ENormalMinionStates::Groggy);
-	m_AnimInstance->StopAllMontages(0.0f);
+	FTimerHandle activateTimer;
+	GetWorldTimerManager().SetTimer(activateTimer,
+		[this]()
+		{ GetCharacterMovement()->Activate();},
+			duration, false); // 넉백시간만큼하면 너무 길어서 0.2f정도로
 }
 
-void ASuperMinion::OnCalledTimer_Groggy_End()
-{}
 
-void ASuperMinion::SetState(ENormalMinionStates state)
+
+void ASuperMinion::SetFSMState(ESuperMinionFSMStates state)
 {
-	m_CurState = state;
-	m_AIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::StateKey, static_cast<uint8>(state));
+	m_CurFSMState = state;
+	m_AIController->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, static_cast<uint8>(state));
 }
 
 void ASuperMinion::Activate()
 {
 	Super::Activate();
 	
-	SetState(ENormalMinionStates::Patrol);
+	SetFSMState(ESuperMinionFSMStates::Patrol);
 	
 	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
@@ -275,29 +296,18 @@ void ASuperMinion::Tick(float DeltaTime)
 	m_DeathTimeline.TickTimeline(DeltaTime);
 	
 	const FString movementMode = GetCharacterMovement()->GetMovementName();
-	FString log3 = TEXT("SuperMinion Mode :: ");
-	log3 += movementMode;
-	GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	FString log = TEXT("SuperMinion Mode :: ");
+	log += movementMode;
+	GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
 	
-	// FString log = "IsFalling :: ";
-	// log += FString::FromInt(GetCharacterMovement()->IsFalling());
-	// GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-	//
-	// FString log1 = "IsFlying :: ";
-	// log1 += FString::FromInt(GetCharacterMovement()->IsFlying());
-	// GEngine->AddOnScreenDebugMessage(101, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
-	//
-	// FString log2 = "IsWalking :: ";
-	// log2 += FString::FromInt(GetCharacterMovement()->IsWalking());
-	// GEngine->AddOnScreenDebugMessage(102, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
-	//
-	// FString log3 = "IsMovingOnGround?? :: ";
-	// log3 += FString::FromInt(GetCharacterMovement()->IsMovingOnGround());
-	// GEngine->AddOnScreenDebugMessage(103, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	//
-	FString state = Utility::ConvertEnumToString(m_CurState);
-	FString log5 = Tags[0].ToString() + " :: " + state;
-	GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
+	
+	FString fsmState = Utility::ConvertEnumToString(m_CurFSMState);
+	FString log1 = Tags[0].ToString() + " :: " + fsmState;
+	GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
+
+	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+    FString log2 = Tags[0].ToString() + " :: " + crowdState;
+	GEngine->AddOnScreenDebugMessage(105, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
 }
 
 void ASuperMinion::initAssets()
@@ -329,14 +339,10 @@ void ASuperMinion::initAssets()
 	m_HitCollider->SetNotifyRigidBodyCollision(false);
 	m_HitCollider->SetGenerateOverlapEvents(true);
 	
-
 	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
 	// location.x, location.y, location. z
 	// scale.x,scale.y,scale.z
-	// 
-	// m_ShieldForAttackCollider->SetWorldTransform(collisionTransform);
-
-
+	
 	FTransform collisionTransform = {
 		{0.0f, 0.0f, 20.0f},
 		{-11.111f, 115.6134, 10.4},

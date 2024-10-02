@@ -34,7 +34,9 @@ public:
 	
 	void PlayMontage(const FName& montageName, float inPlayRate = 1.0f);
 	void JumpToMontageSection(const FName& montageName, int32 newSection);
+	float GetMontagePlayTime(const FName& montageName);
 	UAnimMontage* GetMontage(const FName& montageName);
+
 	
 	template <typename UObjectTemplate>
 	void BindFunc_OnMontageStarted(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
@@ -58,6 +60,18 @@ public:
 		}
 		
 		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.BindUFunction(InUserObject, InFunctionName);
+	};
+
+	template <typename UObjectTemplate>
+	void BindFunc_OnMontageInterruptedEnded(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
+	{
+		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+		{
+			FMontageFunc montageFunc;
+			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
+		}
+		
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.BindUFunction(InUserObject, InFunctionName);
 	};
 
 	template <typename FunctorType>
@@ -84,25 +98,33 @@ public:
 		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.BindLambda(InFunctor);
 	};
 
-	void ExecBindedFunc_OnMontageStarted(const FName& montageName);
-	void ExecBindedFunc_OnMontageEnded(const FName& montageName);
-	
-	UFUNCTION()
-	virtual void Exec_OnMontageStarted(UAnimMontage* Montage);
-	
-	UFUNCTION()
-	virtual void Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	template <typename FunctorType>
+	void BindLambdaFunc_OnMontageInterruptedEnded(const FName& montageName,  FunctorType&& InFunctor)
+	{
+		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+		{
+			FMontageFunc montageFunc;
+			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
+		}
+		
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.BindLambda(InFunctor);
+	};
 
+private:
+	UFUNCTION()
+	virtual void exec_OnMontageStarted(UAnimMontage* Montage);
+	
+	UFUNCTION()
+	virtual void exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	void execBindedFunc_OnMontageStarted(const FName& montageName);
+	void execBindedFunc_OnMontageEnded(const FName& montageName);
+	void execBindedFunc_OnMontageInterruptedEnded(const FName& montageName);
+	
 
 private:
 	UFUNCTION()
 	void AnimNotify_Pause();
-
-	UFUNCTION()
-	void AnimNotify_End_Down();
-
-	UFUNCTION()
-	void AnimNotify_End_GetUp();
 	
 	UFUNCTION()
 	void AnimNotify_End_Death() const;
@@ -111,12 +133,10 @@ private:
 
 public:
 	FOnEndedDeathDelegate End_Death;
-	FOnEndedDeathDelegate End_GetUp;
 
 protected:
 	UPROPERTY(EditAnywhere)
 	TMap<FName, UAnimMontage*> m_Montages;
-
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
 };
 

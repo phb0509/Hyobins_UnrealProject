@@ -24,7 +24,7 @@ void UStatComponent::BeginPlay()
 	InitHP();
 }
 
-void UStatComponent::SetDamage(const float damage)
+void UStatComponent::OnDamage(const float damage)
 {
 	// 방어력이나 속성저항력등에 의해 실제로 깎아야하는 hp를 구한다.
 	SetHP(FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP));

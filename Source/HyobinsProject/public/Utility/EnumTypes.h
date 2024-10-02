@@ -8,6 +8,17 @@
 
 
 UENUM(BlueprintType)
+enum class ECrowdControlState : uint8
+{
+	None					UMETA(DisplayName = "None"),
+	KnockbackOnStanding		UMETA(DisplayName = "KnockbackOnStanding"),
+	KnockbackInAir			UMETA(DisplayName = "KnockbackInAir"),
+	Down					UMETA(DisplayName = "Down"),
+	Groggy					UMETA(DisplayName = "Groggy"),
+	Dead					UMETA(DisplayName = "Dead")
+};
+
+UENUM(BlueprintType)
 enum class EMainPlayerStates : uint8
 {
 	Idle	UMETA(DisplayName = "Idle"),
@@ -23,7 +34,6 @@ enum class EMainPlayerSkillStates : uint8
 	KnockbackOnStanding				UMETA(DisplayName = "Knockback"),
 	Groggy							UMETA(DisplayName = "Groggy"),
 	Down							UMETA(DisplayName = "Down"),
-	GetUp							UMETA(DisplayName = "GetUp"),
 	Idle 							UMETA(DisplayName = "Idle"),
 	NormalAttack_OnGround			UMETA(DisplayName = "NormalAttack_OnGround"),
 	NormalStrikeAttack_OnGround		UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
@@ -40,12 +50,11 @@ enum class EMainPlayerSkillStates : uint8
 
 
 UENUM(BlueprintType)
-enum class ENormalMinionStates : uint8
+enum class ESuperMinionFSMStates : uint8
 {
 	KnockbackOnStanding		UMETA(DisplayName = "KnockbackOnStanding"),
 	KnockbackInAir			UMETA(DisplayName = "KnockbackInAir"),
 	Down					UMETA(DisplayName = "Down"),
-	GetUp					UMETA(DisplayName = "GetUp"),
 	Groggy					UMETA(DisplayName = "Groggy"),
 	Patrol					UMETA(DisplayName = "Patrol"),
 	Chase					UMETA(DisplayName = "Chase"),
@@ -59,7 +68,8 @@ enum class ECrowdControlType : uint8
 	None		UMETA(DisplayName = "None"),
 	Knockback	UMETA(DisplayName = "Knockback"),
 	Airborne	UMETA(DisplayName = "Airborne"),
-	Groggy		UMETA(DisplayName = "Groggy"),  
+	Down		UMETA(DisplayName = "Down"),
+	Groggy		UMETA(DisplayName = "Groggy")
 };
 
 

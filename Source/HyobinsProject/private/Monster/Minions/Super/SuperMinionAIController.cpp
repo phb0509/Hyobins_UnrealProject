@@ -71,19 +71,14 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 			break;
 
 			case 2:  // 적. 현재 등록된 적은 플레이어밖에 없다.
-			{
+			{teamTypeName = "Enemy::";
+					
 				const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(Blackboard->GetValueAsObject(AMonster::EnemyKey));
 
 				if (enemyOnBlackBoard == nullptr) // 시야범위 안으로 적이 들어왔을 때
 				{
 					Blackboard->SetValueAsObject(AMonster::EnemyKey, perceivedCharacter);
 				}
-				else // 시야범위 밖으로 적이 나갔을 때 or 범위 안에있는데 다른 물체에 의해 가려졌을 경우
-				{
-					
-				}
-
-				teamTypeName = "Enemy::";
 			}
 			break;
 

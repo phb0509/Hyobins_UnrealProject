@@ -21,7 +21,6 @@ private:
 
 private:
 	static const FName HitMontages[4]; 
-	static const FName GroggyMontage; 
 	static const FName DeathMontages[4];
 
 };

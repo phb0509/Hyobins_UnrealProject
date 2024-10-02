@@ -5,12 +5,14 @@
 #include "Utility/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
 #include "Component/StatComponent.h"
+#include "Utility/EnumTypes.h"
 
 
 const FName AMonster::HomePosKey(TEXT("HomePos"));
 const FName AMonster::PatrolPosKey(TEXT("PatrolPos"));
 const FName AMonster::EnemyKey(TEXT("Enemy"));
-const FName AMonster::StateKey(TEXT("State"));
+const FName AMonster::FSMStateKey(TEXT("FSMState"));
+const FName AMonster::CrowdControlStateKet(TEXT("CrowdControlState"));
 
 
 AMonster::AMonster()
@@ -35,8 +37,14 @@ void AMonster::execEvent_CommonCrowdControl(const ACharacterBase* instigator)
 	}
 }
 
+void AMonster::SetCrowdControlState(ECrowdControlState state)
+{
+	Super::SetCrowdControlState(state);
+	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::CrowdControlStateKet, static_cast<uint8>(state));
+}
 
-void AMonster::Initialize()
+
+ void AMonster::Initialize()
 {
 	// HPBar 위젯 생성 및 부착.
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget",

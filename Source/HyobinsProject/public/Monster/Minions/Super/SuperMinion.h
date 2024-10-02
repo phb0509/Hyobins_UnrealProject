@@ -8,10 +8,7 @@
 
 class USuperMinionAnim;
 class ASuperMinionAIController;
-class UAIPerceptionComponent;
-
-
-enum class ENormalMinionStates : uint8;
+enum class ESuperMinionFSMStates : uint8;
 
 UCLASS()
 class HYOBINSPROJECT_API ASuperMinion final: public AMonster
@@ -28,45 +25,45 @@ public:
 	void OnCalled_NormalAttack_End();
 	
 	
-	
 	// Get
-	FORCEINLINE ENormalMinionStates GetState() const { return m_CurState; }
+	FORCEINLINE ESuperMinionFSMStates GetState() const { return m_CurFSMState; }
 
 	// Set
-	void SetState(ENormalMinionStates state);
+	void SetFSMState(ESuperMinionFSMStates state);
 
 protected:
 	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
 	virtual void OnCalledTimer_KnockbackOnStanding_End() override;
-	virtual void OnCalledTimer_KnockbackInAir_Loop() override;
-	virtual void OnCalledTimer_KnockbackInAir_End() override;
 
 	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
-	virtual void OnCalledTimer_Airborne_Loop() override;
-	
-	virtual void ExecEvent_TakeGroggyAttack(const ACharacterBase* instigatorconst, const FAttackInformation* attackInfo) override;
-	virtual void OnCalledTimer_Groggy_End() override;
+	virtual void ExecEvent_Down_WhenOnGround() override;
+
+	virtual void ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
+	virtual void OnCalledTimer_Down_End() override;
 	
 	virtual void Die() override;
 	virtual void ExecEvent_EndedDeathMontage() override;
-	virtual void OnCalledNotify_End_GetUp() override;
 	virtual void OnCalledTimer_EndedDeathMontage() override {};
-
+	
 	UFUNCTION()
 	void OnCalledTimelineEvent_Loop_AfterDeath(float curveValue);
 
 	UFUNCTION()
 	void OnCalledTimelineEvent_End_AfterDeath();
 
+	void DisableMovementForDuration(float duration) const;
+	void CallTimer_ExecDownEvent_WhenOnGround();
+	
 	// IPoolableActor VirtualFunction 
 	virtual void Activate() override;
 	virtual void DeActivate() override;
+
 	
 private:
 	void initAssets();
 	void bindFuncOnMontagEvent();
-
 	
+
 private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UCapsuleComponent> m_HitCollider;
@@ -79,7 +76,7 @@ private:
 	TObjectPtr<UBoxComponent> m_RightSwordCollider;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
-	ENormalMinionStates m_CurState;
+	ESuperMinionFSMStates m_CurFSMState;
 	
 	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
 	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
