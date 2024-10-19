@@ -11,6 +11,7 @@
 #include "CharacterBase.generated.h"
 
 class ACharacterBase;
+class UAnimInstanceBase;
 class UStatComponent;
 class AAIControllerBase;
 class UAIPerceptionComponent;
@@ -19,7 +20,7 @@ class UNiagaraSystem;
 
 struct FHitInformation;
 struct FAttackInformation;
-enum class ECrowdControlState : uint8;
+enum class ECrowdControlStates : uint8;
 enum class ECrowdControlType : uint8;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, const ACharacterBase*, const FAttackInformation*);
@@ -85,11 +86,14 @@ protected:
 	// Death
 	UFUNCTION()
 	virtual void Die() {};
-	virtual void OnCalledNotify_End_Death();
 	virtual void ExecEvent_EndedDeathMontage() {};
 	virtual void OnCalledTimer_EndedDeathMontage() {};
+	
+	virtual void OnCalledNotify_End_Death();
+	
+	
 
-	virtual void SetCrowdControlState(ECrowdControlState state)
+	virtual void SetCrowdControlState(ECrowdControlStates state)
 	{
 		m_CurCrowdControlState = state;
 	}
@@ -101,7 +105,7 @@ public:
 	FOnTakeDamage OnTakeDamage;
 	
 protected:
-	ECrowdControlState m_CurCrowdControlState;
+	ECrowdControlStates m_CurCrowdControlState;
 	
 	UPROPERTY(EditDefaultsOnly) 
 	float m_WalkSpeed;
@@ -129,6 +133,8 @@ protected:
 
 	TMap<FName, TMap<TWeakObjectPtr<AActor>, bool>> m_HitActorsByMe;
 	TMap<FName, TWeakObjectPtr<UShapeComponent>> m_Colliders;
+
+	TWeakObjectPtr<UAnimInstanceBase> m_AnimInstanceBase;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 	UStatComponent* m_StatComponent;

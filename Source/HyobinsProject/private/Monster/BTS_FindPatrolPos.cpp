@@ -7,7 +7,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 
-UBTS_FindPatrolPos::UBTS_FindPatrolPos()
+UBTS_FindPatrolPos::UBTS_FindPatrolPos() :
+m_PatrolRange(500.0f)
 {
 	bNotifyBecomeRelevant = true;
 	NodeName = TEXT("FindPatrolPos");
@@ -25,9 +26,9 @@ void UBTS_FindPatrolPos::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uin
 
 	const FVector origin = OwnerComp.GetBlackboardComponent()->GetValueAsVector(AMonster::HomePosKey);
 	FNavLocation nextPatrol;  
-	float patrolRange = 500.0f;
 	
-	if (NavSystem->GetRandomPointInNavigableRadius(origin, patrolRange, nextPatrol))
+	
+	if (NavSystem->GetRandomPointInNavigableRadius(origin, m_PatrolRange, nextPatrol))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(AMonster::PatrolPosKey, nextPatrol.Location);
 	}

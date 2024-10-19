@@ -62,7 +62,7 @@ private:
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_MaxHP;
 
-	UPROPERTY(VisibleInstanceOnly, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, Transient, Meta = (AllowPrivateAccess = true))
 	float m_CurHP;
 	
 	UPROPERTY(VisibleInstanceOnly, Meta = (AllowPrivateAccess = true))

@@ -7,7 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 
 
-UNotifyState_Check_Collision::UNotifyState_Check_Collision()
+UNotifyState_Check_Collision::UNotifyState_Check_Collision() :
+m_HitSound(nullptr)
 {
 }
 

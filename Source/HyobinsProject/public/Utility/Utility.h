@@ -17,13 +17,13 @@ public:
 	static int32 GetHitDirection(const AActor* hitActor, const AActor* attackActor);
 	
 	template <typename T> 
-	static FORCEINLINE FString ConvertEnumToString(const T enumType) 
-	{ 
+	static FString ConvertEnumToString(const T enumType) 
+	{
 		return StaticEnum<T>()->GetNameStringByValue(static_cast<int64>(enumType)); 
 	}
 
 	template <typename T> 
-	static FORCEINLINE FName ConvertEnumToName(const T enumType) 
+	static FName ConvertEnumToName(const T enumType) 
 	{ 
 		return FName(*StaticEnum<T>()->GetNameStringByValue(static_cast<int64>(enumType))); 
 	}
@@ -32,5 +32,4 @@ public:
 private:
 	static const double m_DegreeTable[3][3];
 	static const int32 m_DirectionIndex[3][3];
-
 };

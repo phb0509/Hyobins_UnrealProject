@@ -28,7 +28,6 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_GravityScaleInAir(0.00001f)
 {
 	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
-	
 }
 
 void UMainPlayerSkillComponent::BeginPlay()
@@ -301,11 +300,8 @@ void UMainPlayerSkillComponent::EarthStrike_OnGround()
 
 void UMainPlayerSkillComponent::EarthStrike_HitCheck()
 {
-	FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
+	const FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
 	
-	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	// ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
-
 	const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
 	const TArray<AActor*> IgnoreActors = {m_Owner.Get()};
 	TArray<AActor*> overlappedActors;
@@ -322,7 +318,7 @@ void UMainPlayerSkillComponent::EarthStrike_HitCheck()
 	{
 		for (AActor* overlappedEnemy : overlappedActors)
 		{
-			ACharacterBase* enemy = Cast<ACharacterBase>(overlappedEnemy);
+			const ACharacterBase* enemy = Cast<ACharacterBase>(overlappedEnemy);
 			if (enemy->GetIsOnGround())
 			{
 				m_Owner->Attack(TEXT("EarthStrike"), overlappedEnemy);
@@ -338,7 +334,7 @@ void UMainPlayerSkillComponent::EarthStrike_PlayEffect()
 {
 	if (m_EarthStrikeEffect != nullptr)
 	{
-		UNiagaraComponent* niagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_EarthStrikeEffect,
+		const UNiagaraComponent* niagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_EarthStrikeEffect,
 		m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation(),
 		FRotator(0.0f),FVector(1.0f, 1.0f, 1.0f)
 		);
@@ -367,26 +363,26 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	m_OwnerAnimInstance->NormalAttack_Start_EachSection.AddUObject(this, &UMainPlayerSkillComponent::OnCalledNotify_NormalAttack_Start_EachSection);
 	
 	// Attack_InAir
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("UpperAttack_GroundToAir"),
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("UpperAttack_GroundToAir"),
 	[this]()
 	{
 		m_Owner->GetCharacterMovement()->SetMovementMode(
 		MOVE_Falling);
 	});
 	
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("NormalAttack_InAir"),
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
 	[this]()
 	{
 		initGravityScaleAfterAttack();
 	});
 
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("DashAttack_InAir"),
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("DashAttack_InAir"),
 	[this]()
 	{
 		initGravityScaleAfterAttack();
 	});
 
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageEnded(TEXT("EarthStrike_OnGround"),
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("EarthStrike_OnGround"),
 [this]()
 	{
 		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;

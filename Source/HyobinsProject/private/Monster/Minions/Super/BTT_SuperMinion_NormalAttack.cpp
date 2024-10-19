@@ -6,7 +6,6 @@
 #include "Utility/AIControllerBase.h"
 #include "Utility/AnimInstanceBase.h"
 
-static FName NormalAttackNames[2] = {"NormalAttack0", "NormalAttack1"};
 
 UBTT_SuperMinion_NormalAttack::UBTT_SuperMinion_NormalAttack()
 {
@@ -17,12 +16,15 @@ EBTNodeResult::Type UBTT_SuperMinion_NormalAttack::ExecuteTask(UBehaviorTreeComp
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	ASuperMinion* const owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
+	const ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
 	AAIControllerBase* aiController = Cast<AAIControllerBase>(owner->GetController());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
+	int32 attackIndex = FMath::RandRange(0,1);
+	FString attackName = "NormalAttack" + FString::FromInt(attackIndex);
+	
 	aiController->StopBehaviorTree();
-	animInstance->PlayMontage(NormalAttackNames[FMath::RandRange(0,1)],1.0f);
+	animInstance->PlayMontage(FName(attackName));
 	
 	return EBTNodeResult::Succeeded;
 }

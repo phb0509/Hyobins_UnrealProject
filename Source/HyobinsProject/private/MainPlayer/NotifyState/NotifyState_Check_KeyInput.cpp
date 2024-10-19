@@ -5,8 +5,7 @@
 #include "Component/MainPlayerSkillComponent.h"
 #include "MainPlayer/MainPlayer.h"
 
-UNotifyState_Check_KeyInput::UNotifyState_Check_KeyInput():
-m_bIsPressedKey(false)
+UNotifyState_Check_KeyInput::UNotifyState_Check_KeyInput()
 {
 }
 

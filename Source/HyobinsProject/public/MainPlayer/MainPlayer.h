@@ -34,10 +34,11 @@ public:
 	// AxisMappings
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
-
+	void InitArrowKeys();
+	
 	// ActionMappings
-	void Run();
-	void StopRun();
+	void Run() const;
+	void StopRun() const;
 	void Check_IsPressed_LeftShift();
 	void Check_IsReleased_LeftShift();
 
@@ -49,8 +50,6 @@ public:
 	
 	void RotateActorToKeyInputDirection();
 	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
-	
-	FORCEINLINE void UpdateTempInput() { m_TempInputHorizontalForDodge = m_CurInputHorizontal; m_TempInputVerticalForDodge = m_CurInputVertical; }
 	
 	// Get
 	FORCEINLINE UMainPlayerSkillComponent* GetSkillComponent() const { return m_SkillComponent; }
@@ -102,10 +101,7 @@ private:
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
 	
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowPrivateAccess = true))
-	bool m_bIsTargeting;
 	
-
 	// KeyInput
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputMappingContext> m_InputMappingContextOnGround;
@@ -129,11 +125,11 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputVertical;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	int32 m_TempInputHorizontalForDodge;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	int32 m_TempInputVerticalForDodge;
+	// UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	// int32 m_TempInputHorizontalForDodge;
+	//
+	// UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	// int32 m_TempInputVerticalForDodge;
 
 	
 };

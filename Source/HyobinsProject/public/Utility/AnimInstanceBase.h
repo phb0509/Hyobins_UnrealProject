@@ -16,7 +16,7 @@ struct FMontageFunc
 
 public:
 	FSkillMontageEvent_Delegate funcOnCalledMontageStarted;
-	FSkillMontageEvent_Delegate funcOnCalledMontageEnded;
+	FSkillMontageEvent_Delegate funcOnCalledMontageNotInterruptedEnded;
 	FSkillMontageEvent_Delegate funcOnCalledMontageInterruptedEnded;
 };
 
@@ -51,7 +51,7 @@ public:
 	};
 
 	template <typename UObjectTemplate>
-	void BindFunc_OnMontageEnded(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
+	void BindFunc_OnMontageNotInterruptedEnded(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
@@ -59,7 +59,7 @@ public:
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
-		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.BindUFunction(InUserObject, InFunctionName);
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageNotInterruptedEnded.BindUFunction(InUserObject, InFunctionName);
 	};
 
 	template <typename UObjectTemplate>
@@ -87,7 +87,7 @@ public:
 	};
 	
 	template <typename FunctorType>
-	void BindLambdaFunc_OnMontageEnded(const FName& montageName,  FunctorType&& InFunctor)
+	void BindLambdaFunc_OnMontageNotInterruptedEnded(const FName& montageName,  FunctorType&& InFunctor)
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
@@ -95,7 +95,7 @@ public:
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
-		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.BindLambda(InFunctor);
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageNotInterruptedEnded.BindLambda(InFunctor);
 	};
 
 	template <typename FunctorType>

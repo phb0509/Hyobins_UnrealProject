@@ -3,6 +3,7 @@
 
 #include "Monster/Minions/Super/BTT_UpdateSuperMinionState.h"
 #include "Monster/Minions/Super/SuperMinion.h"
+#include "Utility/AnimInstanceBase.h"
 #include "Utility/AIControllerBase.h"
 #include "Utility/EnumTypes.h"
 
@@ -17,8 +18,9 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 {
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
-	ASuperMinion* const owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
-	const ACharacterBase* const enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
+	ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
+	//const UAnimInstanceBase* ownerAnimInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
+	const ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 	const float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
 	
 	if (distanceToEnemy > m_NormalAttackRange) // 공격범위 밖이면
@@ -27,6 +29,7 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 	}
 	else if (distanceToEnemy <= m_NormalAttackRange)
 	{
+		//if (ownerAnimInstance->Montage_IsPlaying())
 		owner->SetFSMState(ESuperMinionFSMStates::NormalAttack);
 	}
 

@@ -21,12 +21,9 @@ const FName AMainPlayer::ShieldForDefendColliderName = "ShieldForDefendCollider"
 AMainPlayer::AMainPlayer() :
 	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
-	m_bIsTargeting(true),
 	m_bIsPressedShift(false),
 	m_CurInputHorizontal(0),
-	m_CurInputVertical(0),
-	m_TempInputHorizontalForDodge(0),
-	m_TempInputVerticalForDodge(0)
+	m_CurInputVertical(0)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -56,19 +53,19 @@ void AMainPlayer::BeginPlay()
 	animInstance->OnEnteredState_MoveOnGround.AddDynamic(this, &AMainPlayer::RemoveInputContextMappingInAir);
 }
 
-void AMainPlayer::Tick(float DeltaTime) // 
+void AMainPlayer::Tick(float DeltaTime) 
 {
 	Super::Tick(DeltaTime);
 	
 	printLog();
 }
 
-void AMainPlayer::Run()
+void AMainPlayer::Run() const
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
 }
 
-void AMainPlayer::StopRun()
+void AMainPlayer::StopRun() const
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 
@@ -87,7 +84,7 @@ void AMainPlayer::Check_IsReleased_LeftShift()
 
 void AMainPlayer::AddInputContextMappingInAir()
 {
-	APlayerController* playerController = Cast<APlayerController>(GetController());
+	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 
 	if (!subSystem->HasMappingContext(m_InputMappingContextInAir))
@@ -98,7 +95,7 @@ void AMainPlayer::AddInputContextMappingInAir()
 
 void AMainPlayer::RemoveInputContextMappingInAir()
 {
-	APlayerController* playerController = Cast<APlayerController>(GetController());
+	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 
 	if (subSystem->HasMappingContext(m_InputMappingContextInAir))
@@ -241,26 +238,28 @@ void AMainPlayer::printLog() const
 
 void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
 {
-	const FRotator controllerRotation = GetControlRotation();
-	const FRotator actorRotation = GetActorRotation();
-	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
-	const FRotator resultRotator = { actorRotation.Pitch, controllerRotation.Yaw + degree, actorRotation.Roll };
+	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: RotateActorToKeyInputDirection"));
 	
-	SetActorRotation(resultRotator);
+	FRotator actorRotation = GetActorRotation();
+	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
+	actorRotation.Yaw = GetControlRotation().Yaw + degree;
+	
+	SetActorRotation(actorRotation);
 }
 
 void AMainPlayer::RotateActorToControllerYaw() // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 {
-	const FRotator controllerRotation = GetControlRotation();
-	const FRotator actorRotation = GetActorRotation();
-	const FRotator resultRotator = { actorRotation.Pitch, controllerRotation.Yaw, actorRotation.Roll };
-
-	SetActorRotation(resultRotator);
+	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: RotateActorToControllerYaw"));
+	
+	FRotator actorRotation = GetActorRotation();
+	actorRotation.Yaw =  GetControlRotation().Yaw;
+	
+	SetActorRotation(actorRotation);
 }
 
 void AMainPlayer::Move(const FInputActionValue& value)
 {
-	FVector2d movementVector = value.Get<FVector2D>();
+	const FVector2d movementVector = value.Get<FVector2D>();
 	
 	const FRotator rotation = GetControlRotation();
 	const FRotator yawRotation(0, rotation.Yaw, 0);
@@ -281,17 +280,23 @@ void AMainPlayer::Move(const FInputActionValue& value)
 
 void AMainPlayer::Look(const FInputActionValue& value)
 {
-	FVector2d axisVector = value.Get<FVector2d>();
+	const FVector2d axisVector = value.Get<FVector2d>();
 
 	this->AddControllerYawInput(axisVector.X);
 	this->AddControllerPitchInput(axisVector.Y);
+}
+
+void AMainPlayer::InitArrowKeys()
+{
+	m_CurInputHorizontal = 0;
+	m_CurInputVertical = 0;
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-	APlayerController* playerController = Cast<APlayerController>(GetController());
+	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 	subSystem->ClearAllMappings();
 	subSystem->AddMappingContext(m_InputMappingContextOnGround,0);
@@ -304,6 +309,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	EIC->BindAction(m_InputActionsOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
 	
 	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
+	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
 	EIC->BindAction(m_InputActionsOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
 	EIC->BindAction(m_InputActionsOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
 	EIC->BindAction(m_InputActionsOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);

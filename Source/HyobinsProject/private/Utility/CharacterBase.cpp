@@ -25,7 +25,7 @@ ACharacterBase::ACharacterBase() :
 	{
 		for (int i = 0; i < enumPtr->NumEnums(); ++i)
 		{
-			ECrowdControlType state = (ECrowdControlType)(enumPtr->GetValueByIndex(i));
+			ECrowdControlType state = static_cast<ECrowdControlType>(enumPtr->GetValueByIndex(i));
 			FOnCrowdControl_Start_Delegate startDelegate;
 			m_CrowdControl_Start_Delegates.Add(state,startDelegate);
 		}
@@ -41,8 +41,8 @@ void ACharacterBase::BeginPlay()
 
 	attackCount = 0;
 	
-	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	animInstance->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // Death는 Ended를 호출하지않기에, 노티파이 심어야함.
+	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
+	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // Death는 Ended를 호출하지않기에, 노티파이 심어야함.
 	
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_TakeKnockbackAttack);
 	m_CrowdControl_Start_Delegates[ECrowdControlType::Airborne].AddUObject(this, &ACharacterBase::ExecEvent_TakeAirborneAttack);
@@ -86,7 +86,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 		{
 			execEvent_CommonCrowdControl(instigator);
 			
-			ECrowdControlType crowdControl = attackInfo->crowdControlType;
+			const ECrowdControlType crowdControl = attackInfo->crowdControlType;
 			m_HitDirection = Utility::GetHitDirection(this, instigator); // 피격방향을 산출.
 			m_CrowdControl_Start_Delegates[crowdControl].Broadcast(instigator, attackInfo);
 		

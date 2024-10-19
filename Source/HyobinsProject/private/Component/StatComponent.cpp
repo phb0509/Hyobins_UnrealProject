@@ -4,6 +4,7 @@
 
 UStatComponent::UStatComponent() :
 	m_DefaultDamage(100.0f),
+	m_CriticalAttackChance(30.0f),
 	m_Defense(0.0f),
 	m_MaxHP(200.0f),
 	m_CurHP(m_MaxHP),

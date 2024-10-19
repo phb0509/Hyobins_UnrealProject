@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "Utility/CharacterBase.h"
 #include "ActorPool/PoolableActor.h"
+#include "Templates/IsIntegral.h"
+#include "Templates/IsEnumClass.h"
 #include "Monster.generated.h"
 
-//class AAIControllerBase;
 
-UCLASS()
+UCLASS(Abstract)
 class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActor
 {
 	GENERATED_BODY()
@@ -17,11 +18,19 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActo
 public:
 	AMonster();
 	virtual void BeginPlay() override;
-	
 
+	template<typename T>
+	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), void>::Type
+	SetFSMState(const T state)
+	{
+		uint8 stateIndex = static_cast<uint8>(state);
+		m_CurFSMState = stateIndex;
+		setFSMStateAsBehaviorTree(stateIndex);
+	}
+	
 protected:
 	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) override;
-	virtual void SetCrowdControlState(ECrowdControlState state) override;
+	virtual void SetCrowdControlState(ECrowdControlStates state) override;
 	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;
@@ -30,6 +39,7 @@ protected:
 	
 private:
 	void activateHitEffect(const FHitInformation&);
+	void setFSMStateAsBehaviorTree(uint8 stateIndex) const;
 		
 public:
 	static const FName HomePosKey;
@@ -40,6 +50,7 @@ public:
 	static const FName NormalAttackSpeedKey;
 
 protected:
+	uint8 m_CurFSMState;
 	FTimerHandle m_DiffuseRatioOnHitTimer;
 	
 private:

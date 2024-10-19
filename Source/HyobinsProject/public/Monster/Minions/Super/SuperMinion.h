@@ -24,12 +24,6 @@ public:
 	UFUNCTION()
 	void OnCalled_NormalAttack_End();
 	
-	
-	// Get
-	FORCEINLINE ESuperMinionFSMStates GetState() const { return m_CurFSMState; }
-
-	// Set
-	void SetFSMState(ESuperMinionFSMStates state);
 
 protected:
 	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
@@ -53,6 +47,7 @@ protected:
 
 	void DisableMovementForDuration(float duration) const;
 	void CallTimer_ExecDownEvent_WhenOnGround();
+
 	
 	// IPoolableActor VirtualFunction 
 	virtual void Activate() override;
@@ -68,15 +63,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UCapsuleComponent> m_HitCollider;
 	
-
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_LeftSwordCollider;
 		
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_RightSwordCollider;
 	
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
-	ESuperMinionFSMStates m_CurFSMState;
+	// UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
+	// ESuperMinionFSMStates m_CurFSMState;
 	
 	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
 	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;

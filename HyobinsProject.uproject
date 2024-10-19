@@ -15,6 +15,11 @@
 				"UMG",
 				"MotionWarping"
 			]
+		},
+		{
+			"Name": "EditorModule",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [

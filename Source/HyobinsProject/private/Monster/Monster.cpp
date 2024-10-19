@@ -15,7 +15,8 @@ const FName AMonster::FSMStateKey(TEXT("FSMState"));
 const FName AMonster::CrowdControlStateKet(TEXT("CrowdControlState"));
 
 
-AMonster::AMonster()
+AMonster::AMonster() :
+m_CurFSMState(0)
 {
 }
 
@@ -28,21 +29,19 @@ void AMonster::BeginPlay()
 
 void AMonster::execEvent_CommonCrowdControl(const ACharacterBase* instigator)
 {
-	ACharacterBase* nonConstInstigator = const_cast<ACharacterBase*>(instigator);
+	ACharacterBase* instigatorCharacter = const_cast<ACharacterBase*>(instigator);
 	
 	if (!m_bIsSuperArmor) // 슈퍼아머상태면 피격모션을 재생안시킬것이기 때문에 예외.
 	{
-		 m_AIControllerBase->StopBehaviorTree();
-		 m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nonConstInstigator);
+		 m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigatorCharacter);
 	}
 }
 
-void AMonster::SetCrowdControlState(ECrowdControlState state)
+void AMonster::SetCrowdControlState(ECrowdControlStates state)
 {
 	Super::SetCrowdControlState(state);
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::CrowdControlStateKet, static_cast<uint8>(state));
 }
-
 
  void AMonster::Initialize()
 {
@@ -101,4 +100,9 @@ void AMonster::activateHitEffect(const FHitInformation& hitInfo)
 		0.25f,false
 		);
 }
+
+ void AMonster::setFSMStateAsBehaviorTree(uint8 stateIndex) const
+ {
+	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, stateIndex);
+ }
 

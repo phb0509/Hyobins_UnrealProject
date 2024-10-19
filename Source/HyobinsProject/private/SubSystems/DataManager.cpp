@@ -17,7 +17,7 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 		return;
 	}
 	
-	const UDataTable* const dataTable = LoadObject<UDataTable>(NULL, *assetPath, NULL, LOAD_None, NULL);
+	const UDataTable* dataTable = LoadObject<UDataTable>(NULL, *assetPath, NULL, LOAD_None, NULL);
 	TMap<FName,FAttackInformation> attackInfos;
 	
 	if (dataTable != nullptr)
@@ -31,7 +31,7 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 			ECrowdControlType crowdControlType = ECrowdControlType::None;
 			
 			const UEnum* crowdControlEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
-
+			
 			if (crowdControlEnum != nullptr)
 			{
 				const int32 index = crowdControlEnum->GetIndexByName(data.crowdControlType);

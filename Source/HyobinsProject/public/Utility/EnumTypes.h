@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Templates/IsIntegral.h"
+#include "Templates/IsEnumClass.h"
 #include "EnumTypes.generated.h"
 
 
 UENUM(BlueprintType)
-enum class ECrowdControlState : uint8
+enum class ECrowdControlStates : uint8
 {
 	None					UMETA(DisplayName = "None"),
 	KnockbackOnStanding		UMETA(DisplayName = "KnockbackOnStanding"),
@@ -31,9 +33,6 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
-	KnockbackOnStanding				UMETA(DisplayName = "Knockback"),
-	Groggy							UMETA(DisplayName = "Groggy"),
-	Down							UMETA(DisplayName = "Down"),
 	Idle 							UMETA(DisplayName = "Idle"),
 	NormalAttack_OnGround			UMETA(DisplayName = "NormalAttack_OnGround"),
 	NormalStrikeAttack_OnGround		UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
@@ -45,20 +44,14 @@ enum class EMainPlayerSkillStates : uint8
 	EarthStrike_FallingToGround		UMETA(DisplayName = "EarthStrike_FallingToGround"),
 	EarthStrike_OnGround			UMETA(DisplayName = "EarthStrike_OnGround"),
 	Dodge_OnGround 					UMETA(DisplayName = "Dodge_OnGround"),
-	Dodge_Targeting 				UMETA(DisplayName = "Dodge_Targeting"),
 };
 
 
 UENUM(BlueprintType)
 enum class ESuperMinionFSMStates : uint8
 {
-	KnockbackOnStanding		UMETA(DisplayName = "KnockbackOnStanding"),
-	KnockbackInAir			UMETA(DisplayName = "KnockbackInAir"),
-	Down					UMETA(DisplayName = "Down"),
-	Groggy					UMETA(DisplayName = "Groggy"),
 	Patrol					UMETA(DisplayName = "Patrol"),
 	Chase					UMETA(DisplayName = "Chase"),
-	Dead					UMETA(DisplayName = "Dead"),
 	NormalAttack			UMETA(DisplayName = "NormalAttack")
 };
 
@@ -71,6 +64,14 @@ enum class ECrowdControlType : uint8
 	Down		UMETA(DisplayName = "Down"),
 	Groggy		UMETA(DisplayName = "Groggy")
 };
+
+template <typename T1, typename T2>
+typename TEnableIf< (TIsEnumClass<T1>::Value || TIsIntegral<T1>::Value) &&
+					(TIsEnumClass<T2>::Value || TIsIntegral<T2>::Value),bool>::Type
+operator== (const T1 value1, const T2 value2)
+{
+	return static_cast<uint8>(value1) == static_cast<uint8>(value2);
+}
 
 
 UCLASS()

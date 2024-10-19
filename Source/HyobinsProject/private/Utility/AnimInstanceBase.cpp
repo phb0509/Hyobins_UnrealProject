@@ -54,7 +54,7 @@ void UAnimInstanceBase::execBindedFunc_OnMontageEnded(const FName& montageName)
 		return;
 	}
 	
-	const bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageEnded.ExecuteIfBound();
+	const bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageNotInterruptedEnded.ExecuteIfBound();
 }
 
 void UAnimInstanceBase::execBindedFunc_OnMontageInterruptedEnded(const FName& montageName)

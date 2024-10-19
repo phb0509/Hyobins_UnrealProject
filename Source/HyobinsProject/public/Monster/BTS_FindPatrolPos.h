@@ -16,4 +16,8 @@ public:
 	UBTS_FindPatrolPos();
 
 	virtual void OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+private:
+	UPROPERTY(EditAnywhere)
+	float m_PatrolRange;
 };
