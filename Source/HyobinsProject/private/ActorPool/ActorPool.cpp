@@ -73,7 +73,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(const TSubclassOf<AActor> classTyp
 		break;
 	}
 
-	if (actor == nullptr)
+	if (!actor.IsValid())
 	{
 		CreateActorPool(classType, m_BlueprintActorPool[classType].actors.Num() * 2);
 		actor = SpawnActor(classType);

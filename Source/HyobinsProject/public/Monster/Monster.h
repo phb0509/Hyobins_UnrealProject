@@ -23,14 +23,25 @@ public:
 	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), void>::Type
 	SetFSMState(const T state)
 	{
-		uint8 stateIndex = static_cast<uint8>(state);
+		const uint8 stateIndex = static_cast<uint8>(state);
 		m_CurFSMState = stateIndex;
 		setFSMStateAsBehaviorTree(stateIndex);
 	}
 	
 protected:
 	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) override;
-	virtual void SetCrowdControlState(ECrowdControlStates state) override;
+	virtual void SetCrowdControlState(const ECrowdControlStates state) override;
+
+	virtual void Die() override;
+	virtual void ExecEvent_EndedDeathMontage() override;
+
+	// 사망시 호출할 TimeLine 이벤트.
+	UFUNCTION()
+	void OnCalledTimelineEvent_Loop_AfterDeath(float curveValue); // 특정시간(조절 가능한)동안 디퓨즈값 검은색으로 점점 변환.
+
+	UFUNCTION()
+	void OnCalledTimelineEvent_End_AfterDeath(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수.)
+	
 	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;

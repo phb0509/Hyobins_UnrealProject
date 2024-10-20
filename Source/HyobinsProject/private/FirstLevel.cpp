@@ -22,7 +22,7 @@ void AFirstLevel::BeginPlay()
 	Create();
 }
 
-void AFirstLevel::Create()
+void AFirstLevel::Create() const
 {
 	m_ActorPool->CreateActorPool(m_MonsterClass,5);
 }

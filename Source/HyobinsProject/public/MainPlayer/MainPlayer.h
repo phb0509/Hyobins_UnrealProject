@@ -34,7 +34,11 @@ public:
 	// AxisMappings
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
-	void InitArrowKeys();
+	void InitArrowKeys()
+	{
+		m_CurInputHorizontal = 0;
+		m_CurInputVertical = 0;
+	}
 	
 	// ActionMappings
 	void Run() const;
@@ -85,7 +89,6 @@ private:
 	UPROPERTY(EditAnywhere) 
 	TObjectPtr<UCapsuleComponent> m_ShieldBottomCollider;
 	
-	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
 	
@@ -124,12 +127,6 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputVertical;
-
-	// UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	// int32 m_TempInputHorizontalForDodge;
-	//
-	// UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	// int32 m_TempInputVerticalForDodge;
 
 	
 };

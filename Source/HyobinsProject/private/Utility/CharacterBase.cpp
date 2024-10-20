@@ -11,6 +11,9 @@
 
 
 int32 attackCount = 0; // 로그확인용.
+const FName ACharacterBase::HitColliderName = "HitCollider";
+const FName ACharacterBase::KnockbackMontageNames[4] = {"Knockback0", "Knockback1", "Knockback2", "Knockback3"};
+const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2", "Death3"};
 
 ACharacterBase::ACharacterBase() :
     m_WalkSpeed(200.0f),
@@ -59,13 +62,13 @@ void ACharacterBase::Tick(float DeltaSeconds)
 	m_bIsFlying = GetCharacterMovement()->IsFlying();
 }
 
-void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
+void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target) const
 {
 	ACharacterBase* targetActor = Cast<ACharacterBase>(target);
 	const UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	const FAttackInformation* attackInfo = dataManager->GetAttackInformation(this->GetClass(), attackName);
 	
-	const bool bIsCriticalAttack = FMath::FRandRange(0, 100) <= m_StatComponent->GetCriticalAttackChance();
+	const bool bIsCriticalAttack = FMath::FRandRange(0.0f, 100.0f) <= m_StatComponent->GetCriticalAttackChance();
 	const float finalDamage = (m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio) * (bIsCriticalAttack ? 2.0f : 1.0f);
 	
 	targetActor->OnDamage(finalDamage, bIsCriticalAttack, attackInfo, this);
@@ -108,10 +111,170 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }
 
+void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator,
+	const FAttackInformation* attackInfo)
+{
+	if (!m_bIsSuperArmor)
+	{
+		if (m_CurCrowdControlState == ECrowdControlStates::Down) // 다운상태에서 피격시,
+		{
+			CallTimer_ExecDownEvent_WhenOnGround();
+		}
+		else if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir) // 공중넉백상태에서 넉백공격 피격시,
+		{
+			m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
+			
+			DisableMovementComponentForDuration(0.2f);
+			CallTimer_ExecDownEvent_WhenOnGround();
+		}
+		else // 스탠딩상태 or 그 외의 FSM상태일 때
+		{
+			m_AnimInstanceBase->PlayMontage(KnockbackMontageNames[m_HitDirection],1.0f);
+			SetCrowdControlState(ECrowdControlStates::KnockbackOnStanding);
+			
+			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+				this,
+					&ACharacterBase::OnCalledTimer_KnockbackOnStanding_End,	
+					m_CrowdControlTime, false);
+		}
+	}
+}
+
+void ACharacterBase::OnCalledTimer_KnockbackOnStanding_End()
+{
+	if (m_bIsDead)
+	{
+		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+		return;
+	}
+	
+	SetCrowdControlState(ECrowdControlStates::None);
+	m_AnimInstanceBase->StopAllMontages(0.0f);
+}
+
+void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator,
+	const FAttackInformation* attackInfo)
+{
+	if (!m_bIsSuperArmor)
+	{
+		FVector airbornePower = {0.0f, 0.0f, attackInfo->airbornePower};
+		
+		if (m_CurCrowdControlState == ECrowdControlStates::Down) // 다운상태에서 에어본공격맞으면, 모션만 재생한다. 조금 덜띄운다.
+		{
+			airbornePower.Z /= 2; // 다운상태라서 조금 덜띄운다.
+			m_AnimInstanceBase->PlayMontage(TEXT("Down"));
+		}
+		else // 공중넉백상태거나, 스탠딩상태거나. 타이머 호출.
+		{
+			m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
+			SetCrowdControlState(ECrowdControlStates::KnockbackInAir);
+		}
+		
+		CallTimer_ExecDownEvent_WhenOnGround();
+		
+		FVector LaunchVelocity = airbornePower; 
+		this->LaunchCharacter(LaunchVelocity, true, true);
+	}
+}
+
+void ACharacterBase::ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
+{
+	if (!m_bIsSuperArmor)
+	{
+		if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir) // 공중넉백상태에서 다운공격맞더라도 공중넉백유지. 그냥 다운공격아니라 넉백공격했다는 판정.
+		{
+			m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
+
+			DisableMovementComponentForDuration(0.2f);
+		}
+		else // 스탠딩, 다운상태이거나 그 외의상태(공격도중, 순찰 등)일 때, 다운시키기.
+		{
+			m_AnimInstanceBase->PlayMontage(TEXT("Down"));
+			SetCrowdControlState(ECrowdControlStates::Down);
+			
+			const float montagePlayTime = m_AnimInstanceBase->GetMontagePlayTime(TEXT("Down")) + 0.2f;
+			GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+				this,
+					&ACharacterBase::OnCalledTimer_Down_End,	
+					m_CrowdControlTime > montagePlayTime ? m_CrowdControlTime : montagePlayTime,
+					false);
+		}
+	}
+}
+
+void ACharacterBase::CallTimer_ExecDownEvent_WhenOnGround()
+{
+	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+		this,
+			&ACharacterBase::ExecEvent_Down_WhenOnGround,	
+			GetWorld()->DeltaTimeSeconds, true,-1);
+}
+
+void ACharacterBase::ExecEvent_Down_WhenOnGround()
+{
+	if (m_bIsDead)
+    	{
+    		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+    		return;
+    	}
+    	
+    	if (GetCharacterMovement()->IsMovingOnGround()) // 땅에 닿으면
+    	{
+    		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+    		
+    		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
+    		SetCrowdControlState(ECrowdControlStates::Down);
+    			
+    		const float downPlayTime = m_AnimInstanceBase->GetMontagePlayTime(TEXT("Down")) + 0.2f;
+    			
+    		GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+    			this,
+    				&ACharacterBase::OnCalledTimer_Down_End,	
+    				m_CrowdControlTime > downPlayTime ? m_CrowdControlTime : downPlayTime,
+    				false);
+    	}
+}
+
+void ACharacterBase::OnCalledTimer_Down_End()
+{
+	m_AnimInstanceBase->PlayMontage(TEXT("GetUp"));
+
+	const float getupPlayTime = m_AnimInstanceBase->GetMontagePlayTime(TEXT("GetUp")) + 0.2f;
+	GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+				[this]()
+				{
+					SetCrowdControlState(ECrowdControlStates::None);
+				},
+			getupPlayTime,
+			false);
+}
+
+void ACharacterBase::DisableMovementComponentForDuration(float duration) const
+{
+	GetCharacterMovement()->Deactivate();
+
+	FTimerHandle activateTimer;
+	GetWorldTimerManager().SetTimer(activateTimer,
+		[this]()
+		{ GetCharacterMovement()->Activate();},
+			duration, false); // 넉백시간만큼하면 너무 길어서 0.2f정도로
+}
+
 void ACharacterBase::ExecEvent_OnHPIsZero()
 {
 	m_bIsDead = true;
 	Die();
+}
+
+void ACharacterBase::Die()
+{
+	SetCrowdControlState(ECrowdControlStates::Dead);
+	GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+	GetCharacterMovement()->Activate();
+	
+	m_AnimInstanceBase->StopAllMontages(0.0f);  
+	m_AnimInstanceBase->PlayMontage(DeathMontageNames[m_HitDirection]);
+	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ACharacterBase::OnCalledNotify_End_Death() 

@@ -19,7 +19,7 @@ public:
 	AFirstLevel();
 
 	virtual void BeginPlay() override;
-	void Create();
+	void Create() const;
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")

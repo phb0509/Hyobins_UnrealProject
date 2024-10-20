@@ -7,7 +7,6 @@
 AMainPlayerController::AMainPlayerController():
 	m_TeamID(FGenericTeamId(1))
 {
-	
 }
 
 void AMainPlayerController::BeginPlay()

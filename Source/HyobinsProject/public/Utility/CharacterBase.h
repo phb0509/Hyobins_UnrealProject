@@ -38,7 +38,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator);
 	
-	void Attack(const FName& attackName, TWeakObjectPtr<AActor> target);
+	void Attack(const FName& attackName, TWeakObjectPtr<AActor> target) const;
 	
 	bool HasContainHitActor(const FName& attackName, AActor* hitActor)
 	{
@@ -72,27 +72,28 @@ public:
 
 	
 protected:
-	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) {}
-	virtual void OnCalledTimer_KnockbackOnStanding_End() {};
+	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
+	virtual void OnCalledTimer_KnockbackOnStanding_End();
 
-	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) {}
-	virtual void ExecEvent_Down_WhenOnGround() {};
+	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
+	virtual void ExecEvent_Down_WhenOnGround();
 
-	virtual void ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) {}
-	virtual void OnCalledTimer_Down_End() {};
+	virtual void ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
+	virtual void OnCalledTimer_Down_End();
+
+	void CallTimer_ExecDownEvent_WhenOnGround();
+	void DisableMovementComponentForDuration(float duration) const;
 	
 	virtual void ExecEvent_OnHPIsZero();
 
 	// Death
 	UFUNCTION()
-	virtual void Die() {};
+	virtual void Die();
 	virtual void ExecEvent_EndedDeathMontage() {};
-	virtual void OnCalledTimer_EndedDeathMontage() {};
+	
 	
 	virtual void OnCalledNotify_End_Death();
 	
-	
-
 	virtual void SetCrowdControlState(ECrowdControlStates state)
 	{
 		m_CurCrowdControlState = state;
@@ -103,6 +104,10 @@ private:
 
 public:
 	FOnTakeDamage OnTakeDamage;
+
+	static const FName HitColliderName;
+	static const FName KnockbackMontageNames[4];
+	static const FName DeathMontageNames[4];
 	
 protected:
 	ECrowdControlStates m_CurCrowdControlState;

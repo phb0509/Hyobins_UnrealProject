@@ -104,6 +104,90 @@ void AMainPlayer::RemoveInputContextMappingInAir()
 	}
 }
 
+void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
+{
+	FRotator actorRotation = GetActorRotation();
+	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
+	actorRotation.Yaw = GetControlRotation().Yaw + degree;
+	
+	SetActorRotation(actorRotation);
+}
+
+void AMainPlayer::RotateActorToControllerYaw() // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
+{
+	FRotator actorRotation = GetActorRotation();
+	actorRotation.Yaw =  GetControlRotation().Yaw;
+	
+	SetActorRotation(actorRotation);
+}
+
+void AMainPlayer::Move(const FInputActionValue& value)
+{
+	const FVector2d movementVector = value.Get<FVector2D>();
+	
+	const FRotator rotation = GetControlRotation();
+	const FRotator yawRotation(0, rotation.Yaw, 0);
+
+	// ForwardVector
+	const FVector forwardDireciton = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
+
+	// RightVector
+	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
+
+	// Add Movement
+	this->AddMovementInput(forwardDireciton, movementVector.X);
+	this->AddMovementInput(rightDirection, movementVector.Y);
+
+	m_CurInputHorizontal = movementVector.Y;
+	m_CurInputVertical = movementVector.X;
+}
+
+void AMainPlayer::Look(const FInputActionValue& value)
+{
+	const FVector2d axisVector = value.Get<FVector2d>();
+
+	this->AddControllerYawInput(axisVector.X);
+	this->AddControllerPitchInput(axisVector.Y);
+}
+
+void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	const APlayerController* playerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
+	subSystem->ClearAllMappings();
+	subSystem->AddMappingContext(m_InputMappingContextOnGround,0);
+	
+	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
+	
+	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
+	
+	// UI
+	EIC->BindAction(m_InputActionsOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
+	
+	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
+	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
+	EIC->BindAction(m_InputActionsOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
+	EIC->BindAction(m_InputActionsOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
+	EIC->BindAction(m_InputActionsOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
+	EIC->BindAction(m_InputActionsOnGround["IsPressed_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsPressed_LeftShift);
+	EIC->BindAction(m_InputActionsOnGround["IsReleased_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsReleased_LeftShift);
+
+	// Skill_OnGround
+	EIC->BindAction(m_InputActionsOnGround["NormalAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_OnGround);
+	EIC->BindAction(m_InputActionsOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
+	EIC->BindAction(m_InputActionsOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
+	EIC->BindAction(m_InputActionsOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge_OnGround);
+
+	// Skill_InAir
+	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
+	EIC->BindAction(m_InputActionsInAir["EarthStrike_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::EarthStrike_InAir);
+	EIC->BindAction(m_InputActionsInAir["DashAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_InAir);
+	
+	m_PressedKeyInfo.Add("LeftShift",false);
+}
+
 void AMainPlayer::initAssets()
 {
 	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
@@ -234,98 +318,4 @@ void AMainPlayer::printLog() const
 	log3 += movementMode;
 	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
 	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
-}
-
-void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
-{
-	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: RotateActorToKeyInputDirection"));
-	
-	FRotator actorRotation = GetActorRotation();
-	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
-	actorRotation.Yaw = GetControlRotation().Yaw + degree;
-	
-	SetActorRotation(actorRotation);
-}
-
-void AMainPlayer::RotateActorToControllerYaw() // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
-{
-	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: RotateActorToControllerYaw"));
-	
-	FRotator actorRotation = GetActorRotation();
-	actorRotation.Yaw =  GetControlRotation().Yaw;
-	
-	SetActorRotation(actorRotation);
-}
-
-void AMainPlayer::Move(const FInputActionValue& value)
-{
-	const FVector2d movementVector = value.Get<FVector2D>();
-	
-	const FRotator rotation = GetControlRotation();
-	const FRotator yawRotation(0, rotation.Yaw, 0);
-
-	// ForwardVector
-	const FVector forwardDireciton = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
-
-	// RightVector
-	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
-
-	// Add Movement
-	this->AddMovementInput(forwardDireciton, movementVector.X);
-	this->AddMovementInput(rightDirection, movementVector.Y);
-
-	m_CurInputHorizontal = movementVector.Y;
-	m_CurInputVertical = movementVector.X;
-}
-
-void AMainPlayer::Look(const FInputActionValue& value)
-{
-	const FVector2d axisVector = value.Get<FVector2d>();
-
-	this->AddControllerYawInput(axisVector.X);
-	this->AddControllerPitchInput(axisVector.Y);
-}
-
-void AMainPlayer::InitArrowKeys()
-{
-	m_CurInputHorizontal = 0;
-	m_CurInputVertical = 0;
-}
-
-void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
-	const APlayerController* playerController = Cast<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
-	subSystem->ClearAllMappings();
-	subSystem->AddMappingContext(m_InputMappingContextOnGround,0);
-	
-	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
-	
-	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
-	
-	// UI
-	EIC->BindAction(m_InputActionsOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
-	
-	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
-	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
-	EIC->BindAction(m_InputActionsOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
-	EIC->BindAction(m_InputActionsOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
-	EIC->BindAction(m_InputActionsOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
-	EIC->BindAction(m_InputActionsOnGround["IsPressed_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsPressed_LeftShift);
-	EIC->BindAction(m_InputActionsOnGround["IsReleased_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsReleased_LeftShift);
-
-	// Skill_OnGround
-	EIC->BindAction(m_InputActionsOnGround["NormalAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_OnGround);
-	EIC->BindAction(m_InputActionsOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
-	EIC->BindAction(m_InputActionsOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
-	EIC->BindAction(m_InputActionsOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge_OnGround);
-
-	// Skill_InAir
-	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
-	EIC->BindAction(m_InputActionsInAir["EarthStrike_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::EarthStrike_InAir);
-	EIC->BindAction(m_InputActionsInAir["DashAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_InAir);
-	
-	m_PressedKeyInfo.Add("LeftShift",false);
 }

@@ -22,36 +22,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	void OnCalled_NormalAttack_End();
-	
+	void OnCalled_NormalAttack_End() const;
 
 protected:
-	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
-	virtual void OnCalledTimer_KnockbackOnStanding_End() override;
-
-	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
-	virtual void ExecEvent_Down_WhenOnGround() override;
-
-	virtual void ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
-	virtual void OnCalledTimer_Down_End() override;
-	
-	virtual void Die() override;
-	virtual void ExecEvent_EndedDeathMontage() override;
-	virtual void OnCalledTimer_EndedDeathMontage() override {};
-	
-	UFUNCTION()
-	void OnCalledTimelineEvent_Loop_AfterDeath(float curveValue);
-
-	UFUNCTION()
-	void OnCalledTimelineEvent_End_AfterDeath();
-
-	void DisableMovementForDuration(float duration) const;
-	void CallTimer_ExecDownEvent_WhenOnGround();
-
-	
 	// IPoolableActor VirtualFunction 
 	virtual void Activate() override;
-	virtual void DeActivate() override;
+	//virtual void DeActivate() override;
 
 	
 private:
@@ -69,17 +45,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_RightSwordCollider;
 	
-	// UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Meta = (AllowPrivateAccess = true))
-	// ESuperMinionFSMStates m_CurFSMState;
-	
 	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
 	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
 	
 	static int32 TagCount;
-	static const FName HitColliderName;
 	static const FName LeftSwordColliderName;
 	static const FName RightSwordColliderName;
-	static const FName KnockbackMontageNames[4];
-	static const FName DeathMontageNames[2];
 	
 };
