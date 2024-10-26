@@ -25,8 +25,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
+	
 
-	void StopBehaviorTree() const;
+	void StopBehaviorTree();
 	void StartBehaviorTree();
 	
     // Get

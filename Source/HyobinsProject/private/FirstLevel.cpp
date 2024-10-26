@@ -15,8 +15,6 @@ AFirstLevel::AFirstLevel() :
 void AFirstLevel::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("AFirstLevel :: BeginPlay"));
 	
 	m_ActorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
 	Create();
@@ -29,7 +27,8 @@ void AFirstLevel::Create() const
 
 void AFirstLevel::Spawn()
 {
-	FVector positions[4] = { {700.0f,0.0f,50.0f}, {-700.0f,0.0f,50.0f}, {0.0f,700.0f,50.0f}, {0.0f,-700.0f,50.0f} };
+	const FVector positions[4] = { {700.0f,0.0f,50.0f}, {-700.0f,0.0f,50.0f},
+		{0.0f,700.0f,50.0f}, {0.0f,-700.0f,50.0f} };
 
 	for (int i = 0; i < 1; ++i)
 	{

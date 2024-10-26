@@ -39,6 +39,7 @@ void ASuperMinion::OnCalled_NormalAttack_End() const
 	if (m_CurFSMState == ESuperMinionFSMStates::NormalAttack)
 	{
 		m_AIController->StartBehaviorTree();
+		UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: OnCalled_NormalAttack_End"));
 	}
 }
 
@@ -68,19 +69,18 @@ void ASuperMinion::Tick(float DeltaTime)
 	
 	m_DeathTimeline.TickTimeline(DeltaTime);
 	
-	const FString movementMode = GetCharacterMovement()->GetMovementName();
-	FString log = TEXT("SuperMinion Mode :: ");
-	log += movementMode;
-	GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-	
-	
-	FString fsmState = Utility::ConvertEnumToString(static_cast<ESuperMinionFSMStates>(m_CurFSMState));
-	FString log1 = Tags[0].ToString() + " :: " + fsmState;
-	GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
-
-	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
-    FString log2 = Tags[0].ToString() + " :: " + crowdState;
-	GEngine->AddOnScreenDebugMessage(105, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	// const FString movementMode = GetCharacterMovement()->GetMovementName();
+	// FString log = TEXT("SuperMinion Mode :: ");
+	// log += movementMode;
+	// GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	//
+	// FString fsmState = Utility::ConvertEnumToString(static_cast<ESuperMinionFSMStates>(m_CurFSMState));
+	// FString log1 = Tags[0].ToString() + " :: FSMState :: " + fsmState;
+	// GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
+ //
+	// FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+ //    FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
+	// GEngine->AddOnScreenDebugMessage(105, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
 }
 
 void ASuperMinion::initAssets()

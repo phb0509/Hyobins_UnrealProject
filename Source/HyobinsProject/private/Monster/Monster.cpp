@@ -46,7 +46,7 @@ void AMonster::execEvent_CommonCrowdControl(const ACharacterBase* instigator)
 	
 	if (instigatorCharacter->IsValidLowLevel() && !m_bIsSuperArmor) // 슈퍼아머상태면 피격모션을 재생안시킬것이기 때문에 예외.
 	{
-		 m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigatorCharacter);
+		m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigatorCharacter);
 	}
 }
 
@@ -126,13 +126,13 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 
 void AMonster::activateHitEffect(const FHitInformation& hitInfo)
 {
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f);
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 바로 붉게 했다가,
 
 	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
 	this->GetWorldTimerManager().SetTimer(m_DiffuseRatioOnHitTimer,
 		[this]()
 		{
-			GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 1.0f);
+			GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 1.0f); // 다시 원래대로
 		},
 		0.25f,false
 		);
@@ -145,7 +145,7 @@ void AMonster::SetCrowdControlState(const ECrowdControlStates state)
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::CrowdControlStateKet, static_cast<uint8>(state));
 }
 
-void AMonster::setFSMStateAsBehaviorTree(uint8 stateIndex) const
+void AMonster::SetFSMStateAsBehaviorTree(uint8 stateIndex) const
 {
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, stateIndex);
 }

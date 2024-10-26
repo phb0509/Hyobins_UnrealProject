@@ -12,6 +12,7 @@ void UEnvironmentSettings::NativeConstruct()
 	
 	m_bHideCheckBox = Cast<UCheckBox>(GetWidgetFromName(TEXT("m_bHideCheckBox")));
 	m_bHideCheckBox->OnCheckStateChanged.AddDynamic(this, &UEnvironmentSettings::ChangeMonsterHPBarState);
+	m_bHideCheckBox->SetCheckedState(ECheckBoxState::Checked);
 }
 
 FReply UEnvironmentSettings::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)

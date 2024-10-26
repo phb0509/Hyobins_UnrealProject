@@ -16,7 +16,10 @@ void UCombo::NativeConstruct()
 
 void UCombo::BindActor(ACharacterBase* takeDamageActor)
 {
-	takeDamageActor->OnTakeDamage.AddUObject(this, &UCombo::updateComboCount);
+	if (IsValid(takeDamageActor))
+	{
+		takeDamageActor->OnTakeDamage.AddUObject(this, &UCombo::updateComboCount);
+	}
 }
 
 void UCombo::updateComboCount(const FHitInformation& hitInfo)

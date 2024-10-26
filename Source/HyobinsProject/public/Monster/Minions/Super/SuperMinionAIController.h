@@ -19,6 +19,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus);

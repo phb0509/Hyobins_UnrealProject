@@ -64,12 +64,18 @@ void ACharacterBase::Tick(float DeltaSeconds)
 
 void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target) const
 {
+	if (!target.IsValid())
+	{
+		return;
+	}
+
 	ACharacterBase* targetActor = Cast<ACharacterBase>(target);
 	const UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	const FAttackInformation* attackInfo = dataManager->GetAttackInformation(this->GetClass(), attackName);
 	
 	const bool bIsCriticalAttack = FMath::FRandRange(0.0f, 100.0f) <= m_StatComponent->GetCriticalAttackChance();
 	const float finalDamage = (m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio) * (bIsCriticalAttack ? 2.0f : 1.0f);
+
 	
 	targetActor->OnDamage(finalDamage, bIsCriticalAttack, attackInfo, this);
 }

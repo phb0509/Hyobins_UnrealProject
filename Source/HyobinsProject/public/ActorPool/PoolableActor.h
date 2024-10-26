@@ -13,7 +13,7 @@ class UPoolableActor : public UInterface
 	GENERATED_BODY()
 };
 
-class HYOBINSPROJECT_API IPoolableActor // 추상클래스처럼 사용.
+class HYOBINSPROJECT_API IPoolableActor 
 {
 	GENERATED_BODY()
 

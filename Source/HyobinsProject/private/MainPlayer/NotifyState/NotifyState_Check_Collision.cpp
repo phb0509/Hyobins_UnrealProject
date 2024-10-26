@@ -18,7 +18,7 @@ void UNotifyState_Check_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	
 	m_Owner = Cast<ACharacterBase>(MeshComp->GetOwner());
-	if (m_Owner != nullptr)
+	if (m_Owner.IsValid())
 	{
 		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		
@@ -34,7 +34,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 	
-	if (m_Owner != nullptr)
+	if (m_Owner.IsValid())
 	{
 		TArray<AActor*> overlappedActors;
 		m_Owner->GetCollider(m_ColliderName)->GetOverlappingActors(overlappedActors);
@@ -43,7 +43,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 		{
 			for (AActor* overlappingEnemy : overlappedActors)
 			{
-				if (!m_Owner->HasContainHitActor(m_AttackName,overlappingEnemy))
+				if (overlappingEnemy != nullptr && !m_Owner->HasContainHitActor(m_AttackName,overlappingEnemy))
 				{
 					m_Owner->AddHitActorsByMe(m_AttackName, overlappingEnemy);
 					m_Owner->Attack(m_AttackName, overlappingEnemy);
@@ -63,7 +63,7 @@ void UNotifyState_Check_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	
-	if (m_Owner != nullptr)
+	if (m_Owner.IsValid())
 	{
 		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}

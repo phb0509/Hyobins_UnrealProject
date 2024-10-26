@@ -11,71 +11,85 @@ AActorPool::AActorPool() :
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AActorPool::CreateActorPool(const TSubclassOf<AActor> classType, int actorCount)
+void AActorPool::CreateActorPool(const TSubclassOf<AActor> classType, int requestedCapacity)
 {
-	checkf(classType->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit IPoolableActorInterfaces."));
-	
-	if (m_BlueprintActorPool.Contains(classType)) // 이미 만들어진게 있다면
+	if(!classType->ImplementsInterface(UPoolableActor::StaticClass()))
 	{
-		if (m_BlueprintActorPool[classType].actors.Num() >= actorCount) // 현재 만들어진게 요청받은것보다 많거나 같다면 -> 새로 만들필요없다.
+		return;
+	}
+	
+	if (m_ActorPool.Contains(classType)) 
+	{
+		if (m_ActorPool[classType].actors.Num() < requestedCapacity)  // 현재 만들어진게 요청받은것보다 적다면
+		{
+			requestedCapacity -= m_ActorPool[classType].actors.Num();
+		}
+		else
 		{
 			return;
-		}
-		else // 현재 만들어진게 요청받은것보다 적다면
-		{
-			actorCount -= m_BlueprintActorPool[classType].actors.Num();
 		}
 	}
 	else
 	{
 		const FActors actorPool;
-		m_BlueprintActorPool.Add(classType, actorPool);
+		m_ActorPool.Add(classType, actorPool);
 	}
 
-	for (int i = 0; i < actorCount; ++i)
+	for (int i = 0; i < requestedCapacity; ++i)
 	{
 		const FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f });
-		AActor* const spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
+		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
 
-		IPoolableActor* const castedSpawnedActor = Cast<IPoolableActor>(spawnedActor);
-		castedSpawnedActor->Initialize();
-		castedSpawnedActor->DeActivate();
+		if (spawnedActor != nullptr)
+		{
+			IPoolableActor* poolableActor = Cast<IPoolableActor>(spawnedActor);
 
-		m_BlueprintActorPool[classType].actors.Add(spawnedActor);
+			if (poolableActor != nullptr)
+			{
+				poolableActor->Initialize();
+				poolableActor->DeActivate();
+				m_ActorPool[classType].actors.Add(spawnedActor);
+			}
+		}
 	}
 }
 
-
 TWeakObjectPtr<AActor> AActorPool::SpawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation)
 {
-	checkf(classType->ImplementsInterface(UPoolableActor::StaticClass()), TEXT("SpawnedActors don't inherit IPoolableActorInterfaces."));
-
-	if (m_BlueprintActorPool.Contains(classType) == false) // 이미 만들어진적이 아예 없다면 (키값자체가 없다면)
+	if(!classType->ImplementsInterface(UPoolableActor::StaticClass()))
+	{
+		return nullptr;
+	}
+	
+	if (!m_ActorPool.Contains(classType)) // 이미 만들어진적이 아예 없다면 (키값자체가 없다면)
 	{
 		CreateActorPool(classType, m_DefaultSpawnCount);
-		UE_LOG(LogTemp, Warning, TEXT("A new actor pool was created because no actor pool was created for the requested actor."));
 	}
 
 	TWeakObjectPtr<AActor> actor = nullptr;
 
-	for (TWeakObjectPtr<AActor> poolableActor : m_BlueprintActorPool[classType].actors)
+	for (TWeakObjectPtr<AActor> poolableActor : m_ActorPool[classType].actors)
 	{
-		IPoolableActor* const castedPoolableActor = Cast<IPoolableActor>(poolableActor);
-		
-		if (castedPoolableActor->GetIsActivated())
+		if (poolableActor.IsValid())
 		{
-			continue;
-		}
+			IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		
-		actor = poolableActor;
-		actor->SetActorLocation(spawnLocation);
-		castedPoolableActor->Activate();
-		break;
+			if (castedPoolableActor == nullptr ||
+				castedPoolableActor->GetIsActivated())
+			{
+				continue;
+			}
+		
+			actor = poolableActor;
+			actor->SetActorLocation(spawnLocation);
+			castedPoolableActor->Activate();
+			break;
+		}
 	}
 
-	if (!actor.IsValid())
+	if (actor == nullptr) // 액터풀이 꽉찼다면 (꺼낼 액터가 없다면)
 	{
-		CreateActorPool(classType, m_BlueprintActorPool[classType].actors.Num() * 2);
+		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 1.5); // 추가생성.
 		actor = SpawnActor(classType);
 	}
 
@@ -83,12 +97,12 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(const TSubclassOf<AActor> classTyp
 }
 
 
-void AActorPool::ClearBlueprintActorPool()
+void AActorPool::ClearActorPool()
 {
-	for (const auto& iter : m_BlueprintActorPool)
+	for (const auto& iter : m_ActorPool)
 	{
 		const TSubclassOf<AActor>& classType = iter.Key;
-		const FActors& blueprintActorPoolActors = m_BlueprintActorPool[classType];
+		const FActors& blueprintActorPoolActors = m_ActorPool[classType];
 
 		for (const auto& actor : blueprintActorPoolActors.actors)
 		{
@@ -96,6 +110,6 @@ void AActorPool::ClearBlueprintActorPool()
 		}
 	}
 
-	m_BlueprintActorPool.Empty();
+	m_ActorPool.Empty();
 }
 

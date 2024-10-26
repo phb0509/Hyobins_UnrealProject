@@ -28,7 +28,7 @@ void UUIManager::Deinitialize()
 	Super::Deinitialize();
 }
 
-void UUIManager::OpenEnvironmentSettings()
+void UUIManager::OpenEnvironmentSettings() const
 {
 	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), m_EnvironmentSettingsClass));
 	environmentSettings->AddToViewport();
@@ -44,15 +44,17 @@ void UUIManager::CreateComboWidjet()
 	m_Combo->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-
 void UUIManager::BindActorToComboWidget(ACharacterBase* const hitActor)
 {
 	if (m_Combo == nullptr)
 	{
 		CreateComboWidjet();
 	}
-	
-	m_Combo->BindActor(hitActor);
+
+	if (m_Combo != nullptr)
+	{
+		m_Combo->BindActor(hitActor);
+	}
 }
 
 void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
@@ -97,8 +99,8 @@ void UUIManager::CreateMonsterHPBar(AActor* actor, UStatComponent* const statCom
 	widgetComponent->SetWidgetClass(m_MonsterHPBarClass);
 	widgetComponent->SetDrawSize(drawSize);
 	
-	UUserWidget* const widgetObject = widgetComponent->GetUserWidgetObject();
-	UHPBar* const hpBar = Cast<UHPBar>(widgetObject);
+	UUserWidget* widgetObject = widgetComponent->GetUserWidgetObject();
+	UHPBar* hpBar = Cast<UHPBar>(widgetObject);
 	
 	hpBar->BindStatComponent(statComponent);
 
@@ -113,17 +115,23 @@ void UUIManager::CreateMonsterHPBar(AActor* actor, UStatComponent* const statCom
 
 void UUIManager::ShowMonsterHPBar()
 {
-	for (TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[m_MonsterHPBarClass])
+	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[m_MonsterHPBarClass])
 	{
-		widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		if (widget.IsValid())
+		{
+			widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
 	}
 }
 
 void UUIManager::HideMonsterHPBar()
 {
-	for (TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[m_MonsterHPBarClass])
+	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[m_MonsterHPBarClass])
 	{
-		widget->SetVisibility(ESlateVisibility::Collapsed);
+		if (widget.IsValid())
+		{
+			widget->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
 }
 
@@ -131,30 +139,37 @@ void UUIManager::HideMonsterHPBar()
 void UUIManager::HideWidgets(const FName& path)
 {
 	UClass* const widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
-	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
-	for (TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
+	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
 	{
-		widget->SetVisibility(ESlateVisibility::Collapsed);
+		if (widget.IsValid())
+		{
+			widget->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
 }
 
 void UUIManager::ShowWidgets(const FName& path)
 {
 	UClass* const widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
-	checkf(widgetClass != nullptr, TEXT("Failed to Load WidgetClass"));
 
-	for (TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
+	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
 	{
-		widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		if (widget.IsValid())
+		{
+			widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
 	}
 }
 
 void UUIManager::ClearWidgets(const FName& path)
 {
 	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
-	
-	m_UIWidgets[widgetClass].Empty();
+
+	if (widgetClass != nullptr)
+	{
+		m_UIWidgets[widgetClass].Empty();
+	}
 }
 
 void UUIManager::ClearAllWidgets()

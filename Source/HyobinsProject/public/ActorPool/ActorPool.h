@@ -27,16 +27,14 @@ class HYOBINSPROJECT_API AActorPool : public AActor
 public:
 	AActorPool();
 	
-	void CreateActorPool(TSubclassOf<AActor> classType, int actorCount);
+	void CreateActorPool(TSubclassOf<AActor> classType, int requestedCapacity);
 	TWeakObjectPtr<AActor> SpawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation = { 0.0f, 0.0f, 0.0f });
-
-	void ClearBlueprintActorPool();
-
+	void ClearActorPool();
 
 
 private:
 	UPROPERTY(VisibleInstanceOnly)
-	TMap<TSubclassOf<AActor>, FActors> m_BlueprintActorPool;
+	TMap<TSubclassOf<AActor>, FActors> m_ActorPool;
 
 	int32 m_DefaultSpawnCount;
 };

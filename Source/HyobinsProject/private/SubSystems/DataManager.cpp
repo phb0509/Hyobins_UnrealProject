@@ -27,15 +27,13 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 		for (FName rowName : rowNames)
 		{
 			const FAttackInformationData data = *(dataTable->FindRow<FAttackInformationData>(rowName, rowName.ToString()));
-
 			ECrowdControlType crowdControlType = ECrowdControlType::None;
-			
 			const UEnum* crowdControlEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
 			
 			if (crowdControlEnum != nullptr)
 			{
 				const int32 index = crowdControlEnum->GetIndexByName(data.crowdControlType);
-				crowdControlType = ECrowdControlType(index);
+				crowdControlType = static_cast<ECrowdControlType>(index);
 			}
 
 			FAttackInformation attackInfo;
@@ -59,12 +57,12 @@ void UDataManager::DeleteAttackInformation(TSubclassOf<AActor> classType)
 	m_AttackInformations.Remove(classType);
 }
 
-void UDataManager::InitHitActors(TSubclassOf<AActor> classType, OUT TMap<FName, TMap<TWeakObjectPtr<AActor>, bool>>& hitActors)
+void UDataManager::InitHitActors(TSubclassOf<AActor> classType, OUT TMap<FName, TSet<TWeakObjectPtr<AActor>>>& hitActors)
 {
 	for (auto& iter : m_AttackInformations[classType])
 	{
 		const FName& attackName = iter.Key;
-		TMap<TWeakObjectPtr<AActor>, bool> temp;
+		TSet<TWeakObjectPtr<AActor>> temp;
 
 		hitActors.Add(attackName, temp);
 	}

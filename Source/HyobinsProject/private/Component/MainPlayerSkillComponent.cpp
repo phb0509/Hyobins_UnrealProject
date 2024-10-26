@@ -8,7 +8,6 @@
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
 #include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
 #include "MatineeCameraShake.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -243,6 +242,8 @@ void UMainPlayerSkillComponent::Dodge_OnGround()
 			const FVector targetHorizontalVector = m_Owner->GetActorRightVector() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputHorizontal();
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
+
+			
 		}
 	}
 }
@@ -366,8 +367,7 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("UpperAttack_GroundToAir"),
 	[this]()
 	{
-		m_Owner->GetCharacterMovement()->SetMovementMode(
-		MOVE_Falling);
+		m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
 	});
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
@@ -397,9 +397,9 @@ void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
-	GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), m_CurNormalAttackSection));
-	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
-	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bHasleftShiftDecision || m_Owner->GetIsPressedKey("LeftShift")));
-	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	// const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
+	// GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), m_CurNormalAttackSection));
+	// GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
+	// GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bHasleftShiftDecision || m_Owner->GetIsPressedKey("LeftShift")));
+	// GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

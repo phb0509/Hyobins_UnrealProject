@@ -14,7 +14,7 @@ void AAIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	RunBehaviorTree(m_BehaviorTree.Get()); // 구딩 ㅕㅇ기없어도될듯.
+	RunBehaviorTree(m_BehaviorTree.Get()); 
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 
@@ -30,9 +30,10 @@ void AAIControllerBase::OnUnPossess()
 	Super::OnUnPossess();
 }
 
-void AAIControllerBase::StopBehaviorTree() const
+void AAIControllerBase::StopBehaviorTree()
 {
 	m_BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
+	StopMovement();
 }
 
 void AAIControllerBase::StartBehaviorTree()

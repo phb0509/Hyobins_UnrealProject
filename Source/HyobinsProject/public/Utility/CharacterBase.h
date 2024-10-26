@@ -47,7 +47,7 @@ public:
 	
 	void AddHitActorsByMe(const FName& attackName, AActor* hitActor)
 	{
-		m_HitActorsByMe[attackName].Add(hitActor,true);
+		m_HitActorsByMe[attackName].Add(hitActor);
 	}
 
 	void EmptyHitActorsByMe(const FName& attackName)
@@ -136,7 +136,9 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsDead;
 
-	TMap<FName, TMap<TWeakObjectPtr<AActor>, bool>> m_HitActorsByMe;
+	TMap<FName, TSet<TWeakObjectPtr<AActor>>> m_HitActorsByMe;
+
+	
 	TMap<FName, TWeakObjectPtr<UShapeComponent>> m_Colliders;
 
 	TWeakObjectPtr<UAnimInstanceBase> m_AnimInstanceBase;

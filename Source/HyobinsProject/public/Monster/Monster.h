@@ -25,8 +25,11 @@ public:
 	{
 		const uint8 stateIndex = static_cast<uint8>(state);
 		m_CurFSMState = stateIndex;
-		setFSMStateAsBehaviorTree(stateIndex);
+		SetFSMStateAsBehaviorTree(stateIndex);
 	}
+
+	void SetFSMStateAsBehaviorTree(uint8 stateIndex) const;
+
 	
 protected:
 	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) override;
@@ -50,7 +53,7 @@ protected:
 	
 private:
 	void activateHitEffect(const FHitInformation&);
-	void setFSMStateAsBehaviorTree(uint8 stateIndex) const;
+	
 		
 public:
 	static const FName HomePosKey;

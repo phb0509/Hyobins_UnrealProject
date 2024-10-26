@@ -43,11 +43,12 @@ public:
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
-			FMontageFunc montageFunc;
+			const FMontageFunc montageFunc;
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
 		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.BindUFunction(InUserObject, InFunctionName);
+		
 	};
 
 	template <typename UObjectTemplate>
@@ -55,7 +56,7 @@ public:
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
-			FMontageFunc montageFunc;
+			const FMontageFunc montageFunc;
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
@@ -67,7 +68,7 @@ public:
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
-			FMontageFunc montageFunc;
+			const FMontageFunc montageFunc;
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
@@ -79,7 +80,7 @@ public:
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
-			FMontageFunc montageFunc;
+			const FMontageFunc montageFunc;
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
@@ -87,11 +88,11 @@ public:
 	};
 	
 	template <typename FunctorType>
-	void BindLambdaFunc_OnMontageNotInterruptedEnded(const FName& montageName,  FunctorType&& InFunctor)
+	void BindLambdaFunc_OnMontageNotInterruptedEnded(const FName& montageName, FunctorType&& InFunctor)
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
-			FMontageFunc montageFunc;
+			const FMontageFunc montageFunc;
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
@@ -99,11 +100,11 @@ public:
 	};
 
 	template <typename FunctorType>
-	void BindLambdaFunc_OnMontageInterruptedEnded(const FName& montageName,  FunctorType&& InFunctor)
+	void BindLambdaFunc_OnMontageInterruptedEnded(const FName& montageName, FunctorType&& InFunctor)
 	{
 		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
 		{
-			FMontageFunc montageFunc;
+			const FMontageFunc montageFunc;
 			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
 		}
 		
@@ -112,15 +113,11 @@ public:
 
 private:
 	UFUNCTION()
-	virtual void exec_OnMontageStarted(UAnimMontage* Montage);
+	virtual void Exec_OnMontageStarted(UAnimMontage* Montage);
 	
 	UFUNCTION()
-	virtual void exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	virtual void Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
-	void execBindedFunc_OnMontageStarted(const FName& montageName);
-	void execBindedFunc_OnMontageEnded(const FName& montageName);
-	void execBindedFunc_OnMontageInterruptedEnded(const FName& montageName);
-	
 
 private:
 	UFUNCTION()
@@ -137,6 +134,7 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	TMap<FName, UAnimMontage*> m_Montages;
+	
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
 };
 

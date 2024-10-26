@@ -24,7 +24,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 	
-	void OpenEnvironmentSettings();
+	void OpenEnvironmentSettings() const;
 
 	void CreateComboWidjet();
 	void BindActorToComboWidget(ACharacterBase* const hitActor);

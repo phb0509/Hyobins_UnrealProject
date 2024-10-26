@@ -43,6 +43,28 @@ void ASuperMinionAIController::OnUnPossess()
 	
 	GetAIPerceptionComponent()->Deactivate();
 	GetAIPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
+	
+}
+
+void ASuperMinionAIController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// const FString log1 = TEXT("====================================================");
+	// const FString log2 = "  Is Pause!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+	// const FString log3 = "  Is Not Pause!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+	//
+	// GEngine->AddOnScreenDebugMessage(404, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
+	//
+	// if (m_BehaviorTreeComponent->IsPaused())
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(405, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	// }
+	// else
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(406, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	// }
+	
 }
 
 void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
