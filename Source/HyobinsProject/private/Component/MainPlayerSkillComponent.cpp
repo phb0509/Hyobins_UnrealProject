@@ -17,7 +17,8 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_bHasStartedComboKeyInputCheck(false),
 	m_CurNormalAttackSection(1),
 	m_MaxNormalAttackSection(7),
-	m_bHasleftShiftDecision(false),
+	m_bIsStrikeAttackActive(false),
+	m_StrikeAttackDecisionTime(0.5f),
 	m_NormalAttackOnGroundMoveDistance(120.0f),
 	m_UpperAttackGroundToAirJumpDistance(300.0f),
 	m_DashAttackOnGroundMoveDistance(500.0f),
@@ -90,7 +91,7 @@ void UMainPlayerSkillComponent::linqNextNormalAttackOnGroundCombo()
 {
 	if (m_CurNormalAttackSection % 2 != 0) // 기본공격중인경우,
 	{
-		if (m_Owner->GetIsPressedKey(TEXT("LeftShift")) || m_bHasleftShiftDecision) // 강공격키 눌려있으면,
+		if (m_bIsStrikeAttackActive) // 강공격키 눌려있으면,
 		{
 			m_CurNormalAttackSection += 1;
 		}
@@ -101,7 +102,7 @@ void UMainPlayerSkillComponent::linqNextNormalAttackOnGroundCombo()
 	}
 	else // 강공격중인경우,
 	{
-		if (m_Owner->GetIsPressedKey(TEXT("LeftShift")) || m_bHasleftShiftDecision)
+		if (m_bIsStrikeAttackActive)
 		{
 			m_CurNormalAttackSection = FMath::Clamp(m_CurNormalAttackSection + 2, 1, m_MaxNormalAttackSection);
 		}
@@ -162,7 +163,7 @@ void UMainPlayerSkillComponent::UpperAttack_OnGround()
 		{
 			m_Owner->RotateActorToKeyInputDirection(); 
 		
-			if (m_Owner->GetIsPressedKey(TEXT("LeftShift")))
+			if (m_bIsStrikeAttackActive)
 			{
 				m_CurSkillState = EMainPlayerSkillStates::UpperAttack_GroundToAir;
 				m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
@@ -242,28 +243,22 @@ void UMainPlayerSkillComponent::Dodge_OnGround()
 			const FVector targetHorizontalVector = m_Owner->GetActorRightVector() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputHorizontal();
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
-
 			
 		}
 	}
 }
 
 
-void UMainPlayerSkillComponent::ExtendShiftDecisionTime()
+void UMainPlayerSkillComponent::ExtendStrikeActivateDecisionTime()
 {
-	if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
-		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
+	FTimerHandle timer;
+	m_Owner->GetWorldTimerManager().SetTimer(timer,
+	[this]()
 	{
-		m_bHasleftShiftDecision = true;
-	
-		m_Owner->GetWorldTimerManager().SetTimer
-			(
-				m_ShiftDecisionTimerHandle,
-				[this]()
-					{ m_bHasleftShiftDecision = false; },
-			0.1f,
-			false);
-	}
+		m_bIsStrikeAttackActive = false;
+	},
+	m_StrikeAttackDecisionTime,
+	false);
 }
 
 void UMainPlayerSkillComponent::EarthStrike_InAir()
@@ -397,9 +392,9 @@ void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
-	// GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), m_CurNormalAttackSection));
-	// GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
-	// GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bHasleftShiftDecision || m_Owner->GetIsPressedKey("LeftShift")));
-	// GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
+	GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), m_CurNormalAttackSection));
+	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
+	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
+	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

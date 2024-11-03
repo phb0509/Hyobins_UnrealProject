@@ -68,18 +68,6 @@ void AMainPlayer::Run() const
 void AMainPlayer::StopRun() const
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
-
-	m_SkillComponent->ExtendShiftDecisionTime();
-}
-
-void AMainPlayer::Check_IsPressed_LeftShift()
-{
-	m_PressedKeyInfo["LeftShift"] = true;
-}
-
-void AMainPlayer::Check_IsReleased_LeftShift()
-{
-	m_PressedKeyInfo["LeftShift"] = false;
 }
 
 void AMainPlayer::AddInputContextMappingInAir()
@@ -171,10 +159,11 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	EIC->BindAction(m_InputActionsOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
 	EIC->BindAction(m_InputActionsOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
 	EIC->BindAction(m_InputActionsOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
-	EIC->BindAction(m_InputActionsOnGround["IsPressed_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsPressed_LeftShift);
-	EIC->BindAction(m_InputActionsOnGround["IsReleased_LeftShift"], ETriggerEvent::Triggered, this, &AMainPlayer::Check_IsReleased_LeftShift);
 
 	// Skill_OnGround
+	EIC->BindAction(m_InputActionsOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, m_SkillComponent.Get(), &UMainPlayerSkillComponent::ActivateStrikeAttack);
+	EIC->BindAction(m_InputActionsOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Completed, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DeactivateStrikeAttack);
+	
 	EIC->BindAction(m_InputActionsOnGround["NormalAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_OnGround);
 	EIC->BindAction(m_InputActionsOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
 	EIC->BindAction(m_InputActionsOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
@@ -185,7 +174,6 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	EIC->BindAction(m_InputActionsInAir["EarthStrike_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::EarthStrike_InAir);
 	EIC->BindAction(m_InputActionsInAir["DashAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_InAir);
 	
-	m_PressedKeyInfo.Add("LeftShift",false);
 }
 
 void AMainPlayer::initAssets()
@@ -302,20 +290,20 @@ void AMainPlayer::initAssets()
 
 void AMainPlayer::printLog() const
 {
-	// const FVector location = GetActorLocation();
-	// const FVector velocity = GetVelocity();
-	// const FVector forwardVector = GetActorForwardVector();
-	//
-	// GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
-	// GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
-	// GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
-	// GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
-	// GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
-	// GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
-	//
-	// const FString movementMode = GetCharacterMovement()->GetMovementName();
-	// FString log3 = "MainPlyaerMovement Mode :: ";
-	// log3 += movementMode;
-	// GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	// GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	const FVector location = GetActorLocation();
+	const FVector velocity = GetVelocity();
+	const FVector forwardVector = GetActorForwardVector();
+	
+	GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
+	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
+	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
+	
+	const FString movementMode = GetCharacterMovement()->GetMovementName();
+	FString log3 = "MainPlyaerMovement Mode :: ";
+	log3 += movementMode;
+	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

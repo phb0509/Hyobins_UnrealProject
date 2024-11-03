@@ -34,7 +34,7 @@ public:
 	// AxisMappings
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
-	void InitArrowKeys()
+	FORCEINLINE void InitArrowKeys()
 	{
 		m_CurInputHorizontal = 0;
 		m_CurInputVertical = 0;
@@ -43,8 +43,7 @@ public:
 	// ActionMappings
 	void Run() const;
 	void StopRun() const;
-	void Check_IsPressed_LeftShift();
-	void Check_IsReleased_LeftShift();
+
 
 	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
 	void AddInputContextMappingInAir();
@@ -60,7 +59,6 @@ public:
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
-	FORCEINLINE bool GetIsPressedKey(const FName& key) const { return m_PressedKeyInfo[key]; }
 
 	
 
@@ -99,7 +97,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Camera)
 	TObjectPtr<UCameraComponent> m_TargetCamera;
 	
-	TMap<FName, bool> m_PressedKeyInfo;
+	
 	
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
@@ -117,6 +115,12 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
 	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsInAir;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | Charging", Meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputMappingContext> m_InputMappingContextOnCharging;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | Charging", Meta = (AllowPrivateAccess = true))
+	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsOnCharging;
 	
 	
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))

@@ -44,7 +44,10 @@ public:
 	
 	void Dodge_OnGround();
 
-	void ExtendShiftDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
+	FORCEINLINE void ActivateStrikeAttack() { m_bIsStrikeAttackActive = true; }
+	void DeactivateStrikeAttack() { ExtendStrikeActivateDecisionTime(); }
+	
+	void ExtendStrikeActivateDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
 	
 	//NormalAttack
 	UFUNCTION()
@@ -56,7 +59,7 @@ public:
 	FORCEINLINE void SetState(EMainPlayerSkillStates state) { m_CurSkillState = state; }
 	
 	UFUNCTION()
-	FORCEINLINE void SetIdle(UAnimMontage* Montage, bool bInterrupted);
+	void SetIdle(UAnimMontage* Montage, bool bInterrupted);
 	
 	
 private:
@@ -75,9 +78,12 @@ private:
 	bool m_bHasStartedComboKeyInputCheck;
 	int32 m_CurNormalAttackSection;
 	int32 m_MaxNormalAttackSection;
-	bool m_bHasleftShiftDecision;
+	bool m_bIsStrikeAttackActive;
 	FTimerHandle m_ShiftDecisionTimerHandle;
 
+	UPROPERTY(EditAnywhere, Category = "StrikeAttackDecision")
+	float m_StrikeAttackDecisionTime;
+	
 	UPROPERTY(EditAnywhere, Category = "NormalAttack_OnGround")
 	float m_NormalAttackOnGroundMoveDistance;
 	
@@ -101,6 +107,7 @@ private:
 	TObjectPtr<USoundWave> m_EarthStrikeSound;
 	
 	// Dodge
+	UPROPERTY(EditAnywhere, Category = "Dodge_OnGround")
 	float m_DodgeOnGroundMoveDistance;
 
 	float m_GravityScaleInAir;
