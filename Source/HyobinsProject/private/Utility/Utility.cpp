@@ -11,9 +11,6 @@ const double Utility::m_DegreeTable[3][3] =
 	{-45,0,45} 
 	};
 
-
-const int32 Utility::m_DirectionIndex[3][3] = {{5,4,3}, {6,0,2}, {7,0,1}};
-
 Utility::Utility()
 {
 }
@@ -27,10 +24,11 @@ int32 Utility::GetHitDirection(const AActor* hitActor, const AActor* attackActor
 	const FVector forward = hitActor->GetActorForwardVector();
 	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation(); // hitActor -> attackActor º¤ÅÍ.
 	toActor.Normalize();
-
+	
 	const float cosTheta = FVector::DotProduct(forward, toActor);
 	const float theta = FMath::Acos(cosTheta);
 	const FVector cross = FVector::CrossProduct(forward, toActor);
+	
 
 	if (theta >= 0.0f && theta < PI / 4) // Front
 	{

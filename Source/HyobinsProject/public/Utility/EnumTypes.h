@@ -43,6 +43,7 @@ enum class EMainPlayerSkillStates : uint8
 	NormalAttack_InAir				UMETA(DisplayName = "NormalAttack_InAir"),
 	EarthStrike_FallingToGround		UMETA(DisplayName = "EarthStrike_FallingToGround"),
 	EarthStrike_OnGround			UMETA(DisplayName = "EarthStrike_OnGround"),
+	Charging_OnGround				UMETA(DisplayName = "Charging_OnGround"),
 	Dodge_OnGround 					UMETA(DisplayName = "Dodge_OnGround"),
 };
 

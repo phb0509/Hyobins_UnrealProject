@@ -13,8 +13,7 @@ public:
 	~Utility();
 	
 	FORCEINLINE static double ConvertToDegree(int inputVertical, int inputHorizontal) { return m_DegreeTable[inputVertical + 1][inputHorizontal + 1]; }
-	FORCEINLINE static int32 GetDirectionIndex(const int inputVertical, const int inputHorizontal) { return m_DirectionIndex[inputVertical + 1][inputHorizontal + 1]; }
-	static int32 GetHitDirection(const AActor* hitActor, const AActor* attackActor);
+	static int32 GetHitDirection(const AActor* hitActor, const AActor* attackActor); // 상하좌우 4방향 판별.
 	
 	template <typename T> 
 	static FString ConvertEnumToString(const T enumType) 
@@ -27,9 +26,8 @@ public:
 	{ 
 		return FName(*StaticEnum<T>()->GetNameStringByValue(static_cast<int64>(enumType))); 
 	}
-	
-	
+
 private:
 	static const double m_DegreeTable[3][3];
-	static const int32 m_DirectionIndex[3][3];
+
 };

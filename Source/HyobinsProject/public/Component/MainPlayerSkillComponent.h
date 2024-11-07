@@ -41,7 +41,8 @@ public:
 	void EarthStrike_OnGround();
 	void EarthStrike_HitCheck();
 	void EarthStrike_PlayEffect();
-	
+
+	void Charging_OnGround();
 	void Dodge_OnGround();
 
 	FORCEINLINE void ActivateStrikeAttack() { m_bIsStrikeAttackActive = true; }
@@ -67,7 +68,7 @@ private:
 	void linqNextNormalAttackOnGroundCombo();
 	void linqNextNormalAttackInAirCombo();
 	void initGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
-	
+
 
 private:
 	TWeakObjectPtr<AMainPlayer> m_Owner;
@@ -79,7 +80,6 @@ private:
 	int32 m_CurNormalAttackSection;
 	int32 m_MaxNormalAttackSection;
 	bool m_bIsStrikeAttackActive;
-	FTimerHandle m_ShiftDecisionTimerHandle;
 
 	UPROPERTY(EditAnywhere, Category = "StrikeAttackDecision")
 	float m_StrikeAttackDecisionTime;

@@ -14,6 +14,9 @@
 
 
 
+const int32 AMainPlayer::m_DirectionIndex[3][3] =
+	{{5,4,3},{6,0,2},{7,0,1}};
+
 const FName AMainPlayer::SwordColliderName = "SwordCollider";
 const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider";
 const FName AMainPlayer::ShieldForDefendColliderName = "ShieldForDefendCollider";
@@ -168,12 +171,89 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	EIC->BindAction(m_InputActionsOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
 	EIC->BindAction(m_InputActionsOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
 	EIC->BindAction(m_InputActionsOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge_OnGround);
+	
+	EIC->BindAction(m_InputActionsOnGround["Charging_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_OnGround);
 
 	// Skill_InAir
 	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
 	EIC->BindAction(m_InputActionsInAir["EarthStrike_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::EarthStrike_InAir);
 	EIC->BindAction(m_InputActionsInAir["DashAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_InAir);
 	
+}
+
+FVector AMainPlayer::GetForwardVectorFromControllerYaw() const
+{
+	const FRotator rotator = {0.0f, GetControlRotation().Yaw, 0.0f};
+	
+	return rotator.Vector();
+}
+
+FVector AMainPlayer::GetRightVectorFromControllerYaw() const
+{
+	const FRotator controllerYawRotator(0.0f, GetControlRotation().Yaw, 0.0f); // 컨트롤러 Yaw를 기준으로한 임시값.
+	const FVector rightVector = FRotationMatrix(controllerYawRotator).GetUnitAxis(EAxis::Y);  // Right 방향
+	
+	return rightVector;
+}
+
+FVector AMainPlayer::GetControllerKeyInputDirectionVector(const int32 keyInputDirection) const
+{
+	// keyInputDirection == 0 ~ 7까지의 8방향. 전방 ~ 좌상.
+	const float controllerYaw = GetController()->GetControlRotation().Yaw + 45.0f * keyInputDirection;
+	const FRotator rotation = {0.0f, controllerYaw, 0.0f};
+	
+	return rotation.Vector();
+}
+
+int32 AMainPlayer::GetLocalDirection(const FVector& otherDirectionVector) const
+{
+	const FVector localDirection = GetActorTransform().InverseTransformVector(otherDirectionVector);
+	const float radian = FMath::Atan2(localDirection.Y, localDirection.X);
+
+	constexpr float range = PI / 8; // 22.5도
+
+	if (radian >= -range && radian < range) // 앞쪽
+	{
+		return 0;
+	}
+
+	if (radian >= range && radian < 3 * range) 
+	{
+		return 1;
+	}
+	
+	if (radian >= 3 * range && radian < 5 *	range) // 오른쪽
+	{
+		return 2;
+	}
+
+	if (radian >= 5 * range && radian < 7 * range) 
+	{
+		return 3;
+	}
+
+	// if ((radian < -7 * range && radian >= -8 * range) ||
+	// 	(radian >= 7 * range && radian <= 8 * range)) // 뒤쪽
+	// {
+	// 	return 4; 
+	// }
+	
+	if (radian < -5 * range && radian >= -7 * range) 
+	{
+		return 5;
+	}
+
+	if (radian < -3 * range && radian >= -5 * range) // 왼쪽
+	{
+		return 6;
+	}
+	
+	if (radian < -range && radian >= -3 * range) 
+	{
+		return 7;
+	}
+	
+	return 4;
 }
 
 void AMainPlayer::initAssets()

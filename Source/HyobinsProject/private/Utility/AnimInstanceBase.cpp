@@ -19,12 +19,12 @@ void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* Montage)
 {
 	const FName montageName = Montage->GetFName();
 
-	if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
-	{
-		return;
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("Started Montage : %s"), *montageName.ToString());
 	
-	const bool bIsBounded = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.ExecuteIfBound();
+	if (m_FuncsOnCalledMontageEvent.Contains(montageName))
+	{
+		const bool bIsBounded = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.ExecuteIfBound();
+	}
 }
 
 void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
@@ -33,24 +33,26 @@ void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterru
 
 	if (bInterrupted)
 	{
-		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
-		{
-			return;
-		}
-	
-		const bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.ExecuteIfBound();
+		//UE_LOG(LogTemp, Warning, TEXT("InterruptedEnded Montage : %s"), *montageName.ToString());
 	}
 	else
 	{
-		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
-		{
-			return;
-		}
-        	
-		const bool bIsBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageNotInterruptedEnded.ExecuteIfBound();
+		//UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
 	}
-	
-	//UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
+
+	if (m_FuncsOnCalledMontageEvent.Contains(montageName))
+	{
+		const bool allEndedBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageAllEnded.ExecuteIfBound();
+
+		if (bInterrupted)
+		{
+			const bool bIsInterruptedEndedBounded = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.ExecuteIfBound();
+		}
+		else
+		{
+			const bool bIsNotInterruptedEndedBounded = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageNotInterruptedEnded.ExecuteIfBound();
+		}
+	}
 }
 
 void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
@@ -64,7 +66,7 @@ void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
 	}
 }
 
-void UAnimInstanceBase::JumpToMontageSection(const FName& montageName, int32 newSection)
+void UAnimInstanceBase::JumpToMontageSectionByIndex(const FName& montageName, int32 newSection)
 {
 	if (m_Montages.Contains(montageName))
 	{
@@ -72,6 +74,17 @@ void UAnimInstanceBase::JumpToMontageSection(const FName& montageName, int32 new
 		{
 			const FString section = FString::FromInt(newSection);
 			Montage_JumpToSection(*section, m_Montages[montageName]);
+		}
+	}
+}
+
+void UAnimInstanceBase::JumpToMontageSectionByName(const FName& montageName, FName newSection)
+{
+	if (m_Montages.Contains(montageName))
+	{
+		if(IsValid(m_Montages[montageName]))
+		{
+			Montage_JumpToSection(newSection, m_Montages[montageName]);
 		}
 	}
 }

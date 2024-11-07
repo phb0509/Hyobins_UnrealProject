@@ -18,6 +18,7 @@ public:
 	FSkillMontageEvent_Delegate funcOnCalledMontageStarted;
 	FSkillMontageEvent_Delegate funcOnCalledMontageNotInterruptedEnded;
 	FSkillMontageEvent_Delegate funcOnCalledMontageInterruptedEnded;
+	FSkillMontageEvent_Delegate funcOnCalledMontageAllEnded;
 };
 
 DECLARE_MULTICAST_DELEGATE(FOnEndedDeathDelegate);
@@ -33,11 +34,13 @@ public:
 	virtual void NativeBeginPlay() override;
 	
 	void PlayMontage(const FName& montageName, float inPlayRate = 1.0f);
-	void JumpToMontageSection(const FName& montageName, int32 newSection);
+	void JumpToMontageSectionByIndex(const FName& montageName, int32 newSection);
+	void JumpToMontageSectionByName(const FName& montageName, FName newSection);
 	float GetMontagePlayTime(const FName& montageName);
 	UAnimMontage* GetMontage(const FName& montageName);
 
-	
+
+	// Bind Func
 	template <typename UObjectTemplate>
 	void BindFunc_OnMontageStarted(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
 	{
@@ -75,6 +78,20 @@ public:
 		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.BindUFunction(InUserObject, InFunctionName);
 	};
 
+	template <typename UObjectTemplate>
+	void BindFunc_OnMontageAllEnded(const FName& montageName, UObjectTemplate* InUserObject, const FName& InFunctionName)
+	{
+		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+		{
+			const FMontageFunc montageFunc;
+			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
+		}
+		
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageAllEnded.BindUFunction(InUserObject, InFunctionName);
+	};
+
+
+	// Bind LambdaFunc
 	template <typename FunctorType>
 	void BindLambdaFunc_OnMontageStarted(const FName& montageName, FunctorType&& InFunctor)
 	{
@@ -110,7 +127,21 @@ public:
 		
 		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.BindLambda(InFunctor);
 	};
+	
+	template <typename FunctorType>
+	void BindLambdaFunc_OnMontageAllEnded(const FName& montageName, FunctorType&& InFunctor)
+	{
+		if (!m_FuncsOnCalledMontageEvent.Contains(montageName))
+		{
+			const FMontageFunc montageFunc;
+			m_FuncsOnCalledMontageEvent.Add(montageName, montageFunc);
+		}
 
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageAllEnded.BindLambda(InFunctor);
+	};
+
+
+	
 private:
 	UFUNCTION()
 	virtual void Exec_OnMontageStarted(UAnimMontage* Montage);

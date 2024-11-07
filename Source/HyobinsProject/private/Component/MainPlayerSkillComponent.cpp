@@ -42,49 +42,36 @@ void UMainPlayerSkillComponent::BeginPlay()
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()
 {
-	if (m_Owner->GetIsOnGround())
+	if (m_CurSkillState == EMainPlayerSkillStates::Idle)
 	{
-		if (m_CurSkillState == EMainPlayerSkillStates::Idle) 
+		m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_OnGround"));
+	
+		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
+
+		FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
+		targetVector.Z = 0.0f;
+		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+	}
+	else if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
+		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
+	{
+		if (m_bHasStartedComboKeyInputCheck) // 섹션점프 구간이면,
 		{
-			m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_OnGround"));
-		}
-		else if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||    
-				m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
-		{
-			if (m_bHasStartedComboKeyInputCheck) // 섹션점프 구간이면,
-			{
-				m_bHasStartedComboKeyInputCheck = false;
-				linqNextNormalAttackOnGroundCombo(); // 섹션점프
-			}
+			m_bHasStartedComboKeyInputCheck = false;
+			linqNextNormalAttackOnGroundCombo(); // 섹션점프
 		}
 	}
 }
 
 void UMainPlayerSkillComponent::OnCalledNotify_NormalAttack_Start_EachSection() // 각 공격섹션 시작 시 호출.
 {
-	if (m_Owner->GetIsOnGround())
-	{
-		if (m_CurNormalAttackSection % 2 != 0)
-		{
-			m_CurSkillState = EMainPlayerSkillStates::NormalAttack_OnGround;
-		}
-		else
-		{
-			m_CurSkillState = EMainPlayerSkillStates::NormalStrikeAttack_OnGround;
-		}
-	}
-	else
-	{
-		m_Owner->GetCharacterMovement()->GravityScale = m_GravityScaleInAir;
-		m_CurSkillState = EMainPlayerSkillStates::NormalAttack_InAir;
-	}
-	
-	m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-
-	FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
-	targetVector.Z = 0.0f;
-	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-		TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+	// m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
+	//
+	// FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
+	// targetVector.Z = 0.0f;
+	// m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+	// 	TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 }
 
 void UMainPlayerSkillComponent::linqNextNormalAttackOnGroundCombo()
@@ -112,29 +99,32 @@ void UMainPlayerSkillComponent::linqNextNormalAttackOnGroundCombo()
 		}
 	}
 	
-	m_OwnerAnimInstance->JumpToMontageSection(TEXT("NormalAttack_OnGround"), m_CurNormalAttackSection);
+	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_OnGround"), m_CurNormalAttackSection);
+	
+	m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
+
+	FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
+	targetVector.Z = 0.0f;
+	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 }
 
 void UMainPlayerSkillComponent::NormalAttack_InAir()
 {
-	if (m_Owner->GetIsFalling() ||
-		m_Owner->GetIsFlying())
+	if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack_InAir)
 	{
-		if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack_InAir)
+		if (m_bHasStartedComboKeyInputCheck) // 섹션점프 구간이면,
 		{
-			if (m_bHasStartedComboKeyInputCheck) // 섹션점프 구간이면,
-			{
-				m_bHasStartedComboKeyInputCheck = false;
-				linqNextNormalAttackInAirCombo(); // 섹션점프
-			}
+			m_bHasStartedComboKeyInputCheck = false;
+			linqNextNormalAttackInAirCombo(); // 섹션점프
 		}
-		else
+	}
+	else
+	{
+		if (m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround &&
+			m_CurSkillState == EMainPlayerSkillStates::Idle)
 		{
-			if (m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround &&
-				m_CurSkillState == EMainPlayerSkillStates::Idle)
-			{
-				m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_InAir"));
-			}
+			m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_InAir"));
 		}
 	}
 }
@@ -142,7 +132,7 @@ void UMainPlayerSkillComponent::NormalAttack_InAir()
 void UMainPlayerSkillComponent::linqNextNormalAttackInAirCombo()
 {
 	m_CurNormalAttackSection += 1;
-	m_OwnerAnimInstance->JumpToMontageSection(TEXT("NormalAttack_InAir"), m_CurNormalAttackSection);
+	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_InAir"), m_CurNormalAttackSection);
 }
 
 void UMainPlayerSkillComponent::initGravityScaleAfterAttack()
@@ -155,70 +145,64 @@ void UMainPlayerSkillComponent::initGravityScaleAfterAttack()
 
 void UMainPlayerSkillComponent::UpperAttack_OnGround()
 {
-	if (m_Owner->GetIsOnGround())
-	{
-		if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
+	if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
 		m_CurSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
 		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
-		{
-			m_Owner->RotateActorToKeyInputDirection(); 
-		
-			if (m_bIsStrikeAttackActive)
-			{
-				m_CurSkillState = EMainPlayerSkillStates::UpperAttack_GroundToAir;
-				m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
-				m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
+	{
+		m_Owner->RotateActorToKeyInputDirection();
 
-				const FVector targetLocation = m_Owner->GetActorLocation() +
-					(m_Owner->GetActorUpVector() * m_UpperAttackGroundToAirJumpDistance) +
-						(m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
-				m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		if (m_bIsStrikeAttackActive)
+		{
+			m_CurSkillState = EMainPlayerSkillStates::UpperAttack_GroundToAir;
+			m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
+			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
+
+			const FVector targetLocation = m_Owner->GetActorLocation() +
+				(m_Owner->GetActorUpVector() * m_UpperAttackGroundToAirJumpDistance) +
+				(m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
+			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 				TEXT("Forward"), targetLocation);
-			}
-			else
-			{
-				m_CurSkillState = EMainPlayerSkillStates::UpperAttack_OnGround;
-				m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
-			
-				m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
-			}
+		}
+		else
+		{
+			m_CurSkillState = EMainPlayerSkillStates::UpperAttack_OnGround;
+			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
+
+			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+				TEXT("Forward"),
+				m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
 		}
 	}
 }
 
 void UMainPlayerSkillComponent::DashAttack_OnGround()
 {
-	if (m_Owner->GetIsOnGround())
+	if (m_CurSkillState != EMainPlayerSkillStates::DashAttack_OnGround)
 	{
-		if (m_CurSkillState != EMainPlayerSkillStates::DashAttack_OnGround)
-		{
-			m_CurSkillState = EMainPlayerSkillStates::DashAttack_OnGround;
-			m_Owner->RotateActorToKeyInputDirection(); 
-			m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
-		
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-					TEXT("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_DashAttackOnGroundMoveDistance);
-		}
+		m_CurSkillState = EMainPlayerSkillStates::DashAttack_OnGround;
+		m_Owner->RotateActorToKeyInputDirection();
+		m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
+
+		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+			TEXT("Forward"),
+			m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_DashAttackOnGroundMoveDistance);
 	}
 }
 
 void UMainPlayerSkillComponent::DashAttack_InAir()
 {
-	if (!m_Owner->GetIsOnGround())
+	if (m_CurSkillState != EMainPlayerSkillStates::DashAttack_InAir &&
+		m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround)
 	{
-		if (m_CurSkillState != EMainPlayerSkillStates::DashAttack_InAir &&
-			m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround)
-		{
-			m_Owner->GetCharacterMovement()->GravityScale = m_GravityScaleInAir;
-		
-			m_CurSkillState = EMainPlayerSkillStates::DashAttack_InAir;
-			m_Owner->RotateActorToKeyInputDirection(); 
-			m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
-    		
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-					TEXT("Forward"), m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_DashAttackOnGroundMoveDistance);
-		}
+		m_Owner->GetCharacterMovement()->GravityScale = m_GravityScaleInAir;
+
+		m_CurSkillState = EMainPlayerSkillStates::DashAttack_InAir;
+		m_Owner->RotateActorToKeyInputDirection();
+		m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
+
+		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+			TEXT("Forward"),
+			m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_DashAttackOnGroundMoveDistance);
 	}
 }
 
@@ -232,18 +216,28 @@ void UMainPlayerSkillComponent::Dodge_OnGround()
 		{
 			m_CurSkillState = EMainPlayerSkillStates::Dodge_OnGround;
 			
-			m_Owner->RotateActorToControllerYaw(); // 카메라 정면(컨트롤러의 Yaw로 회전)
+			//m_Owner->RotateActorToControllerYaw(); // 카메라 정면(컨트롤러의 Yaw로 회전)
 			m_OwnerAnimInstance->StopAllMontages(0.0f); 
 
-			const int32 combatDodgeSection = Utility::GetDirectionIndex(m_Owner->GetCurInputVertical(), m_Owner->GetCurInputHorizontal());
-			m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_OnGround"));
-			m_OwnerAnimInstance->JumpToMontageSection(TEXT("Dodge_OnGround"), combatDodgeSection);
+			
 
-			const FVector targetVerticalVector = m_Owner->GetActorForwardVector() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputVertical();
-			const FVector targetHorizontalVector = m_Owner->GetActorRightVector() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputHorizontal();
+			// 키입력에 따른 컨트롤러방향벡터 구하기.
+			const FVector controllerKeyInputDirection = m_Owner->GetControllerKeyInputDirectionVector(
+				m_Owner->GetDirectionIndexFromKeyInput());
+
+			// 이 컨트롤러방향벡터를, 캐릭터기
+			const int32 localDirection = m_Owner->GetLocalDirection(controllerKeyInputDirection);
+			
+			UE_LOG(LogTemp, Warning, TEXT("KeyInputDirection : %s"), *FString::FromInt(m_Owner->GetDirectionIndexFromKeyInput()));
+			UE_LOG(LogTemp, Warning, TEXT("LocalDireciton : %s"), *FString::FromInt(localDirection));
+			
+			m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_OnGround"));
+			m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("Dodge_OnGround"), localDirection);
+			
+			const FVector targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputVertical();
+			const FVector targetHorizontalVector = m_Owner->GetRightVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputHorizontal();
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
-			
 		}
 	}
 }
@@ -343,26 +337,64 @@ void UMainPlayerSkillComponent::EarthStrike_PlayEffect()
 	}
 }
 
+void UMainPlayerSkillComponent::Charging_OnGround()
+{
+	m_CurSkillState = EMainPlayerSkillStates::Charging_OnGround;
+	m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
+}
+
 
 void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!bInterrupted)
 	{
-		m_CurNormalAttackSection = 1;
 		m_CurSkillState = EMainPlayerSkillStates::Idle;
 	}
 }
 
 void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 {
-	// Attack_OnGround
+	// NormalAttack_OnGround
 	m_OwnerAnimInstance->NormalAttack_Start_EachSection.AddUObject(this, &UMainPlayerSkillComponent::OnCalledNotify_NormalAttack_Start_EachSection);
+
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_OnGround"),
+[this]()
+	{
+	if (m_Owner->GetIsOnGround())
+	{
+		if (m_CurNormalAttackSection % 2 != 0)
+		{
+			m_CurSkillState = EMainPlayerSkillStates::NormalAttack_OnGround;
+		}
+		else
+		{
+			m_CurSkillState = EMainPlayerSkillStates::NormalStrikeAttack_OnGround;
+		}
+	}
+	});
+
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_OnGround"),
+[this]()
+	{
+		m_CurNormalAttackSection = 1;
+	});
 	
-	// Attack_InAir
+	
+	// UpperAttack_GroundToAir
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("UpperAttack_GroundToAir"),
 	[this]()
 	{
 		m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+	});
+
+
+	
+	// NormalAttack_InAir
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_InAir"),
+[this]()
+	{
+		m_Owner->GetCharacterMovement()->GravityScale = m_GravityScaleInAir;
+		m_CurSkillState = EMainPlayerSkillStates::NormalAttack_InAir;
 	});
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
@@ -371,19 +403,29 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 		initGravityScaleAfterAttack();
 	});
 
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_InAir"),
+[this]()
+	{
+		m_CurNormalAttackSection = 1;
+	});
+
+
+	
+	// DashAttack_InAir
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("DashAttack_InAir"),
 	[this]()
 	{
 		initGravityScaleAfterAttack();
 	});
 
+	// EarthStrike_OnGround
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("EarthStrike_OnGround"),
 [this]()
 	{
 		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
 	});
 	
-	// OnMontageEnded
+	// OnMontageEnded 
 	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // 어떤 스킬이든 '끝까지(not Interrupted)' 재생 후 Idle로 전환.
 }
 

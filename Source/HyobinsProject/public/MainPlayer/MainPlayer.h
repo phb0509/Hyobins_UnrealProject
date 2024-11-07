@@ -59,8 +59,12 @@ public:
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
-
+	FORCEINLINE int32 GetDirectionIndexFromKeyInput() const { return m_DirectionIndex[m_CurInputVertical + 1][m_CurInputHorizontal + 1]; }
 	
+	FVector GetForwardVectorFromControllerYaw() const;
+	FVector GetRightVectorFromControllerYaw() const;
+	FVector GetControllerKeyInputDirectionVector(const int32 keyInputDirection) const;
+	int32 GetLocalDirection(const FVector& otherDirectionVector) const;
 
 private:
 	void initAssets();
@@ -132,5 +136,5 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputVertical;
 
-	
+	static const int32 m_DirectionIndex[3][3];
 };
