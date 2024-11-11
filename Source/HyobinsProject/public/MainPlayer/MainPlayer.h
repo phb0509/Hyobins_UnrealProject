@@ -51,6 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
 	void RemoveInputContextMappingInAir();
 	
+	void AddInputContextMappingOnCharging() const;
+	void RemoveInputContextMappingOnCharging() const;
+	
 	void RotateActorToKeyInputDirection();
 	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
 	
@@ -60,12 +63,16 @@ public:
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
 	FORCEINLINE int32 GetDirectionIndexFromKeyInput() const { return m_DirectionIndex[m_CurInputVertical + 1][m_CurInputHorizontal + 1]; }
+	FORCEINLINE TWeakObjectPtr<AActor> GetCurTarget() const { return m_CurTarget; }
 	
 	FVector GetForwardVectorFromControllerYaw() const;
 	FVector GetRightVectorFromControllerYaw() const;
 	FVector GetControllerKeyInputDirectionVector(const int32 keyInputDirection) const;
 	int32 GetLocalDirection(const FVector& otherDirectionVector) const;
-
+	
+	// Set
+	void SetCurTarget(AActor* target) { m_CurTarget = target; }
+	
 private:
 	void initAssets();
 	void printLog() const;
@@ -74,6 +81,8 @@ public:
 	static const FName SwordColliderName;
 	static const FName ShieldForAttackColliderName;
 	static const FName ShieldForDefendColliderName;
+	static const int32 m_DirectionIndex[3][3];
+
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -100,7 +109,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Camera)
 	TObjectPtr<UCameraComponent> m_TargetCamera;
-	
 	
 	
 	float m_MoveDeltaSecondsOffset;
@@ -136,5 +144,5 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputVertical;
 
-	static const int32 m_DirectionIndex[3][3];
+	TWeakObjectPtr<AActor> m_CurTarget;
 };

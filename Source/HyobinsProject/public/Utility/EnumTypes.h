@@ -33,18 +33,19 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
-	Idle 							UMETA(DisplayName = "Idle"),
-	NormalAttack_OnGround			UMETA(DisplayName = "NormalAttack_OnGround"),
-	NormalStrikeAttack_OnGround		UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
-	DashAttack_OnGround				UMETA(DisplayName = "DashAttack_OnGround"),
-	DashAttack_InAir				UMETA(DisplayName = "DashAttack_InAir"),
-	UpperAttack_OnGround			UMETA(DisplayName = "UpperAttack_OnGround"),
-	UpperAttack_GroundToAir			UMETA(DisplayName = "UpperAttack_GroundToAir"),
-	NormalAttack_InAir				UMETA(DisplayName = "NormalAttack_InAir"),
-	EarthStrike_FallingToGround		UMETA(DisplayName = "EarthStrike_FallingToGround"),
-	EarthStrike_OnGround			UMETA(DisplayName = "EarthStrike_OnGround"),
-	Charging_OnGround				UMETA(DisplayName = "Charging_OnGround"),
-	Dodge_OnGround 					UMETA(DisplayName = "Dodge_OnGround"),
+	Idle 								UMETA(DisplayName = "Idle"),
+	NormalAttack_OnGround				UMETA(DisplayName = "NormalAttack_OnGround"),
+	NormalStrikeAttack_OnGround			UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
+	DashAttack_OnGround					UMETA(DisplayName = "DashAttack_OnGround"),
+	DashAttack_InAir					UMETA(DisplayName = "DashAttack_InAir"),
+	UpperAttack_OnGround				UMETA(DisplayName = "UpperAttack_OnGround"),
+	UpperAttack_GroundToAir				UMETA(DisplayName = "UpperAttack_GroundToAir"),
+	NormalAttack_InAir					UMETA(DisplayName = "NormalAttack_InAir"),
+	EarthStrike_FallingToGround			UMETA(DisplayName = "EarthStrike_FallingToGround"),
+	EarthStrike_OnGround				UMETA(DisplayName = "EarthStrike_OnGround"),
+	Charging_OnGround					UMETA(DisplayName = "Charging_OnGround"),
+	Charging_ComboDashAttack_OnGround	UMETA(DisplayName = "Charging_ComboDashAttack_OnGround"),
+	Dodge_OnGround 						UMETA(DisplayName = "Dodge_OnGround"),
 };
 
 

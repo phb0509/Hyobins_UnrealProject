@@ -6,12 +6,6 @@
 
 UMainPlayerAnim::UMainPlayerAnim() 
 {
-	
-}
-
-void UMainPlayerAnim::AnimNotify_NormalAttack_Start_EachSection() const
-{
-	NormalAttack_Start_EachSection.Broadcast();
 }
 
 void UMainPlayerAnim::ExecEvent_OnEnteredState_Falling() const

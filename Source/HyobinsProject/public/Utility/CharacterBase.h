@@ -68,7 +68,7 @@ public:
 	FORCEINLINE bool GetIsFlying() const { return m_bIsFlying; }
 	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
 	
-	
+	void RotateToTarget(const AActor* target);
 
 	
 protected:
@@ -90,8 +90,6 @@ protected:
 	UFUNCTION()
 	virtual void Die();
 	virtual void ExecEvent_EndedDeathMontage() {};
-	
-	
 	virtual void OnCalledNotify_End_Death();
 	
 	virtual void SetCrowdControlState(ECrowdControlStates state)
@@ -137,7 +135,6 @@ protected:
 	bool m_bIsDead;
 
 	TMap<FName, TSet<TWeakObjectPtr<AActor>>> m_HitActorsByMe;
-
 	
 	TMap<FName, TWeakObjectPtr<UShapeComponent>> m_Colliders;
 

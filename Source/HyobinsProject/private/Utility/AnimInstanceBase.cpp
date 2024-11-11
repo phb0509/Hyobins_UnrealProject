@@ -19,7 +19,7 @@ void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* Montage)
 {
 	const FName montageName = Montage->GetFName();
 
-	//UE_LOG(LogTemp, Warning, TEXT("Started Montage : %s"), *montageName.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Started Montage : %s"), *montageName.ToString());
 	
 	if (m_FuncsOnCalledMontageEvent.Contains(montageName))
 	{
@@ -33,11 +33,11 @@ void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterru
 
 	if (bInterrupted)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("InterruptedEnded Montage : %s"), *montageName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("InterruptedEnded Montage : %s"), *montageName.ToString());
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
 	}
 
 	if (m_FuncsOnCalledMontageEvent.Contains(montageName))

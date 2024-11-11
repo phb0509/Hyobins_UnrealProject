@@ -117,8 +117,16 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }
 
+void ACharacterBase::RotateToTarget(const AActor* target)
+{
+	FRotator actorRotation = GetActorRotation();
+	actorRotation.Yaw = target->GetActorRotation().Yaw;
+	
+	SetActorRotation(actorRotation);
+}
+
 void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator,
-	const FAttackInformation* attackInfo)
+                                                   const FAttackInformation* attackInfo)
 {
 	if (!m_bIsSuperArmor)
 	{

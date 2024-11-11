@@ -41,19 +41,17 @@ public:
 	void EarthStrike_OnGround();
 	void EarthStrike_HitCheck();
 	void EarthStrike_PlayEffect();
+	
+	void Dodge_OnGround();
 
 	void Charging_OnGround();
-	void Dodge_OnGround();
+	void Charging_ComboDashAttack_OnGround();
 
 	FORCEINLINE void ActivateStrikeAttack() { m_bIsStrikeAttackActive = true; }
 	void DeactivateStrikeAttack() { ExtendStrikeActivateDecisionTime(); }
 	
 	void ExtendStrikeActivateDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
 	
-	//NormalAttack
-	UFUNCTION()
-	void OnCalledNotify_NormalAttack_Start_EachSection();
-
 	
 	FORCEINLINE EMainPlayerSkillStates GetState() const { return m_CurSkillState; }
 	FORCEINLINE void SetHasStartedComboKeyInputCheck(const bool bHasStartedKeyInputCheck) { m_bHasStartedComboKeyInputCheck = bHasStartedKeyInputCheck;}
@@ -67,6 +65,7 @@ private:
 	void bindFuncOnMontageEvent();
 	void linqNextNormalAttackOnGroundCombo();
 	void linqNextNormalAttackInAirCombo();
+	void linqNextChargingComboDashAttackOnGroundCombo();
 	void initGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 
 
@@ -74,10 +73,11 @@ private:
 	TWeakObjectPtr<AMainPlayer> m_Owner;
 	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
 	EMainPlayerSkillStates m_CurSkillState;
+	float m_GravityScaleInAir;
 	
 	// NormalAttack
 	bool m_bHasStartedComboKeyInputCheck;
-	int32 m_CurNormalAttackSection;
+	int32 m_CurComboAttackSection;
 	int32 m_MaxNormalAttackSection;
 	bool m_bIsStrikeAttackActive;
 
@@ -91,6 +91,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "UpperAttack_GroundToAir")
 	float m_UpperAttackGroundToAirJumpDistance;
 
+	// DashAttack_OnGround
 	UPROPERTY(EditAnywhere, Category = "DashAttack_OnGround")
 	float m_DashAttackOnGroundMoveDistance;
 	
@@ -110,6 +111,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Dodge_OnGround")
 	float m_DodgeOnGroundMoveDistance;
 
-	float m_GravityScaleInAir;
+	// Charging_ComboDashAttack_OnGround
+	UPROPERTY(EditAnywhere, Category = "Charging_ComboDashAttack_OnGround")
+	float m_ChargingComboDashAttackOnGroundMoveDistance;
 };
 

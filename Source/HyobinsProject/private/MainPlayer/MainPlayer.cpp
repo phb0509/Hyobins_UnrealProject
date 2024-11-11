@@ -95,6 +95,28 @@ void AMainPlayer::RemoveInputContextMappingInAir()
 	}
 }
 
+void AMainPlayer::AddInputContextMappingOnCharging() const
+{
+	const APlayerController* playerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
+
+	if (!subSystem->HasMappingContext(m_InputMappingContextOnCharging))
+	{
+		subSystem->AddMappingContext(m_InputMappingContextOnCharging,1);
+	}
+}
+
+void AMainPlayer::RemoveInputContextMappingOnCharging() const
+{
+	const APlayerController* playerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
+
+	if (subSystem->HasMappingContext(m_InputMappingContextOnCharging))
+	{
+		subSystem->RemoveMappingContext(m_InputMappingContextOnCharging);
+	}
+}
+
 void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
 {
 	FRotator actorRotation = GetActorRotation();
@@ -156,7 +178,8 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	
 	// UI
 	EIC->BindAction(m_InputActionsOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
-	
+
+	// Move
 	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
 	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
 	EIC->BindAction(m_InputActionsOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
@@ -171,14 +194,18 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	EIC->BindAction(m_InputActionsOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
 	EIC->BindAction(m_InputActionsOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
 	EIC->BindAction(m_InputActionsOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge_OnGround);
-	
-	EIC->BindAction(m_InputActionsOnGround["Charging_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_OnGround);
 
+	EIC->BindAction(m_InputActionsOnGround["Charging_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_OnGround);
+	
 	// Skill_InAir
 	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
 	EIC->BindAction(m_InputActionsInAir["EarthStrike_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::EarthStrike_InAir);
 	EIC->BindAction(m_InputActionsInAir["DashAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_InAir);
+
 	
+	// Charging Skill
+	EIC->BindAction(m_InputActionsOnCharging["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
+
 }
 
 FVector AMainPlayer::GetForwardVectorFromControllerYaw() const
