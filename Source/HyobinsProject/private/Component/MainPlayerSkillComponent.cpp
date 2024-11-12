@@ -15,6 +15,7 @@
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_CurSkillState(EMainPlayerSkillStates::Idle),
 	m_GravityScaleInAir(0.00001f),
+	m_bCanDodge(true),
 	m_bHasStartedComboKeyInputCheck(false),
 	m_CurComboAttackSection(1),
 	m_MaxNormalAttackSection(7),
@@ -192,6 +193,7 @@ void UMainPlayerSkillComponent::DashAttack_OnGround()
 	{
 		if (m_CurSkillState != EMainPlayerSkillStates::DashAttack_OnGround)
 		{
+			m_bCanDodge = false;
 			m_CurSkillState = EMainPlayerSkillStates::DashAttack_OnGround;
 			m_Owner->RotateActorToKeyInputDirection();
 			m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
@@ -225,9 +227,9 @@ void UMainPlayerSkillComponent::Dodge_OnGround()
 {
 	if (m_Owner->GetIsOnGround())
 	{
-		if (m_CurSkillState != EMainPlayerSkillStates::Dodge_OnGround &&
-		m_CurSkillState != EMainPlayerSkillStates::Idle) // 어떠한 공격이든 수행중이면
+		if (m_bCanDodge) // 어떠한 공격이든 수행중이면
 		{
+			m_bCanDodge = false;
 			m_CurSkillState = EMainPlayerSkillStates::Dodge_OnGround;
 			
 			m_OwnerAnimInstance->StopAllMontages(0.0f); 
@@ -242,8 +244,20 @@ void UMainPlayerSkillComponent::Dodge_OnGround()
 			m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_OnGround"));
 			m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("Dodge_OnGround"), localDirection);
 			
-			const FVector targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputVertical();
-			const FVector targetHorizontalVector = m_Owner->GetRightVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputHorizontal();
+			FVector targetVerticalVector;
+			FVector targetHorizontalVector;
+
+			if (m_Owner->GetCurInputHorizontal() == 0 && m_Owner->GetCurInputVertical() == 0)
+			{
+				targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance;
+				targetHorizontalVector = {0.0f, 0.0f, 0.0f};
+			}
+			else
+			{
+				targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputVertical();
+				targetHorizontalVector = m_Owner->GetRightVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputHorizontal();
+			}
+			
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
 		}
@@ -356,6 +370,11 @@ void UMainPlayerSkillComponent::Charging_OnGround()
 
 			m_Owner->AddInputContextMappingOnCharging();
 		}
+		else if (m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround)
+		{
+			m_OwnerAnimInstance->PlayMontage(TEXT("Charging_Stop_OnGround"));
+			m_Owner->RemoveInputContextMappingOnCharging();
+		}
 	}
 }
 
@@ -367,34 +386,9 @@ void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
 		{
 			m_OwnerAnimInstance->PlayMontage(TEXT("Charging_ComboDashAttack_OnGround"));
 			m_CurSkillState = EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround;
-
-			//m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-			//m_Owner->RotateActorToControllerYaw();
-
-			// FVector targetVector = m_Owner->GetActorForwardVector() * m_ChargingComboDashAttackOnGroundMoveDistance;
-			// targetVector.Z = 0.0f;
-			// m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			// 	TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
-		}
-		else if (m_CurSkillState == EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround)
-		{
-			// linqNextChargingComboDashAttackOnGroundCombo();
-			//
-			// //m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-			// m_Owner->RotateActorToControllerYaw();
-			//
-			// FVector targetVector = m_Owner->GetActorForwardVector() * m_ChargingComboDashAttackOnGroundMoveDistance;
-			// targetVector.Z = 0.0f;
-			// m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			// 	TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+			
 		}
 	}
-}
-
-void UMainPlayerSkillComponent::linqNextChargingComboDashAttackOnGroundCombo()
-{
-	// m_CurComboAttackSection += 1;
-	// m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("Charging_ComboDashAttack_OnGround"), m_CurComboAttackSection);
 }
 
 void UMainPlayerSkillComponent::initGravityScaleAfterAttack()
@@ -409,6 +403,7 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 {
 	if (!bInterrupted)
 	{
+		m_bCanDodge = true;
 		m_CurSkillState = EMainPlayerSkillStates::Idle;
 	}
 }
@@ -479,7 +474,6 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Charging_ComboDashAttack_OnGround"),
 [this]()
 	{
-		//m_CurComboAttackSection = 1;
 		m_Owner->RemoveInputContextMappingOnCharging();
 	});
 	

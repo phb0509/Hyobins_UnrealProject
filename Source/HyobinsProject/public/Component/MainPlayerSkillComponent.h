@@ -65,7 +65,6 @@ private:
 	void bindFuncOnMontageEvent();
 	void linqNextNormalAttackOnGroundCombo();
 	void linqNextNormalAttackInAirCombo();
-	void linqNextChargingComboDashAttackOnGroundCombo();
 	void initGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 
 
@@ -74,6 +73,7 @@ private:
 	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
 	EMainPlayerSkillStates m_CurSkillState;
 	float m_GravityScaleInAir;
+	bool m_bCanDodge;
 	
 	// NormalAttack
 	bool m_bHasStartedComboKeyInputCheck;

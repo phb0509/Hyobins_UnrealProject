@@ -15,7 +15,10 @@
 
 
 const int32 AMainPlayer::m_DirectionIndex[3][3] =
-	{{5,4,3},{6,0,2},{7,0,1}};
+	{{5,4,3},
+	{6,0,2},
+	{7,0,1}
+	};
 
 const FName AMainPlayer::SwordColliderName = "SwordCollider";
 const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider";
