@@ -12,7 +12,15 @@ void UEnvironmentSettings::NativeConstruct()
 	
 	m_bHideCheckBox = Cast<UCheckBox>(GetWidgetFromName(TEXT("m_bHideCheckBox")));
 	m_bHideCheckBox->OnCheckStateChanged.AddDynamic(this, &UEnvironmentSettings::ChangeMonsterHPBarState);
-	m_bHideCheckBox->SetCheckedState(ECheckBoxState::Checked);
+
+	if (GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetbIsShowMonsterHPBar())
+	{
+		m_bHideCheckBox->SetCheckedState(ECheckBoxState::Checked);
+	}
+	else
+	{
+		m_bHideCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
+	}
 }
 
 FReply UEnvironmentSettings::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
@@ -48,10 +56,12 @@ void UEnvironmentSettings::ChangeMonsterHPBarState(bool bIsChecked)
 	if (bIsChecked)
 	{
 		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowMonsterHPBar();
+		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetbIsShowMonsterHPBar(true);
 	}
 	else
 	{
 		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->HideMonsterHPBar();
+		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetbIsShowMonsterHPBar(false);
 	}
 }
 

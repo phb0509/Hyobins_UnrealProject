@@ -21,6 +21,8 @@ void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_EnvironmentSettingsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/EnvironmentSettings.EnvironmentSettings_C'"));
 	m_ComboClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
 	m_DamageClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Damage.Damage_C'"));
+
+	m_bIsShowMonsterHPBar = true;
 }
 
 void UUIManager::Deinitialize()

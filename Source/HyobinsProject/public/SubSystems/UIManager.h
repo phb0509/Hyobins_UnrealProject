@@ -41,9 +41,10 @@ public:
 	void ClearWidgets(const FName& path);
 	void ClearAllWidgets(); // ¹Ì¿Ï¼º.
 
-
+	FORCEINLINE void SetbIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
+	FORCEINLINE bool GetbIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
+	
 private:
-	//TMap<TSubclassOf<UUserWidget>, TArray<UUserWidget*>> m_UIWidgets;
 	TMap<TSubclassOf<UUserWidget>, TArray<TWeakObjectPtr<UUserWidget>>> m_UIWidgets;
 	
 	TObjectPtr<UCombo> m_Combo;
@@ -52,5 +53,6 @@ private:
 	TSubclassOf<UUserWidget> m_EnvironmentSettingsClass;
 	TSubclassOf<UUserWidget> m_ComboClass;
 	TSubclassOf<UUserWidget> m_DamageClass;
-	
+
+	bool m_bIsShowMonsterHPBar;
 };
