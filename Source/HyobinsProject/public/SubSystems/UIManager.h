@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "Blueprint/UserWidget.h"
 #include "UIManager.generated.h"
 
 class ACharacterBase;
@@ -11,8 +12,12 @@ class UStatComponent;
 class UHPBar;
 class UEnvironmentSettings;
 class UCombo;
+class UChargingGageBar;
+class UWidgetComponent;
+class UMainPlayerSkillComponent;
 
 struct FHitInformation;
+
 
 UCLASS()
 class HYOBINSPROJECT_API UUIManager : public UGameInstanceSubsystem
@@ -26,33 +31,44 @@ public:
 	
 	void OpenEnvironmentSettings() const;
 
+	void BindActorToComboWidget(ACharacterBase* hitActor);
 	void CreateComboWidjet();
-	void BindActorToComboWidget(ACharacterBase* const hitActor);
-
-	void RenderDamageToScreen(const FHitInformation& hitInfo);
-	void BindActorToDamageWidget(ACharacterBase* const hitActor);
 	
-	void CreateMonsterHPBar(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FVector& relativeLocation, const FVector2D& drawSize);
+	void BindActorToDamageWidget(ACharacterBase* hitActor);
+	void RenderDamageToScreen(const FHitInformation& hitInfo);
+	
+	void CreateMonsterHPBar(ACharacterBase* actor);
 	void ShowMonsterHPBar();
 	void HideMonsterHPBar();
+
+	void BindMainPlayerSkillComponentToChargingGageBar(UMainPlayerSkillComponent* mainPlayerSkillComponent);
+	void CreateChargingGageBar(ACharacterBase* actor, float duration);
+	void RemoveChargingGageBar();
+	
 	
 	void HideWidgets(const FName& path);
 	void ShowWidgets(const FName& path);
-	void ClearWidgets(const FName& path);
-	void ClearAllWidgets(); // 미완성.
+	void RemoveWidgets(const FName& path);
+	void RemoveAllWidgets(); // 미완성.
 
-	FORCEINLINE void SetbIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
-	FORCEINLINE bool GetbIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
+	FORCEINLINE void SetIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
+	FORCEINLINE bool GetIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
+
+private:
+	void addWidget(TSubclassOf<UUserWidget> widgetClass, UUserWidget* widget);
 	
 private:
-	TMap<TSubclassOf<UUserWidget>, TArray<TWeakObjectPtr<UUserWidget>>> m_UIWidgets;
+	TMap<TSubclassOf<UUserWidget>, TArray<TObjectPtr<UUserWidget>>> m_UIWidgets;
 	
 	TObjectPtr<UCombo> m_Combo;
+	TWeakObjectPtr<UChargingGageBar> m_ChargingGageBar;
+	TWeakObjectPtr<UWidgetComponent> m_ChargingGageBarComponent;
 	
 	TSubclassOf<UUserWidget> m_MonsterHPBarClass;
 	TSubclassOf<UUserWidget> m_EnvironmentSettingsClass;
 	TSubclassOf<UUserWidget> m_ComboClass;
 	TSubclassOf<UUserWidget> m_DamageClass;
+	TSubclassOf<UUserWidget> m_ChargingGageBarClass;
 
 	bool m_bIsShowMonsterHPBar;
 };

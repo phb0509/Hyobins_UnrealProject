@@ -10,10 +10,19 @@ void UDamage::NativeConstruct()
 	Super::NativeConstruct();
 
 	m_DamageText = Cast<UTextBlock>(GetWidgetFromName(TEXT("m_DamageText")));
+	
+	FWidgetAnimationDynamicEvent endDelegate;
+	endDelegate.BindDynamic(this, &UDamage::Remove);
+	BindToAnimationFinished(m_DamageAnimation, endDelegate);
 }
 
 void UDamage::SetDamage(float damage)
 {
 	m_DamageText->SetText(FText::AsNumber(damage));
 	PlayAnimation(m_DamageAnimation);
+}
+
+void UDamage::Remove()
+{
+	this->RemoveFromParent();
 }

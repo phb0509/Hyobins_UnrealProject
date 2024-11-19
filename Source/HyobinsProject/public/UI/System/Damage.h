@@ -18,6 +18,9 @@ public:
 
 	void SetDamage(float damage);
 
+	UFUNCTION()
+	void Remove();
+
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
     TObjectPtr<UTextBlock> m_DamageText;

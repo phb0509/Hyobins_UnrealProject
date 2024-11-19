@@ -7,15 +7,17 @@
 #include "MotionWarpingComponent.h"
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
-#include "NiagaraFunctionLibrary.h"
 #include "MatineeCameraShake.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "SubSystems/UIManager.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_CurSkillState(EMainPlayerSkillStates::Idle),
 	m_GravityScaleInAir(0.00001f),
 	m_bCanDodge(true),
+	m_bCanChargingSkill(false),
 	m_bHasStartedComboKeyInputCheck(false),
 	m_CurComboAttackSection(1),
 	m_MaxNormalAttackSection(7),
@@ -27,7 +29,7 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_EarthStrikeEffect(nullptr),
 	m_EarthStrikeSound(nullptr),
 	m_DodgeOnGroundMoveDistance(400.0f),
-	m_ChargingComboDashAttackOnGroundMoveDistance(700.0f)
+	m_ChargingDuration(2.0f)
 {
 	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
 }
@@ -344,12 +346,22 @@ void UMainPlayerSkillComponent::EarthStrike_HitCheck()
 
 void UMainPlayerSkillComponent::EarthStrike_PlayEffect()
 {
-	if (m_EarthStrikeEffect != nullptr)
+	// if (m_EarthStrikeEffect != nullptr)
+	// {
+	// 	const UNiagaraComponent* niagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_EarthStrikeEffect,
+	// 	m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation(),
+	// 	FRotator(0.0f),FVector(1.0f, 1.0f, 1.0f)
+	// 	);
+	// }
+
+	if (m_ParticleSystem != nullptr)
 	{
-		const UNiagaraComponent* niagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_EarthStrikeEffect,
-		m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation(),
-		FRotator(0.0f),FVector(1.0f, 1.0f, 1.0f)
-		);
+		UGameplayStatics::SpawnEmitterAtLocation(
+		   GetWorld(),
+		   m_ParticleSystem, 
+		   m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation(), 
+		   FRotator(0.0f)
+	   );
 	}
 	
 	// Camera Shake
@@ -369,11 +381,33 @@ void UMainPlayerSkillComponent::Charging_OnGround()
 			m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
 
 			m_Owner->AddInputContextMappingOnCharging();
+			m_OnChargingDelegate.ExecuteIfBound(m_Owner.Get(), m_ChargingDuration);
+			
+			FTimerHandle timer;
+			m_Owner->GetWorldTimerManager().SetTimer(timer,
+						[=]()
+						{
+							m_bCanChargingSkill = true;
+						},
+					m_ChargingDuration,
+					false);
 		}
-		else if (m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround)
+	}
+}
+
+void UMainPlayerSkillComponent::StopCharging_OnGround()
+{
+	if (m_Owner->GetIsOnGround())
+	{
+		if (m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround)
 		{
-			m_OwnerAnimInstance->PlayMontage(TEXT("Charging_Stop_OnGround"));
+			UE_LOG(LogTemp, Warning, TEXT("UMainPlayerSkillComponent :: StopCharging_OnGround"));
+			
+			m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
 			m_Owner->RemoveInputContextMappingOnCharging();
+			m_bCanChargingSkill = false;
+
+			m_OnStopChargingDeleagte.ExecuteIfBound();
 		}
 	}
 }
@@ -382,11 +416,10 @@ void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
 {
 	if (m_Owner->GetIsOnGround())
 	{
-		if (m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround)
+		if (m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround && m_bCanChargingSkill)
 		{
 			m_OwnerAnimInstance->PlayMontage(TEXT("Charging_ComboDashAttack_OnGround"));
 			m_CurSkillState = EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround;
-			
 		}
 	}
 }
@@ -410,6 +443,8 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 
 void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 {
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindMainPlayerSkillComponentToChargingGageBar(this);
+	
 	// NormalAttack_OnGround
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_OnGround"),
@@ -462,18 +497,12 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
 	});
 
-	// Charging
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Charging_OnGround"),
-[this]()
-	{
-		//m_Owner->RemoveInputContextMappingOnCharging();
-	});
-
 	
 	// Charging_ComboDashAttack_OnGround
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Charging_ComboDashAttack_OnGround"),
 [this]()
 	{
+		m_bCanChargingSkill = false;
 		m_Owner->RemoveInputContextMappingOnCharging();
 	});
 	

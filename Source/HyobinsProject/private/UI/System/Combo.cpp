@@ -18,11 +18,11 @@ void UCombo::BindActor(ACharacterBase* takeDamageActor)
 {
 	if (IsValid(takeDamageActor))
 	{
-		takeDamageActor->OnTakeDamage.AddUObject(this, &UCombo::updateComboCount);
+		takeDamageActor->OnTakeDamage.AddUObject(this, &UCombo::UpdateComboCount);
 	}
 }
 
-void UCombo::updateComboCount(const FHitInformation& hitInfo)
+void UCombo::UpdateComboCount(const FHitInformation& hitInfo)
 {
 	++m_ComboCount;
 	m_ComboCountText->SetText(FText::AsNumber(m_ComboCount));

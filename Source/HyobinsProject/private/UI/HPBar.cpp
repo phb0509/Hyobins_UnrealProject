@@ -8,13 +8,13 @@ void UHPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
-	updateHPWidget(); 
+	UpdateHPBarWidget(); 
 }
 
 void UHPBar::BindStatComponent(UStatComponent* statComponent)
 {
 	m_StatComponent = statComponent;
-	m_StatComponent->OnHPIsChanged.AddUObject(this, &UHPBar::updateHPWidget);
+	m_StatComponent->OnHPIsChanged.AddUObject(this, &UHPBar::UpdateHPBarWidget);
 }
 
 void UHPBar::SetExecuteState()
@@ -22,7 +22,7 @@ void UHPBar::SetExecuteState()
 	m_HPProgressBar->SetVisibility(ESlateVisibility::Collapsed);
 } 
 
-void UHPBar::updateHPWidget()
+void UHPBar::UpdateHPBarWidget()
 {
 	if (m_StatComponent->IsValidLowLevel())
 	{

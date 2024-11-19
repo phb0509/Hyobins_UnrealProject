@@ -17,12 +17,10 @@ class HYOBINSPROJECT_API UHPBar : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	
 	void BindStatComponent(UStatComponent* statComponent);
 	void SetExecuteState(); // 처형표시 (hp일정이하 내려갔을 시,)
-	
-
-private:
-	void updateHPWidget();
+	void UpdateHPBarWidget();
 	
 private:
 	UPROPERTY(EditDefaultsOnly)

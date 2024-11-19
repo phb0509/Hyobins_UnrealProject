@@ -20,9 +20,8 @@ public:
 	virtual void NativeConstruct() override;
 
 	void BindActor(ACharacterBase* takeDamageActor);
-
-private:
-	void updateComboCount(const FHitInformation& hitInfo);
+	
+	void UpdateComboCount(const FHitInformation& hitInfo);
 	
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))

@@ -19,12 +19,13 @@ public:
 	AFirstLevel();
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void Create() const;
 
-private:
+	
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
 	void Spawn();
-	
+
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;

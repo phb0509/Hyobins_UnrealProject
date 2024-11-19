@@ -76,11 +76,10 @@ void AMonster::OnCalledTimelineEvent_End_AfterDeath()
 	m_DeathTimeline.SetNewTime(0.0f);
 }
 
- void AMonster::Initialize()
+void AMonster::Initialize()
 {
 	// HPBar 위젯 생성 및 부착.
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this, m_StatComponent, GetMesh(), "UpperHPBar_Widget",
-		FVector(0.0f, 0.0f, 150.0f), FVector2D(150.0f, 50.0f));
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this);
 }
 
 void AMonster::Activate()
@@ -103,7 +102,7 @@ void AMonster::Activate()
 
 	// UI 바인딩.
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToComboWidget(this);
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToDamageWidget(this);
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToDamageWidget(this); // 이거문제
 	this->OnTakeDamage.AddUObject(this, &AMonster::activateHitEffect);
 }
 

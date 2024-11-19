@@ -20,6 +20,13 @@ void AFirstLevel::BeginPlay()
 	Create();
 }
 
+void AFirstLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	m_ActorPool->ClearActorPool();
+}
+
 void AFirstLevel::Create() const
 {
 	m_ActorPool->CreateActorPool(m_MonsterClass,5);
@@ -35,4 +42,6 @@ void AFirstLevel::Spawn()
 		m_ActorPool->SpawnActor(m_MonsterClass, positions[i]);
 	}
 }
+
+
 

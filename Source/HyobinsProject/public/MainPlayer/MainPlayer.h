@@ -28,6 +28,7 @@ class HYOBINSPROJECT_API AMainPlayer final: public ACharacterBase
 public:
 	AMainPlayer();
 	virtual void BeginPlay() override;
+	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	

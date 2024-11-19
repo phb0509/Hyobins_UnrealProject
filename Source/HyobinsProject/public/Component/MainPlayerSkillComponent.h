@@ -7,15 +7,19 @@
 #include "Component/SkillComponent.h"
 #include "MainPlayerSkillComponent.generated.h"
 
+class ACharacterBase;
 class AMainPlayer;
 class UMainPlayerAnim;
 class UNiagaraSystem;
 class UNiagaraComponent;
 class UCameraShakeBase;
 class USoundWave;
+class UParticleSystem;
 
 enum class EMainPlayerSkillStates : uint8;
-struct FMontageFunc;
+
+DECLARE_DELEGATE_TwoParams(FOnChargingDelegate, ACharacterBase*, float);
+DECLARE_DELEGATE(FOnStopChargingDelegate);
 
 
 UCLASS()
@@ -45,6 +49,7 @@ public:
 	void Dodge_OnGround();
 
 	void Charging_OnGround();
+	void StopCharging_OnGround();
 	void Charging_ComboDashAttack_OnGround();
 
 	FORCEINLINE void ActivateStrikeAttack() { m_bIsStrikeAttackActive = true; }
@@ -68,12 +73,18 @@ private:
 	void initGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 
 
+public:
+	FOnChargingDelegate m_OnChargingDelegate;
+	FOnStopChargingDelegate m_OnStopChargingDeleagte;
+
+	
 private:
 	TWeakObjectPtr<AMainPlayer> m_Owner;
 	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
 	EMainPlayerSkillStates m_CurSkillState;
 	float m_GravityScaleInAir;
 	bool m_bCanDodge;
+	bool m_bCanChargingSkill;
 	
 	// NormalAttack
 	bool m_bHasStartedComboKeyInputCheck;
@@ -100,6 +111,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "EarthStrike | Effect")
 	TObjectPtr<UNiagaraSystem> m_EarthStrikeEffect;
+
+	UPROPERTY(EditAnywhere, Category = "EarthStrike | Effect")
+	UParticleSystem* m_ParticleSystem;
 	
 	UPROPERTY(EditAnywhere, Category = "EarthStrike | CameraShake")
 	TSubclassOf<UMatineeCameraShake> m_EarthStrikeCameraShake;
@@ -113,6 +127,8 @@ private:
 
 	// Charging_ComboDashAttack_OnGround
 	UPROPERTY(EditAnywhere, Category = "Charging_ComboDashAttack_OnGround")
-	float m_ChargingComboDashAttackOnGroundMoveDistance;
+	float m_ChargingDuration;
+
+	
 };
 

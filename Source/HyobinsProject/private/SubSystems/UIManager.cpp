@@ -2,15 +2,17 @@
 
 
 #include "SubSystems/UIManager.h"
-#include "GameFramework/Actor.h"
+#include "Utility/CharacterBase.h"
 #include "Components/WidgetComponent.h"
-#include "Components/SceneComponent.h"
+#include "Component/MainPlayerSkillComponent.h"
+#include "Utility/CustomStructs.h"
 #include "UI/HPBar.h"
 #include "UI/System/EnvironmentSettings.h"
 #include "UI/System/Combo.h"
 #include "UI/System/Damage.h"
-#include "Utility/CharacterBase.h"
-#include "Utility/CustomStructs.h"
+#include "UI/ChargingGageBar.h"
+
+
 
 
 void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -21,13 +23,16 @@ void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_EnvironmentSettingsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/EnvironmentSettings.EnvironmentSettings_C'"));
 	m_ComboClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
 	m_DamageClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Damage.Damage_C'"));
-
+	m_ChargingGageBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/ChargingGageBar.ChargingGageBar_C'"));
+	
 	m_bIsShowMonsterHPBar = true;
 }
 
 void UUIManager::Deinitialize()
 {
 	Super::Deinitialize();
+
+	RemoveAllWidgets();
 }
 
 void UUIManager::OpenEnvironmentSettings() const
@@ -35,6 +40,19 @@ void UUIManager::OpenEnvironmentSettings() const
 	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), m_EnvironmentSettingsClass));
 	environmentSettings->AddToViewport();
 	environmentSettings->Open();
+}
+
+void UUIManager::BindActorToComboWidget(ACharacterBase* hitActor)
+{
+	if (m_Combo == nullptr)
+	{
+		CreateComboWidjet();
+	}
+
+	if (m_Combo != nullptr)
+	{
+		hitActor->OnTakeDamage.AddUObject(m_Combo.Get(), &UCombo::UpdateComboCount);
+	}
 }
 
 void UUIManager::CreateComboWidjet()
@@ -46,23 +64,16 @@ void UUIManager::CreateComboWidjet()
 	m_Combo->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void UUIManager::BindActorToComboWidget(ACharacterBase* const hitActor)
-{
-	if (m_Combo == nullptr)
-	{
-		CreateComboWidjet();
-	}
 
-	if (m_Combo != nullptr)
-	{
-		m_Combo->BindActor(hitActor);
-	}
+void UUIManager::BindActorToDamageWidget(ACharacterBase* hitActor)
+{
+	hitActor->OnTakeDamage.AddUObject(this, &UUIManager::RenderDamageToScreen);
 }
 
 void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 {
 	UDamage* damageWidget = Cast<UDamage>(CreateWidget(GetWorld(), m_DamageClass));
-	
+
 	FVector2D screenPosition;
 	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(hitInfo.hitActorLocation, screenPosition);
 	screenPosition.Y -= 100.0f;
@@ -70,49 +81,27 @@ void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 	damageWidget->SetDamage(hitInfo.damage);
 	damageWidget->AddToViewport();
 	damageWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+}
+
+void UUIManager::CreateMonsterHPBar(ACharacterBase* actor)
+{
+	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
+		actor, UWidgetComponent::StaticClass(), "UpperHPBar_Widget");
 	
-	FTimerHandle destroyTimer;
-	GetWorld()->GetTimerManager().SetTimer
-		(
-			destroyTimer,
-			[=]()
-			{
-				damageWidget->RemoveFromParent();
-			},
-		1.0f,
-		false);
-}
-
-void UUIManager::BindActorToDamageWidget(ACharacterBase* const hitActor)
-{
-	hitActor->OnTakeDamage.AddUObject(this, &UUIManager::RenderDamageToScreen);
-}
-
-
-void UUIManager::CreateMonsterHPBar(AActor* actor, UStatComponent* const statComponent, USceneComponent* mesh, const FName& subObjectName, const FVector& relativeLocation, const FVector2D& drawSize)
-{
-	UWidgetComponent* const widgetComponent = NewObject<UWidgetComponent>(actor, UWidgetComponent::StaticClass(), subObjectName);
-	widgetComponent->SetupAttachment(mesh);
-	widgetComponent->SetRelativeLocation(relativeLocation);
+	widgetComponent->SetupAttachment(actor->GetMesh());
+	widgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
 	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
 	widgetComponent->RegisterComponentWithWorld(GetWorld());
-	
 	widgetComponent->SetWidgetClass(m_MonsterHPBarClass);
-	widgetComponent->SetDrawSize(drawSize);
+	widgetComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
 	
-	UUserWidget* widgetObject = widgetComponent->GetUserWidgetObject();
-	UHPBar* hpBar = Cast<UHPBar>(widgetObject);
+	UUserWidget* monsterHPBarWidget = widgetComponent->GetUserWidgetObject();
+	UHPBar* hpBar = Cast<UHPBar>(monsterHPBarWidget);
 	
-	hpBar->BindStatComponent(statComponent);
+	hpBar->BindStatComponent(actor->GetStatComponent());
 
-	if (!m_UIWidgets.Contains(m_MonsterHPBarClass))
-	{
-		TArray<TWeakObjectPtr<UUserWidget>> temp;
-		m_UIWidgets.Add(m_MonsterHPBarClass, temp);
-	}
-
-	m_UIWidgets[m_MonsterHPBarClass].Add(widgetObject);
+	addWidget(m_MonsterHPBarClass, monsterHPBarWidget);
 }
 
 void UUIManager::ShowMonsterHPBar()
@@ -137,47 +126,130 @@ void UUIManager::HideMonsterHPBar()
 	}
 }
 
+void UUIManager::BindMainPlayerSkillComponentToChargingGageBar(UMainPlayerSkillComponent* mainPlayerSkillComponent)
+{
+	if (mainPlayerSkillComponent != nullptr)
+	{
+		mainPlayerSkillComponent->m_OnChargingDelegate.BindUObject(this, &UUIManager::CreateChargingGageBar);
+		mainPlayerSkillComponent->m_OnStopChargingDeleagte.BindUObject(this, &UUIManager::RemoveChargingGageBar);
+	}
+}
+
+void UUIManager::CreateChargingGageBar(ACharacterBase* actor, float duration) 
+{
+	m_ChargingGageBarComponent = NewObject<UWidgetComponent>(
+		actor, UWidgetComponent::StaticClass(), "ChargingGageBar_Widget");
+	
+	m_ChargingGageBarComponent->SetupAttachment(actor->GetMesh());
+	m_ChargingGageBarComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
+	m_ChargingGageBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	m_ChargingGageBarComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	m_ChargingGageBarComponent->RegisterComponentWithWorld(GetWorld());
+	m_ChargingGageBarComponent->SetWidgetClass(m_ChargingGageBarClass);
+	m_ChargingGageBarComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
+	
+	UUserWidget* widgetObject = m_ChargingGageBarComponent->GetUserWidgetObject();
+	
+	m_ChargingGageBar = Cast<UChargingGageBar>(widgetObject);
+	m_ChargingGageBar->SetWidgetComponent(m_ChargingGageBarComponent.Get());
+	m_ChargingGageBar->Play(duration);
+
+	// 애니메이션재생완료시 위젯에서 DestoryComponent 호출.
+}
+
+void UUIManager::RemoveChargingGageBar()
+{
+	if (m_ChargingGageBarComponent.IsValid())
+	{
+		m_ChargingGageBarComponent->DestroyComponent();
+	}
+}
+
 
 void UUIManager::HideWidgets(const FName& path)
 {
-	UClass* const widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 
-	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
+	if (widgetClass != nullptr)
 	{
-		if (widget.IsValid())
+		for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
 		{
-			widget->SetVisibility(ESlateVisibility::Collapsed);
+			if (widget.IsValid())
+			{
+				widget->SetVisibility(ESlateVisibility::Collapsed);
+			}
 		}
 	}
 }
 
 void UUIManager::ShowWidgets(const FName& path)
 {
-	UClass* const widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
-
-	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
-	{
-		if (widget.IsValid())
-		{
-			widget->SetVisibility(ESlateVisibility::HitTestInvisible);
-		}
-	}
-}
-
-void UUIManager::ClearWidgets(const FName& path)
-{
 	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
 
 	if (widgetClass != nullptr)
 	{
+		for (auto widget : m_UIWidgets[widgetClass])
+        	{
+        		if (IsValid(widget))
+        		{
+        			widget->SetVisibility(ESlateVisibility::HitTestInvisible);
+        		}
+        	}
+	}
+}
+
+void UUIManager::RemoveWidgets(const FName& path)
+{
+	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
+	
+	if (widgetClass != nullptr)
+	{
+		if (m_UIWidgets.Contains(widgetClass))
+		{
+			for (auto widget : m_UIWidgets[widgetClass])
+			{
+				if (IsValid(widget))
+				{
+					widget->RemoveFromParent();
+				}
+			}
+		}
+		
 		m_UIWidgets[widgetClass].Empty();
 	}
 }
 
-void UUIManager::ClearAllWidgets()
+void UUIManager::RemoveAllWidgets()
 {
 	for (auto iter : m_UIWidgets)
 	{
-		iter.Value.Empty();
+		TSubclassOf<UUserWidget> classType = iter.Key;
+
+		for (auto widget : iter.Value)
+		{
+			if (IsValid(widget))
+			{
+				widget->RemoveFromParent();
+			}
+		}
+	}
+
+	m_UIWidgets.Empty();
+}
+
+void UUIManager::addWidget(TSubclassOf<UUserWidget> widgetClass, UUserWidget* widget)
+{
+	if (IsValid(widgetClass))
+	{
+		if (!m_UIWidgets.Contains(widgetClass))
+		{
+			TArray<TObjectPtr<UUserWidget>> widgetArray;
+			m_UIWidgets.Add(widgetClass, widgetArray);
+		}
+
+		if (IsValid(widget))
+		{
+			m_UIWidgets[widgetClass].Add(widget);
+		}
 	}
 }
