@@ -60,6 +60,13 @@ void AMainPlayer::BeginPlay()
 	
 }
 
+void AMainPlayer::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	m_SkillComponent->InitializeComponent();
+}
+
 void AMainPlayer::Tick(float DeltaTime) 
 {
 	Super::Tick(DeltaTime);
@@ -209,7 +216,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	
 	// Charging Skill
 	EIC->BindAction(m_InputActionsOnCharging["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
-	EIC->BindAction(m_InputActionsOnCharging["StopCharging_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::StopCharging_OnGround);
+	
 }
 
 FVector AMainPlayer::GetForwardVectorFromControllerYaw() const

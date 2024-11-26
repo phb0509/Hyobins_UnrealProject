@@ -14,7 +14,9 @@ class UEnvironmentSettings;
 class UCombo;
 class UChargingGageBar;
 class UWidgetComponent;
+
 class UMainPlayerSkillComponent;
+class UCharging_OnGround;
 
 struct FHitInformation;
 
@@ -41,7 +43,7 @@ public:
 	void ShowMonsterHPBar();
 	void HideMonsterHPBar();
 
-	void BindMainPlayerSkillComponentToChargingGageBar(UMainPlayerSkillComponent* mainPlayerSkillComponent);
+	void BindChargingSkillToChargingGageBar(UCharging_OnGround* chargingSkill_OnGround);
 	void CreateChargingGageBar(ACharacterBase* actor, float duration);
 	void RemoveChargingGageBar();
 	

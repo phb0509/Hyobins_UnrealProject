@@ -5,6 +5,8 @@
 #include "Utility/CharacterBase.h"
 #include "Components/WidgetComponent.h"
 #include "Component/MainPlayerSkillComponent.h"
+#include "MainPlayer/Skill/Charging_OnGround.h"
+
 #include "Utility/CustomStructs.h"
 #include "UI/HPBar.h"
 #include "UI/System/EnvironmentSettings.h"
@@ -126,12 +128,12 @@ void UUIManager::HideMonsterHPBar()
 	}
 }
 
-void UUIManager::BindMainPlayerSkillComponentToChargingGageBar(UMainPlayerSkillComponent* mainPlayerSkillComponent)
+void UUIManager::BindChargingSkillToChargingGageBar(UCharging_OnGround* chargingSkill_OnGround)
 {
-	if (mainPlayerSkillComponent != nullptr)
+	if (chargingSkill_OnGround != nullptr)
 	{
-		mainPlayerSkillComponent->m_OnChargingDelegate.BindUObject(this, &UUIManager::CreateChargingGageBar);
-		mainPlayerSkillComponent->m_OnStopChargingDeleagte.BindUObject(this, &UUIManager::RemoveChargingGageBar);
+		chargingSkill_OnGround->m_OnChargingDelegate.BindUObject(this, &UUIManager::CreateChargingGageBar);
+		chargingSkill_OnGround->m_OnStopChargingDeleagte.BindUObject(this, &UUIManager::RemoveChargingGageBar);
 	}
 }
 

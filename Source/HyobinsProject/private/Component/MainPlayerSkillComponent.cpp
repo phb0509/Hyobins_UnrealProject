@@ -4,14 +4,22 @@
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
 #include <GameFramework/CharacterMovementComponent.h>
-#include "MotionWarpingComponent.h"
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
 #include "MatineeCameraShake.h"
 #include "Kismet/GameplayStatics.h"
 #include "SubSystems/UIManager.h"
-#include "Particles/ParticleSystem.h"
-#include "Particles/ParticleSystemComponent.h"
+
+#include "MainPlayer/Skill/NormalAttack_OnGround.h"
+#include "MainPlayer/Skill/NormalAttack_InAir.h"
+#include "MainPlayer/Skill/UpperAttack_OnGround.h"
+#include "MainPlayer/Skill/DashAttack_InAir.h"
+#include "MainPlayer/Skill/DashAttack_OnGround.h"
+#include "MainPlayer/Skill/Dodge_OnGround.h"
+#include "MainPlayer/Skill/Charging_OnGround.h"
+#include "MainPlayer/Skill/ComboDashAttack_OnGround.h"
+#include "MainPlayer/Skill/EarthStrike_InAir.h"
+
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_CurSkillState(EMainPlayerSkillStates::Idle),
@@ -19,20 +27,14 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_bCanDodge(true),
 	m_bCanChargingSkill(false),
 	m_bHasStartedComboKeyInputCheck(false),
-	m_CurComboAttackSection(1),
-	m_MaxNormalAttackSection(7),
 	m_bIsStrikeAttackActive(false),
-	m_StrikeAttackDecisionTime(0.5f),
-	m_NormalAttackOnGroundMoveDistance(120.0f),
-	m_UpperAttackGroundToAirJumpDistance(300.0f),
-	m_DashAttackOnGroundMoveDistance(500.0f),
-	m_EarthStrikeEffect(nullptr),
-	m_EarthStrikeSound(nullptr),
-	m_DodgeOnGroundMoveDistance(400.0f),
-	m_ChargingDuration(2.0f)
+	m_StrikeAttackDecisionTime(0.5f)
 {
 	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
+	
+	initAssets();
 }
+
 
 void UMainPlayerSkillComponent::BeginPlay()
 {
@@ -41,231 +43,72 @@ void UMainPlayerSkillComponent::BeginPlay()
 	m_Owner = Cast<AMainPlayer>(GetOwner());
 	m_OwnerAnimInstance = Cast<UMainPlayerAnim>(m_Owner->GetMesh()->GetAnimInstance());
 	
+	initSkills();
 	bindFuncOnMontageEvent();
 }
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()
 {
-	if (m_CurSkillState == EMainPlayerSkillStates::Idle)
+	if (canNonChargingSkill_OnGround())
 	{
-		m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_OnGround"));
-		m_CurSkillState = EMainPlayerSkillStates::NormalAttack_OnGround;
-		
-		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-		
-		FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
-		targetVector.Z = 0.0f;
-		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
+		m_SkillList["NormalAttack_OnGround"]->Execute();
 	}
-	else if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
-		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
-	{
-		if (m_bHasStartedComboKeyInputCheck) // 섹션점프 구간이면,
-		{
-			m_bHasStartedComboKeyInputCheck = false;
-			linqNextNormalAttackOnGroundCombo(); // 섹션점프
-
-			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-
-			FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
-			targetVector.Z = 0.0f;
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
-		}
-	}
-}
-
-void UMainPlayerSkillComponent::linqNextNormalAttackOnGroundCombo()
-{
-	if (m_CurComboAttackSection % 2 != 0) // 기본공격중인경우,
-	{
-		if (m_bIsStrikeAttackActive) // 강공격키 눌려있으면,
-		{
-			m_CurSkillState = EMainPlayerSkillStates::NormalStrikeAttack_OnGround;
-			m_CurComboAttackSection += 1;
-		}
-		else  // 다음 기본공격 연계
-		{
-			m_CurSkillState = EMainPlayerSkillStates::NormalAttack_OnGround;
-			m_CurComboAttackSection += 2;
-		}
-	}
-	else // 강공격중인경우,
-	{
-		if (m_bIsStrikeAttackActive)
-		{
-			m_CurComboAttackSection = FMath::Clamp(m_CurComboAttackSection + 2, 1, m_MaxNormalAttackSection);
-
-			if (m_CurComboAttackSection == 7) // 마지막 공격
-			{
-				m_CurSkillState = EMainPlayerSkillStates::NormalAttack_OnGround;
-			}
-			else
-			{
-				m_CurSkillState = EMainPlayerSkillStates::NormalStrikeAttack_OnGround;
-			}
-		}
-		else
-		{
-			m_CurSkillState = EMainPlayerSkillStates::NormalAttack_OnGround;
-			m_CurComboAttackSection += 1;
-		}
-	}
-	
-	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_OnGround"), m_CurComboAttackSection);
 }
 
 void UMainPlayerSkillComponent::NormalAttack_InAir()
 {
-	if (m_CurSkillState == EMainPlayerSkillStates::NormalAttack_InAir)
-	{
-		if (m_bHasStartedComboKeyInputCheck) // 섹션점프 구간이면,
-		{
-			m_bHasStartedComboKeyInputCheck = false;
-			linqNextNormalAttackInAirCombo(); // 섹션점프
-
-			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-    
-			FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
-			targetVector.Z = 0.0f;
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
-		}
-	}
-	else
-	{
-		if (m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround &&
-			m_CurSkillState == EMainPlayerSkillStates::Idle)
-		{
-			m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_InAir"));
-
-			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-
-			FVector targetVector = m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance;
-			targetVector.Z = 0.0f;
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
-		}
-	}
-}
-
-void UMainPlayerSkillComponent::linqNextNormalAttackInAirCombo()
-{
-	m_CurComboAttackSection += 1;
-	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_InAir"), m_CurComboAttackSection);
+	m_SkillList["NormalAttack_InAir"]->Execute();
 }
 
 void UMainPlayerSkillComponent::UpperAttack_OnGround()
 {
-	if (m_CurSkillState == EMainPlayerSkillStates::Idle ||
-		m_CurSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
-		m_CurSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
+	if (canNonChargingSkill_OnGround())
 	{
-		m_Owner->RotateActorToKeyInputDirection();
-
-		if (m_bIsStrikeAttackActive)
-		{
-			m_CurSkillState = EMainPlayerSkillStates::UpperAttack_GroundToAir;
-			m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
-			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
-
-			const FVector targetLocation = m_Owner->GetActorLocation() +
-				(m_Owner->GetActorUpVector() * m_UpperAttackGroundToAirJumpDistance) +
-				(m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
-			
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"), targetLocation);
-		}
-		else
-		{
-			m_CurSkillState = EMainPlayerSkillStates::UpperAttack_OnGround;
-			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
-
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"),
-				m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_NormalAttackOnGroundMoveDistance);
-		}
+		m_SkillList["UpperAttack_OnGround"]->Execute();
 	}
 }
 
 void UMainPlayerSkillComponent::DashAttack_OnGround()
 {
-	if (m_Owner->GetIsOnGround())
+	if (canNonChargingSkill_OnGround())
 	{
-		if (m_CurSkillState != EMainPlayerSkillStates::DashAttack_OnGround)
-		{
-			m_bCanDodge = false;
-			m_CurSkillState = EMainPlayerSkillStates::DashAttack_OnGround;
-			m_Owner->RotateActorToKeyInputDirection();
-			m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
-
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-				TEXT("Forward"),
-				m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_DashAttackOnGroundMoveDistance);
-		}
+		m_SkillList["DashAttack_OnGround"]->Execute();
 	}
 }
 
 void UMainPlayerSkillComponent::DashAttack_InAir()
 {
-	if (m_CurSkillState != EMainPlayerSkillStates::DashAttack_InAir &&
-		m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround)
-	{
-		m_Owner->GetCharacterMovement()->GravityScale = m_GravityScaleInAir;
-
-		m_CurSkillState = EMainPlayerSkillStates::DashAttack_InAir;
-		m_Owner->RotateActorToKeyInputDirection();
-		m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
-
-		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"),
-			m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_DashAttackOnGroundMoveDistance);
-	}
+	m_SkillList["DashAttack_InAir"]->Execute();
 }
-
 
 void UMainPlayerSkillComponent::Dodge_OnGround()
 {
-	if (m_Owner->GetIsOnGround())
+	if (canNonChargingSkill_OnGround())
 	{
-		if (m_bCanDodge) // 어떠한 공격이든 수행중이면
-		{
-			m_bCanDodge = false;
-			m_CurSkillState = EMainPlayerSkillStates::Dodge_OnGround;
-			
-			m_OwnerAnimInstance->StopAllMontages(0.0f); 
-			
-			// 키입력에 따른 컨트롤러방향벡터 구하기.
-			const FVector controllerKeyInputDirection = m_Owner->GetControllerKeyInputDirectionVector(
-				m_Owner->GetDirectionIndexFromKeyInput());
-
-			// 컨트롤러방향벡터를 캐릭터 로컬벡터로 변환해 캐릭터기준 방향 알아오기.
-			const int32 localDirection = m_Owner->GetLocalDirection(controllerKeyInputDirection);
-			
-			m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_OnGround"));
-			m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("Dodge_OnGround"), localDirection);
-			
-			FVector targetVerticalVector;
-			FVector targetHorizontalVector;
-
-			if (m_Owner->GetCurInputHorizontal() == 0 && m_Owner->GetCurInputVertical() == 0)
-			{
-				targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance;
-				targetHorizontalVector = {0.0f, 0.0f, 0.0f};
-			}
-			else
-			{
-				targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputVertical();
-				targetHorizontalVector = m_Owner->GetRightVectorFromControllerYaw() * m_DodgeOnGroundMoveDistance * m_Owner->GetCurInputHorizontal();
-			}
-			
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
-		}
+		m_SkillList["Dodge_OnGround"]->Execute();
 	}
 }
 
+void UMainPlayerSkillComponent::EarthStrike_InAir()
+{
+	m_SkillList["EarthStrike_InAir"]->Execute();
+}
+
+void UMainPlayerSkillComponent::Charging_OnGround()
+{
+	if (m_Owner->GetIsOnGround())
+	{
+		m_SkillList["Charging_OnGround"]->Execute();
+	}
+}
+
+void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
+{
+	if (m_Owner->GetIsOnGround())
+	{
+		m_SkillList["ComboDashAttack_OnGround"]->Execute();
+	}
+}
 
 void UMainPlayerSkillComponent::ExtendStrikeActivateDecisionTime()
 {
@@ -279,152 +122,7 @@ void UMainPlayerSkillComponent::ExtendStrikeActivateDecisionTime()
 	false);
 }
 
-void UMainPlayerSkillComponent::EarthStrike_InAir()
-{
-	if (m_CurSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround)
-	{
-		m_CurSkillState = EMainPlayerSkillStates::EarthStrike_FallingToGround;
-		
-		m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_FallingToGround"));
-		m_Owner->GetCharacterMovement()->GravityScale = 6.0f;
-		m_Owner->GetWorldTimerManager().SetTimer
-			(
-				m_EarthStrikeTimer,
-				[this]()
-				{
-					if (m_Owner->GetIsOnGround())
-					{
-						EarthStrike_OnGround();
-						EarthStrike_HitCheck();
-					}
-				},
-			GetWorld()->DeltaTimeSeconds,
-			true,-1);
-	}
-}
-
-void UMainPlayerSkillComponent::EarthStrike_OnGround()
-{
-	if (m_CurSkillState != EMainPlayerSkillStates::EarthStrike_OnGround)
-	{
-		m_Owner->GetWorldTimerManager().ClearTimer(m_EarthStrikeTimer);
-		m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_OnGround"));
-	}
-}
-
-void UMainPlayerSkillComponent::EarthStrike_HitCheck()
-{
-	const FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
-	
-	const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
-	const TArray<AActor*> IgnoreActors = {m_Owner.Get()};
-	TArray<AActor*> overlappedActors;
-	
-	UKismetSystemLibrary::SphereOverlapActors(GetWorld(),
-		startLocation,
-		500.0f, // 구체 반지름
-		ObjectTypes,
-		nullptr,
-		IgnoreActors,
-		overlappedActors);
-
-	if (overlappedActors.Num() > 0)
-	{
-		for (AActor* overlappedEnemy : overlappedActors)
-		{
-			const ACharacterBase* enemy = Cast<ACharacterBase>(overlappedEnemy);
-			if (enemy->GetIsOnGround())
-			{
-				m_Owner->Attack(TEXT("EarthStrike"), overlappedEnemy);
-			}
-		}
-	}
-	
-	EarthStrike_PlayEffect();
-	UGameplayStatics::PlaySound2D(this, m_EarthStrikeSound, 1.0f);
-}
-
-void UMainPlayerSkillComponent::EarthStrike_PlayEffect()
-{
-	// if (m_EarthStrikeEffect != nullptr)
-	// {
-	// 	const UNiagaraComponent* niagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_EarthStrikeEffect,
-	// 	m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation(),
-	// 	FRotator(0.0f),FVector(1.0f, 1.0f, 1.0f)
-	// 	);
-	// }
-
-	if (m_ParticleSystem != nullptr)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(
-		   GetWorld(),
-		   m_ParticleSystem, 
-		   m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation(), 
-		   FRotator(0.0f)
-	   );
-	}
-	
-	// Camera Shake
-	if (m_EarthStrikeCameraShake != nullptr)
-	{
-		m_Owner->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_EarthStrikeCameraShake);
-	}
-}
-
-void UMainPlayerSkillComponent::Charging_OnGround()
-{
-	if (m_Owner->GetIsOnGround())
-	{
-		if (m_CurSkillState != EMainPlayerSkillStates::Charging_OnGround)
-		{
-			m_CurSkillState = EMainPlayerSkillStates::Charging_OnGround;
-			m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
-
-			m_Owner->AddInputContextMappingOnCharging();
-			m_OnChargingDelegate.ExecuteIfBound(m_Owner.Get(), m_ChargingDuration);
-			
-			FTimerHandle timer;
-			m_Owner->GetWorldTimerManager().SetTimer(timer,
-						[=]()
-						{
-							m_bCanChargingSkill = true;
-						},
-					m_ChargingDuration,
-					false);
-		}
-	}
-}
-
-void UMainPlayerSkillComponent::StopCharging_OnGround()
-{
-	if (m_Owner->GetIsOnGround())
-	{
-		if (m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("UMainPlayerSkillComponent :: StopCharging_OnGround"));
-			
-			m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
-			m_Owner->RemoveInputContextMappingOnCharging();
-			m_bCanChargingSkill = false;
-
-			m_OnStopChargingDeleagte.ExecuteIfBound();
-		}
-	}
-}
-
-void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
-{
-	if (m_Owner->GetIsOnGround())
-	{
-		if (m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround && m_bCanChargingSkill)
-		{
-			m_OwnerAnimInstance->PlayMontage(TEXT("Charging_ComboDashAttack_OnGround"));
-			m_CurSkillState = EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround;
-		}
-	}
-}
-
-void UMainPlayerSkillComponent::initGravityScaleAfterAttack()
+void UMainPlayerSkillComponent::InitGravityScaleAfterAttack()
 {
 	if (m_Owner->GetCharacterMovement()->GravityScale == m_GravityScaleInAir)
 	{
@@ -441,82 +139,75 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 	}
 }
 
+void UMainPlayerSkillComponent::initAssets()
+{
+	UNormalAttack_OnGround* normalAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UNormalAttack_OnGround>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/NormalAttack_OnGround.NormalAttack_OnGround'",GetTransientPackage());
+	m_SkillList.Add("NormalAttack_OnGround", normalAttack_OnGround);
+
+	UNormalAttack_InAir* normalAttack_InAir = Utility::NewBlueprintObjectInConstructor<UNormalAttack_InAir>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/NormalAttack_InAir.NormalAttack_InAir'",GetTransientPackage());
+	m_SkillList.Add("NormalAttack_InAir", normalAttack_InAir);
+
+	UUpperAttack_OnGround* upperAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UUpperAttack_OnGround>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/UpperAttack_OnGround.UpperAttack_OnGround'",GetTransientPackage());
+	m_SkillList.Add("UpperAttack_OnGround", upperAttack_OnGround);
+	
+	UDashAttack_OnGround* dashAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UDashAttack_OnGround>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/DashAttack_OnGround.DashAttack_OnGround'",GetTransientPackage());
+	m_SkillList.Add("DashAttack_OnGround", dashAttack_OnGround);
+
+	UDashAttack_InAir* dashAttack_InAir = Utility::NewBlueprintObjectInConstructor<UDashAttack_InAir>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/DashAttack_InAir.DashAttack_InAir'",GetTransientPackage());
+    m_SkillList.Add("DashAttack_InAir", dashAttack_InAir);
+
+	UDodge_OnGround* dodge_OnGround = Utility::NewBlueprintObjectInConstructor<UDodge_OnGround>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/Dodge_OnGround.Dodge_OnGround'",GetTransientPackage());
+	m_SkillList.Add("Dodge_OnGround", dodge_OnGround);
+
+	UEarthStrike_InAir* earthStrike_InAir = Utility::NewBlueprintObjectInConstructor<UEarthStrike_InAir>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/EarthStrike_InAir.EarthStrike_InAir'",GetTransientPackage());
+	m_SkillList.Add("EarthStrike_InAir", earthStrike_InAir);
+	
+	UCharging_OnGround* charging_OnGround = Utility::NewBlueprintObjectInConstructor<UCharging_OnGround>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/Charging_OnGround.Charging_OnGround'",GetTransientPackage());
+	m_SkillList.Add("Charging_OnGround", charging_OnGround);
+	
+	UComboDashAttack_OnGround* comboDashAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UComboDashAttack_OnGround>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/ComboDashAttack_OnGround.ComboDashAttack_OnGround'",GetTransientPackage());
+	m_SkillList.Add("ComboDashAttack_OnGround", comboDashAttack_OnGround);
+	
+}
+
+void UMainPlayerSkillComponent::initSkills()
+{
+	for (auto iter : m_SkillList)
+	{
+		iter.Value->SetOwnerInfo(m_Owner.Get());
+		iter.Value->Initialize();
+	}
+}
+
 void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 {
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindMainPlayerSkillComponentToChargingGageBar(this);
-	
-	// NormalAttack_OnGround
-	
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_OnGround"),
-[this]()
-	{
-		m_CurComboAttackSection = 1;
-	});
-	
-	
-	// UpperAttack_GroundToAir
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("UpperAttack_GroundToAir"),
-	[this]()
-	{
-		m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-	});
-
-	
-	// NormalAttack_InAir
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_InAir"),
-[this]()
-	{
-		m_Owner->GetCharacterMovement()->GravityScale = m_GravityScaleInAir;
-		m_CurSkillState = EMainPlayerSkillStates::NormalAttack_InAir;
-	});
-	
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
-	[this]()
-	{
-		initGravityScaleAfterAttack();
-	});
-
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_InAir"),
-[this]()
-	{
-		m_CurComboAttackSection = 1;
-	});
-
-	
-	// DashAttack_InAir
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("DashAttack_InAir"),
-	[this]()
-	{
-		initGravityScaleAfterAttack();
-	});
-
-	// EarthStrike_OnGround
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("EarthStrike_OnGround"),
-[this]()
-	{
-		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
-	});
-
-	
-	// Charging_ComboDashAttack_OnGround
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Charging_ComboDashAttack_OnGround"),
-[this]()
-	{
-		m_bCanChargingSkill = false;
-		m_Owner->RemoveInputContextMappingOnCharging();
-	});
-	
 	// OnMontageEnded 
 	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // 어떤 스킬이든 '끝까지(not Interrupted)' 재생 후 Idle로 전환.
 }
 
+bool UMainPlayerSkillComponent::canNonChargingSkill_OnGround() const
+{
+	return m_Owner->GetIsOnGround() && m_CurSkillState != EMainPlayerSkillStates::Charging_OnGround;
+}
+
 void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, // 로그출력용 틱
-	FActorComponentTickFunction* ThisTickFunction)
+                                              FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
-	GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), m_CurComboAttackSection));
+	UNormalAttack_OnGround* normalAttack = Cast<UNormalAttack_OnGround>(m_SkillList["NormalAttack_OnGround"]);
+	
+	GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
 	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
 	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
 	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
