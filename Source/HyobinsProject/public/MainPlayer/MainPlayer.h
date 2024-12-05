@@ -17,8 +17,9 @@ class AMainPlayer;
 class UInputMappingContext;
 class UInputAction;
 
-
 enum class EMainPlayerStates : uint8;
+
+DECLARE_MULTICAST_DELEGATE(FOnChangeInputMappingContext);
 
 UCLASS()
 class HYOBINSPROJECT_API AMainPlayer final: public ACharacterBase
@@ -53,8 +54,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
 	void RemoveInputContextMappingInAir();
 	
-	void AddInputContextMappingOnCharging() const;
-	void RemoveInputContextMappingOnCharging() const;
+	void AddInputContextMappingOnCharging();
+	void RemoveInputContextMappingOnCharging();
 	
 	void RotateActorToKeyInputDirection();
 	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
@@ -66,6 +67,7 @@ public:
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
 	FORCEINLINE int32 GetDirectionIndexFromKeyInput() const { return m_DirectionIndex[m_CurInputVertical + 1][m_CurInputHorizontal + 1]; }
 	FORCEINLINE TWeakObjectPtr<AActor> GetCurTarget() const { return m_CurTarget; }
+	FName GetHighestPriorityInputMappingContext();
 	
 	FVector GetForwardVectorFromControllerYaw() const;
 	FVector GetRightVectorFromControllerYaw() const;
@@ -84,7 +86,8 @@ public:
 	static const FName ShieldForAttackColliderName;
 	static const FName ShieldForDefendColliderName;
 	static const int32 m_DirectionIndex[3][3];
-
+	
+	FOnChangeInputMappingContext m_OnChangeInputMappingContextDelegate;
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly)
@@ -122,7 +125,7 @@ private:
 	TObjectPtr<UInputMappingContext> m_InputMappingContextOnGround;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
-	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsOnGround;
+	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsDefaultOnGround;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputMappingContext> m_InputMappingContextInAir;
@@ -147,4 +150,5 @@ private:
 	int32 m_CurInputVertical;
 
 	TWeakObjectPtr<AActor> m_CurTarget;
+	TMap<FName, int32> m_CurActiveMappingContexts;
 };

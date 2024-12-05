@@ -3,18 +3,18 @@
 
 #include "SubSystems/UIManager.h"
 #include "Utility/CharacterBase.h"
-#include "Components/WidgetComponent.h"
-#include "Component/MainPlayerSkillComponent.h"
-#include "MainPlayer/Skill/Charging_OnGround.h"
-
 #include "Utility/CustomStructs.h"
+
+#include "Component/SkillComponent.h"
+
+
+#include "Components/WidgetComponent.h"
 #include "UI/HPBar.h"
 #include "UI/System/EnvironmentSettings.h"
 #include "UI/System/Combo.h"
 #include "UI/System/Damage.h"
 #include "UI/ChargingGageBar.h"
-
-
+#include "UI/SkillSlots.h"
 
 
 void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -26,6 +26,7 @@ void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_ComboClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
 	m_DamageClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Damage.Damage_C'"));
 	m_ChargingGageBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/ChargingGageBar.ChargingGageBar_C'"));
+	m_SkillSlotsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlots.SkillSlots_C'"));
 	
 	m_bIsShowMonsterHPBar = true;
 }
@@ -35,6 +36,21 @@ void UUIManager::Deinitialize()
 	Super::Deinitialize();
 
 	RemoveAllWidgets();
+}
+
+void UUIManager::CreateSkillSlots(USkillComponent* skillComponent)
+{
+	m_SkillSlots = Cast<USkillSlots>(CreateWidget(GetWorld(), m_SkillSlotsClass));
+	m_SkillSlots->CreateSkillListFromSkillComponent(skillComponent); 
+	m_SkillSlots->AddToViewport();
+}
+
+void UUIManager::ChangeSkillList()
+{
+	// 컨텍스트매핑이 추가되거나 삭제할때마다 호출함.
+	//FName curSkillSlots =
+
+	m_SkillSlots->ChangeSkillSlots();
 }
 
 void UUIManager::OpenEnvironmentSettings() const
@@ -128,15 +144,6 @@ void UUIManager::HideMonsterHPBar()
 	}
 }
 
-void UUIManager::BindChargingSkillToChargingGageBar(UCharging_OnGround* chargingSkill_OnGround)
-{
-	if (chargingSkill_OnGround != nullptr)
-	{
-		chargingSkill_OnGround->m_OnChargingDelegate.BindUObject(this, &UUIManager::CreateChargingGageBar);
-		chargingSkill_OnGround->m_OnStopChargingDeleagte.BindUObject(this, &UUIManager::RemoveChargingGageBar);
-	}
-}
-
 void UUIManager::CreateChargingGageBar(ACharacterBase* actor, float duration) 
 {
 	m_ChargingGageBarComponent = NewObject<UWidgetComponent>(
@@ -151,10 +158,9 @@ void UUIManager::CreateChargingGageBar(ACharacterBase* actor, float duration)
 	m_ChargingGageBarComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
 	
 	UUserWidget* widgetObject = m_ChargingGageBarComponent->GetUserWidgetObject();
-	
-	m_ChargingGageBar = Cast<UChargingGageBar>(widgetObject);
-	m_ChargingGageBar->SetWidgetComponent(m_ChargingGageBarComponent.Get());
-	m_ChargingGageBar->Play(duration);
+	UChargingGageBar* chargingGageBar = Cast<UChargingGageBar>(widgetObject);
+	chargingGageBar->SetWidgetComponent(m_ChargingGageBarComponent.Get());
+	chargingGageBar->Play(duration);
 
 	// 애니메이션재생완료시 위젯에서 DestoryComponent 호출.
 }

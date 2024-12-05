@@ -4,6 +4,7 @@
 #include "MainPlayer/MainPlayerController.h"
 #include "SubSystems/UIManager.h"
 
+
 AMainPlayerController::AMainPlayerController():
 	m_TeamID(FGenericTeamId(1))
 {

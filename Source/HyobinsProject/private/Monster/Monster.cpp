@@ -101,8 +101,11 @@ void AMonster::Activate()
 	SetActorHiddenInGame(false);
 
 	// UI 바인딩.
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToComboWidget(this);
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToDamageWidget(this); // 이거문제
+	//GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToDamageWidget(this);
+
+	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
 	this->OnTakeDamage.AddUObject(this, &AMonster::activateHitEffect);
 }
 

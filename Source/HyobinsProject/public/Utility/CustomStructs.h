@@ -15,7 +15,7 @@ public:
 	~CustomStructs();
 };
 
-USTRUCT(BlueprintType)
+USTRUCT(Atomic)
 struct FAttackInformationData : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -34,27 +34,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	FName attackName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float damageRatio;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	bool bHasCrowdControl;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	FName crowdControlType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float crowdControlTime;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float knockBackDistance;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float airbornePower;
 };
 
 
-USTRUCT(Atomic, BlueprintType) // Atomic : 항상 하나의 단위로 직렬화. BlueprintType : 블루프린트에서 사용될 수 있음을 의미.
+USTRUCT(Atomic) 
 struct FAttackInformation
 {
 	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
@@ -70,7 +70,7 @@ public:
 	FVector colliderLocation;
 };
 
-USTRUCT(Atomic, BlueprintType) // Atomic : 항상 하나의 단위로 직렬화. BlueprintType : 블루프린트에서 사용될 수 있음을 의미.
+USTRUCT(Atomic) 
 struct FHitInformation
 {
 	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로

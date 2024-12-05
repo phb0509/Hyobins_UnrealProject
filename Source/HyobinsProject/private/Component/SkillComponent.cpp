@@ -6,6 +6,6 @@
 
 USkillComponent::USkillComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false; // 뷰포트에 로그출력용.
+	PrimaryComponentTick.bCanEverTick = false; 
 	bWantsInitializeComponent = false;
 }

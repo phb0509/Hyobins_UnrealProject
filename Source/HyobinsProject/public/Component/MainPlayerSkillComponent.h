@@ -3,26 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MatineeCameraShake.h"
 #include "Component/SkillComponent.h"
 #include "MainPlayerSkillComponent.generated.h"
 
-class ACharacterBase;
 class AMainPlayer;
 class UMainPlayerAnim;
-class UNiagaraSystem;
-class UNiagaraComponent;
-class UCameraShakeBase;
-class USoundWave;
-class UParticleSystem;
-
-class USkill;
-class UNormalAttack_OnGround;
 
 enum class EMainPlayerSkillStates : uint8;
-
-// DECLARE_DELEGATE_TwoParams(FOnChargingDelegate, ACharacterBase*, float);
-// DECLARE_DELEGATE(FOnStopChargingDelegate);
 
 
 UCLASS()
@@ -35,19 +22,16 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual FName GetHighestPriorityInputMappingContext() override;
 	
 	void NormalAttack_OnGround();
-	void NormalAttack_InAir();
-	
 	void UpperAttack_OnGround();
-	
 	void DashAttack_OnGround();
-	void DashAttack_InAir();
-	
-	void EarthStrike_InAir();
-	
 	void Dodge_OnGround();
-
+	
+	void NormalAttack_InAir();
+	void DashAttack_InAir();
+	void EarthStrike_InAir();
 	void Charging_OnGround();
 	void Charging_ComboDashAttack_OnGround();
 
@@ -75,19 +59,17 @@ public:
 	void InitGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 	
 private:
-	void initAssets();
+	void loadSkills();
 	void initSkills();
 	void bindFuncOnMontageEvent();
 	bool canNonChargingSkill_OnGround() const;
 	
 
 
-
 private:
 	TWeakObjectPtr<AMainPlayer> m_Owner;
 	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
 	EMainPlayerSkillStates m_CurSkillState;
-	TMap<FName, TObjectPtr<USkill>> m_SkillList;
 	
 	UPROPERTY(EditAnywhere, Category = "GravityScaleInAir")
 	float m_GravityScaleInAir;

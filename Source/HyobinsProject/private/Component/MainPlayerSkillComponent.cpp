@@ -31,8 +31,8 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_StrikeAttackDecisionTime(0.5f)
 {
 	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
-	
-	initAssets();
+
+	//loadSkills();
 }
 
 
@@ -42,29 +42,32 @@ void UMainPlayerSkillComponent::BeginPlay()
 	
 	m_Owner = Cast<AMainPlayer>(GetOwner());
 	m_OwnerAnimInstance = Cast<UMainPlayerAnim>(m_Owner->GetMesh()->GetAnimInstance());
-	
+
+	loadSkills();
 	initSkills();
 	bindFuncOnMontageEvent();
+
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this);
 }
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()
 {
 	if (canNonChargingSkill_OnGround())
 	{
-		m_SkillList["NormalAttack_OnGround"]->Execute();
+		m_SkillList["DefaultOnGround"].skillList["NormalAttack_OnGround"]->Execute();
 	}
 }
 
 void UMainPlayerSkillComponent::NormalAttack_InAir()
 {
-	m_SkillList["NormalAttack_InAir"]->Execute();
+	m_SkillList["InAir"].skillList["NormalAttack_InAir"]->Execute();
 }
 
 void UMainPlayerSkillComponent::UpperAttack_OnGround()
 {
 	if (canNonChargingSkill_OnGround())
 	{
-		m_SkillList["UpperAttack_OnGround"]->Execute();
+		m_SkillList["DefaultOnGround"].skillList["UpperAttack_OnGround"]->Execute();
 	}
 }
 
@@ -72,33 +75,33 @@ void UMainPlayerSkillComponent::DashAttack_OnGround()
 {
 	if (canNonChargingSkill_OnGround())
 	{
-		m_SkillList["DashAttack_OnGround"]->Execute();
+		m_SkillList["DefaultOnGround"].skillList["DashAttack_OnGround"]->Execute();
 	}
 }
 
 void UMainPlayerSkillComponent::DashAttack_InAir()
 {
-	m_SkillList["DashAttack_InAir"]->Execute();
+	m_SkillList["InAir"].skillList["DashAttack_InAir"]->Execute();
 }
 
 void UMainPlayerSkillComponent::Dodge_OnGround()
 {
 	if (canNonChargingSkill_OnGround())
 	{
-		m_SkillList["Dodge_OnGround"]->Execute();
+		m_SkillList["DefaultOnGround"].skillList["Dodge_OnGround"]->Execute();
 	}
 }
 
 void UMainPlayerSkillComponent::EarthStrike_InAir()
 {
-	m_SkillList["EarthStrike_InAir"]->Execute();
+	m_SkillList["InAir"].skillList["EarthStrike_InAir"]->Execute();
 }
 
 void UMainPlayerSkillComponent::Charging_OnGround()
 {
 	if (m_Owner->GetIsOnGround())
 	{
-		m_SkillList["Charging_OnGround"]->Execute();
+		m_SkillList["ChargingOnGround"].skillList["Charging_OnGround"]->Execute();
 	}
 }
 
@@ -106,7 +109,7 @@ void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
 {
 	if (m_Owner->GetIsOnGround())
 	{
-		m_SkillList["ComboDashAttack_OnGround"]->Execute();
+		m_SkillList["ChargingOnGround"].skillList["ComboDashAttack_OnGround"]->Execute();
 	}
 }
 
@@ -139,52 +142,70 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 	}
 }
 
-void UMainPlayerSkillComponent::initAssets()
+void UMainPlayerSkillComponent::loadSkills()
 {
+	FSkillList skillList;
+	m_SkillList.Add("DefaultOnGround", skillList);
+	m_SkillList.Add("InAir", skillList);
+	m_SkillList.Add("ChargingOnGround", skillList);
+
+	//m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
+	
+	// DefaultOnGround
 	UNormalAttack_OnGround* normalAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UNormalAttack_OnGround>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/NormalAttack_OnGround.NormalAttack_OnGround'",GetTransientPackage());
-	m_SkillList.Add("NormalAttack_OnGround", normalAttack_OnGround);
-
-	UNormalAttack_InAir* normalAttack_InAir = Utility::NewBlueprintObjectInConstructor<UNormalAttack_InAir>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/NormalAttack_InAir.NormalAttack_InAir'",GetTransientPackage());
-	m_SkillList.Add("NormalAttack_InAir", normalAttack_InAir);
-
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/NormalAttack_OnGround.NormalAttack_OnGround_C'",GetTransientPackage());
+	m_SkillList["DefaultOnGround"].skillList.Add("NormalAttack_OnGround", normalAttack_OnGround);
+	
 	UUpperAttack_OnGround* upperAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UUpperAttack_OnGround>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/UpperAttack_OnGround.UpperAttack_OnGround'",GetTransientPackage());
-	m_SkillList.Add("UpperAttack_OnGround", upperAttack_OnGround);
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/UpperAttack_OnGround.UpperAttack_OnGround_C'",GetTransientPackage());
+	m_SkillList["DefaultOnGround"].skillList.Add("UpperAttack_OnGround", upperAttack_OnGround);
 	
 	UDashAttack_OnGround* dashAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UDashAttack_OnGround>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/DashAttack_OnGround.DashAttack_OnGround'",GetTransientPackage());
-	m_SkillList.Add("DashAttack_OnGround", dashAttack_OnGround);
-
-	UDashAttack_InAir* dashAttack_InAir = Utility::NewBlueprintObjectInConstructor<UDashAttack_InAir>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/DashAttack_InAir.DashAttack_InAir'",GetTransientPackage());
-    m_SkillList.Add("DashAttack_InAir", dashAttack_InAir);
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/DashAttack_OnGround.DashAttack_OnGround_C'",GetTransientPackage());
+	m_SkillList["DefaultOnGround"].skillList.Add("DashAttack_OnGround", dashAttack_OnGround);
 
 	UDodge_OnGround* dodge_OnGround = Utility::NewBlueprintObjectInConstructor<UDodge_OnGround>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/Dodge_OnGround.Dodge_OnGround'",GetTransientPackage());
-	m_SkillList.Add("Dodge_OnGround", dodge_OnGround);
+("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/Dodge_OnGround.Dodge_OnGround_C'",GetTransientPackage());
+	m_SkillList["DefaultOnGround"].skillList.Add("Dodge_OnGround", dodge_OnGround);
 
-	UEarthStrike_InAir* earthStrike_InAir = Utility::NewBlueprintObjectInConstructor<UEarthStrike_InAir>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/EarthStrike_InAir.EarthStrike_InAir'",GetTransientPackage());
-	m_SkillList.Add("EarthStrike_InAir", earthStrike_InAir);
 	
+	// InAir
+	UNormalAttack_InAir* normalAttack_InAir = Utility::NewBlueprintObjectInConstructor<UNormalAttack_InAir>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/NormalAttack_InAir.NormalAttack_InAir_C'",GetTransientPackage());
+	m_SkillList["InAir"].skillList.Add("NormalAttack_InAir", normalAttack_InAir);
+	
+	UDashAttack_InAir* dashAttack_InAir = Utility::NewBlueprintObjectInConstructor<UDashAttack_InAir>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/DashAttack_InAir.DashAttack_InAir_C'",GetTransientPackage());
+    m_SkillList["InAir"].skillList.Add("DashAttack_InAir", dashAttack_InAir);
+	
+	UEarthStrike_InAir* earthStrike_InAir = Utility::NewBlueprintObjectInConstructor<UEarthStrike_InAir>
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/EarthStrike_InAir.EarthStrike_InAir_C'",GetTransientPackage());
+	m_SkillList["InAir"].skillList.Add("EarthStrike_InAir", earthStrike_InAir);
+
+	
+	// ChargingOnGround
 	UCharging_OnGround* charging_OnGround = Utility::NewBlueprintObjectInConstructor<UCharging_OnGround>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/Charging_OnGround.Charging_OnGround'",GetTransientPackage());
-	m_SkillList.Add("Charging_OnGround", charging_OnGround);
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/Charging_OnGround.Charging_OnGround_C'",GetTransientPackage());
+	m_SkillList["ChargingOnGround"].skillList.Add("Charging_OnGround", charging_OnGround);
 	
 	UComboDashAttack_OnGround* comboDashAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UComboDashAttack_OnGround>
-	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/ComboDashAttack_OnGround.ComboDashAttack_OnGround'",GetTransientPackage());
-	m_SkillList.Add("ComboDashAttack_OnGround", comboDashAttack_OnGround);
-	
+	("Blueprint'/Game/MainPlayerAsset/SkillBlueprint/ComboDashAttack_OnGround.ComboDashAttack_OnGround_C'",GetTransientPackage());
+	m_SkillList["ChargingOnGround"].skillList.Add("ComboDashAttack_OnGround", comboDashAttack_OnGround);
+
 }
 
 void UMainPlayerSkillComponent::initSkills()
 {
-	for (auto iter : m_SkillList)
+	for (const auto iter : m_SkillList)
 	{
-		iter.Value->SetOwnerInfo(m_Owner.Get());
-		iter.Value->Initialize();
+		for (const auto skill : iter.Value.skillList)
+		{
+			if (skill.Value != nullptr)
+			{
+				skill.Value->SetOwnerInfo(m_Owner.Get());
+				skill.Value->Initialize();
+			}
+		}
 	}
 }
 
@@ -205,10 +226,15 @@ void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
-	UNormalAttack_OnGround* normalAttack = Cast<UNormalAttack_OnGround>(m_SkillList["NormalAttack_OnGround"]);
+	//UNormalAttack_OnGround* normalAttack = Cast<UNormalAttack_OnGround>(m_SkillList["NormalAttack_OnGround"]);
 	
-	GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
+	//GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
 	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
 	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
 	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+}
+
+FName UMainPlayerSkillComponent::GetHighestPriorityInputMappingContext()
+{
+	return m_Owner->GetHighestPriorityInputMappingContext();
 }

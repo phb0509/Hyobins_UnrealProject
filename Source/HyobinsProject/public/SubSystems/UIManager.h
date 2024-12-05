@@ -15,8 +15,10 @@ class UCombo;
 class UChargingGageBar;
 class UWidgetComponent;
 
-class UMainPlayerSkillComponent;
+//class UMainPlayerSkillComponent;
+class USkillComponent;
 class UCharging_OnGround;
+class USkillSlots;
 
 struct FHitInformation;
 
@@ -30,6 +32,9 @@ class HYOBINSPROJECT_API UUIManager : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+
+	void CreateSkillSlots(USkillComponent* skillComponent);
+	void ChangeSkillList();
 	
 	void OpenEnvironmentSettings() const;
 
@@ -42,11 +47,9 @@ public:
 	void CreateMonsterHPBar(ACharacterBase* actor);
 	void ShowMonsterHPBar();
 	void HideMonsterHPBar();
-
-	void BindChargingSkillToChargingGageBar(UCharging_OnGround* chargingSkill_OnGround);
+	
 	void CreateChargingGageBar(ACharacterBase* actor, float duration);
 	void RemoveChargingGageBar();
-	
 	
 	void HideWidgets(const FName& path);
 	void ShowWidgets(const FName& path);
@@ -58,19 +61,21 @@ public:
 
 private:
 	void addWidget(TSubclassOf<UUserWidget> widgetClass, UUserWidget* widget);
+
 	
 private:
 	TMap<TSubclassOf<UUserWidget>, TArray<TObjectPtr<UUserWidget>>> m_UIWidgets;
 	
 	TObjectPtr<UCombo> m_Combo;
-	TWeakObjectPtr<UChargingGageBar> m_ChargingGageBar;
 	TWeakObjectPtr<UWidgetComponent> m_ChargingGageBarComponent;
+	TWeakObjectPtr<USkillSlots> m_SkillSlots;
 	
 	TSubclassOf<UUserWidget> m_MonsterHPBarClass;
 	TSubclassOf<UUserWidget> m_EnvironmentSettingsClass;
 	TSubclassOf<UUserWidget> m_ComboClass;
 	TSubclassOf<UUserWidget> m_DamageClass;
 	TSubclassOf<UUserWidget> m_ChargingGageBarClass;
+	TSubclassOf<UUserWidget> m_SkillSlotsClass;;
 
 	bool m_bIsShowMonsterHPBar;
 };

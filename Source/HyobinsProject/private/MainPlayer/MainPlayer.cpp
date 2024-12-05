@@ -11,7 +11,8 @@
 #include "MotionWarpingComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-
+#include "InputMappingContext.h"
+#include "SubSystems/UIManager.h"
 
 
 const int32 AMainPlayer::m_DirectionIndex[3][3] =
@@ -57,7 +58,13 @@ void AMainPlayer::BeginPlay()
 	UMainPlayerAnim* animInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 	animInstance->OnEnteredState_Falling.AddDynamic(this, &AMainPlayer::AddInputContextMappingInAir);
 	animInstance->OnEnteredState_MoveOnGround.AddDynamic(this, &AMainPlayer::RemoveInputContextMappingInAir);
-	
+
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+
+	// m_OnChangeInputMappingContextDelegate.BindUObject(uiManager, &UUIManager::ChangeSkillList);
+	// m_OnChangeInputMappingContextDelegate.ExecuteIfBound();
+
+	m_OnChangeInputMappingContextDelegate.AddUObject(uiManager, &UUIManager::ChangeSkillList);
 }
 
 void AMainPlayer::PostInitializeComponents()
@@ -91,7 +98,11 @@ void AMainPlayer::AddInputContextMappingInAir()
 
 	if (!subSystem->HasMappingContext(m_InputMappingContextInAir))
 	{
-		subSystem->AddMappingContext(m_InputMappingContextInAir,1);
+		const int8 priority = m_CurActiveMappingContexts.Num();
+		m_CurActiveMappingContexts.Add("InAir", priority);
+		subSystem->AddMappingContext(m_InputMappingContextInAir,priority);
+
+		m_OnChangeInputMappingContextDelegate.Broadcast();
 	}
 }
 
@@ -103,28 +114,38 @@ void AMainPlayer::RemoveInputContextMappingInAir()
 	if (subSystem->HasMappingContext(m_InputMappingContextInAir))
 	{
 		subSystem->RemoveMappingContext(m_InputMappingContextInAir);
+		m_CurActiveMappingContexts.Remove("InAir");
+
+		m_OnChangeInputMappingContextDelegate.Broadcast();
 	}
 }
 
-void AMainPlayer::AddInputContextMappingOnCharging() const
+void AMainPlayer::AddInputContextMappingOnCharging()
 {
 	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 
 	if (!subSystem->HasMappingContext(m_InputMappingContextOnCharging))
 	{
-		subSystem->AddMappingContext(m_InputMappingContextOnCharging,1);
+		const int8 priority = m_CurActiveMappingContexts.Num();
+		m_CurActiveMappingContexts.Add("ChargingOnGround", priority);
+		subSystem->AddMappingContext(m_InputMappingContextOnCharging,priority);
+
+		m_OnChangeInputMappingContextDelegate.Broadcast();
 	}
 }
 
-void AMainPlayer::RemoveInputContextMappingOnCharging() const
+void AMainPlayer::RemoveInputContextMappingOnCharging()
 {
 	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
-
+	
 	if (subSystem->HasMappingContext(m_InputMappingContextOnCharging))
 	{
 		subSystem->RemoveMappingContext(m_InputMappingContextOnCharging);
+		m_CurActiveMappingContexts.Remove("ChargingOnGround");
+
+		m_OnChangeInputMappingContextDelegate.Broadcast();
 	}
 }
 
@@ -182,31 +203,32 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 	subSystem->ClearAllMappings();
 	subSystem->AddMappingContext(m_InputMappingContextOnGround,0);
+	m_CurActiveMappingContexts.Add("DefaultOnGround", 0);
 	
 	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
 	
 	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
 	
 	// UI
-	EIC->BindAction(m_InputActionsOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
+	EIC->BindAction(m_InputActionsDefaultOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
 
 	// Move
-	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
-	EIC->BindAction(m_InputActionsOnGround["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
-	EIC->BindAction(m_InputActionsOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
-	EIC->BindAction(m_InputActionsOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
-	EIC->BindAction(m_InputActionsOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
+	EIC->BindAction(m_InputActionsDefaultOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
+	EIC->BindAction(m_InputActionsDefaultOnGround["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
+	EIC->BindAction(m_InputActionsDefaultOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
+	EIC->BindAction(m_InputActionsDefaultOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
+	EIC->BindAction(m_InputActionsDefaultOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
 
 	// Skill_OnGround
-	EIC->BindAction(m_InputActionsOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, m_SkillComponent.Get(), &UMainPlayerSkillComponent::ActivateStrikeAttack);
-	EIC->BindAction(m_InputActionsOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Completed, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DeactivateStrikeAttack);
+	EIC->BindAction(m_InputActionsDefaultOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, m_SkillComponent.Get(), &UMainPlayerSkillComponent::ActivateStrikeAttack);
+	EIC->BindAction(m_InputActionsDefaultOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Completed, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DeactivateStrikeAttack);
 	
-	EIC->BindAction(m_InputActionsOnGround["NormalAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_OnGround);
-	EIC->BindAction(m_InputActionsOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
-	EIC->BindAction(m_InputActionsOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
-	EIC->BindAction(m_InputActionsOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge_OnGround);
+	EIC->BindAction(m_InputActionsDefaultOnGround["NormalAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_OnGround);
+	EIC->BindAction(m_InputActionsDefaultOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
+	EIC->BindAction(m_InputActionsDefaultOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
+	EIC->BindAction(m_InputActionsDefaultOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge_OnGround);
 
-	EIC->BindAction(m_InputActionsOnGround["Charging_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_OnGround);
+	EIC->BindAction(m_InputActionsDefaultOnGround["Charging_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_OnGround);
 	
 	// Skill_InAir
 	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
@@ -217,6 +239,23 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Charging Skill
 	EIC->BindAction(m_InputActionsOnCharging["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
 	
+}
+
+FName AMainPlayer::GetHighestPriorityInputMappingContext()
+{
+	int32 highestPriority = -1;
+	FName highestPriorityInputMappingContext = "";
+	
+	for (auto& iter : m_CurActiveMappingContexts)
+	{
+		if (iter.Value > highestPriority)
+		{
+			highestPriority = iter.Value;
+			highestPriorityInputMappingContext = iter.Key;
+		}
+	}
+
+	return highestPriorityInputMappingContext;
 }
 
 FVector AMainPlayer::GetForwardVectorFromControllerYaw() const
@@ -337,7 +376,7 @@ void AMainPlayer::initAssets()
 	// scale.x,scale.y,scale.z
 
 	// SwordCollider
-	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.279196f, 1.998782f, 87.925328f}, {0.5f, 0.5f, 1.0f} };
+	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.62819f, 1.998782f, 97.919239f}, {0.625f, 0.75f, 1.0f} };
 
 	m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
 	m_SwordCollider->SetupAttachment(GetMesh(), FName(TEXT("sword_bottom")));
@@ -352,7 +391,7 @@ void AMainPlayer::initAssets()
 	
 	
 	// ShieldCollider For Attack
-	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.35f} };
+	collisionTransform = { {0.0f, 90.0f, -10.0f}, {2.6047f, 0.0f, 24.77f}, {1.0f, 2.0f, 1.1f} };
 
 	m_ShieldForAttackCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForAttackCollider"));
 	m_ShieldForAttackCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
@@ -363,8 +402,8 @@ void AMainPlayer::initAssets()
 	m_ShieldForAttackCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 
-	// ShieldCollider For Shield
-	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.0f, 1.25f, 0.1f} };
+	// ShieldCollider For Defend
+	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.375f, 1.625f, 0.225f} };
 
 	m_ShieldForDefendCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForDefendCollider"));
 	m_ShieldForDefendCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
@@ -374,6 +413,10 @@ void AMainPlayer::initAssets()
 	m_ShieldForDefendCollider->SetNotifyRigidBodyCollision(false);
 	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+
+	// ShieldBotoomCollider
+	
+	collisionTransform = { {0.0f, 90.0f, -10.0f}, {49.24f, 0.0f, 1.31f}, {1.0f, 1.25f, 0.1f} };
 	
 	m_ShieldBottomCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ShieldBottomCollider"));
 	m_ShieldBottomCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));

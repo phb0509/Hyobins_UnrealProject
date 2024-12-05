@@ -106,7 +106,10 @@ void AActorPool::ClearActorPool()
 
 		for (const auto& actor : blueprintActorPoolActors.actors)
 		{
-			actor->Destroy();
+			if (actor.IsValid())
+			{
+				actor->Destroy();
+			}
 		}
 	}
 
