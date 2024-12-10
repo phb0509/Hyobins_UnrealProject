@@ -61,8 +61,8 @@ void AMainPlayer::BeginPlay()
 
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 
-	// m_OnChangeInputMappingContextDelegate.BindUObject(uiManager, &UUIManager::ChangeSkillList);
-	// m_OnChangeInputMappingContextDelegate.ExecuteIfBound();
+	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent);
+	
 
 	m_OnChangeInputMappingContextDelegate.AddUObject(uiManager, &UUIManager::ChangeSkillList);
 }
@@ -374,7 +374,19 @@ void AMainPlayer::initAssets()
 	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
 	// location.x, location.y, location. z
 	// scale.x,scale.y,scale.z
+	
 
+	// HitCollider
+	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
+	m_HitCollider->SetupAttachment(GetMesh(), FName(TEXT("spine_01")));
+	m_HitCollider->SetCapsuleHalfHeight(60.0f);
+	m_HitCollider->SetCapsuleRadius(60.0f);
+	m_HitCollider->SetCollisionProfileName(TEXT("HitCollider_Player")); 
+	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	m_HitCollider->SetNotifyRigidBodyCollision(false);
+	m_HitCollider->SetGenerateOverlapEvents(true);
+	
+	
 	// SwordCollider
 	FTransform collisionTransform = { {0.0f, 90.0f, -2.0f}, {0.62819f, 1.998782f, 97.919239f}, {0.625f, 0.75f, 1.0f} };
 
@@ -430,6 +442,7 @@ void AMainPlayer::initAssets()
 	m_Colliders.Add(ShieldForAttackColliderName,m_ShieldForAttackCollider);
 	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForDefendCollider);
 	m_Colliders.Add(TEXT("ShieldBottomCollider"),m_ShieldBottomCollider);
+	m_Colliders.Add(HitColliderName,m_ShieldBottomCollider);
 	
 	// 이외 CharacterMovement Detail값들
 

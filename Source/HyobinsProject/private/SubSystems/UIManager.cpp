@@ -5,8 +5,6 @@
 #include "Utility/CharacterBase.h"
 #include "Utility/CustomStructs.h"
 
-#include "Component/SkillComponent.h"
-
 
 #include "Components/WidgetComponent.h"
 #include "UI/HPBar.h"
@@ -15,6 +13,7 @@
 #include "UI/System/Damage.h"
 #include "UI/ChargingGageBar.h"
 #include "UI/SkillSlots.h"
+#include "UI/MainPlayerStatusBar.h"
 
 
 void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -27,6 +26,7 @@ void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 	m_DamageClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Damage.Damage_C'"));
 	m_ChargingGageBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/ChargingGageBar.ChargingGageBar_C'"));
 	m_SkillSlotsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlots.SkillSlots_C'"));
+	m_MainPlayerStatusBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/StatusBar.StatusBar_C'"));
 	
 	m_bIsShowMonsterHPBar = true;
 }
@@ -38,6 +38,13 @@ void UUIManager::Deinitialize()
 	RemoveAllWidgets();
 }
 
+void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent)
+{
+	m_MainPlayerStatusBar = Cast<UMainPlayerStatusBar>(CreateWidget(GetWorld(), m_MainPlayerStatusBarClass));
+	m_MainPlayerStatusBar->BindStatComponent(statComponent);
+	m_MainPlayerStatusBar->AddToViewport();
+}
+
 void UUIManager::CreateSkillSlots(USkillComponent* skillComponent)
 {
 	m_SkillSlots = Cast<USkillSlots>(CreateWidget(GetWorld(), m_SkillSlotsClass));
@@ -47,9 +54,6 @@ void UUIManager::CreateSkillSlots(USkillComponent* skillComponent)
 
 void UUIManager::ChangeSkillList()
 {
-	// 컨텍스트매핑이 추가되거나 삭제할때마다 호출함.
-	//FName curSkillSlots =
-
 	m_SkillSlots->ChangeSkillSlots();
 }
 
@@ -160,9 +164,7 @@ void UUIManager::CreateChargingGageBar(ACharacterBase* actor, float duration)
 	UUserWidget* widgetObject = m_ChargingGageBarComponent->GetUserWidgetObject();
 	UChargingGageBar* chargingGageBar = Cast<UChargingGageBar>(widgetObject);
 	chargingGageBar->SetWidgetComponent(m_ChargingGageBarComponent.Get());
-	chargingGageBar->Play(duration);
-
-	// 애니메이션재생완료시 위젯에서 DestoryComponent 호출.
+	chargingGageBar->StartCharging(duration);
 }
 
 void UUIManager::RemoveChargingGageBar()

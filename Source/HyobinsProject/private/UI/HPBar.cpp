@@ -14,17 +14,12 @@ void UHPBar::NativeConstruct()
 void UHPBar::BindStatComponent(UStatComponent* statComponent)
 {
 	m_StatComponent = statComponent;
-	m_StatComponent->OnHPIsChanged.AddUObject(this, &UHPBar::UpdateHPBarWidget);
+	m_StatComponent->OnChangedHP.AddUObject(this, &UHPBar::UpdateHPBarWidget);
 }
-
-void UHPBar::SetExecuteState()
-{
-	m_HPProgressBar->SetVisibility(ESlateVisibility::Collapsed);
-} 
 
 void UHPBar::UpdateHPBarWidget()
 {
-	if (m_StatComponent->IsValidLowLevel())
+	if (m_StatComponent.IsValid())
 	{
 		if (m_HPProgressBar != nullptr)
 		{

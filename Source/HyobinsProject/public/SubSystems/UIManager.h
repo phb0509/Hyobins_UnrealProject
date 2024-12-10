@@ -15,7 +15,7 @@ class UCombo;
 class UChargingGageBar;
 class UWidgetComponent;
 
-//class UMainPlayerSkillComponent;
+class UMainPlayerStatusBar;
 class USkillComponent;
 class UCharging_OnGround;
 class USkillSlots;
@@ -33,6 +33,8 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
+	void CreateMainPlayerStatusBar(UStatComponent* statComponent);
+	
 	void CreateSkillSlots(USkillComponent* skillComponent);
 	void ChangeSkillList();
 	
@@ -47,6 +49,8 @@ public:
 	void CreateMonsterHPBar(ACharacterBase* actor);
 	void ShowMonsterHPBar();
 	void HideMonsterHPBar();
+	FORCEINLINE void SetIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
+	FORCEINLINE bool GetIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
 	
 	void CreateChargingGageBar(ACharacterBase* actor, float duration);
 	void RemoveChargingGageBar();
@@ -56,8 +60,7 @@ public:
 	void RemoveWidgets(const FName& path);
 	void RemoveAllWidgets(); // ¹Ì¿Ï¼º.
 
-	FORCEINLINE void SetIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
-	FORCEINLINE bool GetIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
+
 
 private:
 	void addWidget(TSubclassOf<UUserWidget> widgetClass, UUserWidget* widget);
@@ -68,6 +71,7 @@ private:
 	
 	TObjectPtr<UCombo> m_Combo;
 	TWeakObjectPtr<UWidgetComponent> m_ChargingGageBarComponent;
+	TWeakObjectPtr<UMainPlayerStatusBar> m_MainPlayerStatusBar;
 	TWeakObjectPtr<USkillSlots> m_SkillSlots;
 	
 	TSubclassOf<UUserWidget> m_MonsterHPBarClass;
@@ -75,7 +79,8 @@ private:
 	TSubclassOf<UUserWidget> m_ComboClass;
 	TSubclassOf<UUserWidget> m_DamageClass;
 	TSubclassOf<UUserWidget> m_ChargingGageBarClass;
-	TSubclassOf<UUserWidget> m_SkillSlotsClass;;
+	TSubclassOf<UUserWidget> m_SkillSlotsClass;
+	TSubclassOf<UUserWidget> m_MainPlayerStatusBarClass;
 
 	bool m_bIsShowMonsterHPBar;
 };

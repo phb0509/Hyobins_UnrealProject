@@ -25,21 +25,37 @@ void UStatComponent::BeginPlay()
 	InitHP();
 }
 
-void UStatComponent::OnDamage(const float damage)
+void UStatComponent::UpdateHP(const float damage)
 {
-	// 방어력이나 속성저항력등에 의해 실제로 깎아야하는 hp를 구한다.
 	SetHP(FMath::Clamp<float>(m_CurHP - damage, 0.0f, m_MaxHP));
 }
 
 void UStatComponent::SetHP(const float hp)
 {
 	m_CurHP = hp;
-	OnHPIsChanged.Broadcast();
+	OnChangedHP.Broadcast();
 
 	if (m_CurHP < KINDA_SMALL_NUMBER)
 	{
 		m_CurHP = 0.0f;
 		OnHPIsZero.Broadcast();
+	}
+}
+
+void UStatComponent::UpdateStamina(const float stamina)
+{
+	SetHP(FMath::Clamp<float>(m_CurStamina - stamina, 0.0f, m_MaxStamina));
+}
+
+void UStatComponent::SetStamina(const float stamina)
+{
+	m_CurStamina = stamina;
+	//OnHPIsChanged.Broadcast();
+
+	if (m_CurStamina < KINDA_SMALL_NUMBER)
+	{
+		m_CurStamina = 0.0f;
+		//OnHPIsZero.Broadcast();
 	}
 }
 

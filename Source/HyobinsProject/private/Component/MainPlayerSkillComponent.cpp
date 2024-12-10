@@ -149,7 +149,6 @@ void UMainPlayerSkillComponent::loadSkills()
 	m_SkillList.Add("InAir", skillList);
 	m_SkillList.Add("ChargingOnGround", skillList);
 
-	//m_SwordCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("SwordCollider"));
 	
 	// DefaultOnGround
 	UNormalAttack_OnGround* normalAttack_OnGround = Utility::NewBlueprintObjectInConstructor<UNormalAttack_OnGround>

@@ -6,8 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "StatComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnHPIsZeroDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnHPIsChangedDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnStatIsZeroDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnChangedStatDelegate);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class HYOBINSPROJECT_API UStatComponent : public UActorComponent
@@ -38,16 +38,23 @@ public:
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
 	FORCEINLINE int32 GetCriticalAttackChance() const { return m_CriticalAttackChance; }
 	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
+	FORCEINLINE float GetStaminaRatio() const { return m_CurStamina < KINDA_SMALL_NUMBER ? 0.0f : (m_CurStamina / m_MaxStamina); }
 	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
 	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
 	FORCEINLINE float GetAttackSpeed() const { return m_CurAttackSpeed; }
 	
 	// Set
-	void OnDamage(const float damage);
+	void UpdateHP(const float damage);
 	void SetHP(const float hp);
+
+	void UpdateStamina(const float stamina);
+	void SetStamina(const float stamina);
 	
-	FOnHPIsChangedDelegate OnHPIsChanged;
-	FOnHPIsZeroDelegate OnHPIsZero;
+	FOnChangedStatDelegate OnChangedHP;
+	FOnStatIsZeroDelegate OnHPIsZero;
+
+	FOnChangedStatDelegate OnChangedStamina;
+	FOnStatIsZeroDelegate OnStaminaIsZero;
 	
 private:
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
@@ -64,6 +71,12 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly, Transient, Meta = (AllowPrivateAccess = true))
 	float m_CurHP;
+
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	float m_MaxStamina;
+
+	UPROPERTY(VisibleInstanceOnly, Transient, Meta = (AllowPrivateAccess = true))
+	float m_CurStamina;
 	
 	UPROPERTY(VisibleInstanceOnly, Meta = (AllowPrivateAccess = true))
 	float m_HitRecovery;

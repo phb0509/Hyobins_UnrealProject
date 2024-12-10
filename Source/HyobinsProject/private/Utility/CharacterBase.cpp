@@ -75,7 +75,6 @@ void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> targ
 	
 	const bool bIsCriticalAttack = FMath::FRandRange(0.0f, 100.0f) <= m_StatComponent->GetCriticalAttackChance();
 	const float finalDamage = (m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio) * (bIsCriticalAttack ? 2.0f : 1.0f);
-
 	
 	targetActor->OnDamage(finalDamage, bIsCriticalAttack, attackInfo, this);
 }
@@ -87,7 +86,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 		damage, m_CrowdControlTime,bIsCriticalAttack};
 	
 	OnTakeDamage.Broadcast(hitInfo);
-	m_StatComponent->OnDamage(damage);
+	m_StatComponent->UpdateHP(damage);
 	
 	if (!m_bIsDead)
 	{

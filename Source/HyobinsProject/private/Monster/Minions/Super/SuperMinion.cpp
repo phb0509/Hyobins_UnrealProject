@@ -6,7 +6,7 @@
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Utility/EnumTypes.h"
 #include "Utility/Utility.h"
-
+#include "SubSystems/DataManager.h"
 
 int32 ASuperMinion::TagCount(0);
 const FName ASuperMinion::LeftSwordColliderName = "LeftSwordCollider";
@@ -31,6 +31,10 @@ void ASuperMinion::BeginPlay()
 	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
 	m_AIController = Cast<ASuperMinionAIController>(GetController());
 
+	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
+	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_SuperMinion.AttackInformation_SuperMinion'");
+	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
+
 	bindFuncOnMontagEvent();
 }
 
@@ -39,7 +43,6 @@ void ASuperMinion::OnCalled_NormalAttack_End() const
 	if (m_CurFSMState == ESuperMinionFSMStates::NormalAttack)
 	{
 		m_AIController->StartBehaviorTree();
-		UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: OnCalled_NormalAttack_End"));
 	}
 }
 
@@ -68,7 +71,8 @@ void ASuperMinion::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	m_DeathTimeline.TickTimeline(DeltaTime);
-	
+
+	// 로그출력.
 	const FString movementMode = GetCharacterMovement()->GetMovementName();
 	FString log = TEXT("SuperMinion Mode :: ");
 	log += movementMode;

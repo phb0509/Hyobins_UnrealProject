@@ -92,6 +92,9 @@ public:
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 	TObjectPtr<UMainPlayerSkillComponent> m_SkillComponent;
+
+	UPROPERTY(EditAnywhere) 
+	TObjectPtr<UCapsuleComponent> m_HitCollider;
 	
 	UPROPERTY(EditAnywhere) 
 	TObjectPtr<UCapsuleComponent> m_SwordCollider;
