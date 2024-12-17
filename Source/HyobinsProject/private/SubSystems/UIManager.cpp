@@ -237,7 +237,7 @@ void UUIManager::RemoveAllWidgets()
 
 		for (auto widget : iter.Value)
 		{
-			if (IsValid(widget))
+			if (widget->IsValidLowLevel())
 			{
 				widget->RemoveFromParent();
 			}

@@ -25,28 +25,27 @@ public:
 	void OnCalled_NormalAttack_End() const;
 
 protected:
-	// IPoolableActor VirtualFunction 
 	virtual void Activate() override;
-	//virtual void DeActivate() override;
 
-	
 private:
 	void initAssets();
 	void bindFuncOnMontagEvent();
 	
 
 private:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UCapsuleComponent> m_HitCollider;
+	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
+	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
 	
+	// UPROPERTY(EditAnywhere)
+	// TObjectPtr<UCapsuleComponent> m_HitCollider;
+	//
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_LeftSwordCollider;
 		
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_RightSwordCollider;
 	
-	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
-	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
+	
 	
 	static int32 TagCount;
 	static const FName LeftSwordColliderName;

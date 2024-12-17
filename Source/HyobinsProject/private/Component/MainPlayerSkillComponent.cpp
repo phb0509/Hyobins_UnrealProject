@@ -52,7 +52,7 @@ void UMainPlayerSkillComponent::BeginPlay()
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()
 {
-	if (canNonChargingSkill_OnGround())
+	if (canNonChargingSkill_OnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
 	{
 		m_SkillList["DefaultOnGround"].skillList["NormalAttack_OnGround"]->Execute();
 	}
@@ -60,12 +60,15 @@ void UMainPlayerSkillComponent::NormalAttack_OnGround()
 
 void UMainPlayerSkillComponent::NormalAttack_InAir()
 {
-	m_SkillList["InAir"].skillList["NormalAttack_InAir"]->Execute();
+	if (m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
+	{
+		m_SkillList["InAir"].skillList["NormalAttack_InAir"]->Execute();
+	}
 }
 
 void UMainPlayerSkillComponent::UpperAttack_OnGround()
 {
-	if (canNonChargingSkill_OnGround())
+	if (canNonChargingSkill_OnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
 	{
 		m_SkillList["DefaultOnGround"].skillList["UpperAttack_OnGround"]->Execute();
 	}
@@ -73,7 +76,7 @@ void UMainPlayerSkillComponent::UpperAttack_OnGround()
 
 void UMainPlayerSkillComponent::DashAttack_OnGround()
 {
-	if (canNonChargingSkill_OnGround())
+	if (canNonChargingSkill_OnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
 	{
 		m_SkillList["DefaultOnGround"].skillList["DashAttack_OnGround"]->Execute();
 	}
@@ -81,7 +84,10 @@ void UMainPlayerSkillComponent::DashAttack_OnGround()
 
 void UMainPlayerSkillComponent::DashAttack_InAir()
 {
-	m_SkillList["InAir"].skillList["DashAttack_InAir"]->Execute();
+	if (m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
+	{
+		m_SkillList["InAir"].skillList["DashAttack_InAir"]->Execute();
+	}
 }
 
 void UMainPlayerSkillComponent::Dodge_OnGround()
@@ -94,12 +100,15 @@ void UMainPlayerSkillComponent::Dodge_OnGround()
 
 void UMainPlayerSkillComponent::EarthStrike_InAir()
 {
-	m_SkillList["InAir"].skillList["EarthStrike_InAir"]->Execute();
+	if (m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
+	{
+		m_SkillList["InAir"].skillList["EarthStrike_InAir"]->Execute();
+	}
 }
 
 void UMainPlayerSkillComponent::Charging_OnGround()
 {
-	if (m_Owner->GetIsOnGround())
+	if (m_Owner->GetIsOnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
 	{
 		m_SkillList["ChargingOnGround"].skillList["Charging_OnGround"]->Execute();
 	}
@@ -107,7 +116,7 @@ void UMainPlayerSkillComponent::Charging_OnGround()
 
 void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
 {
-	if (m_Owner->GetIsOnGround())
+	if (m_Owner->GetIsOnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
 	{
 		m_SkillList["ChargingOnGround"].skillList["ComboDashAttack_OnGround"]->Execute();
 	}

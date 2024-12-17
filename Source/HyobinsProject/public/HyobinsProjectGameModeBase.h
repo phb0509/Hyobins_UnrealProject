@@ -20,8 +20,18 @@ public:
 	virtual void PostLogin(APlayerController* newPlayer) override;
 	virtual void BeginPlay() override;
 
+	void CountMinionDeath();
 
 private:
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
-	TObjectPtr<UEnvironmentSettings> m_EnvironmentSettingsUI;
+	void spawnBossMonster();
+
+private:
+	// UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
+	// TObjectPtr<UEnvironmentSettings> m_EnvironmentSettingsUI;
+
+	UPROPERTY(EditAnywhere)
+	int32 m_MinionDeathCount;
+
+	UPROPERTY(EditAnywhere, Category = "BossMonster")
+	TSubclassOf<AActor> m_LichKingClass;
 };

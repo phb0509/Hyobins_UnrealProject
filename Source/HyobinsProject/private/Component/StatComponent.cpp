@@ -8,6 +8,8 @@ UStatComponent::UStatComponent() :
 	m_Defense(0.0f),
 	m_MaxHP(200.0f),
 	m_CurHP(m_MaxHP),
+	m_MaxStamina(200.0f),
+	m_CurStamina(m_MaxStamina),
 	m_HitRecovery(1.0f),
 	m_CurMoveSpeed(1.0f),
 	m_CurAdditionalMoveSpeed(0.0f),

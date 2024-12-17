@@ -15,7 +15,7 @@ class UAnimInstanceBase;
 class UStatComponent;
 class AAIControllerBase;
 class UAIPerceptionComponent;
-class UShapeComponent;
+//class UShapeComponent;
 class UNiagaraSystem;
 
 struct FHitInformation;
@@ -24,8 +24,9 @@ enum class ECrowdControlStates : uint8;
 enum class ECrowdControlType : uint8;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, const ACharacterBase*, const FAttackInformation*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnTakeDamage, const FHitInformation&);
 DECLARE_MULTICAST_DELEGATE(FOnCrowdControl_End_Delegate);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTakeDamageDelegate, const FHitInformation&);
+DECLARE_MULTICAST_DELEGATE(FOnDeathDelegate);
 
 UCLASS(abstract)
 class HYOBINSPROJECT_API ACharacterBase : public ACharacter
@@ -58,7 +59,8 @@ public:
 	// Get
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
 	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) { return m_Colliders[colliderName].Get(); }
-	
+
+	FORCEINLINE ECrowdControlStates GetCrowdControlState() const { return m_CurCrowdControlState; }
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
 	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
@@ -67,6 +69,8 @@ public:
 	FORCEINLINE bool GetIsFalling() const { return m_bIsFalling; }
 	FORCEINLINE bool GetIsFlying() const { return m_bIsFlying; }
 	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
+
+	FORCEINLINE void SetIsSuperArmor(bool bIsSuperArmor) { m_bIsSuperArmor = bIsSuperArmor; }
 	
 	void RotateToTarget(const AActor* target);
 
@@ -101,8 +105,9 @@ private:
 	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) {};
 
 public:
-	FOnTakeDamage OnTakeDamage;
-
+	FOnTakeDamageDelegate OnTakeDamage;
+	FOnDeathDelegate OnDeath;
+	
 	static const FName HitColliderName;
 	static const FName KnockbackMontageNames[4];
 	static const FName DeathMontageNames[4];
@@ -128,7 +133,7 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsFlying;
 	
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsSuperArmor;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
@@ -141,9 +146,12 @@ protected:
 	TWeakObjectPtr<UAnimInstanceBase> m_AnimInstanceBase;
 	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
-	UStatComponent* m_StatComponent;
+	TObjectPtr<UStatComponent> m_StatComponent;
 	
-	TMap<ECrowdControlType, FOnCrowdControl_Start_Delegate> m_CrowdControl_Start_Delegates;
+	UPROPERTY(EditAnywhere) 
+    TObjectPtr<UCapsuleComponent> m_HitCollider;
+	
+	TMap<ECrowdControlType, FOnCrowdControl_Start_Delegate> m_CrowdControlStartDelegates;
 	
 	FTimerHandle m_CrowdControlTimerHandle;
 	float m_CrowdControlTime;
@@ -152,7 +160,7 @@ protected:
 	FTimeline m_DeathTimeline;					
 
 	UPROPERTY(EditAnywhere, Category = "Timeline | Death")
-	UCurveFloat* m_DeathCurveFloat;
+	TObjectPtr<UCurveFloat> m_DeathCurveFloat;
 	
 	UPROPERTY(EditAnywhere, Category = "HitEffect")
 	TObjectPtr<UNiagaraSystem> m_HitEffect;

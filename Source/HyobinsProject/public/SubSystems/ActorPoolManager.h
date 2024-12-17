@@ -15,12 +15,13 @@ class HYOBINSPROJECT_API UActorPoolManager : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 	
-	FORCEINLINE AActorPool* GetActorPool() const { return m_ActorPool; }
+	AActorPool* GetActorPool();
 
 
 private:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<AActorPool> m_ActorPool;
 	
 };

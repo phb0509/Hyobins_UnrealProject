@@ -89,7 +89,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(const TSubclassOf<AActor> classTyp
 
 	if (actor == nullptr) // 액터풀이 꽉찼다면 (꺼낼 액터가 없다면)
 	{
-		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 1.5); // 추가생성.
+		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 2.0f); // 추가생성.
 		actor = SpawnActor(classType);
 	}
 

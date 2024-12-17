@@ -2,11 +2,12 @@
 
 
 #include "HyobinsProjectGameModeBase.h"
-#include "Components/WidgetComponent.h"
-#include "GameFramework/GameSession.h"
 #include "MainPlayer/MainPlayerController.h"
+#include "SubSystems/ActorPoolManager.h"
+#include "ActorPool/ActorPool.h"
 
-AHyobinsProjectGameModeBase::AHyobinsProjectGameModeBase()
+AHyobinsProjectGameModeBase::AHyobinsProjectGameModeBase() :
+	m_MinionDeathCount(1)
 {
 	PlayerControllerClass = AMainPlayerController::StaticClass();
 }
@@ -22,7 +23,25 @@ void AHyobinsProjectGameModeBase::BeginPlay()
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("GameModeBase::BeginPlay!"));
 	
-	const TSubclassOf<UUserWidget> widgetClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Widget_SettingPopup.Widget_SettingPopup_C'"));
+}
 
+void AHyobinsProjectGameModeBase::CountMinionDeath()
+{
+	UE_LOG(LogTemp, Warning, TEXT("AHyobinsProjectGameModeBase :: CountMinionDeath"));
 	
+	--m_MinionDeathCount;
+
+	if (m_MinionDeathCount == 0)
+	{
+		spawnBossMonster();
+	}
+}
+
+void AHyobinsProjectGameModeBase::spawnBossMonster()
+{
+	AActorPool* actorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
+	actorPool->CreateActorPool(m_LichKingClass,1);
+	
+	const FVector position = {0.0f, 0.0f, 0.0f};
+	actorPool->SpawnActor(m_LichKingClass, position);
 }

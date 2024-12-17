@@ -13,6 +13,8 @@
 #include "AIControllerBase.generated.h"
 
 class ACharacterBase;
+class UAIPerceptionComponent;
+
 
 UCLASS()
 class HYOBINSPROJECT_API AAIControllerBase : public AAIController
@@ -39,7 +41,9 @@ protected:
 	TWeakObjectPtr<UBehaviorTree> m_BehaviorTree;
 	TWeakObjectPtr<UBlackboardData> m_BlackboardData;
 	TWeakObjectPtr<UBehaviorTreeComponent> m_BehaviorTreeComponent;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAIPerceptionComponent> m_AIPerceptionComponent;
 	
 	FGenericTeamId m_TeamID;
-	
 };

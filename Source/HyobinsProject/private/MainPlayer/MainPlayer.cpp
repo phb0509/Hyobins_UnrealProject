@@ -64,7 +64,7 @@ void AMainPlayer::BeginPlay()
 	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent);
 	
 
-	m_OnChangeInputMappingContextDelegate.AddUObject(uiManager, &UUIManager::ChangeSkillList);
+	OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
 }
 
 void AMainPlayer::PostInitializeComponents()
@@ -102,7 +102,7 @@ void AMainPlayer::AddInputContextMappingInAir()
 		m_CurActiveMappingContexts.Add("InAir", priority);
 		subSystem->AddMappingContext(m_InputMappingContextInAir,priority);
 
-		m_OnChangeInputMappingContextDelegate.Broadcast();
+		OnChangeInputMappingContext.Broadcast();
 	}
 }
 
@@ -116,7 +116,7 @@ void AMainPlayer::RemoveInputContextMappingInAir()
 		subSystem->RemoveMappingContext(m_InputMappingContextInAir);
 		m_CurActiveMappingContexts.Remove("InAir");
 
-		m_OnChangeInputMappingContextDelegate.Broadcast();
+		OnChangeInputMappingContext.Broadcast();
 	}
 }
 
@@ -131,7 +131,7 @@ void AMainPlayer::AddInputContextMappingOnCharging()
 		m_CurActiveMappingContexts.Add("ChargingOnGround", priority);
 		subSystem->AddMappingContext(m_InputMappingContextOnCharging,priority);
 
-		m_OnChangeInputMappingContextDelegate.Broadcast();
+		OnChangeInputMappingContext.Broadcast();
 	}
 }
 
@@ -145,7 +145,7 @@ void AMainPlayer::RemoveInputContextMappingOnCharging()
 		subSystem->RemoveMappingContext(m_InputMappingContextOnCharging);
 		m_CurActiveMappingContexts.Remove("ChargingOnGround");
 
-		m_OnChangeInputMappingContextDelegate.Broadcast();
+		OnChangeInputMappingContext.Broadcast();
 	}
 }
 
@@ -241,7 +241,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	
 }
 
-FName AMainPlayer::GetHighestPriorityInputMappingContext()
+FName AMainPlayer::GetHighestPriorityInputMappingContext() const
 {
 	int32 highestPriority = -1;
 	FName highestPriorityInputMappingContext = "";
@@ -476,8 +476,22 @@ void AMainPlayer::printLog() const
 	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
 	
 	const FString movementMode = GetCharacterMovement()->GetMovementName();
-	FString log3 = "MainPlyaerMovement Mode :: ";
-	log3 += movementMode;
-	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	FString log = "MainPlyaerMovement Mode :: ";
+	log += movementMode;
+	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+
+	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
+	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+
+	const FName priorityName = GetHighestPriorityInputMappingContext();
+	FString log3 = Tags[0].ToString() + " :: HighestPriorityInputMappingContext :: " + priorityName.ToString();
+	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+
+	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
+	FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
+	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
+	
+	
+	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

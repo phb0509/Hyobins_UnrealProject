@@ -19,7 +19,7 @@ class UInputAction;
 
 enum class EMainPlayerStates : uint8;
 
-DECLARE_MULTICAST_DELEGATE(FOnChangeInputMappingContext);
+DECLARE_MULTICAST_DELEGATE(FOnChangeInputMappingContextDelegate);
 
 UCLASS()
 class HYOBINSPROJECT_API AMainPlayer final: public ACharacterBase
@@ -67,7 +67,7 @@ public:
 	FORCEINLINE int32 GetCurInputHorizontal() const { return m_CurInputHorizontal; }
 	FORCEINLINE int32 GetDirectionIndexFromKeyInput() const { return m_DirectionIndex[m_CurInputVertical + 1][m_CurInputHorizontal + 1]; }
 	FORCEINLINE TWeakObjectPtr<AActor> GetCurTarget() const { return m_CurTarget; }
-	FName GetHighestPriorityInputMappingContext();
+	FName GetHighestPriorityInputMappingContext() const;
 	
 	FVector GetForwardVectorFromControllerYaw() const;
 	FVector GetRightVectorFromControllerYaw() const;
@@ -87,14 +87,11 @@ public:
 	static const FName ShieldForDefendColliderName;
 	static const int32 m_DirectionIndex[3][3];
 	
-	FOnChangeInputMappingContext m_OnChangeInputMappingContextDelegate;
+	FOnChangeInputMappingContextDelegate OnChangeInputMappingContext;
 	
 private:
 	UPROPERTY(VisibleDefaultsOnly)
 	TObjectPtr<UMainPlayerSkillComponent> m_SkillComponent;
-
-	UPROPERTY(EditAnywhere) 
-	TObjectPtr<UCapsuleComponent> m_HitCollider;
 	
 	UPROPERTY(EditAnywhere) 
 	TObjectPtr<UCapsuleComponent> m_SwordCollider;

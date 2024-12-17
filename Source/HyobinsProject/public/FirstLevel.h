@@ -20,7 +20,7 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	void Create() const;
+	void CreateMinions() const;
 
 	
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
@@ -35,4 +35,7 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
 	TSubclassOf<AActor> m_MonsterClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
+	TSubclassOf<AActor> m_LichKingClass;
 };

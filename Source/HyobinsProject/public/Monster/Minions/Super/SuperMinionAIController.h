@@ -7,6 +7,7 @@
 #include "SuperMinionAIController.generated.h"
 
 class ASuperMinion;
+class UAIPerceptionComponent;
 
 UCLASS()
 class HYOBINSPROJECT_API ASuperMinionAIController : public AAIControllerBase

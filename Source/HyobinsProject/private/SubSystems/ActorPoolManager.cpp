@@ -8,5 +8,23 @@
 void UActorPoolManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-	m_ActorPool = GetWorld()->SpawnActor<AActorPool>();
+	
+	UE_LOG(LogTemp, Warning, TEXT("UActorPoolManager :: Initialize"));
+}
+
+void UActorPoolManager::Deinitialize()
+{
+	Super::Deinitialize();
+	
+	UE_LOG(LogTemp, Warning, TEXT("UActorPoolManager :: Deinitialize"));
+}
+
+AActorPool* UActorPoolManager::GetActorPool()
+{
+	if (m_ActorPool == nullptr)
+	{
+		m_ActorPool = GetWorld()->SpawnActor<AActorPool>();
+	}
+
+	return m_ActorPool;
 }

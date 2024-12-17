@@ -23,6 +23,8 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 {
 	Super::OnPossess(pawn);
 
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: OnPossess"));
+	
 	m_Owner = Cast<ASuperMinion>(pawn);
 
 	GetAIPerceptionComponent()->Activate();
@@ -40,10 +42,11 @@ void ASuperMinionAIController::OnPossess(APawn* pawn)
 void ASuperMinionAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
+
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinionAIController :: OnUnPossess"));
 	
 	GetAIPerceptionComponent()->Deactivate();
 	GetAIPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
-	
 }
 
 void ASuperMinionAIController::Tick(float DeltaSeconds)
@@ -136,6 +139,8 @@ void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStim
 
 void ASuperMinionAIController::initAssets()
 {
+	AAIController::SetGenericTeamId(m_TeamID);
+	
 	static ConstructorHelpers::FObjectFinder<UBehaviorTree> BTObject(TEXT("BehaviorTree'/Game/MonsterAsset/SuperMinion/BT_SuperMinion.BT_SuperMinion'"));
 	if (BTObject.Succeeded())
 	{
@@ -149,27 +154,26 @@ void ASuperMinionAIController::initAssets()
 		m_BlackboardData = BBObject.Object;
 	}
 	checkf(IsValid(m_BlackboardData.Get()), TEXT("BlackboardData isn't Valid"));
+	
+	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
 
-	AAIController::SetGenericTeamId(m_TeamID);
-
-	UAIPerceptionComponent* perceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
-	perceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
 	
-	UAISenseConfig_Sight* sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	// UAISenseConfig_Sight* sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	//
+	// sightConfig->SightRadius = 1000.0f;
+	// sightConfig->LoseSightRadius = 1100.0f;
+	// sightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
+	// sightConfig->SetMaxAge(5.0f);
+	// sightConfig->AutoSuccessRangeFromLastSeenLocation = 0.0f; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
+	// // 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
+	//
+	// sightConfig->DetectionByAffiliation.bDetectEnemies = true; 
+	// sightConfig->DetectionByAffiliation.bDetectNeutrals = false;
+	// sightConfig->DetectionByAffiliation.bDetectFriendlies = true; 
+	//
+	// m_AIPerceptionComponent->ConfigureSense(*sightConfig);
+	// m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
 	
-	sightConfig->SightRadius = 1000.0f;
-	sightConfig->LoseSightRadius = 1100.0f;
-	sightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
-	sightConfig->SetMaxAge(5.0f);
-	sightConfig->AutoSuccessRangeFromLastSeenLocation = 0.0f; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
-															  // 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
-	
-	sightConfig->DetectionByAffiliation.bDetectEnemies = true; 
-	sightConfig->DetectionByAffiliation.bDetectNeutrals = false;
-	sightConfig->DetectionByAffiliation.bDetectFriendlies = true; 
-	
-	perceptionComponent->ConfigureSense(*sightConfig);
-	perceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
 }
 
 ETeamAttitude::Type ASuperMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const
