@@ -9,6 +9,7 @@
 class AActorPool;
 class AMonster;
 class IPoolableActor;
+struct FStreamableHandle;
 
 UCLASS()
 class HYOBINSPROJECT_API AFirstLevel : public ALevelBase
@@ -27,6 +28,11 @@ public:
 	void Spawn();
 
 
+	void OnAsyncAssetLoadComplete(FName assetPathName);
+private:
+	void asyncLoadAsset(FString assetPath);
+
+
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;
 	float m_SpawnTimerTime_MeleeMinion;
@@ -38,4 +44,13 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
 	TSubclassOf<AActor> m_LichKingClass;
+
+
+
+	TArray<FString> m_AssetFolderPaths;
+	TArray<FString> m_AssetPaths;
+
+	int32 m_AsyncAssetCount;
+	int32 m_CompletedAsyncLoadAssetCount;
+	TMap<FName, TSharedPtr<FStreamableHandle>> m_LoadHandles;
 };
