@@ -55,12 +55,12 @@ void UEnvironmentSettings::ChangeMonsterHPBarState(bool bIsChecked)
 {
 	if (bIsChecked)
 	{
-		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->ShowMonsterHPBar();
+		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", nullptr, ESlateVisibility::HitTestInvisible);
 		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetIsShowMonsterHPBar(true);
 	}
 	else
 	{
-		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->HideMonsterHPBar();
+		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", nullptr, ESlateVisibility::Collapsed);
 		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetIsShowMonsterHPBar(false);
 	}
 }

@@ -19,6 +19,8 @@ public:
 	AMonster();
 	virtual void BeginPlay() override;
 
+	uint8 GetCurFSMState() const { return m_CurFSMState; }
+	
 	template<typename T>
 	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), void>::Type
 	SetFSMState(const T state)

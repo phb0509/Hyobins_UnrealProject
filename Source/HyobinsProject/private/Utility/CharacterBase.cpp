@@ -111,10 +111,10 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	}
 
 	// 로그
-	++attackCount;
-	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
-		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
+	// ++attackCount;
+	// const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
+	// 	instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
+	// UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }
 
 void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
@@ -141,6 +141,8 @@ void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instiga
 			&ACharacterBase::OnCalledTimer_KnockbackOnStanding_End,
 			m_CrowdControlTime, false);
 	}
+
+	m_LastPlayedOnHitMontageName = m_AnimInstanceBase->GetCurrentActiveMontage()->GetFName();
 }
 
 void ACharacterBase::OnCalledTimer_KnockbackOnStanding_End()
@@ -151,8 +153,18 @@ void ACharacterBase::OnCalledTimer_KnockbackOnStanding_End()
 		return;
 	}
 	
+	FName curMontageName = "";
+	if (m_AnimInstanceBase->GetCurrentActiveMontage() != nullptr)
+	{
+		curMontageName = m_AnimInstanceBase->GetCurrentActiveMontage()->GetFName();
+	}
+	
+	if (curMontageName == m_LastPlayedOnHitMontageName) // 이 함수를 호출했던 피격모션을 계속 유지해야한다는 조건.
+	{
+		m_AnimInstanceBase->StopAllMontages(0.0f); // 스탑안하면 몬스터가 피격모션안끝난상태로 플레이어 쫓아옴.
+	}
+	
 	SetCrowdControlState(ECrowdControlStates::None);
-	m_AnimInstanceBase->StopAllMontages(0.0f);
 }
 
 void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator,
@@ -160,9 +172,9 @@ void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigat
 {
 	FVector airbornePower = {0.0f, 0.0f, attackInfo->airbornePower};
 
-	if (m_CurCrowdControlState == ECrowdControlStates::Down) // 다운상태에서 에어본공격맞으면, 모션만 재생한다. 조금 덜띄운다.
+	if (m_CurCrowdControlState == ECrowdControlStates::Down) // 다운상태에서 에어본공격맞으면 다운 모션 똑같이 진행.
 	{
-		airbornePower.Z /= 2; // 다운상태라서 조금 덜띄운다.
+		airbornePower.Z /= 2; // 다운상태라서 조금 덜 띄운다.
 		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
 	}
 	else // 공중넉백상태거나, 스탠딩상태거나. 타이머 호출.
@@ -208,7 +220,7 @@ void ACharacterBase::CallTimer_ExecDownEvent_WhenOnGround()
 			GetWorld()->DeltaTimeSeconds, true,-1);
 }
 
-void ACharacterBase::ExecEvent_Down_WhenOnGround()
+void ACharacterBase::ExecEvent_Down_WhenOnGround() // (에어본 상태에서 호출되었을 테니) 땅인지 체크 후, Down진행 -> 이후 GetUp진행.
 {
 	if (m_bIsDead)
 	{

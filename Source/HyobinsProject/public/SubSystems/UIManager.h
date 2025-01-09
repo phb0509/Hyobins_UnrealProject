@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
 #include "UIManager.generated.h"
 
 class ACharacterBase;
@@ -13,7 +14,6 @@ class UHPBar;
 class UEnvironmentSettings;
 class UCombo;
 class UChargingGageBar;
-class UWidgetComponent;
 
 class UMainPlayerStatusBar;
 class USkillComponent;
@@ -21,6 +21,18 @@ class UCharging_OnGround;
 class USkillSlots;
 
 struct FHitInformation;
+
+
+USTRUCT(Atomic)
+struct FWidgetContainer
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	TWeakObjectPtr<UUserWidget> widget;
+	TWeakObjectPtr<UWidgetComponent> widgetComponent;
+};
+
 
 
 UCLASS()
@@ -33,54 +45,43 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 
-	void CreateMainPlayerStatusBar(UStatComponent* statComponent);
+	void CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner);
 	
-	void CreateSkillSlots(USkillComponent* skillComponent);
+	void CreateSkillSlots(USkillComponent* skillComponent, ACharacterBase* widgetOwner);
 	void ChangeSkillList();
 	
-	void OpenEnvironmentSettings() const;
+	void OpenEnvironmentSettings();
 
+	UCombo* CreateComboWidget();
 	void BindActorToComboWidget(ACharacterBase* hitActor);
-	void CreateComboWidjet();
 	
 	void BindActorToDamageWidget(ACharacterBase* hitActor);
 	void RenderDamageToScreen(const FHitInformation& hitInfo);
 	
-	void CreateMonsterHPBar(ACharacterBase* actor);
-	void ShowMonsterHPBar();
-	void HideMonsterHPBar();
+	void CreateMonsterHPBar(ACharacterBase* widgetOwner);
 	FORCEINLINE void SetIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
 	FORCEINLINE bool GetIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
 	
-	void CreateChargingGageBar(ACharacterBase* actor, float duration);
-	void RemoveChargingGageBar();
+	void CreateChargingGageBar(ACharacterBase* widgetOwner, float duration);
+	void RemoveChargingGageBar(ACharacterBase* widgetComponentOwner);
 	
-	void HideWidgets(const FName& path);
-	void ShowWidgets(const FName& path);
-	void RemoveWidgets(const FName& path);
-	void RemoveAllWidgets(); // 미완성.
+	void SetVisibilityWidgets(const FName& widgetName, UObject* widgetOwner, ESlateVisibility slateVisibility); // 매개변수 widgetName에 해당하는 모든 위젯을 SetVisibility
+	void RemoveWidgetContainers(const FName& widgetName);
+	void RemoveAllWidgetContainers();
 
 
 
 private:
-	void addWidget(TSubclassOf<UUserWidget> widgetClass, UUserWidget* widget);
-
+	UUserWidget* createWidget(const FName& widgetName, const FString& widgetPass, bool bAddToUIWidgets);
+	void addWidgetContainer(const FName& widgetName, UObject* widgetOwner, UUserWidget* widget, UWidgetComponent* widgetComponent);
 	
+
 private:
-	TMap<TSubclassOf<UUserWidget>, TArray<TObjectPtr<UUserWidget>>> m_UIWidgets;
+	TMap<FName, TArray<FWidgetContainer>> m_UIWidgetsWidgetNameKey;
+	TMap<TWeakObjectPtr<UObject>, TMap<FName, FWidgetContainer>> m_UIWidgetsWidgetOwnerKey;
 	
-	TObjectPtr<UCombo> m_Combo;
-	TWeakObjectPtr<UWidgetComponent> m_ChargingGageBarComponent;
-	TWeakObjectPtr<UMainPlayerStatusBar> m_MainPlayerStatusBar;
-	TWeakObjectPtr<USkillSlots> m_SkillSlots;
-	
-	TSubclassOf<UUserWidget> m_MonsterHPBarClass;
-	TSubclassOf<UUserWidget> m_EnvironmentSettingsClass;
-	TSubclassOf<UUserWidget> m_ComboClass;
-	TSubclassOf<UUserWidget> m_DamageClass;
-	TSubclassOf<UUserWidget> m_ChargingGageBarClass;
-	TSubclassOf<UUserWidget> m_SkillSlotsClass;
-	TSubclassOf<UUserWidget> m_MainPlayerStatusBarClass;
-
 	bool m_bIsShowMonsterHPBar;
 };
+
+
+

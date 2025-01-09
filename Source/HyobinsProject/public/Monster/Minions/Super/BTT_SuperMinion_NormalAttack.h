@@ -6,6 +6,9 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTT_SuperMinion_NormalAttack.generated.h"
 
+class ASuperMinion;
+class UAnimInstanceBase;
+class AAIControllerBase;
 
 UCLASS()
 class HYOBINSPROJECT_API UBTT_SuperMinion_NormalAttack : public UBTTaskNode
@@ -18,6 +21,11 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
-	static FName m_NormalAttackNames[2];
-	
+	bool m_bHasBindFunc;
 };
+
+
+
+
+
+

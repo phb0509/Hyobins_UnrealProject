@@ -7,24 +7,40 @@
 #include "Utility/AnimInstanceBase.h"
 
 
-UBTT_SuperMinion_NormalAttack::UBTT_SuperMinion_NormalAttack()
+UBTT_SuperMinion_NormalAttack::UBTT_SuperMinion_NormalAttack() :
+	m_bHasBindFunc(false)
 {
 	NodeName = TEXT("SuperMinion_NormalAttack");
 }
 
 EBTNodeResult::Type UBTT_SuperMinion_NormalAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
-
-	const ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
-	AAIControllerBase* aiController = Cast<AAIControllerBase>(owner->GetController());
+	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
+	
+	ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
+	if (!m_bHasBindFunc)
+	{
+		m_bHasBindFunc = true;
+		
+		animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack0"),
+	[&]()
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	});
+
+		animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack1"),
+	[&]()
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	});
+	}
+	
 	int32 attackIndex = FMath::RandRange(0,1);
-	FString attackName = "NormalAttack" + FString::FromInt(attackIndex);
+	FName attackName = FName("NormalAttack" + FString::FromInt(attackIndex));
+	animInstance->PlayMontage(attackName);
 	
-	aiController->StopBehaviorTree();
-	animInstance->PlayMontage(FName(attackName));
-	
-	return EBTNodeResult::Succeeded;
+	return EBTNodeResult::InProgress;
 }
+

@@ -1,7 +1,7 @@
 
 
 #include "Utility/AnimInstanceBase.h"
-
+#include "Utility/CharacterBase.h"
 
 UAnimInstanceBase::UAnimInstanceBase() 
 {
@@ -31,15 +31,20 @@ void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterru
 {
 	const FName montageName = Montage->GetFName();
 
-	// if (bInterrupted)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("InterruptedEnded Montage : %s"), *montageName.ToString());
-	// }
-	// else
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
-	// }
+	ACharacterBase* owner = Cast<ACharacterBase>(TryGetPawnOwner());
 
+	// if (owner->Tags[0] == "MainPlayer")
+	// {
+	// 	if (bInterrupted)
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("InterruptedEnded Montage : %s"), *montageName.ToString());
+	// 	}
+	// 	else
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("Ended Montage : %s"), *montageName.ToString());
+	// 	}
+	// }
+	
 	if (m_FuncsOnCalledMontageEvent.Contains(montageName))
 	{
 		const bool allEndedBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageAllEnded.ExecuteIfBound();

@@ -29,7 +29,6 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 	}
 	else if (distanceToEnemy <= m_NormalAttackRange)
 	{
-		//if (ownerAnimInstance->Montage_IsPlaying())
 		owner->SetFSMState(ESuperMinionFSMStates::NormalAttack);
 	}
 

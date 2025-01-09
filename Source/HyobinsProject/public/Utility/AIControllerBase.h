@@ -27,7 +27,8 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
-	
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	void StopBehaviorTree();
 	void StartBehaviorTree();
@@ -37,7 +38,7 @@ public:
 
 
 protected:
-	TWeakObjectPtr<ACharacterBase> m_OwnerBase;
+	TWeakObjectPtr<ACharacterBase> m_Owner;
 	TWeakObjectPtr<UBehaviorTree> m_BehaviorTree;
 	TWeakObjectPtr<UBlackboardData> m_BlackboardData;
 	TWeakObjectPtr<UBehaviorTreeComponent> m_BehaviorTreeComponent;

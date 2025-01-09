@@ -164,4 +164,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "HitEffect")
 	TObjectPtr<UNiagaraSystem> m_HitEffect;
+
+private:
+	FName m_LastPlayedOnHitMontageName;
 };

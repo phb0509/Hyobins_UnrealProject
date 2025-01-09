@@ -47,7 +47,7 @@ void UMainPlayerSkillComponent::BeginPlay()
 	initSkills();
 	bindFuncOnMontageEvent();
 
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this);
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
 }
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()

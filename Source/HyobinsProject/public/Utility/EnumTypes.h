@@ -59,6 +59,14 @@ enum class ESuperMinionFSMStates : uint8
 };
 
 UENUM(BlueprintType)
+enum class ELichKingFSMStates : uint8
+{
+	Chase					UMETA(DisplayName = "Chase"),
+	NormalAttack			UMETA(DisplayName = "NormalAttack")
+};
+
+
+UENUM(BlueprintType)
 enum class ECrowdControlType : uint8
 {
 	None		UMETA(DisplayName = "None"),

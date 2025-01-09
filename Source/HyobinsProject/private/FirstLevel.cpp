@@ -4,46 +4,22 @@
 #include "FirstLevel.h"
 
 #include "HyobinsProjectGameModeBase.h"
+#include "NavigationSystem.h"
 #include "SubSystems/ActorPoolManager.h"
 #include "ActorPool/ActorPool.h"
+#include "AI/NavigationSystemBase.h"
 #include "Utility/CharacterBase.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "Kismet/GameplayStatics.h"
 
+class UNavigationSystemV1;
 struct FStreamableManager;
 
 AFirstLevel::AFirstLevel() :
-	m_SpawnTimerTime_MeleeMinion(2.0f),
-	m_AsyncAssetCount(0),
-	m_CompletedAsyncLoadAssetCount(0)
+	m_SpawnTimerTime_MeleeMinion(2.0f)
 {
-	// m_AssetFolderPaths.Add("/Game/MainPlayerAsset/Audio");
-	// m_AssetFolderPaths.Add("/Game/MainPlayerAsset/Audio2");
-	//
-	// for (FString& assetFolderPath : m_AssetFolderPaths)
-	// {
-	// 	FString fileName = "";
-	// 	const bool bIsSuccessfullConvertToFilename = FPackageName::TryConvertLongPackageNameToFilename(*assetFolderPath, fileName);
-	// 	
-	// 	if (bIsSuccessfullConvertToFilename)
-	// 	{
-	// 		TArray<FString> assetPaths;
-	// 		IFileManager::Get().FindFilesRecursive(assetPaths, *fileName, TEXT("*.*"), true, false);
-	//
-	// 		for (FString& assetPath : assetPaths)
-	// 		{
-	// 			const bool bIsSuccessfullConvertToLongPackageName = FPackageName::TryConvertFilenameToLongPackageName(*assetPath, assetPath);
-	//
-	// 			if (bIsSuccessfullConvertToLongPackageName)
-	// 			{
-	// 				m_AssetPaths.Add(assetPath);
-	// 			}
-	// 		}
-	// 	}
-	// }
-	//
-	// m_AsyncAssetCount = m_AssetPaths.Num();
+	
 }
 
 void AFirstLevel::BeginPlay()
@@ -59,17 +35,13 @@ void AFirstLevel::BeginPlay()
 	m_ActorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
 	
 	CreateMinions();
-
-	// for (FString& assetFilePath : m_AssetPaths)
-	// {
-	// 	asyncLoadAsset(assetFilePath);
-	// }
-
-
+	
 }
 
 void AFirstLevel::CreateMinions() const
 {
+	//TSubclassOf<AActor>
+	
 	m_ActorPool->CreateActorPool(m_MonsterClass,3);
 }
 
@@ -77,67 +49,26 @@ void AFirstLevel::Spawn()
 {
 	const FVector positions[4] = { {700.0f,0.0f,50.0f}, {-700.0f,0.0f,50.0f},
 		{0.0f,700.0f,50.0f}, {0.0f,-700.0f,50.0f} };
-
-	AHyobinsProjectGameModeBase* gameModeBase = Cast<AHyobinsProjectGameModeBase>(GetWorld()->GetAuthGameMode());
 	
-	for (int i = 0; i < 3; ++i)
+	//AHyobinsProjectGameModeBase* gameModeBase = Cast<AHyobinsProjectGameModeBase>(GetWorld()->GetAuthGameMode());
+	
+	for (int i = 0; i < 1; ++i)
 	{
 		TWeakObjectPtr<AActor> spawnedActor = m_ActorPool->SpawnActor(m_MonsterClass, positions[i]);
-
-		if (spawnedActor.IsValid() && gameModeBase != nullptr)
-		{
-			ACharacterBase* minion = Cast<ACharacterBase>(spawnedActor.Get());
-			minion->OnDeath.AddUObject(gameModeBase, &AHyobinsProjectGameModeBase::CountMinionDeath);
-		}
+	
+		// if (spawnedActor.IsValid() && gameModeBase != nullptr)
+		// {
+		// 	ACharacterBase* minion = Cast<ACharacterBase>(spawnedActor.Get());
+		// 	minion->OnDeath.AddUObject(gameModeBase, &AHyobinsProjectGameModeBase::CountMinionDeath);
+		// }
 	}
+
+	AActorPool* actorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
+	actorPool->CreateActorPool(m_LichKingClass,1);
+	
+	const FVector position = {0.0f, 0.0f, 0.0f};
+	actorPool->SpawnActor(m_LichKingClass, position);
 }
-
-void AFirstLevel::asyncLoadAsset(FString assetPath)
-{
-	FStreamableManager& streamableManager = UAssetManager::GetStreamableManager();
-	FSoftObjectPath softObjectPath(assetPath);
-	
-	TSharedPtr<FStreamableHandle> handle = streamableManager.RequestAsyncLoad(
-		softObjectPath,
-		FStreamableDelegate::CreateUObject(this, &AFirstLevel::OnAsyncAssetLoadComplete, FName(*assetPath))
-	);
-
-	// 핸들을 저장하여 나중에 상태를 확인할 수 있음
-	m_LoadHandles.Add(*assetPath, handle);
-}
-
-void AFirstLevel::OnAsyncAssetLoadComplete(FName assetPathName)
-{
-	TSharedPtr<FStreamableHandle> handle = m_LoadHandles[assetPathName];
-	
-	if (handle.IsValid() && handle->HasLoadCompleted())
-	{
-		UObject* loadedObject = handle->GetLoadedAsset();
-	
-		if (loadedObject != nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s, Asset Load Success!!"), *assetPathName.ToString());
-
-			loadedObject->AddToRoot();
-			handle->ReleaseHandle(); //사용한 핸들 닫기
-	
-			++m_CompletedAsyncLoadAssetCount;
-			const float percent = m_CompletedAsyncLoadAssetCount / (static_cast<float>(m_AsyncAssetCount + 1)) * 100.0f;
-	
-			
-			const FString log = "Count : " + FString::FromInt(m_CompletedAsyncLoadAssetCount) + "   Percent : " + FString::SanitizeFloat(percent);
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
-
-			
-			if (m_CompletedAsyncLoadAssetCount == m_AsyncAssetCount)
-			{
-				//asyncLoadMainLevel();
-			}
-		}
-	}
-}
-
-
 
 void AFirstLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {

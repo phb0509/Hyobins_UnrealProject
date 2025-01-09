@@ -28,22 +28,11 @@ void ASuperMinion::BeginPlay()
 {
 	Super::BeginPlay();
 
-	m_AnimInstance = Cast<USuperMinionAnim>(GetMesh()->GetAnimInstance());
-	m_AIController = Cast<ASuperMinionAIController>(GetController());
-
+	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: BeginPlay"));
+	
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_SuperMinion.AttackInformation_SuperMinion'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
-
-	bindFuncOnMontagEvent();
-}
-
-void ASuperMinion::OnCalled_NormalAttack_End() const
-{
-	if (m_CurFSMState == ESuperMinionFSMStates::NormalAttack)
-	{
-		m_AIController->StartBehaviorTree();
-	}
 }
 
 void ASuperMinion::Activate()
@@ -51,19 +40,6 @@ void ASuperMinion::Activate()
 	Super::Activate();
 	
 	SetFSMState(static_cast<uint8>(ESuperMinionFSMStates::Patrol));
-}
-
-void ASuperMinion::bindFuncOnMontagEvent()
-{
-	if (m_AnimInstance != nullptr)
-	{
-		// NormalAttack
-		m_AnimInstance->BindFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack0"), this,TEXT("OnCalled_NormalAttack_End"));
-		m_AnimInstance->BindFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack1"), this,TEXT("OnCalled_NormalAttack_End"));
-
-		m_AnimInstance->BindFunc_OnMontageInterruptedEnded(TEXT("NormalAttack0"), this,TEXT("OnCalled_NormalAttack_End"));
-		m_AnimInstance->BindFunc_OnMontageInterruptedEnded(TEXT("NormalAttack1"), this,TEXT("OnCalled_NormalAttack_End"));
-	}
 }
 
 void ASuperMinion::Tick(float DeltaTime)
@@ -108,7 +84,7 @@ void ASuperMinion::initAssets()
 	
 	// HitCollider
 	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
-	m_HitCollider->SetupAttachment(GetMesh(), FName(TEXT("spine_01")));
+	m_HitCollider->SetupAttachment(GetMesh(),TEXT("spine_01"));
 	m_HitCollider->SetCapsuleHalfHeight(60.0f);
 	m_HitCollider->SetCapsuleRadius(60.0f);
 	m_HitCollider->SetCollisionProfileName(TEXT("HitCollider_Monster")); 
@@ -127,7 +103,7 @@ void ASuperMinion::initAssets()
 	// LeftSwordCollider
 	m_LeftSwordCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftSwordCollider"));
 	m_LeftSwordCollider->SetWorldTransform(collisionTransform);
-	m_LeftSwordCollider->SetupAttachment(GetMesh(), FName(TEXT("weapon_l")));
+	m_LeftSwordCollider->SetupAttachment(GetMesh(),TEXT("weapon_l"));
 	m_LeftSwordCollider->SetCollisionProfileName(TEXT("AttackCollider_Monster")); 
 	m_LeftSwordCollider->SetGenerateOverlapEvents(true);
 	m_LeftSwordCollider->SetNotifyRigidBodyCollision(false);
@@ -141,7 +117,7 @@ void ASuperMinion::initAssets()
 	// RightSwordCollider
 	m_RightSwordCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("RightSwordCollider"));
 	m_RightSwordCollider->SetWorldTransform(collisionTransform);
-	m_RightSwordCollider->SetupAttachment(GetMesh(), FName(TEXT("weapon_r")));
+	m_RightSwordCollider->SetupAttachment(GetMesh(), TEXT("weapon_r"));
 	m_RightSwordCollider->SetCollisionProfileName(TEXT("AttackCollider_Monster")); 
 	m_RightSwordCollider->SetGenerateOverlapEvents(true);
 	m_RightSwordCollider->SetNotifyRigidBodyCollision(false);

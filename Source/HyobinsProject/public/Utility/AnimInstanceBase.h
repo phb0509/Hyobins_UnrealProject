@@ -38,6 +38,7 @@ public:
 	void JumpToMontageSectionByName(const FName& montageName, FName newSection);
 	float GetMontagePlayTime(const FName& montageName);
 	UAnimMontage* GetMontage(const FName& montageName);
+	
 
 
 	// Bind Func

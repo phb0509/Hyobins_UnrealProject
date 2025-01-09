@@ -6,9 +6,6 @@
 #include "Monster/Monster.h"
 #include "SuperMinion.generated.h"
 
-class USuperMinionAnim;
-class ASuperMinionAIController;
-enum class ESuperMinionFSMStates : uint8;
 
 UCLASS()
 class HYOBINSPROJECT_API ASuperMinion final: public AMonster
@@ -21,24 +18,15 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-	void OnCalled_NormalAttack_End() const;
 
 protected:
 	virtual void Activate() override;
 
 private:
 	void initAssets();
-	void bindFuncOnMontagEvent();
-	
 
-private:
-	TWeakObjectPtr<ASuperMinionAIController> m_AIController;
-	TWeakObjectPtr<USuperMinionAnim> m_AnimInstance;
 	
-	// UPROPERTY(EditAnywhere)
-	// TObjectPtr<UCapsuleComponent> m_HitCollider;
-	//
+private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_LeftSwordCollider;
 		
@@ -46,9 +34,7 @@ private:
 	TObjectPtr<UBoxComponent> m_RightSwordCollider;
 	
 	
-	
 	static int32 TagCount;
 	static const FName LeftSwordColliderName;
 	static const FName RightSwordColliderName;
-	
 };

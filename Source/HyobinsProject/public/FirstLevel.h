@@ -22,15 +22,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void CreateMinions() const;
-
 	
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
 	void Spawn();
 
-
-	void OnAsyncAssetLoadComplete(FName assetPathName);
-private:
-	void asyncLoadAsset(FString assetPath);
 
 
 private:
@@ -45,12 +40,5 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
 	TSubclassOf<AActor> m_LichKingClass;
 
-
-
-	TArray<FString> m_AssetFolderPaths;
-	TArray<FString> m_AssetPaths;
-
-	int32 m_AsyncAssetCount;
-	int32 m_CompletedAsyncLoadAssetCount;
-	TMap<FName, TSharedPtr<FStreamableHandle>> m_LoadHandles;
+	
 };

@@ -100,13 +100,14 @@ void AMonster::Activate()
 	SetActorTickEnabled(true);
 	SetActorHiddenInGame(false);
 
-	// UI 바인딩.
+	// UI
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToComboWidget(this);
-	//GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToDamageWidget(this);
 
 	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
 	this->OnTakeDamage.AddUObject(this, &AMonster::activateHitEffect);
+
+	uiManager->SetVisibilityWidgets("MonsterHPBar",this, ESlateVisibility::HitTestInvisible);
 }
 
 void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.

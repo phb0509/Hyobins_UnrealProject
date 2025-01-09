@@ -61,7 +61,7 @@ void AMainPlayer::BeginPlay()
 
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 
-	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent);
+	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent, this);
 	
 
 	OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
@@ -491,7 +491,6 @@ void AMainPlayer::printLog() const
 	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
 	FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
-	
 	
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

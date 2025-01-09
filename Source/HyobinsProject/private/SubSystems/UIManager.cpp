@@ -5,7 +5,6 @@
 #include "Utility/CharacterBase.h"
 #include "Utility/CustomStructs.h"
 
-
 #include "Components/WidgetComponent.h"
 #include "UI/HPBar.h"
 #include "UI/System/EnvironmentSettings.h"
@@ -14,19 +13,12 @@
 #include "UI/ChargingGageBar.h"
 #include "UI/SkillSlots.h"
 #include "UI/MainPlayerStatusBar.h"
+#include "UI/SkillSlot.h"
 
 
 void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
-	m_MonsterHPBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
-	m_EnvironmentSettingsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/EnvironmentSettings.EnvironmentSettings_C'"));
-	m_ComboClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
-	m_DamageClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Damage.Damage_C'"));
-	m_ChargingGageBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/ChargingGageBar.ChargingGageBar_C'"));
-	m_SkillSlotsClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlots.SkillSlots_C'"));
-	m_MainPlayerStatusBarClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/StatusBar.StatusBar_C'"));
 	
 	m_bIsShowMonsterHPBar = true;
 }
@@ -35,57 +27,63 @@ void UUIManager::Deinitialize()
 {
 	Super::Deinitialize();
 
-	RemoveAllWidgets();
+	RemoveAllWidgetContainers();
 }
 
-void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent)
+void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
 {
-	m_MainPlayerStatusBar = Cast<UMainPlayerStatusBar>(CreateWidget(GetWorld(), m_MainPlayerStatusBarClass));
-	m_MainPlayerStatusBar->BindStatComponent(statComponent);
-	m_MainPlayerStatusBar->AddToViewport();
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/StatusBar.StatusBar_C'"));
+	UMainPlayerStatusBar* MainPlayerStatusBar = Cast<UMainPlayerStatusBar>(CreateWidget(GetWorld(), classType));
+	MainPlayerStatusBar->AddToViewport();
+	addWidgetContainer(TEXT("MainPlayerStatusBar"), widgetOwner, MainPlayerStatusBar, nullptr);
+	
+	MainPlayerStatusBar->BindStatComponent(statComponent);
 }
 
-void UUIManager::CreateSkillSlots(USkillComponent* skillComponent)
+void UUIManager::CreateSkillSlots(USkillComponent* skillComponent, ACharacterBase* widgetOwner)
 {
-	m_SkillSlots = Cast<USkillSlots>(CreateWidget(GetWorld(), m_SkillSlotsClass));
-	m_SkillSlots->CreateSkillListFromSkillComponent(skillComponent); 
-	m_SkillSlots->AddToViewport();
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlots.SkillSlots_C'"));
+	USkillSlots* skillSlots = Cast<USkillSlots>(CreateWidget(GetWorld(), classType));
+	skillSlots->AddToViewport();
+	addWidgetContainer(TEXT("SkillSlots"), widgetOwner, skillSlots, nullptr);
+	
+	skillSlots->CreateSkillListFromSkillComponent(skillComponent);
 }
 
 void UUIManager::ChangeSkillList()
 {
-	m_SkillSlots->ChangeSkillSlots();
+	USkillSlots* skillSlots = Cast<USkillSlots>(m_UIWidgetsWidgetNameKey["SkillSlots"][0].widget);
+	skillSlots->ChangeSkillSlots();
 }
 
-void UUIManager::OpenEnvironmentSettings() const
+void UUIManager::OpenEnvironmentSettings()
 {
-	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), m_EnvironmentSettingsClass));
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/EnvironmentSettings.EnvironmentSettings_C'"));
+	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), classType));
 	environmentSettings->AddToViewport();
+	addWidgetContainer(TEXT("EnvironmentSettings"), this, environmentSettings, nullptr);
+	
 	environmentSettings->Open();
+}
+
+UCombo* UUIManager::CreateComboWidget()
+{
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
+	UCombo* combo = Cast<UCombo>(CreateWidget(GetWorld(), classType));
+	combo->AddToViewport();
+	addWidgetContainer(TEXT("Combo"), this, combo, nullptr);
+	
+	combo->SetVisibility(ESlateVisibility::Collapsed);
+
+	return combo;
 }
 
 void UUIManager::BindActorToComboWidget(ACharacterBase* hitActor)
 {
-	if (m_Combo == nullptr)
-	{
-		CreateComboWidjet();
-	}
-
-	if (m_Combo != nullptr)
-	{
-		hitActor->OnTakeDamage.AddUObject(m_Combo.Get(), &UCombo::UpdateComboCount);
-	}
-}
-
-void UUIManager::CreateComboWidjet()
-{
-	if (m_Combo != nullptr) return;
+	UCombo* combo = CreateComboWidget();
 	
-	m_Combo = Cast<UCombo>(CreateWidget(GetWorld(), m_ComboClass));
-	m_Combo->AddToViewport();
-	m_Combo->SetVisibility(ESlateVisibility::Collapsed);
+	hitActor->OnTakeDamage.AddUObject(combo, &UCombo::UpdateComboCount);
 }
-
 
 void UUIManager::BindActorToDamageWidget(ACharacterBase* hitActor)
 {
@@ -94,172 +92,148 @@ void UUIManager::BindActorToDamageWidget(ACharacterBase* hitActor)
 
 void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 {
-	UDamage* damageWidget = Cast<UDamage>(CreateWidget(GetWorld(), m_DamageClass));
-
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Damage.Damage_C'"));
+	UDamage* damageWidget = Cast<UDamage>(CreateWidget(GetWorld(), classType));
+	damageWidget->AddToViewport();
+	
 	FVector2D screenPosition;
 	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(hitInfo.hitActorLocation, screenPosition);
 	screenPosition.Y -= 100.0f;
 	damageWidget->SetPositionInViewport(screenPosition);
 	damageWidget->SetDamage(hitInfo.damage);
-	damageWidget->AddToViewport();
 	damageWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
-void UUIManager::CreateMonsterHPBar(ACharacterBase* actor)
+void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 {
-	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
-		actor, UWidgetComponent::StaticClass(), "UpperHPBar_Widget");
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
 	
-	widgetComponent->SetupAttachment(actor->GetMesh());
+	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
+		widgetOwner, UWidgetComponent::StaticClass(), "UpperHPBar_Widget");
+	
+	widgetComponent->SetupAttachment(widgetOwner->GetMesh());
 	widgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
 	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
 	widgetComponent->RegisterComponentWithWorld(GetWorld());
-	widgetComponent->SetWidgetClass(m_MonsterHPBarClass);
+	widgetComponent->SetWidgetClass(classType);
 	widgetComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
 	
 	UUserWidget* monsterHPBarWidget = widgetComponent->GetUserWidgetObject();
 	UHPBar* hpBar = Cast<UHPBar>(monsterHPBarWidget);
+	hpBar->SetVisibility(ESlateVisibility::Collapsed);
 	
-	hpBar->BindStatComponent(actor->GetStatComponent());
+	hpBar->BindStatComponent(widgetOwner->GetStatComponent());
 
-	addWidget(m_MonsterHPBarClass, monsterHPBarWidget);
+	addWidgetContainer(TEXT("MonsterHPBar"), widgetOwner, hpBar, widgetComponent);
 }
 
-void UUIManager::ShowMonsterHPBar()
+void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float duration) 
 {
-	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[m_MonsterHPBarClass])
-	{
-		if (widget.IsValid())
-		{
-			widget->SetVisibility(ESlateVisibility::HitTestInvisible);
-		}
-	}
-}
-
-void UUIManager::HideMonsterHPBar()
-{
-	for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[m_MonsterHPBarClass])
-	{
-		if (widget.IsValid())
-		{
-			widget->SetVisibility(ESlateVisibility::Collapsed);
-		}
-	}
-}
-
-void UUIManager::CreateChargingGageBar(ACharacterBase* actor, float duration) 
-{
-	m_ChargingGageBarComponent = NewObject<UWidgetComponent>(
-		actor, UWidgetComponent::StaticClass(), "ChargingGageBar_Widget");
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/ChargingGageBar.ChargingGageBar_C'"));
 	
-	m_ChargingGageBarComponent->SetupAttachment(actor->GetMesh());
-	m_ChargingGageBarComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
-	m_ChargingGageBarComponent->SetWidgetSpace(EWidgetSpace::Screen);
-	m_ChargingGageBarComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-	m_ChargingGageBarComponent->RegisterComponentWithWorld(GetWorld());
-	m_ChargingGageBarComponent->SetWidgetClass(m_ChargingGageBarClass);
-	m_ChargingGageBarComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
+	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
+		widgetOwner, UWidgetComponent::StaticClass(), "ChargingGageBar_Widget");
 	
-	UUserWidget* widgetObject = m_ChargingGageBarComponent->GetUserWidgetObject();
+	widgetComponent->SetupAttachment(widgetOwner->GetMesh());
+	widgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
+	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	widgetComponent->RegisterComponentWithWorld(GetWorld());
+	widgetComponent->SetWidgetClass(classType);
+	widgetComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
+	
+	UUserWidget* widgetObject = widgetComponent->GetUserWidgetObject();
 	UChargingGageBar* chargingGageBar = Cast<UChargingGageBar>(widgetObject);
-	chargingGageBar->SetWidgetComponent(m_ChargingGageBarComponent.Get());
+	chargingGageBar->SetWidgetComponent(widgetComponent);
 	chargingGageBar->StartCharging(duration);
+
+	addWidgetContainer(TEXT("ChargingGageBar"), widgetOwner, chargingGageBar, widgetComponent);
 }
 
-void UUIManager::RemoveChargingGageBar()
+void UUIManager::RemoveChargingGageBar(ACharacterBase* widgetComponentOwner)
 {
-	if (m_ChargingGageBarComponent.IsValid())
-	{
-		m_ChargingGageBarComponent->DestroyComponent();
-	}
+	RemoveWidgetContainers("ChargingGageBar");
 }
 
-
-void UUIManager::HideWidgets(const FName& path)
+void UUIManager::SetVisibilityWidgets(const FName& widgetName, UObject* widgetOwner, ESlateVisibility slateVisibility)
 {
-	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
-
-	if (widgetClass != nullptr)
+	if (widgetOwner != nullptr)
 	{
-		for (const TWeakObjectPtr<UUserWidget> widget : m_UIWidgets[widgetClass])
+		if (m_UIWidgetsWidgetOwnerKey[widgetOwner][widgetName].widget.IsValid())
 		{
-			if (widget.IsValid())
+			m_UIWidgetsWidgetOwnerKey[widgetOwner][widgetName].widget->SetVisibility(slateVisibility);
+		}
+	}
+	else
+	{
+		for (FWidgetContainer widgetContainer : m_UIWidgetsWidgetNameKey[widgetName])
+		{
+			if (widgetContainer.widget.IsValid())
 			{
-				widget->SetVisibility(ESlateVisibility::Collapsed);
+				widgetContainer.widget->SetVisibility(slateVisibility);
 			}
 		}
 	}
 }
 
-void UUIManager::ShowWidgets(const FName& path)
+void UUIManager::RemoveWidgetContainers(const FName& widgetName)
 {
-	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
-
-	if (widgetClass != nullptr)
+	for (FWidgetContainer widgetContainer : m_UIWidgetsWidgetNameKey[widgetName])
 	{
-		for (auto widget : m_UIWidgets[widgetClass])
-        	{
-        		if (IsValid(widget))
-        		{
-        			widget->SetVisibility(ESlateVisibility::HitTestInvisible);
-        		}
-        	}
-	}
-}
-
-void UUIManager::RemoveWidgets(const FName& path)
-{
-	UClass* widgetClass = LoadClass<UUserWidget>(nullptr, *path.ToString());
-	
-	if (widgetClass != nullptr)
-	{
-		if (m_UIWidgets.Contains(widgetClass))
+		if (widgetContainer.widgetComponent.IsValid())
 		{
-			for (auto widget : m_UIWidgets[widgetClass])
-			{
-				if (IsValid(widget))
-				{
-					widget->RemoveFromParent();
-				}
-			}
+			widgetContainer.widgetComponent->DestroyComponent();
 		}
 		
-		m_UIWidgets[widgetClass].Empty();
-	}
+		if (widgetContainer.widget.IsValid())
+		{
+			widgetContainer.widget->RemoveFromParent();
+		}
+	} 
+
+	m_UIWidgetsWidgetNameKey[widgetName].Empty();
 }
 
-void UUIManager::RemoveAllWidgets()
+void UUIManager::RemoveAllWidgetContainers()
 {
-	for (auto iter : m_UIWidgets)
+	for (TTuple<FName, TArray<FWidgetContainer>> allTypeWidgets : m_UIWidgetsWidgetNameKey)
 	{
-		TSubclassOf<UUserWidget> classType = iter.Key;
-
-		for (auto widget : iter.Value)
-		{
-			if (widget->IsValidLowLevel())
-			{
-				widget->RemoveFromParent();
-			}
-		}
+		RemoveWidgetContainers(allTypeWidgets.Key);
 	}
 
-	m_UIWidgets.Empty();
+	m_UIWidgetsWidgetNameKey.Empty();
 }
 
-void UUIManager::addWidget(TSubclassOf<UUserWidget> widgetClass, UUserWidget* widget)
+UUserWidget* UUIManager::createWidget(const FName& widgetName, const FString& widgetPass, bool bAddToUIWidgets)
 {
-	if (IsValid(widgetClass))
-	{
-		if (!m_UIWidgets.Contains(widgetClass))
-		{
-			TArray<TObjectPtr<UUserWidget>> widgetArray;
-			m_UIWidgets.Add(widgetClass, widgetArray);
-		}
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, *widgetPass);
+	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), classType));
+	environmentSettings->AddToViewport();
+	addWidgetContainer(TEXT("EnvironmentSettings"), this, environmentSettings, nullptr);
+	
+	return nullptr;
+}
 
-		if (IsValid(widget))
+void UUIManager::addWidgetContainer(const FName& widgetName, UObject* widgetOwner, UUserWidget* widget, UWidgetComponent* widgetComponent)
+{
+	if (!m_UIWidgetsWidgetNameKey.Contains(widgetName))
+	{
+		TArray<FWidgetContainer> widgetContainers;
+		
+		m_UIWidgetsWidgetNameKey.Add(widgetName, widgetContainers);
+	}
+
+	m_UIWidgetsWidgetNameKey[widgetName].Add({widget,widgetComponent});
+
+	if (widgetOwner != nullptr)
+	{
+		if (!m_UIWidgetsWidgetOwnerKey.Contains(widgetOwner))
 		{
-			m_UIWidgets[widgetClass].Add(widget);
+			TMap<FName, FWidgetContainer> widgetContainer;
+			m_UIWidgetsWidgetOwnerKey.Add(widgetOwner, widgetContainer);
 		}
+	
+		m_UIWidgetsWidgetOwnerKey[widgetOwner].Add(widgetName, {widget, widgetComponent});
 	}
 }
