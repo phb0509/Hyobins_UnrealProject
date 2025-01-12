@@ -3,7 +3,6 @@
 
 #include "Monster/Minions/Super/BTT_UpdateSuperMinionState.h"
 #include "Monster/Minions/Super/SuperMinion.h"
-#include "Utility/AnimInstanceBase.h"
 #include "Utility/AIControllerBase.h"
 #include "Utility/EnumTypes.h"
 
@@ -19,7 +18,6 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
-	//const UAnimInstanceBase* ownerAnimInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	const ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 	const float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
 	

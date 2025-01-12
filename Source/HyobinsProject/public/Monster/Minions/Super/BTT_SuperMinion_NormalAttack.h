@@ -6,10 +6,6 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "BTT_SuperMinion_NormalAttack.generated.h"
 
-class ASuperMinion;
-class UAnimInstanceBase;
-class AAIControllerBase;
-
 UCLASS()
 class HYOBINSPROJECT_API UBTT_SuperMinion_NormalAttack : public UBTTaskNode
 {

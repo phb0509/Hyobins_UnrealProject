@@ -2,7 +2,7 @@
 
 
 #include "Monster/Minions/Super/BTT_SuperMinion_NormalAttack.h"
-#include "Monster/Minions/Super/SuperMinion.h"
+#include "Utility/CharacterBase.h"
 #include "Utility/AIControllerBase.h"
 #include "Utility/AnimInstanceBase.h"
 
@@ -17,7 +17,7 @@ EBTNodeResult::Type UBTT_SuperMinion_NormalAttack::ExecuteTask(UBehaviorTreeComp
 {
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 	
-	ASuperMinion* owner = Cast<ASuperMinion>(OwnerComp.GetAIOwner()->GetPawn());
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
 	if (!m_bHasBindFunc)

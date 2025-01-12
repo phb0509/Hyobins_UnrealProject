@@ -7,6 +7,8 @@
 #include "Utility/CustomStructs.h"
 #include "Utility/EnumTypes.h"
 #include "Component/StatComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 #include "SubSystems/DataManager.h"
 
 
@@ -79,6 +81,11 @@ void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> targ
 	targetActor->OnDamage(finalDamage, bIsCriticalAttack, attackInfo, this);
 }
 
+void ACharacterBase::ClearCrowdControlTimerHandle()
+{
+	GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+}
+
 void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, const ACharacterBase* instigator)
 {
 	m_CrowdControlTime = m_StatComponent->GetHitRecovery() * attackInfo->crowdControlTime;
@@ -92,6 +99,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	{
 		if (attackInfo->bHasCrowdControl)
 		{
+			UGameplayStatics::PlaySoundAtLocation(this, m_HitSound, GetActorLocation());
 			execEvent_CommonCrowdControl(instigator);
 			
 			const ECrowdControlType crowdControl = attackInfo->crowdControlType;
@@ -111,10 +119,10 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	}
 
 	// ·Î±×
-	// ++attackCount;
-	// const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
-	// 	instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
-	// UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
+	++attackCount;
+	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
+		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }
 
 void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)

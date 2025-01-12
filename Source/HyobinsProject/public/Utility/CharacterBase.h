@@ -15,8 +15,8 @@ class UAnimInstanceBase;
 class UStatComponent;
 class AAIControllerBase;
 class UAIPerceptionComponent;
-//class UShapeComponent;
 class UNiagaraSystem;
+class USoundCue;
 
 struct FHitInformation;
 struct FAttackInformation;
@@ -40,6 +40,8 @@ public:
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator);
 	
 	void Attack(const FName& attackName, TWeakObjectPtr<AActor> target) const;
+	void ClearCrowdControlTimerHandle();
+	
 	
 	bool HasContainHitActor(const FName& attackName, AActor* hitActor)
 	{
@@ -74,6 +76,10 @@ public:
 	
 	void RotateToTarget(const AActor* target);
 
+	virtual void SetCrowdControlState(ECrowdControlStates state)
+	{
+		m_CurCrowdControlState = state;
+	}
 	
 protected:
 	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
@@ -96,10 +102,7 @@ protected:
 	virtual void ExecEvent_EndedDeathMontage() {};
 	virtual void OnCalledNotify_End_Death();
 	
-	virtual void SetCrowdControlState(ECrowdControlStates state)
-	{
-		m_CurCrowdControlState = state;
-	}
+	
 
 private:
 	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) {};
@@ -165,6 +168,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "HitEffect")
 	TObjectPtr<UNiagaraSystem> m_HitEffect;
 
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	TObjectPtr<USoundCue> m_HitSound;
+	
 private:
 	FName m_LastPlayedOnHitMontageName;
+	
 };
