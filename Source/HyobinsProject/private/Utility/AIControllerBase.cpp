@@ -50,7 +50,6 @@ void AAIControllerBase::StopBehaviorTree()
 {
 	m_BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
 	StopMovement();
-	
 }
 
 void AAIControllerBase::StartBehaviorTree()

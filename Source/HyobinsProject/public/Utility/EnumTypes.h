@@ -62,7 +62,9 @@ UENUM(BlueprintType)
 enum class ELichKingFSMStates : uint8
 {
 	Chase					UMETA(DisplayName = "Chase"),
-	NormalAttack			UMETA(DisplayName = "NormalAttack")
+	NormalAttack			UMETA(DisplayName = "NormalAttack"),
+	CrashAttack				UMETA(DisplayName = "CrashAttack"),
+	SoulSiphon				UMETA(DisplayName = "SoulSiphon")
 };
 
 

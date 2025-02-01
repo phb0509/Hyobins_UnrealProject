@@ -150,7 +150,12 @@ void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instiga
 			m_CrowdControlTime, false);
 	}
 
-	m_LastPlayedOnHitMontageName = m_AnimInstanceBase->GetCurrentActiveMontage()->GetFName();
+	UAnimMontage* curActivateMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
+	if (curActivateMontage != nullptr)
+	{
+		m_LastPlayedOnHitMontageName = curActivateMontage->GetFName();
+	}
+	
 }
 
 void ACharacterBase::OnCalledTimer_KnockbackOnStanding_End()
@@ -203,7 +208,7 @@ void ACharacterBase::ExecEvent_TakeDownAttack(const ACharacterBase* instigator, 
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
 
-		DisableMovementComponentForDuration(0.2f);
+		DisableMovementComponentForDuration(0.2f);  // 넉백시간만큼하면 너무 길어서 0.2f정도로
 	}
 	else // 스탠딩, 다운상태이거나 그 외의상태(공격도중, 순찰 등)일 때, 다운시키기.
 	{
@@ -278,7 +283,7 @@ void ACharacterBase::DisableMovementComponentForDuration(float duration) const
 	GetWorldTimerManager().SetTimer(activateTimer,
 		[this]()
 		{ GetCharacterMovement()->Activate();},
-			duration, false); // 넉백시간만큼하면 너무 길어서 0.2f정도로
+			duration, false);
 }
 
 void ACharacterBase::ExecEvent_OnHPIsZero()
@@ -304,11 +309,29 @@ void ACharacterBase::OnCalledNotify_End_Death()
 	ExecEvent_EndedDeathMontage();
 }
 
-void ACharacterBase::RotateToTarget(const AActor* target)
+void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)
 {
+	// FRotator actorRotation = GetActorRotation();
+	// actorRotation.Yaw = target->GetActorRotation().Yaw;
+	//
+	// SetActorRotation(actorRotation);
+
+
+	FVector TargetLocation = target->GetActorLocation();
+    
+    // 현재 액터의 위치
+    FVector CurrentLocation = GetActorLocation();
+    
+    // 대상을 향하는 방향 벡터 계산
+    FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
+    
+    // 방향 벡터로부터 회전값 생성
+    FRotator NewRotation = Direction.Rotation();
 	FRotator actorRotation = GetActorRotation();
-	actorRotation.Yaw = target->GetActorRotation().Yaw;
-	
-	SetActorRotation(actorRotation);
+	actorRotation.Yaw = NewRotation.Yaw;
+
+	actorRotation += rotatorOffset;
+    // 액터의 회전 설정
+    SetActorRotation(actorRotation);
 }
 

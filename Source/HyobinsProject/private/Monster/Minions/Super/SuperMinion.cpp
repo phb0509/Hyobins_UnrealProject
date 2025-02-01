@@ -2,11 +2,11 @@
 
 
 #include "Monster/Minions/Super/SuperMinion.h"
-#include "Monster/Minions/Super/SuperMinionAnim.h"
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Utility/EnumTypes.h"
 #include "Utility/Utility.h"
 #include "SubSystems/DataManager.h"
+#include "SubSystems/UIManager.h"
 
 int32 ASuperMinion::TagCount(0);
 const FName ASuperMinion::LeftSwordColliderName = "LeftSwordCollider";
@@ -38,7 +38,8 @@ void ASuperMinion::BeginPlay()
 void ASuperMinion::Activate()
 {
 	Super::Activate();
-	
+
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar",this, ESlateVisibility::HitTestInvisible);
 	SetFSMState(static_cast<uint8>(ESuperMinionFSMStates::Patrol));
 }
 
@@ -65,6 +66,7 @@ void ASuperMinion::Tick(float DeltaTime)
 
 void ASuperMinion::initAssets()
 {
+	
 	// Mesh
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MonsterAsset/SuperMinion/Character/SuperMinion.SuperMinion'"));
 	if (mesh.Succeeded())

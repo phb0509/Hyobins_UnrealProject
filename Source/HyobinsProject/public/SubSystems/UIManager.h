@@ -46,6 +46,7 @@ public:
 	virtual void Deinitialize() override;
 
 	void CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner);
+	void CreateBossStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner);
 	
 	void CreateSkillSlots(USkillComponent* skillComponent, ACharacterBase* widgetOwner);
 	void ChangeSkillList();

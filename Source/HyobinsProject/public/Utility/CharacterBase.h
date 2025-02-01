@@ -74,7 +74,7 @@ public:
 
 	FORCEINLINE void SetIsSuperArmor(bool bIsSuperArmor) { m_bIsSuperArmor = bIsSuperArmor; }
 	
-	void RotateToTarget(const AActor* target);
+	void RotateToTarget(const AActor* target, const FRotator& rotatorOffset);
 
 	virtual void SetCrowdControlState(ECrowdControlStates state)
 	{
@@ -95,6 +95,7 @@ protected:
 	void DisableMovementComponentForDuration(float duration) const;
 	
 	virtual void ExecEvent_OnHPIsZero();
+	virtual void ExecEvent_OnStaminaIsZero() {};
 
 	// Death
 	UFUNCTION()

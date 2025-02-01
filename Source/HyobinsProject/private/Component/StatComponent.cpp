@@ -8,7 +8,7 @@ UStatComponent::UStatComponent() :
 	m_Defense(0.0f),
 	m_MaxHP(200.0f),
 	m_CurHP(m_MaxHP),
-	m_MaxStamina(200.0f),
+	m_MaxStamina(100.0f),
 	m_CurStamina(m_MaxStamina),
 	m_HitRecovery(1.0f),
 	m_CurMoveSpeed(1.0f),
@@ -46,18 +46,20 @@ void UStatComponent::SetHP(const float hp)
 
 void UStatComponent::UpdateStamina(const float stamina)
 {
-	SetHP(FMath::Clamp<float>(m_CurStamina - stamina, 0.0f, m_MaxStamina));
+	SetStamina(FMath::Clamp<float>(m_CurStamina - stamina, 0.0f, m_MaxStamina));
+
+	UE_LOG(LogTemp, Warning, TEXT("UStatComponent :: UpdateStamina"));
 }
 
 void UStatComponent::SetStamina(const float stamina)
 {
 	m_CurStamina = stamina;
-	//OnHPIsChanged.Broadcast();
+	OnChangedStamina.Broadcast();
 
 	if (m_CurStamina < KINDA_SMALL_NUMBER)
 	{
 		m_CurStamina = 0.0f;
-		//OnHPIsZero.Broadcast();
+		OnStaminaIsZero.Broadcast();
 	}
 }
 

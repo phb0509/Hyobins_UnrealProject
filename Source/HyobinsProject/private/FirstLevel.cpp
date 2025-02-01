@@ -42,7 +42,7 @@ void AFirstLevel::CreateMinions() const
 {
 	//TSubclassOf<AActor>
 	
-	//m_ActorPool->CreateActorPool(m_MonsterClass,3);
+	m_ActorPool->CreateActorPool(m_MonsterClass,3);
 }
 
 void AFirstLevel::Spawn()

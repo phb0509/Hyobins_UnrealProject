@@ -6,6 +6,7 @@
 #include "Monster/Monster.h"
 #include "SuperMinion.generated.h"
 
+class UMotionWarpingComponent;
 
 UCLASS()
 class HYOBINSPROJECT_API ASuperMinion final: public AMonster
@@ -32,7 +33,6 @@ private:
 		
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_RightSwordCollider;
-	
 	
 	static int32 TagCount;
 	static const FName LeftSwordColliderName;

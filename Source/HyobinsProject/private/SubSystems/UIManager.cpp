@@ -6,14 +6,14 @@
 #include "Utility/CustomStructs.h"
 
 #include "Components/WidgetComponent.h"
-#include "UI/HPBar.h"
+#include "UI/Monster/HPBar.h"
 #include "UI/System/EnvironmentSettings.h"
 #include "UI/System/Combo.h"
 #include "UI/System/Damage.h"
-#include "UI/ChargingGageBar.h"
-#include "UI/SkillSlots.h"
-#include "UI/MainPlayerStatusBar.h"
-#include "UI/SkillSlot.h"
+#include "UI/MainPlayer/ChargingGageBar.h"
+#include "UI/MainPlayer/SkillSlots.h"
+#include "UI/MainPlayer/MainPlayerStatusBar.h"
+#include "UI/Monster/BossStatusBar.h"
 
 
 void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -33,11 +33,22 @@ void UUIManager::Deinitialize()
 void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/StatusBar.StatusBar_C'"));
-	UMainPlayerStatusBar* MainPlayerStatusBar = Cast<UMainPlayerStatusBar>(CreateWidget(GetWorld(), classType));
-	MainPlayerStatusBar->AddToViewport();
-	addWidgetContainer(TEXT("MainPlayerStatusBar"), widgetOwner, MainPlayerStatusBar, nullptr);
+	UMainPlayerStatusBar* mainPlayerStatusBar = Cast<UMainPlayerStatusBar>(CreateWidget(GetWorld(), classType));
+	mainPlayerStatusBar->BindStatComponent(statComponent);
+	mainPlayerStatusBar->AddToViewport();
 	
-	MainPlayerStatusBar->BindStatComponent(statComponent);
+	addWidgetContainer(TEXT("MainPlayerStatusBar"), widgetOwner, mainPlayerStatusBar, nullptr);
+
+}
+
+void UUIManager::CreateBossStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
+{
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/BossStatusBar.BossStatusBar_C'"));
+	UBossStatusBar* bossStatusBar = Cast<UBossStatusBar>(CreateWidget(GetWorld(), classType));
+	bossStatusBar->BindStatComponent(statComponent);
+	bossStatusBar->AddToViewport();
+	
+	addWidgetContainer(TEXT("BossStatusBar"), widgetOwner, bossStatusBar, nullptr);
 }
 
 void UUIManager::CreateSkillSlots(USkillComponent* skillComponent, ACharacterBase* widgetOwner)

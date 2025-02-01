@@ -52,22 +52,6 @@ void ASuperMinionAIController::OnUnPossess()
 void ASuperMinionAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// const FString log1 = TEXT("====================================================");
-	// const FString log2 = "  Is Pause!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-	// const FString log3 = "  Is Not Pause!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
-	//
-	// GEngine->AddOnScreenDebugMessage(404, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
-	//
-	// if (m_BehaviorTreeComponent->IsPaused())
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(405, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
-	// }
-	// else
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(406, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	// }
-	
 }
 
 void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
@@ -156,24 +140,6 @@ void ASuperMinionAIController::initAssets()
 	checkf(IsValid(m_BlackboardData.Get()), TEXT("BlackboardData isn't Valid"));
 	
 	m_AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ASuperMinionAIController::UpdatePerceptedTargetActor);
-
-	
-	// UAISenseConfig_Sight* sightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	//
-	// sightConfig->SightRadius = 1000.0f;
-	// sightConfig->LoseSightRadius = 1100.0f;
-	// sightConfig->PeripheralVisionAngleDegrees = 180.0f; // 시야각
-	// sightConfig->SetMaxAge(5.0f);
-	// sightConfig->AutoSuccessRangeFromLastSeenLocation = 0.0f; // 감지하는 빈도수? 0이면 실시간 감지고, 값이 높을수록 덜 체크한다.
-	// // 이 값이 0보다 크다면, AI는 한 번 발견한 타깃이 여기 지정된 범위 내에 있는 한 항상 볼 수 있습니다.
-	//
-	// sightConfig->DetectionByAffiliation.bDetectEnemies = true; 
-	// sightConfig->DetectionByAffiliation.bDetectNeutrals = false;
-	// sightConfig->DetectionByAffiliation.bDetectFriendlies = true; 
-	//
-	// m_AIPerceptionComponent->ConfigureSense(*sightConfig);
-	// m_AIPerceptionComponent->SetDominantSense(UAISenseConfig_Sight::StaticClass()); // 어떤걸 우선순위로 센싱할지 정함.
-	
 }
 
 ETeamAttitude::Type ASuperMinionAIController::GetTeamAttitudeTowards(const AActor& Other) const

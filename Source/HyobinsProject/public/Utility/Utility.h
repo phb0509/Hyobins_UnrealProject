@@ -15,17 +15,11 @@ public:
 	template<class T>
 	static T* NewBlueprintObjectInConstructor(const FString assetPath, UObject* outer)
 	{
-		// static ConstructorHelpers::FObjectFinder<UBlueprint> object(*assetPath);
-		// UClass* blueprintClass = object.Object->GeneratedClass;
-		UClass* blueprintClass = LoadClass<USkill>(nullptr, *assetPath);
-
+		UClass* blueprintClass = LoadClass<T>(outer, *assetPath);
 		
 		if (blueprintClass->IsChildOf(T::StaticClass()))
 		{
 			return Cast<T>(NewObject<UObject>(outer, blueprintClass));
-
-		//	return Cast<T>(CreateDefaultSubobject<blueprintClass>("tt"));
-			//CreateDefaultSubobject<UNormalAttack_OnGround>(TEXT("NormalAttack_OnGround"));
 		}
 
 		return nullptr;

@@ -16,7 +16,7 @@ const FName AMonster::CrowdControlStateKet(TEXT("CrowdControlState"));
 
 
 AMonster::AMonster() :
-m_CurFSMState(0)
+	m_CurFSMState(0)
 {
 }
 
@@ -38,6 +38,11 @@ void AMonster::BeginPlay()
 		afterDeathTimeline_End.BindDynamic(this, &AMonster::OnCalledTimelineEvent_End_AfterDeath);
 		m_DeathTimeline.SetTimelineFinishedFunc(afterDeathTimeline_End);
 	}
+}
+
+ACharacterBase* AMonster::GetTarget() const
+{
+	return Cast<ACharacterBase>(m_AIControllerBase->GetBlackboardComponent()->GetValueAsObject(TEXT("Enemy")));
 }
 
 void AMonster::execEvent_CommonCrowdControl(const ACharacterBase* instigator)
@@ -106,8 +111,6 @@ void AMonster::Activate()
 
 	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
 	this->OnTakeDamage.AddUObject(this, &AMonster::activateHitEffect);
-
-	uiManager->SetVisibilityWidgets("MonsterHPBar",this, ESlateVisibility::HitTestInvisible);
 }
 
 void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
