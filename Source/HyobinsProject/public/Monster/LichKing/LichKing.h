@@ -1,0 +1,51 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Monster/Monster.h"
+#include "LichKing.generated.h"
+
+
+class ALichKingAIController;
+class ULichKingAnim;
+class UMotionWarpingComponent;
+
+UCLASS()
+class HYOBINSPROJECT_API ALichKing : public AMonster
+{
+	GENERATED_BODY()
+
+public:
+	ALichKing();
+
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	
+	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
+	
+protected:
+	virtual void Activate() override;
+
+	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator) override;
+
+	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
+	virtual void ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
+	
+	virtual void ExecEvent_OnStaminaIsZero() override;
+	
+private:
+	void initAssets();
+	void printLog();
+	
+
+private:
+	TWeakObjectPtr<ALichKingAIController> m_AIController;
+	TWeakObjectPtr<ULichKingAnim> m_AnimInstance;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBoxComponent> m_HammerCollider;
+
+	UPROPERTY(EditAnywhere)
+    TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
+};
