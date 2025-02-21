@@ -58,3 +58,8 @@ void AAIControllerBase::StartBehaviorTree()
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 
+void AAIControllerBase::RestartBehaviorTree()
+{
+	m_BehaviorTreeComponent->RestartTree();
+}
+

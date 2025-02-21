@@ -9,7 +9,6 @@
 #include "Templates/IsEnumClass.h"
 #include "Monster.generated.h"
 
-
 UCLASS(Abstract)
 class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActor
 {
@@ -23,14 +22,20 @@ public:
 	ACharacterBase* GetTarget() const;
 	
 	template<typename T>
-	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), void>::Type
-	SetFSMState(const T state)
+	void SetFSMState(const T state)
 	{
-		const uint8 stateIndex = static_cast<uint8>(state);
-		m_CurFSMState = stateIndex;
-		SetFSMStateAsBehaviorTree(stateIndex);
+		if constexpr (TIsEnumClass<T>::Value || TIsIntegral<T>::Value)
+		{
+			const uint8 stateIndex = static_cast<uint8>(state);
+			m_CurFSMState = stateIndex;
+			SetFSMStateAsBehaviorTree(stateIndex);
+		}
+		else
+		{
+			static_assert(false, "Invalid parameter type");
+		}
 	}
-
+	
 	void SetFSMStateAsBehaviorTree(uint8 stateIndex) const;
 
 	

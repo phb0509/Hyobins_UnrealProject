@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BTTaskNode.h"
+#include "Monster/MontageTaskNodeBase.h"
 #include "BTT_SuperMinion_NormalAttack.generated.h"
 
 UCLASS()
-class HYOBINSPROJECT_API UBTT_SuperMinion_NormalAttack : public UBTTaskNode
+class HYOBINSPROJECT_API UBTT_SuperMinion_NormalAttack : public UMontageTaskNodeBase
 {
 	GENERATED_BODY()
 
@@ -15,9 +15,7 @@ public:
 	UBTT_SuperMinion_NormalAttack();
 	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-private:
-	bool m_bHasBindFunc;
+	
 };
 
 

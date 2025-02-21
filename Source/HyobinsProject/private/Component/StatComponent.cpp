@@ -47,8 +47,6 @@ void UStatComponent::SetHP(const float hp)
 void UStatComponent::UpdateStamina(const float stamina)
 {
 	SetStamina(FMath::Clamp<float>(m_CurStamina - stamina, 0.0f, m_MaxStamina));
-
-	UE_LOG(LogTemp, Warning, TEXT("UStatComponent :: UpdateStamina"));
 }
 
 void UStatComponent::SetStamina(const float stamina)

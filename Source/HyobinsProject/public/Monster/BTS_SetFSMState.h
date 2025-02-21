@@ -25,7 +25,7 @@ public:
 	FORCEINLINE void SetFSMStateIndex(const uint8 stateName)
 	{
 		m_FSMStateIndex = stateName;
-		this->Modify();
+		this->Modify(); // 아마 변경 적용하는 함수.
 	}
 
 	FORCEINLINE FText GetEnumClassName() const { return FText::FromString(m_EnumClassName); }

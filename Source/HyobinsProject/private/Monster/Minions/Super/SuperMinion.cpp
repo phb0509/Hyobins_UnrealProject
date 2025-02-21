@@ -40,7 +40,7 @@ void ASuperMinion::Activate()
 	Super::Activate();
 
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar",this, ESlateVisibility::HitTestInvisible);
-	SetFSMState(static_cast<uint8>(ESuperMinionFSMStates::Patrol));
+	SetFSMState(ESuperMinionFSMStates::Patrol);
 }
 
 void ASuperMinion::Tick(float DeltaTime)

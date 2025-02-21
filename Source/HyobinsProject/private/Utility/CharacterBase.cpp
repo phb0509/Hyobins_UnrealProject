@@ -12,7 +12,7 @@
 #include "SubSystems/DataManager.h"
 
 
-int32 attackCount = 0; // 로그확인용.
+int32 attackCount = 0; // ?α???ο?.
 const FName ACharacterBase::HitColliderName = "HitCollider";
 const FName ACharacterBase::KnockbackMontageNames[4] = {"Knockback0", "Knockback1", "Knockback2", "Knockback3"};
 const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2", "Death3"};
@@ -38,6 +38,7 @@ ACharacterBase::ACharacterBase() :
 	
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::ExecEvent_OnHPIsZero);
+	m_StatComponent->OnStaminaIsZero.AddUObject(this, &ACharacterBase::ExecEvent_OnStaminaIsZero);
 }
 
 void ACharacterBase::BeginPlay()
@@ -47,7 +48,7 @@ void ACharacterBase::BeginPlay()
 	attackCount = 0;
 	
 	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // Death는 Ended를 호출하지않기에, 노티파이 심어야함.
+	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // Death?? Ended?? ??????????, ??????? ??????.
 	
 	m_CrowdControlStartDelegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_TakeKnockbackAttack);
 	m_CrowdControlStartDelegates[ECrowdControlType::Airborne].AddUObject(this, &ACharacterBase::ExecEvent_TakeAirborneAttack);
@@ -92,7 +93,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	const FHitInformation hitInfo = { attackInfo->attackName, this->Tags[0], this->GetActorLocation(),
 		damage, m_CrowdControlTime,bIsCriticalAttack};
 	
-	OnTakeDamage.Broadcast(hitInfo); // 데미지 UI, 붉은색 HitEffect
+	OnTakeDamage.Broadcast(hitInfo); // ?????? UI, ?????? HitEffect
 	m_StatComponent->UpdateHP(damage);
 	
 	if (!m_bIsDead && !m_bIsSuperArmor)
@@ -103,7 +104,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 			execEvent_CommonCrowdControl(instigator);
 			
 			const ECrowdControlType crowdControl = attackInfo->crowdControlType;
-			m_HitDirection = Utility::GetHitDirection(this, instigator); // 피격방향을 산출.
+			m_HitDirection = Utility::GetHitDirection(this, instigator); // ???????? ????.
 			
 			m_CrowdControlStartDelegates[crowdControl].Broadcast(instigator, attackInfo);
 		
@@ -118,7 +119,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 		}
 	}
 
-	// 로그
+	// ?α?
 	++attackCount;
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
 		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
@@ -127,18 +128,18 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 
 void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlStates::Down) // 다운상태에서 피격시,
+	if (m_CurCrowdControlState == ECrowdControlStates::Down) // ?????¿??? ????,
 	{
 		CallTimer_ExecDownEvent_WhenOnGround();
 	}
-	else if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir) // 공중넉백상태에서 넉백공격 피격시,
+	else if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir) // ????????¿??? ?????? ????,
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
 
 		DisableMovementComponentForDuration(0.2f);
 		CallTimer_ExecDownEvent_WhenOnGround();
 	}
-	else // 스탠딩상태 or 그 외의 FSM상태일 때
+	else // ????????? or ?? ???? FSM?????? ??
 	{
 		m_AnimInstanceBase->PlayMontage(KnockbackMontageNames[m_HitDirection], 1.0f);
 		SetCrowdControlState(ECrowdControlStates::KnockbackOnStanding);
@@ -172,9 +173,9 @@ void ACharacterBase::OnCalledTimer_KnockbackOnStanding_End()
 		curMontageName = m_AnimInstanceBase->GetCurrentActiveMontage()->GetFName();
 	}
 	
-	if (curMontageName == m_LastPlayedOnHitMontageName) // 이 함수를 호출했던 피격모션을 계속 유지해야한다는 조건.
+	if (curMontageName == m_LastPlayedOnHitMontageName) // ?? ????? ?????? ??????? ??? ??????????? ????.
 	{
-		m_AnimInstanceBase->StopAllMontages(0.0f); // 스탑안하면 몬스터가 피격모션안끝난상태로 플레이어 쫓아옴.
+		m_AnimInstanceBase->StopAllMontages(0.0f); // ???????? ????? ????????????·? ?÷???? ????.
 	}
 	
 	SetCrowdControlState(ECrowdControlStates::None);
@@ -185,12 +186,12 @@ void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigat
 {
 	FVector airbornePower = {0.0f, 0.0f, attackInfo->airbornePower};
 
-	if (m_CurCrowdControlState == ECrowdControlStates::Down) // 다운상태에서 에어본공격맞으면 다운 모션 똑같이 진행.
+	if (m_CurCrowdControlState == ECrowdControlStates::Down) // ?????¿??? ????????????? ??? ??? ????? ????.
 	{
-		airbornePower.Z /= 2; // 다운상태라서 조금 덜 띄운다.
+		airbornePower.Z /= 2; // ?????¶? ???? ?? ????.
 		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
 	}
-	else // 공중넉백상태거나, 스탠딩상태거나. 타이머 호출.
+	else // ????????°??, ????????°??. ???? ???.
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
 		SetCrowdControlState(ECrowdControlStates::KnockbackInAir);
@@ -204,13 +205,13 @@ void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigat
 
 void ACharacterBase::ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)// 공중넉백상태에서 다운공격맞더라도 공중넉백유지. 그냥 다운공격아니라 넉백공격했다는 판정.
+	if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)// ????????¿??? ??????´??? ??????????. ??? ????????? ?????????? ????.
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
 
-		DisableMovementComponentForDuration(0.2f);  // 넉백시간만큼하면 너무 길어서 0.2f정도로
+		DisableMovementComponentForDuration(0.2f);  // ???ð??????? ??? ??? 0.2f??????
 	}
-	else // 스탠딩, 다운상태이거나 그 외의상태(공격도중, 순찰 등)일 때, 다운시키기.
+	else // ?????, ?????????? ?? ???????(???????, ???? ??)?? ??, ???????.
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
 		SetCrowdControlState(ECrowdControlStates::Down);
@@ -233,7 +234,7 @@ void ACharacterBase::CallTimer_ExecDownEvent_WhenOnGround()
 			GetWorld()->DeltaTimeSeconds, true,-1);
 }
 
-void ACharacterBase::ExecEvent_Down_WhenOnGround() // (에어본 상태에서 호출되었을 테니) 땅인지 체크 후, Down진행 -> 이후 GetUp진행.
+void ACharacterBase::ExecEvent_Down_WhenOnGround() // (???? ???¿??? ??????? ???) ?????? ?? ??, Down???? -> ???? GetUp????.
 {
 	if (m_bIsDead)
 	{
@@ -241,7 +242,7 @@ void ACharacterBase::ExecEvent_Down_WhenOnGround() // (에어본 상태에서 호출되었�
 		return;
 	}
 
-	if (GetCharacterMovement()->IsMovingOnGround()) // 땅에 닿으면
+	if (GetCharacterMovement()->IsMovingOnGround()) // ???? ??????
 	{
 		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 
@@ -311,27 +312,19 @@ void ACharacterBase::OnCalledNotify_End_Death()
 
 void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)
 {
-	// FRotator actorRotation = GetActorRotation();
-	// actorRotation.Yaw = target->GetActorRotation().Yaw;
-	//
-	// SetActorRotation(actorRotation);
-
-
-	FVector TargetLocation = target->GetActorLocation();
+	const FVector targetLocation = target->GetActorLocation();
+    const FVector curLocation = GetActorLocation();
+	
+    const FVector directionToTarget = (targetLocation - curLocation).GetSafeNormal();
     
-    // 현재 액터의 위치
-    FVector CurrentLocation = GetActorLocation();
-    
-    // 대상을 향하는 방향 벡터 계산
-    FVector Direction = (TargetLocation - CurrentLocation).GetSafeNormal();
-    
-    // 방향 벡터로부터 회전값 생성
-    FRotator NewRotation = Direction.Rotation();
-	FRotator actorRotation = GetActorRotation();
-	actorRotation.Yaw = NewRotation.Yaw;
-
-	actorRotation += rotatorOffset;
-    // 액터의 회전 설정
-    SetActorRotation(actorRotation);
+    // ???? ????κ??? ????? ????
+    const FRotator rotationToTarget = directionToTarget.Rotation();
+	
+	FRotator curRotation = GetActorRotation();
+	curRotation.Yaw = rotationToTarget.Yaw;
+	curRotation += rotatorOffset;
+	
+    // ?????? ??? ????
+    SetActorRotation(curRotation);
 }
 

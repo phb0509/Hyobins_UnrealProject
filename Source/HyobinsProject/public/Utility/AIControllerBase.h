@@ -32,6 +32,7 @@ public:
 
 	void StopBehaviorTree();
 	void StartBehaviorTree();
+	void RestartBehaviorTree();
 	
     // Get
 	FORCEINLINE UBlackboardComponent* GetBlackBoard() const { return Blackboard; }

@@ -64,7 +64,8 @@ enum class ELichKingFSMStates : uint8
 	Chase					UMETA(DisplayName = "Chase"),
 	NormalAttack			UMETA(DisplayName = "NormalAttack"),
 	CrashAttack				UMETA(DisplayName = "CrashAttack"),
-	SoulSiphon				UMETA(DisplayName = "SoulSiphon")
+	SoulSiphon				UMETA(DisplayName = "SoulSiphon"),
+	Groggy					UMETA(DisplayName = "Groggy"),
 };
 
 
