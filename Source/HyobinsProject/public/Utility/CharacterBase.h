@@ -8,6 +8,8 @@
 #include "Components/TimelineComponent.h"
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
+#include "Interfaces/Damageable.h"
+#include "Interfaces/Attacker.h"
 #include "CharacterBase.generated.h"
 
 class ACharacterBase;
@@ -29,7 +31,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnTakeDamageDelegate, const FHitInformation
 DECLARE_MULTICAST_DELEGATE(FOnDeathDelegate);
 
 UCLASS(abstract)
-class HYOBINSPROJECT_API ACharacterBase : public ACharacter
+class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IAttacker, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -37,9 +39,14 @@ public:
 	ACharacterBase();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
-	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator);
+
+	// IAttacker
+	virtual void Attack(const FName& attackName, TWeakObjectPtr<AActor> target) override;
 	
-	void Attack(const FName& attackName, TWeakObjectPtr<AActor> target) const;
+	// IDamageable
+	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator) override;
+
+	
 	void ClearCrowdControlTimerHandle();
 	
 	
@@ -97,6 +104,8 @@ protected:
 	virtual void ExecEvent_OnHPIsZero();
 	virtual void ExecEvent_OnStaminaIsZero() {};
 
+	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) {};
+	
 	// Death
 	UFUNCTION()
 	virtual void Die();

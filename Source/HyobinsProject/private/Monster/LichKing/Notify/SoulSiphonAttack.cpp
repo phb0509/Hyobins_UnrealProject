@@ -3,6 +3,7 @@
 
 #include "Monster/LichKing/Notify/SoulSiphonAttack.h"
 #include "Monster/LichKing/LichKing.h"
+#include "Interfaces/Damageable.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -47,7 +48,11 @@ void USoulSiphonAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 		{
 			for (AActor* overlappedEnemy : overlappedActors)
 			{
-				owner->Attack(TEXT("SoulSiphon"), overlappedEnemy);
+				if (overlappedEnemy != nullptr)
+				{
+					owner->Attack(TEXT("SoulSiphon"), overlappedEnemy);
+				}
+				
 				playHitEffect(overlappedEnemy);
 			}
 		}

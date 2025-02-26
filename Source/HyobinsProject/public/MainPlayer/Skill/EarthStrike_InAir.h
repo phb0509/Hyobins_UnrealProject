@@ -20,9 +20,9 @@ public:
 	virtual void Initialize() override;
 	virtual void Execute() override;
 
-	void ExecEventIfOnGround();
-	void Attack();
-	void PlayEffect();
+	void ExecEvent_WhenOnGround();
+	void attack();
+	void playEffect();
 	
 private:
 	FTimerHandle m_Timer;
