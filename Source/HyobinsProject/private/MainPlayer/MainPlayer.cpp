@@ -30,7 +30,8 @@ AMainPlayer::AMainPlayer() :
 	m_RotationDeltaSecondsOffset(50.0f),
 	m_bIsPressedShift(false),
 	m_CurInputHorizontal(0),
-	m_CurInputVertical(0)
+	m_CurInputVertical(0),
+	m_CameraShake(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -60,10 +61,7 @@ void AMainPlayer::BeginPlay()
 	animInstance->OnEnteredState_MoveOnGround.AddDynamic(this, &AMainPlayer::RemoveInputContextMappingInAir);
 
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-
 	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent, this);
-	
-
 	OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
 }
 
@@ -239,6 +237,16 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Charging Skill
 	EIC->BindAction(m_InputActionsOnCharging["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
 	
+}
+
+void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
+{
+	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: PlayOnHitEffect"));
+	
+	if (m_CameraShake != nullptr)
+    {
+    	this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_CameraShake);
+    }
 }
 
 FName AMainPlayer::GetHighestPriorityInputMappingContext() const
