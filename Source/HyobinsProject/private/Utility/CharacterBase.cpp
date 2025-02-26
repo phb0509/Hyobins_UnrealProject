@@ -12,7 +12,7 @@
 #include "SubSystems/DataManager.h"
 
 
-int32 attackCount = 0; // ?α???ο?.
+int32 attackCount = 0; // ?????????.
 const FName ACharacterBase::HitColliderName = "HitCollider";
 const FName ACharacterBase::KnockbackMontageNames[4] = {"Knockback0", "Knockback1", "Knockback2", "Knockback3"};
 const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2", "Death3"};
@@ -53,6 +53,7 @@ void ACharacterBase::BeginPlay()
 	m_CrowdControlStartDelegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_TakeKnockbackAttack);
 	m_CrowdControlStartDelegates[ECrowdControlType::Airborne].AddUObject(this, &ACharacterBase::ExecEvent_TakeAirborneAttack);
 	m_CrowdControlStartDelegates[ECrowdControlType::Down].AddUObject(this, &ACharacterBase::ExecEvent_TakeDownAttack);
+	this->OnTakeDamage.AddUObject(this, &ACharacterBase::PlayOnHitEffect);
 }
 
 void ACharacterBase::Tick(float DeltaSeconds)
@@ -65,21 +66,28 @@ void ACharacterBase::Tick(float DeltaSeconds)
 	m_bIsFlying = GetCharacterMovement()->IsFlying();
 }
 
-void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target) const
+void ACharacterBase::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
 {
 	if (!target.IsValid())
 	{
 		return;
 	}
+	
+	IDamageable* damageableActor = nullptr;
+	damageableActor = Cast<IDamageable>(target);
 
-	ACharacterBase* targetActor = Cast<ACharacterBase>(target);
+	if (damageableActor == nullptr)
+	{
+		return;
+	}
+	
 	const UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	const FAttackInformation* attackInfo = dataManager->GetAttackInformation(this->GetClass(), attackName);
 	
 	const bool bIsCriticalAttack = FMath::FRandRange(0.0f, 100.0f) <= m_StatComponent->GetCriticalAttackChance();
 	const float finalDamage = (m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio) * (bIsCriticalAttack ? 2.0f : 1.0f);
 	
-	targetActor->OnDamage(finalDamage, bIsCriticalAttack, attackInfo, this);
+	damageableActor->OnDamage(finalDamage, bIsCriticalAttack, attackInfo, this);
 }
 
 void ACharacterBase::ClearCrowdControlTimerHandle()
@@ -93,7 +101,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	const FHitInformation hitInfo = { attackInfo->attackName, this->Tags[0], this->GetActorLocation(),
 		damage, m_CrowdControlTime,bIsCriticalAttack};
 	
-	OnTakeDamage.Broadcast(hitInfo); // ?????? UI, ?????? HitEffect
+	OnTakeDamage.Broadcast(hitInfo); // UI 및 HitEffect
 	m_StatComponent->UpdateHP(damage);
 	
 	if (!m_bIsDead && !m_bIsSuperArmor)
@@ -104,7 +112,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 			execEvent_CommonCrowdControl(instigator);
 			
 			const ECrowdControlType crowdControl = attackInfo->crowdControlType;
-			m_HitDirection = Utility::GetHitDirection(this, instigator); // ???????? ????.
+			m_HitDirection = Utility::GetHitDirection(this, instigator); // 피격방향 계산.
 			
 			m_CrowdControlStartDelegates[crowdControl].Broadcast(instigator, attackInfo);
 		
@@ -119,7 +127,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 		}
 	}
 
-	// ?α?
+	// 로그용
 	++attackCount;
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
 		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
@@ -128,18 +136,18 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 
 void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlStates::Down) // ?????¿??? ????,
+	if (m_CurCrowdControlState == ECrowdControlStates::Down) 
 	{
 		CallTimer_ExecDownEvent_WhenOnGround();
 	}
-	else if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir) // ????????¿??? ?????? ????,
+	else if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
 
 		DisableMovementComponentForDuration(0.2f);
 		CallTimer_ExecDownEvent_WhenOnGround();
 	}
-	else // ????????? or ?? ???? FSM?????? ??
+	else 
 	{
 		m_AnimInstanceBase->PlayMontage(KnockbackMontageNames[m_HitDirection], 1.0f);
 		SetCrowdControlState(ECrowdControlStates::KnockbackOnStanding);
@@ -168,14 +176,15 @@ void ACharacterBase::OnCalledTimer_KnockbackOnStanding_End()
 	}
 	
 	FName curMontageName = "";
+	
 	if (m_AnimInstanceBase->GetCurrentActiveMontage() != nullptr)
 	{
 		curMontageName = m_AnimInstanceBase->GetCurrentActiveMontage()->GetFName();
 	}
 	
-	if (curMontageName == m_LastPlayedOnHitMontageName) // ?? ????? ?????? ??????? ??? ??????????? ????.
+	if (curMontageName == m_LastPlayedOnHitMontageName) // 피격상태를 유지하고 있었더라면 ( 이 함수를 호출한시점에서 여전히 피격중이라면 )
 	{
-		m_AnimInstanceBase->StopAllMontages(0.0f); // ???????? ????? ????????????·? ?÷???? ????.
+		m_AnimInstanceBase->StopAllMontages(0.0f); 
 	}
 	
 	SetCrowdControlState(ECrowdControlStates::None);
@@ -186,12 +195,12 @@ void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigat
 {
 	FVector airbornePower = {0.0f, 0.0f, attackInfo->airbornePower};
 
-	if (m_CurCrowdControlState == ECrowdControlStates::Down) // ?????¿??? ????????????? ??? ??? ????? ????.
+	if (m_CurCrowdControlState == ECrowdControlStates::Down) 
 	{
-		airbornePower.Z /= 2; // ?????¶? ???? ?? ????.
+		airbornePower.Z /= 2; // 다운상태에서의 에어본은 보정값을 먹인다.
 		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
 	}
-	else // ????????°??, ????????°??. ???? ???.
+	else 
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
 		SetCrowdControlState(ECrowdControlStates::KnockbackInAir);
@@ -205,11 +214,11 @@ void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigat
 
 void ACharacterBase::ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)// ????????¿??? ??????´??? ??????????. ??? ????????? ?????????? ????.
+	if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)// ????????????? ??????????? ??????????. ??? ????????? ?????????? ????.
 	{
 		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
 
-		DisableMovementComponentForDuration(0.2f);  // ???ð??????? ??? ??? 0.2f??????
+		DisableMovementComponentForDuration(0.2f);  // ???????????? ??? ??? 0.2f??????
 	}
 	else // ?????, ?????????? ?? ???????(???????, ???? ??)?? ??, ???????.
 	{
@@ -234,7 +243,7 @@ void ACharacterBase::CallTimer_ExecDownEvent_WhenOnGround()
 			GetWorld()->DeltaTimeSeconds, true,-1);
 }
 
-void ACharacterBase::ExecEvent_Down_WhenOnGround() // (???? ???¿??? ??????? ???) ?????? ?? ??, Down???? -> ???? GetUp????.
+void ACharacterBase::ExecEvent_Down_WhenOnGround() // (???? ???????? ??????? ???) ?????? ?? ??, Down???? -> ???? GetUp????.
 {
 	if (m_bIsDead)
 	{
@@ -317,7 +326,7 @@ void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotato
 	
     const FVector directionToTarget = (targetLocation - curLocation).GetSafeNormal();
     
-    // ???? ????κ??? ????? ????
+    // ???? ????????? ????? ????
     const FRotator rotationToTarget = directionToTarget.Rotation();
 	
 	FRotator curRotation = GetActorRotation();
