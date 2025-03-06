@@ -28,15 +28,20 @@ class HYOBINSPROJECT_API AMainPlayer final: public ACharacterBase
 
 public:
 	AMainPlayer();
+	
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
-	
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	virtual void Attack(const FName& attackName, TWeakObjectPtr<AActor> target) override;
+	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
+
 	
 	// AxisMappings
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
+	
 	FORCEINLINE void InitArrowKeys()
 	{
 		m_CurInputHorizontal = 0;
@@ -151,4 +156,13 @@ private:
 
 	TWeakObjectPtr<AActor> m_CurTarget;
 	TMap<FName, int32> m_CurActiveMappingContexts;
+
+	UPROPERTY(EditAnywhere, Category = "CameraShake")
+	TSubclassOf<UCameraShakeBase> m_CameraShake;
+
+	UPROPERTY(EditAnywhere)
+	float m_GameSpeedRatio;
+
+	UPROPERTY(EditAnywhere)
+	float m_GameSpeedDelay;
 };

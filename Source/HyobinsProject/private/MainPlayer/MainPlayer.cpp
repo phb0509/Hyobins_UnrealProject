@@ -31,7 +31,9 @@ AMainPlayer::AMainPlayer() :
 	m_bIsPressedShift(false),
 	m_CurInputHorizontal(0),
 	m_CurInputVertical(0),
-	m_CameraShake(nullptr)
+	m_CameraShake(nullptr),
+	m_GameSpeedRatio(0.01f),
+	m_GameSpeedDelay(0.003f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -239,10 +241,28 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	
 }
 
+void AMainPlayer::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
+{
+	Super::Attack(attackName, target);
+
+	UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
+	m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
+	
+	FTimerHandle timer;
+	GetWorldTimerManager().SetTimer
+	( 
+		timer,
+		[=]()
+		{
+			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
+		},
+		m_GameSpeedDelay,
+		false);
+	
+}
+
 void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: PlayOnHitEffect"));
-	
 	if (m_CameraShake != nullptr)
     {
     	this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_CameraShake);
