@@ -19,20 +19,21 @@ EBTNodeResult::Type UBTT_LichKing_Groggy::ExecuteTask(UBehaviorTreeComponent& Ow
 	
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
-	
-	if (!m_bHasInit	)
+	FInstanceNode* instanceNode = reinterpret_cast<FInstanceNode*>(NodeMemory);
+
+	if (!instanceNode->bHasInit)
 	{
-		m_bHasInit = true;
+		instanceNode->bHasInit = true;
 		
 		animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Groggy"),
 	[&,owner]()
 		{
-			owner->GetStatComponent()->SetStamina(100.0f);
+			owner->GetStatComponent()->SetStaminaPercent(100.0f);
 			owner->SetFSMState(ELichKingFSMStates::Chase);
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		});
 	}
-
+	
 	owner->SetIsSuperArmor(true);
 	animInstance->PlayMontage(TEXT("Groggy"));
 
@@ -41,7 +42,9 @@ EBTNodeResult::Type UBTT_LichKing_Groggy::ExecuteTask(UBehaviorTreeComponent& Ow
 		(
 			timerHandle,
 			[=]()
-			{ animInstance->StopAllMontages(0.1f); },
+			{ 
+				animInstance->StopAllMontages(0.1f); 
+			},
 		m_GroggyTime,
 		false);
 

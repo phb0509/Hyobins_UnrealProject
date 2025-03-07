@@ -22,7 +22,6 @@ EBTNodeResult::Type UBTT_LichKing_UpdateNormalPattern::ExecuteTask(UBehaviorTree
 	{
 	case 0:
 		owner->SetFSMState(ELichKingFSMStates::NormalAttack);
-		//owner->SetFSMState("Text");
 		break;
 	
 	case 1:

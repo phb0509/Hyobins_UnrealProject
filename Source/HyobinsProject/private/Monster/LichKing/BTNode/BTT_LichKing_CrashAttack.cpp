@@ -16,10 +16,11 @@ EBTNodeResult::Type UBTT_LichKing_CrashAttack::ExecuteTask(UBehaviorTreeComponen
 	
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
-	
-	if (!m_bHasInit)
+	FInstanceNode* instanceNode = reinterpret_cast<FInstanceNode*>(NodeMemory);
+
+	if (!instanceNode->bHasInit)
 	{
-		m_bHasInit = true;
+		instanceNode->bHasInit = true;
 		
 		animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("CrashAttack"),
 	[&]()
@@ -27,7 +28,7 @@ EBTNodeResult::Type UBTT_LichKing_CrashAttack::ExecuteTask(UBehaviorTreeComponen
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		});
 	}
-	
+
 	animInstance->PlayMontage(TEXT("CrashAttack"));
 	
 	return EBTNodeResult::InProgress;
