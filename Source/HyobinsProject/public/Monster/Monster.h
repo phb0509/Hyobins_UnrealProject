@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Utility/CharacterBase.h"
-#include "ActorPool/PoolableActor.h"
+#include "Interfaces/PoolableActor.h"
 #include "Templates/IsIntegral.h"
 #include "Templates/IsEnumClass.h"
 #include "Monster.generated.h"
@@ -22,18 +22,12 @@ public:
 	ACharacterBase* GetTarget() const;
 	
 	template<typename T>
-	void SetFSMState(const T state)
+	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), void>::Type
+	SetFSMState(const T state)
 	{
-		if constexpr (TIsEnumClass<T>::Value || TIsIntegral<T>::Value)
-		{
-			const uint8 stateIndex = static_cast<uint8>(state);
-			m_CurFSMState = stateIndex;
-			SetFSMStateAsBehaviorTree(stateIndex);
-		}
-		else
-		{
-			static_assert(false, "Invalid parameter type");
-		}
+		const uint8 stateIndex = static_cast<uint8>(state);
+		m_CurFSMState = stateIndex;
+		SetFSMStateAsBehaviorTree(stateIndex);
 	}
 	
 	void SetFSMStateAsBehaviorTree(uint8 stateIndex) const;
@@ -53,16 +47,15 @@ protected:
 	UFUNCTION()
 	void OnCalledTimelineEvent_End_AfterDeath(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수.)
 	
+	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
 	
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 	
-private:
-	void activateHitEffect(const FHitInformation&);
 	
-		
+
 public:
 	static const FName HomePosKey;
 	static const FName PatrolPosKey;
