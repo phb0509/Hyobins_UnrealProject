@@ -7,7 +7,9 @@
 #include "StatComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnStatIsZeroDelegate);
-DECLARE_MULTICAST_DELEGATE(FOnChangedStatDelegate);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnChangedStatDelegate, float changeAmount);
+
+class ACharacterBase;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class HYOBINSPROJECT_API UStatComponent : public UActorComponent
@@ -33,22 +35,37 @@ public:
 		m_CurAdditionalAttackSpeed += additionalAttackSpeed;
 		m_CurAttackSpeed = 1.0f + m_CurAdditionalAttackSpeed / 100.0f;
 	}
+
+	void RecoveryHP();
+	void RecoveryStamina();
 	
 	// Get
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
 	FORCEINLINE int32 GetCriticalAttackChance() const { return m_CriticalAttackChance; }
+
+	FORCEINLINE float GetCurHP() const { return m_CurHP; }
+	FORCEINLINE float GetMaxHP() const { return m_MaxHP; }
 	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
+	FORCEINLINE bool GetCanRecoveryHP() const { return m_bCanRecoveryHP; }
+
+	FORCEINLINE float GetCurStamin() const { return m_CurStamina; }
+	FORCEINLINE float GetMaxStamina() const { return m_MaxStamina; }
 	FORCEINLINE float GetStaminaRatio() const { return m_CurStamina < KINDA_SMALL_NUMBER ? 0.0f : (m_CurStamina / m_MaxStamina); }
+	FORCEINLINE bool GetCanRecoveryStamina() const { return m_bCanRecoveryStamina; }
+	
 	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
 	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
 	FORCEINLINE float GetAttackSpeed() const { return m_CurAttackSpeed; }
+
+	FORCEINLINE void SetCanRecoveryHP(bool bCanRecoveryHP) { m_bCanRecoveryStamina = bCanRecoveryHP; }
+	FORCEINLINE void SetCanRecoveryStamina(bool bCanRecoveryStamina) { m_bCanRecoveryStamina = bCanRecoveryStamina; }
 	
 	// Set
-	void UpdateHP(const float damage);
-	void SetHP(const float hp);
+	void OnDamageHP(const float damage);
+	void SetHPPercent(const float hp);
 
-	void UpdateStamina(const float stamina);
-	void SetStamina(const float stamina);
+	void OnDamageStamina(const float damage);
+	void SetStaminaPercent(const float stamina);
 	
 	FOnChangedStatDelegate OnChangedHP;
 	FOnStatIsZeroDelegate OnHPIsZero;
@@ -57,6 +74,8 @@ public:
 	FOnStatIsZeroDelegate OnStaminaIsZero;
 	
 private:
+	TWeakObjectPtr<ACharacterBase> m_Owner;
+	
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_DefaultDamage;
 
@@ -80,9 +99,21 @@ private:
 	
 	UPROPERTY(VisibleInstanceOnly, Meta = (AllowPrivateAccess = true))
 	float m_HitRecovery;
+
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	float m_HPRecoveryPerSecond;
+	
+	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
+	float m_StaminaRecoveryPerSecond;
 	
 	float m_CurMoveSpeed;
 	float m_CurAdditionalMoveSpeed;
 	float m_CurAttackSpeed;
 	float m_CurAdditionalAttackSpeed;
+
+	FTimerHandle m_HPRecoveryTimer;
+	FTimerHandle m_StaminaRecoveryTimer;
+
+	bool m_bCanRecoveryHP;
+	bool m_bCanRecoveryStamina;
 };

@@ -16,7 +16,7 @@ public:
 	UBTT_LichKing_Groggy();
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	
+	void InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTMemoryInit::Type InitType) const;
 
 private:
 	UPROPERTY(EditAnywhere)

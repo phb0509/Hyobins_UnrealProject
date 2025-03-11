@@ -12,7 +12,7 @@
 #include "SubSystems/DataManager.h"
 
 
-int32 attackCount = 0; // ?????????.
+int32 attackCount = 0; // 로그용 임시값
 const FName ACharacterBase::HitColliderName = "HitCollider";
 const FName ACharacterBase::KnockbackMontageNames[4] = {"Knockback0", "Knockback1", "Knockback2", "Knockback3"};
 const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2", "Death3"};
@@ -23,7 +23,8 @@ ACharacterBase::ACharacterBase() :
 	m_CurSpeed(0.0f),
 	m_bIsSuperArmor(false),
 	m_bIsDead(false),
-	m_CrowdControlTime(1.0f)
+	m_CrowdControlTime(1.0f),
+	m_OnHitPlayRate(0.01f)
 {
 	const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
 	if (enumPtr != nullptr)
@@ -48,11 +49,12 @@ void ACharacterBase::BeginPlay()
 	attackCount = 0;
 	
 	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
-	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); // Death?? Ended?? ??????????, ??????? ??????.
+	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); 
 	
 	m_CrowdControlStartDelegates[ECrowdControlType::Knockback].AddUObject(this, &ACharacterBase::ExecEvent_TakeKnockbackAttack);
 	m_CrowdControlStartDelegates[ECrowdControlType::Airborne].AddUObject(this, &ACharacterBase::ExecEvent_TakeAirborneAttack);
 	m_CrowdControlStartDelegates[ECrowdControlType::Down].AddUObject(this, &ACharacterBase::ExecEvent_TakeDownAttack);
+	
 	this->OnTakeDamage.AddUObject(this, &ACharacterBase::PlayOnHitEffect);
 }
 
@@ -101,8 +103,8 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	const FHitInformation hitInfo = { attackInfo->attackName, this->Tags[0], this->GetActorLocation(),
 		damage, m_CrowdControlTime,bIsCriticalAttack};
 	
-	OnTakeDamage.Broadcast(hitInfo); // UI 및 HitEffect
-	m_StatComponent->UpdateHP(damage);
+	OnTakeDamage.Broadcast(hitInfo); // 데미지UI 및 HitEffect
+	m_StatComponent->OnDamageHP(damage);
 	
 	if (!m_bIsDead && !m_bIsSuperArmor)
 	{
@@ -126,7 +128,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 			}
 		}
 	}
-
+	
 	// 로그용
 	++attackCount;
 	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(damage) + " damage from " +
@@ -142,14 +144,14 @@ void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instiga
 	}
 	else if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)
 	{
-		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
+		playOnHitMontage(TEXT("Knockback_Air"));
 
 		DisableMovementComponentForDuration(0.2f);
 		CallTimer_ExecDownEvent_WhenOnGround();
 	}
 	else 
 	{
-		m_AnimInstanceBase->PlayMontage(KnockbackMontageNames[m_HitDirection], 1.0f);
+		playOnHitMontage(KnockbackMontageNames[m_HitDirection]);
 		SetCrowdControlState(ECrowdControlStates::KnockbackOnStanding);
 
 		GetWorldTimerManager().SetTimer(
@@ -164,7 +166,6 @@ void ACharacterBase::ExecEvent_TakeKnockbackAttack(const ACharacterBase* instiga
 	{
 		m_LastPlayedOnHitMontageName = curActivateMontage->GetFName();
 	}
-	
 }
 
 void ACharacterBase::OnCalledTimer_KnockbackOnStanding_End()
@@ -198,39 +199,38 @@ void ACharacterBase::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigat
 	if (m_CurCrowdControlState == ECrowdControlStates::Down) 
 	{
 		airbornePower.Z /= 2; // 다운상태에서의 에어본은 보정값을 먹인다.
-		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
+		playOnHitMontage(TEXT("Down"));
 	}
 	else 
 	{
-		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
+		playOnHitMontage(TEXT("Knockback_Air"));
 		SetCrowdControlState(ECrowdControlStates::KnockbackInAir);
 	}
 
 	CallTimer_ExecDownEvent_WhenOnGround();
 
-	FVector LaunchVelocity = airbornePower;
-	this->LaunchCharacter(LaunchVelocity, true, true);
+	FVector launchVelocity = airbornePower;
+	this->LaunchCharacter(launchVelocity, true, true);
 }
 
 void ACharacterBase::ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
 {
-	if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)// ????????????? ??????????? ??????????. ??? ????????? ?????????? ????.
+	if (m_CurCrowdControlState == ECrowdControlStates::KnockbackInAir)
 	{
-		m_AnimInstanceBase->PlayMontage(TEXT("Knockback_Air"));
-
-		DisableMovementComponentForDuration(0.2f);  // ???????????? ??? ??? 0.2f??????
+		playOnHitMontage(TEXT("Knockback_Air"));
+		DisableMovementComponentForDuration(0.2f); 
 	}
-	else // ?????, ?????????? ?? ???????(???????, ???? ??)?? ??, ???????.
+	else
 	{
-		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
+		playOnHitMontage(TEXT("Down"));
 		SetCrowdControlState(ECrowdControlStates::Down);
 
-		const float montagePlayTime = m_AnimInstanceBase->GetMontagePlayTime(TEXT("Down")) + 0.2f;
+		const float downPlayTime = m_AnimInstanceBase->GetMontagePlayTime(TEXT("Down")) + 0.2f; // 다운몽타주재생시간이 CC시간보다 짧을경우를 대비한 보정값
 		GetWorldTimerManager().SetTimer(
 			m_CrowdControlTimerHandle,
 			this,
 			&ACharacterBase::OnCalledTimer_Down_End,
-			m_CrowdControlTime > montagePlayTime ? m_CrowdControlTime : montagePlayTime,
+			m_CrowdControlTime > downPlayTime ? m_CrowdControlTime : downPlayTime,
 			false);
 	}
 }
@@ -243,7 +243,7 @@ void ACharacterBase::CallTimer_ExecDownEvent_WhenOnGround()
 			GetWorld()->DeltaTimeSeconds, true,-1);
 }
 
-void ACharacterBase::ExecEvent_Down_WhenOnGround() // (???? ???????? ??????? ???) ?????? ?? ??, Down???? -> ???? GetUp????.
+void ACharacterBase::ExecEvent_Down_WhenOnGround() 
 {
 	if (m_bIsDead)
 	{
@@ -251,11 +251,11 @@ void ACharacterBase::ExecEvent_Down_WhenOnGround() // (???? ???????? ??????? ???
 		return;
 	}
 
-	if (GetCharacterMovement()->IsMovingOnGround()) // ???? ??????
+	if (GetCharacterMovement()->IsMovingOnGround()) 
 	{
 		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
-
-		m_AnimInstanceBase->PlayMontage(TEXT("Down"));
+		
+		playOnHitMontage(TEXT("Down"));
 		SetCrowdControlState(ECrowdControlStates::Down);
 
 		const float downPlayTime = m_AnimInstanceBase->GetMontagePlayTime(TEXT("Down")) + 0.2f;
@@ -271,7 +271,7 @@ void ACharacterBase::ExecEvent_Down_WhenOnGround() // (???? ???????? ??????? ???
 
 void ACharacterBase::OnCalledTimer_Down_End()
 {
-	m_AnimInstanceBase->PlayMontage(TEXT("GetUp"));
+	playOnHitMontage(TEXT("GetUp"));
 
 	const float getupPlayTime = m_AnimInstanceBase->GetMontagePlayTime(TEXT("GetUp")) + 0.2f;
 	
@@ -304,13 +304,24 @@ void ACharacterBase::ExecEvent_OnHPIsZero()
 void ACharacterBase::Die()
 {
 	m_bIsDead = true;
+	m_StatComponent->SetCanRecoveryHP(false);
+	m_StatComponent->SetCanRecoveryStamina(false);
 	OnDeath.Broadcast();
+	
 	SetCrowdControlState(ECrowdControlStates::Dead);
-	GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+
+	if (GetWorldTimerManager().IsTimerActive(m_CrowdControlTimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+	}
+	
 	GetCharacterMovement()->Activate();
 	
-	m_AnimInstanceBase->StopAllMontages(0.0f);  
-	m_AnimInstanceBase->PlayMontage(DeathMontageNames[m_HitDirection]);
+	m_AnimInstanceBase->StopAllMontages(0.0f);
+
+	UAnimMontage* deathMontage = m_AnimInstanceBase->GetMontage(DeathMontageNames[m_HitDirection]);
+	m_AnimInstanceBase->PlayMontage(deathMontage == nullptr ? "Death0" : DeathMontageNames[m_HitDirection]);
+	
 	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
@@ -319,21 +330,37 @@ void ACharacterBase::OnCalledNotify_End_Death()
 	ExecEvent_EndedDeathMontage();
 }
 
+void ACharacterBase::playOnHitMontage(const FName& montageName)
+{
+	m_AnimInstanceBase->PlayMontage(montageName);
+	
+	UAnimMontage* curMontage = m_AnimInstanceBase->GetMontage(montageName);
+	m_AnimInstanceBase->Montage_SetPlayRate(curMontage,m_OnHitPlayRate);
+	
+	FTimerHandle timer;
+	GetWorldTimerManager().SetTimer
+	( 
+		timer,
+		[=]()
+		{
+			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
+		},
+		m_GameSpeedDelay,
+		false);
+}
+
 void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)
 {
 	const FVector targetLocation = target->GetActorLocation();
     const FVector curLocation = GetActorLocation();
 	
     const FVector directionToTarget = (targetLocation - curLocation).GetSafeNormal();
-    
-    // ???? ????????? ????? ????
     const FRotator rotationToTarget = directionToTarget.Rotation();
 	
 	FRotator curRotation = GetActorRotation();
 	curRotation.Yaw = rotationToTarget.Yaw;
 	curRotation += rotatorOffset;
 	
-    // ?????? ??? ????
     SetActorRotation(curRotation);
 }
 

@@ -62,7 +62,6 @@ public:
 	static const FName EnemyKey;
 	static const FName FSMStateKey;
 	static const FName CrowdControlStateKet;
-	static const FName NormalAttackSpeedKey;
 
 protected:
 	uint8 m_CurFSMState;

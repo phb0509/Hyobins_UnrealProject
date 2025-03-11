@@ -42,21 +42,6 @@ void ALichKing::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	m_DeathTimeline.TickTimeline(DeltaTime);
-
-	// FVector Start = GetActorLocation();
-	// FVector End = Start + GetActorForwardVector() * 100.0f;
- //    
-	// DrawDebugDirectionalArrow(
-	// 	GetWorld(),
-	// 	Start,
-	// 	End,
-	// 	20.0f, // 화살표 크기
-	// 	FColor::Blue,
-	// 	false, // 지속성 여부
-	// 	-1.0f, // 지속 시간 (-1은 한 프레임)
-	// 	0,
-	// 	2.0f // 선의 두께
-	// );
 	
 	printLog();
 }
@@ -66,9 +51,9 @@ void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const
 {
 	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator);
 
-	if (m_StatComponent->GetStaminaRatio() != 0.0f)
+	if (m_StatComponent->GetCanRecoveryStamina())
 	{
-		m_StatComponent->UpdateStamina(damage * 0.3f);
+		m_StatComponent->OnDamageStamina(damage * 0.3f);
 	}
 }
 
@@ -78,6 +63,13 @@ void ALichKing::Activate()
 
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar",this, ESlateVisibility::HitTestInvisible);
 	SetFSMState(static_cast<uint8>(ELichKingFSMStates::Chase));
+}
+
+void ALichKing::DeActivate()
+{
+	Super::DeActivate();
+	
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar",this, ESlateVisibility::Collapsed);
 }
 
 void ALichKing::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
@@ -94,10 +86,30 @@ void ALichKing::ExecEvent_OnStaminaIsZero()
 {
 	Super::ExecEvent_OnStaminaIsZero();
 	
-	UE_LOG(LogTemp, Warning, TEXT("ALichKing :: ExecEvent_OnStaminaIsZero"));
 	SetFSMState(ELichKingFSMStates::Groggy);
 	m_AIController->RestartBehaviorTree();
 }
+
+void ALichKing::ExecEvent_EndedDeathMontage()
+{
+	Super::ExecEvent_EndedDeathMontage();
+
+	UCapsuleComponent* rootComponent = Cast<UCapsuleComponent>(GetRootComponent());
+	rootComponent->SetCapsuleHalfHeight(30.0f);
+	rootComponent->SetCapsuleRadius(30.0f);
+	
+	FTimerHandle timer;
+	GetWorldTimerManager().SetTimer(timer,
+				[this]()
+				{
+					FVector newLocation = GetActorLocation();
+					newLocation.Z -= 1.0;
+					this->SetActorLocation(newLocation);
+				},
+			0.1f,
+			true);
+}
+
 
 void ALichKing::initAssets()
 {

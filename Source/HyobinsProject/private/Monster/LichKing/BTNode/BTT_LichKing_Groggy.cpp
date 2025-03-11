@@ -19,22 +19,10 @@ EBTNodeResult::Type UBTT_LichKing_Groggy::ExecuteTask(UBehaviorTreeComponent& Ow
 	
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
-	FInstanceNode* instanceNode = reinterpret_cast<FInstanceNode*>(NodeMemory);
-
-	if (!instanceNode->bHasInit)
-	{
-		instanceNode->bHasInit = true;
-		
-		animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Groggy"),
-	[&,owner]()
-		{
-			owner->GetStatComponent()->SetStaminaPercent(100.0f);
-			owner->SetFSMState(ELichKingFSMStates::Chase);
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-		});
-	}
 	
 	owner->SetIsSuperArmor(true);
+	owner->GetStatComponent()->SetCanRecoveryHP(false);
+	owner->GetStatComponent()->SetCanRecoveryStamina(false);
 	animInstance->PlayMontage(TEXT("Groggy"));
 
 	FTimerHandle timerHandle;
@@ -43,12 +31,40 @@ EBTNodeResult::Type UBTT_LichKing_Groggy::ExecuteTask(UBehaviorTreeComponent& Ow
 			timerHandle,
 			[=]()
 			{ 
-				animInstance->StopAllMontages(0.1f); 
+				animInstance->StopAllMontages(0.0f); 
 			},
 		m_GroggyTime,
 		false);
 
 	
 	return EBTNodeResult::InProgress;
+}
+
+void UBTT_LichKing_Groggy::InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTMemoryInit::Type InitType) const
+{
+	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	
+	if (owner != nullptr)
+	{
+		FInstanceNode* instanceNode = reinterpret_cast<FInstanceNode*>(NodeMemory);
+
+		if (!instanceNode->bHasInit)
+		{
+			instanceNode->bHasInit = true;
+			
+			UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
+		
+			animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Groggy"),
+		[&,owner]()
+			{
+				owner->GetStatComponent()->SetStaminaPercent(100.0f);
+				owner->GetStatComponent()->SetCanRecoveryHP(true);
+				owner->GetStatComponent()->SetCanRecoveryStamina(true);
+				owner->SetFSMState(ELichKingFSMStates::Chase);
+				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			});
+		}
+	}
+	
+	Super::InitializeMemory(OwnerComp, NodeMemory, InitType);
 }

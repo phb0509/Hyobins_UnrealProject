@@ -89,6 +89,8 @@ public:
 	}
 	
 protected:
+	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) {};
+	
 	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
 	virtual void OnCalledTimer_KnockbackOnStanding_End();
 
@@ -112,11 +114,11 @@ protected:
 	virtual void ExecEvent_EndedDeathMontage() {};
 	virtual void OnCalledNotify_End_Death();
 	
+private:
+	void playOnHitMontage(const FName& montageName);
 	
 
-private:
-	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) {};
-
+	
 public:
 	FOnTakeDamageDelegate OnTakeDamage;
 	FOnDeathDelegate OnDeath;
@@ -180,6 +182,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	TObjectPtr<USoundCue> m_HitSound;
+
+	UPROPERTY(EditAnywhere)
+	float m_GameSpeedDelay;
+
+	UPROPERTY(EditAnywhere)
+	float m_OnHitPlayRate;
 	
 private:
 	FName m_LastPlayedOnHitMontageName;

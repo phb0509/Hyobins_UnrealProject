@@ -49,7 +49,7 @@ void AMonster::execEvent_CommonCrowdControl(const ACharacterBase* instigator)
 {
 	ACharacterBase* instigatorCharacter = const_cast<ACharacterBase*>(instigator);
 	
-	if (instigatorCharacter->IsValidLowLevel() && !m_bIsSuperArmor) // 슈퍼아머상태면 피격모션을 재생안시킬것이기 때문에 예외.
+	if (instigatorCharacter != nullptr && !m_bIsSuperArmor) // 슈퍼아머상태면 피격모션을 재생안시킬것이기 때문에 예외.
 	{
 		m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigatorCharacter);
 	}
@@ -110,7 +110,6 @@ void AMonster::Activate()
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToComboWidget(this);
 
 	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
-	this->OnTakeDamage.AddUObject(this, &AMonster::activateHitEffect);
 }
 
 void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
@@ -130,7 +129,7 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 	this->OnTakeDamage.Clear(); // 바인딩했던 함수들 해제.
 }
 
-void AMonster::activateHitEffect(const FHitInformation& hitInfo)
+void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 {
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 바로 붉게 했다가,
 
