@@ -57,7 +57,7 @@ public:
 	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
 	FORCEINLINE float GetAttackSpeed() const { return m_CurAttackSpeed; }
 
-	FORCEINLINE void SetCanRecoveryHP(bool bCanRecoveryHP) { m_bCanRecoveryStamina = bCanRecoveryHP; }
+	FORCEINLINE void SetCanRecoveryHP(bool bCanRecoveryHP) { m_bCanRecoveryHP = bCanRecoveryHP; }
 	FORCEINLINE void SetCanRecoveryStamina(bool bCanRecoveryStamina) { m_bCanRecoveryStamina = bCanRecoveryStamina; }
 	
 	// Set

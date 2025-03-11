@@ -57,10 +57,14 @@ void UBTT_LichKing_Groggy::InitializeMemory(UBehaviorTreeComponent& OwnerComp, u
 			animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Groggy"),
 		[&,owner]()
 			{
-				owner->GetStatComponent()->SetStaminaPercent(100.0f);
-				owner->GetStatComponent()->SetCanRecoveryHP(true);
-				owner->GetStatComponent()->SetCanRecoveryStamina(true);
-				owner->SetFSMState(ELichKingFSMStates::Chase);
+				if (!owner->GetIsDead())
+				{
+					owner->GetStatComponent()->SetStaminaPercent(100.0f);
+					owner->GetStatComponent()->SetCanRecoveryHP(true);
+					owner->GetStatComponent()->SetCanRecoveryStamina(true);
+					owner->SetFSMState(ELichKingFSMStates::Chase);
+				}
+
 				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 			});
 		}
