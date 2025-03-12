@@ -20,7 +20,10 @@ void UDodge_OnGround::Initialize()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Dodge_OnGround"),
 	[this]()
 	{
-		m_Owner->SetIsSuperArmor(false);
+		if (m_OwnerAnimInstance->IsCurrentMontage("Dodge_OnGround"))
+		{
+			m_Owner->SetIsSuperArmor(false);
+		}
 	});
 }
 

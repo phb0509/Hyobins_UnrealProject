@@ -36,6 +36,8 @@ public:
 	void PlayMontage(const FName& montageName, float inPlayRate = 1.0f);
 	void JumpToMontageSectionByIndex(const FName& montageName, int32 newSection);
 	void JumpToMontageSectionByName(const FName& montageName, FName newSection);
+	bool IsCurrentMontage(const FName& montageName);
+	
 	float GetMontagePlayTime(const FName& montageName);
 	UAnimMontage* GetMontage(const FName& montageName);
 	
@@ -165,7 +167,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	TMap<FName, UAnimMontage*> m_Montages;
+	TMap<FName, TWeakObjectPtr<UAnimMontage>> m_Montages;
 	
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
 };
