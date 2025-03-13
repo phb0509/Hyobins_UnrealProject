@@ -48,8 +48,6 @@ void UUpperAttack_OnGround::Execute()
 
 		if (m_OwnerSkillComponent->GetIsStrikeAttackActive())
 		{
-			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_GroundToAir);
-			m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
 			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
 
 			const FVector targetLocation = m_Owner->GetActorLocation() +
@@ -58,15 +56,20 @@ void UUpperAttack_OnGround::Execute()
 			
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 				TEXT("Forward"), targetLocation);
+			
+			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_GroundToAir);
+			
+			m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
 		}
 		else
 		{
-			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_OnGround);
-			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
-
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 				TEXT("Forward"),
 				m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
+			
+			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_OnGround);
+			
+			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
 		}
 	}
 }

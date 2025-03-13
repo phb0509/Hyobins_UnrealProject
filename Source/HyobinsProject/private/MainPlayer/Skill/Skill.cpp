@@ -7,9 +7,12 @@
 #include "Component/MainPlayerSkillComponent.h"
 
 USkill::USkill() :
-	m_ThumbnailFillTexture(nullptr),
 	m_CoolDownTime(3.0f),
-	m_bIsCoolDownActive(true)
+	m_bIsCoolDownActive(true),
+	m_StaminaCost(10.0f),
+	m_bIsSuperArmor(false),
+	m_ThumbnailFillTexture(nullptr),
+	m_ThumbnailBackgroundTexture(nullptr)
 {
 }
 
@@ -19,7 +22,8 @@ void USkill::Execute()
 	{
 		return;
 	}
-	
+
+	m_Owner->SetIsSuperArmor(m_bIsSuperArmor);
 	FTimerHandle timer;
 	m_Owner->GetWorldTimerManager().SetTimer(timer,
 					[this]()

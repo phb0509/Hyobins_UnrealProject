@@ -40,8 +40,9 @@ void UComboDashAttack_OnGround::Execute()
 	if (curSkillState == EMainPlayerSkillStates::Charging_OnGround && m_OwnerSkillComponent->GetCanChargingSkill())
 	{
 		OnExecute.Broadcast();
+
+		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
 		
 		m_OwnerAnimInstance->PlayMontage(TEXT("Charging_ComboDashAttack_OnGround"));
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
 	}
 }

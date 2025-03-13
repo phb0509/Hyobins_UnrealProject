@@ -42,19 +42,20 @@ void UEarthStrike_InAir::Execute()
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetState();
 	
 	OnExecute.Broadcast();
-	
-	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
-	m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_FallingToGround"));
+
 	m_Owner->GetCharacterMovement()->GravityScale = 6.0f;
-		
 	m_Owner->GetWorldTimerManager().SetTimer
 	(
-	  m_Timer,
-	this,
+		m_Timer,
+		this,
 		&UEarthStrike_InAir::ExecEvent_WhenOnGround,
 		m_Owner->GetWorld()->DeltaTimeSeconds,
 		true, -1
 	);
+	
+	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
+	
+	m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_FallingToGround"));
 }
 
 void UEarthStrike_InAir::ExecEvent_WhenOnGround()

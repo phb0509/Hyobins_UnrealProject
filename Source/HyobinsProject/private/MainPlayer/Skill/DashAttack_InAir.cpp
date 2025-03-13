@@ -42,13 +42,13 @@ void UDashAttack_InAir::Execute()
 		OnExecute.Broadcast();
 		
 		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
-		
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
 		m_Owner->RotateActorToKeyInputDirection();
-		m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
-	
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"),
 			m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
+		
+		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
+		
+		m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
 	}
 }

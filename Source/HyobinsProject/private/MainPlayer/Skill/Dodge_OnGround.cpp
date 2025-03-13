@@ -42,11 +42,11 @@ void UDodge_OnGround::Execute()
 	
 	if (m_OwnerSkillComponent->GetCanDodge()) // 어떠한 공격이든 수행중이면
 	{
-		OnExecute.Broadcast(); // 지금은 UI업데이트용.
+		OnExecute.Broadcast(); // UI업데이트용.
 
 		m_Owner->SetCrowdControlState(ECrowdControlStates::None);
 		m_Owner->ClearCrowdControlTimerHandle();
-		m_Owner->SetIsSuperArmor(true);
+		
 		m_OwnerAnimInstance->StopAllMontages(0.0f);
 		m_OwnerSkillComponent->SetCanDodge(false);
 		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_OnGround);

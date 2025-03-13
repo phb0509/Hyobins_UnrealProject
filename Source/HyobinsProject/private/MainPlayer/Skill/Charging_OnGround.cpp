@@ -34,29 +34,23 @@ void UCharging_OnGround::Execute()
 	m_bIsCoolDownActive = false;
 	
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetState();
+
+	OnExecute.Broadcast(); // UI
 	
 	if (curSkillState == EMainPlayerSkillStates::Charging_OnGround)
 	{
-		OnExecute.Broadcast();
+		m_Owner->GetWorldTimerManager().ClearTimer(m_ChargingTimer);
+		m_Owner->RemoveInputContextMappingOnCharging();
 		
 		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
-		m_Owner->SetIsSuperArmor(false);
-		
-		m_Owner->GetWorldTimerManager().ClearTimer(m_ChargingTimer);
-		m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
 		m_OwnerSkillComponent->SetCanChargingSkill(false);
-		m_Owner->RemoveInputContextMappingOnCharging();
+		
+		m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
 		
 		const bool result = OnStopCharging.ExecuteIfBound(m_Owner.Get()); // UI
 	}
 	else
 	{
-		OnExecute.Broadcast();
-		
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
-		m_Owner->SetIsSuperArmor(true);
-		m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
-		
 		m_Owner->GetWorldTimerManager().SetTimer(m_ChargingTimer,
 					[this]()
 					{
@@ -66,6 +60,10 @@ void UCharging_OnGround::Execute()
 				m_ChargingDuration,
 				false);
 
+		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
+		
+		m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
+		
 		OnCharging.ExecuteIfBound(m_Owner.Get(), m_ChargingDuration); // UI
 	}
 }

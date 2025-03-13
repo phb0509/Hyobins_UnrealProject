@@ -39,14 +39,13 @@ void UDashAttack_OnGround::Execute()
 
 	OnExecute.Broadcast();
 
-	m_Owner->SetIsSuperArmor(true);
-	m_OwnerSkillComponent->SetCanDodge(false);
-	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	m_Owner->RotateActorToKeyInputDirection();
-	m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
-
 	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 		TEXT("Forward"),
 		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
 	
+	m_OwnerSkillComponent->SetCanDodge(false);
+	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
+	
+	m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
 }
