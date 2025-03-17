@@ -7,8 +7,9 @@
 void UHPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
-	UpdateHPBar(); 
+	UpdateHPBar(1.0f); 
 }
 
 void UHPBar::BindStatComponent(UStatComponent* statComponent)
@@ -17,13 +18,12 @@ void UHPBar::BindStatComponent(UStatComponent* statComponent)
 	m_StatComponent->OnChangedHP.AddUObject(this, &UHPBar::UpdateHPBar);
 }
 
-void UHPBar::UpdateHPBar()
+void UHPBar::UpdateHPBar(float changeAmount) // 직전에받은 피해량.
 {
+	// 그 타격체력바 구현
+
 	if (m_StatComponent.IsValid())
 	{
-		if (m_HPProgressBar != nullptr)
-		{
-			m_HPProgressBar->SetPercent(m_StatComponent->GetHPRatio());
-		}
+		m_HPProgressBar->SetPercent(m_StatComponent->GetHPRatio());
 	}
 }

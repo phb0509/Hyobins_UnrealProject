@@ -11,7 +11,7 @@ class ACharacterBase;
 DECLARE_DELEGATE_TwoParams(FOnChargingDelegate, ACharacterBase*, float);
 DECLARE_DELEGATE_OneParam(FOnStopChargingDelegate, ACharacterBase*);
 
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(BlueprintType)
 class HYOBINSPROJECT_API UCharging_OnGround : public USkill
 {
 	GENERATED_BODY()

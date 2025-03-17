@@ -19,7 +19,7 @@ public:
 	virtual void NativeConstruct() override;
 	
 	void BindStatComponent(UStatComponent* statComponent);
-	void UpdateHPBar();
+	void UpdateHPBar(float changeAmount);
 	
 private:
 	TWeakObjectPtr<UStatComponent> m_StatComponent;

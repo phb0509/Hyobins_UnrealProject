@@ -36,7 +36,7 @@ void UUpperAttack_OnGround::Execute()
 	
 	m_bIsCoolDownActive = false;
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetState();
+	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
 	if (curSkillState == EMainPlayerSkillStates::Idle ||
 		curSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||

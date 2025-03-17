@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(BlueprintType)
 class HYOBINSPROJECT_API UNormalAttack_InAir : public USkill
 {
 	GENERATED_BODY()

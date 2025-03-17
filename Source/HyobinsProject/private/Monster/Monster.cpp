@@ -126,11 +126,15 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
 
-	this->OnTakeDamage.Clear(); // 바인딩했던 함수들 해제.
+	//this->OnTakeDamage.Clear(); // 바인딩했던 함수들 해제.
 }
 
 void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 {
+	UE_LOG(LogTemp, Warning, TEXT("AMonster :: PlayOnHitEffect"));
+
+	Super::PlayOnHitEffect(hitInfo);
+	
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 바로 붉게 했다가,
 
 	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);

@@ -16,7 +16,7 @@ class UTexture2D;
 DECLARE_MULTICAST_DELEGATE(FOnExecute);
 
 
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class HYOBINSPROJECT_API USkill : public UObject
 {
 	GENERATED_BODY()
@@ -26,11 +26,12 @@ public:
 
 	virtual void Initialize() {};
 	virtual void Execute();
-	
-	
+
+	FORCEINLINE FName& GetSkillName() { return m_SkillName; }
 	FORCEINLINE UTexture2D* GetThumbnailFillTexture() const { return m_ThumbnailFillTexture; }
 	FORCEINLINE UTexture2D* GetThumbnailBackgroundTexture() const { return m_ThumbnailBackgroundTexture; }
 	FORCEINLINE float GetCoolDownTime() const { return m_CoolDownTime; }
+	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
 	
 	FORCEINLINE void SetOwnerInfo(AMainPlayer* owner);
 	FORCEINLINE void SetCoolDownTime(float coolDownTime) { m_CoolDownTime = coolDownTime; }
@@ -43,14 +44,27 @@ protected:
 	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
 	TWeakObjectPtr<UMainPlayerSkillComponent> m_OwnerSkillComponent;
 
-	UPROPERTY(EditAnywhere, Category = "Thumbnail")
-	TObjectPtr<UTexture2D> m_ThumbnailFillTexture;
+	UPROPERTY(EditDefaultsOnly, Category = "SkillName")
+	FName m_SkillName;
 
-	UPROPERTY(EditAnywhere, Category = "Thumbnail")
-	TObjectPtr<UTexture2D> m_ThumbnailBackgroundTexture;
-	
-	UPROPERTY(EditAnywhere, Category = "CoolDownTime")
+	UPROPERTY(EditDefaultsOnly, Category = "Status")
 	float m_CoolDownTime;
 
 	bool m_bIsCoolDownActive;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Status")
+	float m_StaminaCost;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Status")
+	bool m_bIsSuperArmor;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Thumbnail")
+	TObjectPtr<UTexture2D> m_ThumbnailFillTexture;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Thumbnail")
+	TObjectPtr<UTexture2D> m_ThumbnailBackgroundTexture;
+	
+	
+
+
 };

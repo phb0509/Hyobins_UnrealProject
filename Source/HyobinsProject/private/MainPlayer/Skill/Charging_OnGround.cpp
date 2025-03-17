@@ -33,7 +33,7 @@ void UCharging_OnGround::Execute()
 	
 	m_bIsCoolDownActive = false;
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetState();
+	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 
 	OnExecute.Broadcast(); // UI
 	

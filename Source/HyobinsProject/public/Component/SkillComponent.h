@@ -39,9 +39,12 @@ public:
 	USkillComponent();
 
 	virtual void BeginPlay() override;
+
+	void ExecEvent_AllSkillEnded();
 	
 	const TMap<FName, FSkillList>* GetSkillList() const { return &m_SkillList; }
 	virtual FName GetHighestPriorityInputMappingContext() PURE_VIRTUAL(USkillComponent::Interact, return "Empty"; );
+	TWeakObjectPtr<USkill> GetCurSkill() const { return m_CurSkill; }
 
 protected:
 	void ExecuteSkill(const FName& inputMappingContextName, const FName& skillName);
@@ -60,5 +63,7 @@ protected:
 	TMap<FName, FSkillClassList> m_SkillClassList; // Key : InputMappingContextName
 	
 	UPROPERTY(VisibleAnywhere, Transient, Category = "SkillList")
-	TMap<FName, FSkillList> m_SkillList; 
+	TMap<FName, FSkillList> m_SkillList;
+
+	TWeakObjectPtr<USkill> m_CurSkill;
 };

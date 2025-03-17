@@ -43,5 +43,5 @@ void AHyobinsProjectGameModeBase::spawnBossMonster()
 	actorPool->CreateActorPool(m_LichKingClass,1);
 	
 	const FVector position = {0.0f, 0.0f, 0.0f};
-	actorPool->SpawnActor(m_LichKingClass, position);
+	actorPool->SpawnActor<AActor>(m_LichKingClass, position);
 }

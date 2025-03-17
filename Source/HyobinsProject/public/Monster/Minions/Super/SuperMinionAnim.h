@@ -13,14 +13,5 @@ class HYOBINSPROJECT_API USuperMinionAnim : public UAnimInstanceBase
 	
 public:
 	USuperMinionAnim();
-
 	
-private:
-	UFUNCTION()
-	void AnimNotify_Test() const;
-
-private:
-	static const FName HitMontages[4]; 
-	static const FName DeathMontages[4];
-
 };

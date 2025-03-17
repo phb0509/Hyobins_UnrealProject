@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(BlueprintType)
 class HYOBINSPROJECT_API UUpperAttack_OnGround : public USkill
 {
 	GENERATED_BODY()

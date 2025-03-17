@@ -17,6 +17,5 @@ class HYOBINSPROJECT_API UBTT_LichKing_SoulSiphon : public UMontageTaskNodeBase
 public:
 	UBTT_LichKing_SoulSiphon();
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-
+	void InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTMemoryInit::Type InitType) const;
 };

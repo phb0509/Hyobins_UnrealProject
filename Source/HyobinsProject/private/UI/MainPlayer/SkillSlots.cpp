@@ -40,23 +40,25 @@ void USkillSlots::CreateSkillListFromSkillComponent(USkillComponent* skillCompon
 		{
 			FName skillName = skill.Key;
 			USkill* skillType = skill.Value;
-			
-			USkillSlot* skillSlot = Cast<USkillSlot>(CreateWidget(GetWorld(), skillSlotClass));
 
-			const FMargin paddingValue = {m_LeftPadding, m_TopPadding, m_RightPadding, m_BottomPadding};
-			skillSlot->SetSkill(skillType, paddingValue);
-			skillSlots.skillSlots.Add(skillSlot);
-
-			if (bIsFirst)
+			if (skillType != nullptr)
 			{
-				m_HorizontalBox->AddChildToHorizontalBox(skillSlot);
+				USkillSlot* skillSlot = Cast<USkillSlot>(CreateWidget(GetWorld(), skillSlotClass));
+
+				const FMargin paddingValue = {m_LeftPadding, m_TopPadding, m_RightPadding, m_BottomPadding};
+				skillSlot->SetSkill(skillType, paddingValue);
+				skillSlots.skillSlots.Add(skillSlot);
+
+				if (bIsFirst)
+				{
+					m_HorizontalBox->AddChildToHorizontalBox(skillSlot);
+				}
 			}
 		}
 		
 		bIsFirst = false;
 		m_SkillSlots.Add(inputModeName,skillSlots);
 	}
-	
 }
 
 void USkillSlots::ChangeSkillSlots()

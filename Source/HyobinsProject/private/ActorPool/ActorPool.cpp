@@ -2,7 +2,7 @@
 
 
 #include "ActorPool/ActorPool.h"
-#include "ActorPool/PoolableActor.h"
+#include "Interfaces//PoolableActor.h"
 
 
 AActorPool::AActorPool() :
@@ -54,7 +54,7 @@ void AActorPool::CreateActorPool(const TSubclassOf<AActor> classType, int reques
 	}
 }
 
-TWeakObjectPtr<AActor> AActorPool::SpawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation)
+AActor* AActorPool::spawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation)
 {
 	if(!classType->ImplementsInterface(UPoolableActor::StaticClass()))
 	{
@@ -66,11 +66,11 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(const TSubclassOf<AActor> classTyp
 		CreateActorPool(classType, m_DefaultSpawnCount);
 	}
 
-	TWeakObjectPtr<AActor> actor = nullptr;
+	AActor* actor = nullptr;
 
-	for (TWeakObjectPtr<AActor> poolableActor : m_ActorPool[classType].actors)
+	for (AActor* poolableActor : m_ActorPool[classType].actors)
 	{
-		if (poolableActor.IsValid())
+		if (poolableActor != nullptr)
 		{
 			IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		
@@ -90,7 +90,7 @@ TWeakObjectPtr<AActor> AActorPool::SpawnActor(const TSubclassOf<AActor> classTyp
 	if (actor == nullptr) // 액터풀이 꽉찼다면 (꺼낼 액터가 없다면)
 	{
 		CreateActorPool(classType, m_ActorPool[classType].actors.Num() * 2.0f); // 추가생성.
-		actor = SpawnActor(classType);
+		actor = spawnActor(classType);
 	}
 
 	return actor;
@@ -106,7 +106,7 @@ void AActorPool::ClearActorPool()
 
 		for (const auto& actor : blueprintActorPoolActors.actors)
 		{
-			if (actor.IsValid())
+			if (actor != nullptr)
 			{
 				actor->Destroy();
 			}

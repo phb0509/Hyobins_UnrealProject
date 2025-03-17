@@ -41,7 +41,7 @@ public:
 	void ExtendStrikeActivateDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
 	
 	
-	FORCEINLINE EMainPlayerSkillStates GetState() const { return m_CurSkillState; }
+	FORCEINLINE EMainPlayerSkillStates GetSkillState() const { return m_CurSkillState; }
 	FORCEINLINE bool GetIsStrikeAttackActive() const { return m_bIsStrikeAttackActive; }
 	FORCEINLINE bool GetHasStartedComboKeyInputCheck() const { return m_bHasStartedComboKeyInputCheck; }
 	FORCEINLINE bool GetCanDodge() const { return m_bCanDodge; }

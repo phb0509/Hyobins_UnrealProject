@@ -9,7 +9,7 @@
 class UParticleSystem;
 class USoundWave;
 
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(BlueprintType)
 class HYOBINSPROJECT_API UEarthStrike_InAir : public USkill
 {
 	GENERATED_BODY()

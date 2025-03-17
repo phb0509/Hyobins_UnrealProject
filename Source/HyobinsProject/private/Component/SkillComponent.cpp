@@ -17,11 +17,16 @@ void USkillComponent::BeginPlay()
 	loadSkills();
 }
 
+void USkillComponent::ExecEvent_AllSkillEnded()
+{
+}
+
 void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const FName& skillName)
 {
 	if (HasSkill(inputMappingContextName, skillName))
 	{
-		m_SkillList[inputMappingContextName].skillList[skillName]->Execute();
+		m_CurSkill = m_SkillList[inputMappingContextName].skillList[skillName];
+		m_CurSkill->Execute();
 	}
 }
 

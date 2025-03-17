@@ -21,6 +21,11 @@ Utility::~Utility()
 
 int32 Utility::GetHitDirection(const AActor* hitActor, const AActor* attackActor) // 공격당한 액터, 공격한 액터
 {
+	if (hitActor == nullptr || attackActor == nullptr)
+	{
+		return -1;
+	}
+	
 	const FVector forward = hitActor->GetActorForwardVector();
 	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation(); // hitActor -> attackActor 벡터.
 	toActor.Normalize();

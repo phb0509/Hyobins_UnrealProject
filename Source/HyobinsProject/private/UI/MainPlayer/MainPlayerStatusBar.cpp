@@ -12,23 +12,29 @@ void UMainPlayerStatusBar::NativeConstruct()
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
 	m_StaminaProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_StaminaProgressBar")));
 	
-	UpdateHPBarWidget();
-	UpdateStaminaBarWidget();
+	UpdateHPBar(0.0f);
+	UpdateStaminaBar(0.0f);
 }
 
 void UMainPlayerStatusBar::BindStatComponent(UStatComponent* statComponent)
 {
 	m_StatComponent = statComponent;
-	m_StatComponent->OnChangedHP.AddUObject(this, &UMainPlayerStatusBar::UpdateHPBarWidget);
-	m_StatComponent->OnChangedStamina.AddUObject(this, &UMainPlayerStatusBar::UpdateStaminaBarWidget);
+	m_StatComponent->OnChangedHP.AddUObject(this, &UMainPlayerStatusBar::UpdateHPBar);
+	m_StatComponent->OnChangedStamina.AddUObject(this, &UMainPlayerStatusBar::UpdateStaminaBar);
 }
 
-void UMainPlayerStatusBar::UpdateHPBarWidget()
+void UMainPlayerStatusBar::UpdateHPBar(const float changeAmount)
 {
-	m_HPProgressBar->SetPercent(m_StatComponent->GetHPRatio());
+	if (m_StatComponent.IsValid())
+	{
+		m_HPProgressBar->SetPercent(m_StatComponent->GetHPRatio());
+	}
 }
 
-void UMainPlayerStatusBar::UpdateStaminaBarWidget()
+void UMainPlayerStatusBar::UpdateStaminaBar(const float changeAmount)
 {
-	m_StaminaProgressBar->SetPercent(m_StatComponent->GetStaminaRatio());
+	if (m_StatComponent.IsValid())
+	{
+		m_StaminaProgressBar->SetPercent(m_StatComponent->GetStaminaRatio());
+	}
 }

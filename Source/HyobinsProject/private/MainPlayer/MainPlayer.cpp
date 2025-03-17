@@ -31,9 +31,8 @@ AMainPlayer::AMainPlayer() :
 	m_bIsPressedShift(false),
 	m_CurInputHorizontal(0),
 	m_CurInputVertical(0),
-	m_CameraShake(nullptr),
-	m_GameSpeedRatio(0.01f),
-	m_GameSpeedDelay(0.003f)
+	m_OnHitCameraShake(nullptr),
+	m_AttackCameraShake(nullptr)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -65,13 +64,6 @@ void AMainPlayer::BeginPlay()
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent, this);
 	OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
-}
-
-void AMainPlayer::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	m_SkillComponent->InitializeComponent();
 }
 
 void AMainPlayer::Tick(float DeltaTime) 
@@ -257,15 +249,18 @@ void AMainPlayer::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
 			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
 		},
 		m_GameSpeedDelay,
-		false);
+		false
+	);
+
+	playAttackEffect();
 	
 }
 
 void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
 {
-	if (m_CameraShake != nullptr)
+	if (m_OnHitCameraShake != nullptr)
     {
-    	this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_CameraShake);
+    	this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_OnHitCameraShake);
     }
 }
 
@@ -496,29 +491,37 @@ void AMainPlayer::printLog() const
 	const FVector velocity = GetVelocity();
 	const FVector forwardVector = GetActorForwardVector();
 	
-	GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
-	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
-	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
-	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
-	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
-	
-	const FString movementMode = GetCharacterMovement()->GetMovementName();
-	FString log = "MainPlyaerMovement Mode :: ";
-	log += movementMode;
-	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	// GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
+	// GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
+	// GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
+	// GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
+	// GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
+	// GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
+	//
+	// const FString movementMode = GetCharacterMovement()->GetMovementName();
+	// FString log = "MainPlyaerMovement Mode :: ";
+	// log += movementMode;
+	// GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	//
+	// FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+	// FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
+	// GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	//
+	// const FName priorityName = GetHighestPriorityInputMappingContext();
+	// FString log3 = Tags[0].ToString() + " :: HighestPriorityInputMappingContext :: " + priorityName.ToString();
+	// GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	//
+	// const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
+	// FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
+	// GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
+	//
+	// GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+}
 
-	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
-	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
-	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
-
-	const FName priorityName = GetHighestPriorityInputMappingContext();
-	FString log3 = Tags[0].ToString() + " :: HighestPriorityInputMappingContext :: " + priorityName.ToString();
-	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-
-	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
-	FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
-	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
-	
-	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+void AMainPlayer::playAttackEffect()
+{
+	if (m_AttackCameraShake != nullptr)
+	{
+		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
+	}
 }

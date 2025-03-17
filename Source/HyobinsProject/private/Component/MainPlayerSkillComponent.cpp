@@ -7,16 +7,7 @@
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
 #include "SubSystems/UIManager.h"
-
-#include "MainPlayer/Skill/NormalAttack_OnGround.h"
-#include "MainPlayer/Skill/NormalAttack_InAir.h"
-#include "MainPlayer/Skill/UpperAttack_OnGround.h"
-#include "MainPlayer/Skill/DashAttack_InAir.h"
-#include "MainPlayer/Skill/DashAttack_OnGround.h"
-#include "MainPlayer/Skill/Dodge_OnGround.h"
-#include "MainPlayer/Skill/Charging_OnGround.h"
-#include "MainPlayer/Skill/ComboDashAttack_OnGround.h"
-#include "MainPlayer/Skill/EarthStrike_InAir.h"
+#include "MainPlayer/Skill/Skill.h"
 
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
@@ -29,7 +20,6 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_StrikeAttackDecisionTime(0.5f)
 {
 	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
-
 }
 
 
@@ -178,12 +168,12 @@ void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
-	
-	//GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
-	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
-	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
-	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	// const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
+	//
+	// //GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
+	// GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
+	// GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
+	// GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
 
 FName UMainPlayerSkillComponent::GetHighestPriorityInputMappingContext()

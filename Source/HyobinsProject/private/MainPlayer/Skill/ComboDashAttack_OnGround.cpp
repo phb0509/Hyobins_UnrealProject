@@ -35,7 +35,7 @@ void UComboDashAttack_OnGround::Execute()
 	
 	m_bIsCoolDownActive = false;
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetState();
+	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
 	if (curSkillState == EMainPlayerSkillStates::Charging_OnGround && m_OwnerSkillComponent->GetCanChargingSkill())
 	{

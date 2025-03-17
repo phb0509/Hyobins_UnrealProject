@@ -24,6 +24,7 @@ void USkill::Execute()
 	}
 
 	m_Owner->SetIsSuperArmor(m_bIsSuperArmor);
+	
 	FTimerHandle timer;
 	m_Owner->GetWorldTimerManager().SetTimer(timer,
 					[this]()

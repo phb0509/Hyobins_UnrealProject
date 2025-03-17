@@ -16,7 +16,7 @@ struct FActors
 
 public:
 	UPROPERTY(VisibleInstanceOnly)
-	TArray<TWeakObjectPtr<AActor>> actors;
+	TArray<AActor*> actors;
 };
 
 UCLASS()
@@ -28,9 +28,18 @@ public:
 	AActorPool();
 	
 	void CreateActorPool(TSubclassOf<AActor> classType, int requestedCapacity);
-	TWeakObjectPtr<AActor> SpawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation = { 0.0f, 0.0f, 0.0f });
+
+	template<typename T>
+	T* SpawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation)
+	{
+		return Cast<T>(spawnActor(classType, spawnLocation));
+	}
+	
 	void ClearActorPool();
 
+
+private:
+	AActor* spawnActor(const TSubclassOf<AActor> classType, const FVector& spawnLocation = { 0.0f, 0.0f, 0.0f });
 
 private:
 	UPROPERTY(VisibleInstanceOnly)

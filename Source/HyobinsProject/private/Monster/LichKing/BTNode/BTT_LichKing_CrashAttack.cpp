@@ -16,20 +16,35 @@ EBTNodeResult::Type UBTT_LichKing_CrashAttack::ExecuteTask(UBehaviorTreeComponen
 	
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
-	FInstanceNode* instanceNode = reinterpret_cast<FInstanceNode*>(NodeMemory);
-
-	if (!instanceNode->bHasInit)
-	{
-		instanceNode->bHasInit = true;
-		
-		animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("CrashAttack"),
-	[&]()
-		{
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-		});
-	}
+	
 
 	animInstance->PlayMontage(TEXT("CrashAttack"));
 	
 	return EBTNodeResult::InProgress;
+}
+
+void UBTT_LichKing_CrashAttack::InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
+	EBTMemoryInit::Type InitType) const
+{
+	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	
+	if (owner != nullptr)
+	{
+		FInstanceNode* instanceNode = reinterpret_cast<FInstanceNode*>(NodeMemory);
+
+		if (!instanceNode->bHasInit)
+		{
+			instanceNode->bHasInit = true;
+			
+			UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
+			
+			animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("CrashAttack"),
+		[&]()
+			{
+				FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			});
+		}
+	}
+	
+	Super::InitializeMemory(OwnerComp, NodeMemory, InitType);
 }

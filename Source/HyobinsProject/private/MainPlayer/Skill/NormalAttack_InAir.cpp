@@ -50,7 +50,7 @@ void UNormalAttack_InAir::Execute()
 	
 	m_bIsCoolDownActive = false;
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetState();
+	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
 	if (curSkillState == EMainPlayerSkillStates::NormalAttack_InAir)
 	{

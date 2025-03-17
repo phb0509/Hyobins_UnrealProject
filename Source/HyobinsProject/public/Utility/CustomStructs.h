@@ -73,7 +73,7 @@ public:
 USTRUCT(Atomic) 
 struct FHitInformation
 {
-	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
+	GENERATED_USTRUCT_BODY() 
 
 public:
 	FName attackName;

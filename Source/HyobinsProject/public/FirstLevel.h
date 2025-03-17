@@ -24,9 +24,10 @@ public:
 	void CreateMinions() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
-	void Spawn();
+	void SpawnBoss();
 
-
+	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
+	void SpawnMinion();
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;
@@ -40,5 +41,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
 	TSubclassOf<AActor> m_LichKingClass;
 
-	
+	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
+	float m_SpawnCount;
 };

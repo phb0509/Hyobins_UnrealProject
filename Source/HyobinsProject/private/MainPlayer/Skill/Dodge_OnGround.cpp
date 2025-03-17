@@ -20,7 +20,7 @@ void UDodge_OnGround::Initialize()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Dodge_OnGround"),
 	[this]()
 	{
-		if (m_OwnerAnimInstance->IsCurrentMontage("Dodge_OnGround"))
+		if (m_Owner->GetSkillComponent()->GetSkillState() == EMainPlayerSkillStates::Idle)
 		{
 			m_Owner->SetIsSuperArmor(false);
 		}
@@ -38,7 +38,7 @@ void UDodge_OnGround::Execute()
 	
 	m_bIsCoolDownActive = false;
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetState();
+	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
 	if (m_OwnerSkillComponent->GetCanDodge()) // 어떠한 공격이든 수행중이면
 	{

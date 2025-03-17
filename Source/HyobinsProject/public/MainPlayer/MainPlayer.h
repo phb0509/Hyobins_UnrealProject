@@ -30,7 +30,6 @@ public:
 	AMainPlayer();
 	
 	virtual void BeginPlay() override;
-	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -85,6 +84,7 @@ public:
 private:
 	void initAssets();
 	void printLog() const;
+	void playAttackEffect();
 	
 public:
 	static const FName SwordColliderName;
@@ -158,11 +158,9 @@ private:
 	TMap<FName, int32> m_CurActiveMappingContexts;
 
 	UPROPERTY(EditAnywhere, Category = "CameraShake")
-	TSubclassOf<UCameraShakeBase> m_CameraShake;
+	TSubclassOf<UCameraShakeBase> m_OnHitCameraShake;
 
-	UPROPERTY(EditAnywhere)
-	float m_GameSpeedRatio;
-
-	UPROPERTY(EditAnywhere)
-	float m_GameSpeedDelay;
+	UPROPERTY(EditAnywhere, Category = "CameraShake")
+	TSubclassOf<UCameraShakeBase> m_AttackCameraShake;
+	
 };
