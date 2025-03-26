@@ -5,34 +5,18 @@
 #include "MainPlayer/MainPlayerController.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "Utility/Utility.h"
-#include <GameFramework/SpringArmComponent.h.>
-#include <Camera/CameraComponent.h>
 #include "SubSystems/DataManager.h"
-#include "MotionWarpingComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
-#include "SubSystems/UIManager.h"
 
-
-const int32 AMainPlayer::m_DirectionIndex[3][3] =
-	{{5,4,3},
-	{6,0,2},
-	{7,0,1}
-	};
 
 const FName AMainPlayer::SwordColliderName = "SwordCollider";
 const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider";
 const FName AMainPlayer::ShieldForDefendColliderName = "ShieldForDefendCollider";
 
 AMainPlayer::AMainPlayer() :
-	m_MoveDeltaSecondsOffset(20000.0f),
-	m_RotationDeltaSecondsOffset(50.0f),
-	m_bIsPressedShift(false),
-	m_CurInputHorizontal(0),
-	m_CurInputVertical(0),
-	m_OnHitCameraShake(nullptr),
-	m_AttackCameraShake(nullptr)
+	m_bIsPressedShift(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -60,10 +44,6 @@ void AMainPlayer::BeginPlay()
 	UMainPlayerAnim* animInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
 	animInstance->OnEnteredState_Falling.AddDynamic(this, &AMainPlayer::AddInputContextMappingInAir);
 	animInstance->OnEnteredState_MoveOnGround.AddDynamic(this, &AMainPlayer::RemoveInputContextMappingInAir);
-
-	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent, this);
-	OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
 }
 
 void AMainPlayer::Tick(float DeltaTime) 
@@ -141,22 +121,6 @@ void AMainPlayer::RemoveInputContextMappingOnCharging()
 	}
 }
 
-void AMainPlayer::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
-{
-	FRotator actorRotation = GetActorRotation();
-	const double degree = Utility::ConvertToDegree(m_CurInputVertical, m_CurInputHorizontal);
-	actorRotation.Yaw = GetControlRotation().Yaw + degree;
-	
-	SetActorRotation(actorRotation);
-}
-
-void AMainPlayer::RotateActorToControllerYaw() // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
-{
-	FRotator actorRotation = GetActorRotation();
-	actorRotation.Yaw =  GetControlRotation().Yaw;
-	
-	SetActorRotation(actorRotation);
-}
 
 void AMainPlayer::Move(const FInputActionValue& value)
 {
@@ -236,24 +200,8 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 void AMainPlayer::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
 {
 	Super::Attack(attackName, target);
-
-	UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
-	m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
 	
-	FTimerHandle timer;
-	GetWorldTimerManager().SetTimer
-	( 
-		timer,
-		[=]()
-		{
-			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
-		},
-		m_GameSpeedDelay,
-		false
-	);
-
 	playAttackEffect();
-	
 }
 
 void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
@@ -264,102 +212,10 @@ void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
     }
 }
 
-FName AMainPlayer::GetHighestPriorityInputMappingContext() const
-{
-	int32 highestPriority = -1;
-	FName highestPriorityInputMappingContext = "";
-	
-	for (auto& iter : m_CurActiveMappingContexts)
-	{
-		if (iter.Value > highestPriority)
-		{
-			highestPriority = iter.Value;
-			highestPriorityInputMappingContext = iter.Key;
-		}
-	}
-
-	return highestPriorityInputMappingContext;
-}
-
-FVector AMainPlayer::GetForwardVectorFromControllerYaw() const
-{
-	const FRotator rotator = {0.0f, GetControlRotation().Yaw, 0.0f};
-	
-	return rotator.Vector();
-}
-
-FVector AMainPlayer::GetRightVectorFromControllerYaw() const
-{
-	const FRotator controllerYawRotator(0.0f, GetControlRotation().Yaw, 0.0f); // 컨트롤러 Yaw를 기준으로한 임시값.
-	const FVector rightVector = FRotationMatrix(controllerYawRotator).GetUnitAxis(EAxis::Y);  // Right 방향
-	
-	return rightVector;
-}
-
-FVector AMainPlayer::GetControllerKeyInputDirectionVector(const int32 keyInputDirection) const
-{
-	// keyInputDirection == 0 ~ 7까지의 8방향. 전방 ~ 좌상.
-	const float controllerYaw = GetController()->GetControlRotation().Yaw + 45.0f * keyInputDirection;
-	const FRotator rotation = {0.0f, controllerYaw, 0.0f};
-	
-	return rotation.Vector();
-}
-
-int32 AMainPlayer::GetLocalDirection(const FVector& otherDirectionVector) const
-{
-	const FVector localDirection = GetActorTransform().InverseTransformVector(otherDirectionVector);
-	const float radian = FMath::Atan2(localDirection.Y, localDirection.X);
-
-	constexpr float range = PI / 8; // 22.5도
-
-	if (radian >= -range && radian < range) // 앞쪽
-	{
-		return 0;
-	}
-
-	if (radian >= range && radian < 3 * range) 
-	{
-		return 1;
-	}
-	
-	if (radian >= 3 * range && radian < 5 *	range) // 오른쪽
-	{
-		return 2;
-	}
-
-	if (radian >= 5 * range && radian < 7 * range) 
-	{
-		return 3;
-	}
-
-	// if ((radian < -7 * range && radian >= -8 * range) ||
-	// 	(radian >= 7 * range && radian <= 8 * range)) // 뒤쪽
-	// {
-	// 	return 4; 
-	// }
-	
-	if (radian < -5 * range && radian >= -7 * range) 
-	{
-		return 5;
-	}
-
-	if (radian < -3 * range && radian >= -5 * range) // 왼쪽
-	{
-		return 6;
-	}
-	
-	if (radian < -range && radian >= -3 * range) 
-	{
-		return 7;
-	}
-	
-	return 4;
-}
 
 void AMainPlayer::initAssets()
 {
 	m_SkillComponent = CreateDefaultSubobject<UMainPlayerSkillComponent>(TEXT("SkillComponent"));
-	m_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarping"));
 	
 	// RootCapsuleComponent
 	GetCapsuleComponent()->SetCapsuleHalfHeight(90.0f);
@@ -372,28 +228,8 @@ void AMainPlayer::initAssets()
 		GetMesh()->SetSkeletalMesh(mesh.Object);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0, 0, -90), FRotator(0, -90, 0));
 	}
-	checkf(IsValid(mesh.Object), TEXT("Mesh isn't Valid"));
 
-	// SpringArm
-	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	m_SpringArm->SetupAttachment(RootComponent);
-	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
-	m_SpringArm->TargetArmLength = 600;
-
-	// 스프링암의 회전 값을 컨트롤 회전 값과 동일하게 맞춰준다.
-	m_SpringArm->bUsePawnControlRotation = true;
-	m_SpringArm->bInheritPitch = true;
-	m_SpringArm->bInheritRoll = true;
-	m_SpringArm->bInheritYaw = true;
-
-	// true로 할 경우, 카메라와 캐릭터사이에 장애물이 있을 경우, 줌 기능을 활성화 해준다.
-	m_SpringArm->bDoCollisionTest = false;
-
-	// TargetCamera
-	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
-	m_TargetCamera->SetupAttachment(m_SpringArm);
-
-
+	
 	// rotation.y(pitch), rotation.z(yaw), rotation.x(roll)
 	// location.x, location.y, location. z
 	// scale.x,scale.y,scale.z
@@ -466,23 +302,6 @@ void AMainPlayer::initAssets()
 	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForDefendCollider);
 	m_Colliders.Add(TEXT("ShieldBottomCollider"),m_ShieldBottomCollider);
 	m_Colliders.Add(HitColliderName,m_ShieldBottomCollider);
-	
-	// 이외 CharacterMovement Detail값들
-
-	// true로 할 경우, 컨트롤러의 회전방향으로 캐릭터를 회전시켜줌.
-	bUseControllerRotationYaw = false;
-
-	// true로 할 경우, 캐릭터가 움직이려는 방향으로 캐릭터를 자동으로 회전시켜 준다.
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	
-	// 컨트롤러가 "원하는" 방향으로 캐릭터를 회전한다.
-	// 즉, 오른쪽+위를 누르면 "정확히" 45도 방향으로 캐릭터가 회전해서 이동하는 식이다.
-	// 실제로 캐릭터의 회전 방향이 "딱딱 떨어지는" 느낌을 준다.
-	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-
-	// 회전을 부드럽게 만들어 주기 위해 RotationRate 를 조정한다. 값이 낮을수록 카메라 회전시 캐릭터가 한박자 느리게 회전.
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
 
 void AMainPlayer::printLog() const
@@ -491,35 +310,51 @@ void AMainPlayer::printLog() const
 	const FVector velocity = GetVelocity();
 	const FVector forwardVector = GetActorForwardVector();
 	
-	// GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
-	// GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
-	// GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
-	// GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
-	// GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
-	// GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
-	//
-	// const FString movementMode = GetCharacterMovement()->GetMovementName();
-	// FString log = "MainPlyaerMovement Mode :: ";
-	// log += movementMode;
-	// GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-	//
-	// FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
-	// FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
-	// GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
-	//
-	// const FName priorityName = GetHighestPriorityInputMappingContext();
-	// FString log3 = Tags[0].ToString() + " :: HighestPriorityInputMappingContext :: " + priorityName.ToString();
-	// GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	//
-	// const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
-	// FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
-	// GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
-	//
-	// GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	GEngine->AddOnScreenDebugMessage(0, 3.f, FColor::Green, FString::Printf(TEXT("Location : %f  %f  %f"), location.X, location.Y, location.Z));
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Green, FString::Printf(TEXT("Velocity : %f  %f  %f"), velocity.X, velocity.Y, velocity.Z));
+	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Green, FString::Printf(TEXT("Forward : %f  %f  %f"), forwardVector.X, forwardVector.Y, forwardVector.Z));
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, FString::Printf(TEXT("Velocity Length(speed) : %f"), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(4, 3.f, FColor::Green, FString::Printf(TEXT("is inputVertical : %d"), m_CurInputVertical));
+	GEngine->AddOnScreenDebugMessage(5, 3.f, FColor::Green, FString::Printf(TEXT("is inputHorizontal : %d"), m_CurInputHorizontal));
+	
+	const FString movementMode = GetCharacterMovement()->GetMovementName();
+	FString log = "MainPlyaerMovement Mode :: ";
+	log += movementMode;
+	GEngine->AddOnScreenDebugMessage(6, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	
+	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
+	GEngine->AddOnScreenDebugMessage(7, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	
+	const FName priorityName = GetHighestPriorityInputMappingContext();
+	FString log3 = Tags[0].ToString() + " :: HighestPriorityInputMappingContext :: " + priorityName.ToString();
+	GEngine->AddOnScreenDebugMessage(8, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	
+	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
+	FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
+	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
+	
+	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
 
 void AMainPlayer::playAttackEffect()
 {
+	// 카메라흔들림 적용
+	UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
+	m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
+	
+	FTimerHandle timer;
+	GetWorldTimerManager().SetTimer
+	( 
+		timer,
+		[=]()
+		{
+			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
+		},
+		m_GameSpeedDelay,
+		false
+	);
+	
 	if (m_AttackCameraShake != nullptr)
 	{
 		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
