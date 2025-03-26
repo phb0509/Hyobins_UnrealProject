@@ -8,6 +8,8 @@
 #include "Components/TimelineComponent.h"
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
+
+#include "EnumTypes.h"
 #include "Interfaces/Damageable.h"
 #include "Interfaces/Attacker.h"
 #include "CharacterBase.generated.h"
@@ -69,7 +71,8 @@ public:
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
 	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) { return m_Colliders[colliderName].Get(); }
 
-	FORCEINLINE ECrowdControlStates GetCrowdControlState() const { return m_CurCrowdControlState; }
+	FORCEINLINE ECrowdControlStates GetCurCrowdControlState() const { return m_CurCrowdControlState; }
+	FORCEINLINE bool GetIsCrowdControlState() const { return m_CurCrowdControlState != ECrowdControlStates::None; }
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
 	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
