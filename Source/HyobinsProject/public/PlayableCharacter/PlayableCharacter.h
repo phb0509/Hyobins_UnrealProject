@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Utility/CharacterBase.h"
+#include "CharacterBase/CharacterBase.h"
 #include "PlayableCharacter.generated.h"
 
 struct FInputActionValue;

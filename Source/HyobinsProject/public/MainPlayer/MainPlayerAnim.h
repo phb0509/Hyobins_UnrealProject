@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Utility/AnimInstanceBase.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "MainPlayerAnim.generated.h"
 
 enum class EMainPlayerStates : uint8;

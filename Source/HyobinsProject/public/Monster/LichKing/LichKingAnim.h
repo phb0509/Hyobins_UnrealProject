@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Utility/AnimInstanceBase.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "LichKingAnim.generated.h"
 
 /**

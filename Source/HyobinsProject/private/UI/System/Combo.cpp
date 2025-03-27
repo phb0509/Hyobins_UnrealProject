@@ -4,7 +4,7 @@
 #include "UI/System/Combo.h"
 #include "Components/TextBlock.h"
 #include "TimerManager.h"
-#include "Utility/CharacterBase.h"
+#include "CharacterBase/CharacterBase.h"
 
 
 void UCombo::NativeConstruct()

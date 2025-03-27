@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Component/StatComponent.h"
-#include "Utility/CharacterBase.h"
+#include "CharacterBase/CharacterBase.h"
 
 UStatComponent::UStatComponent() :
 	m_DefaultDamage(100.0f),

@@ -2,7 +2,7 @@
 
 
 #include "Monster/BTT_RotateToTarget.h"
-#include "Utility/AIControllerBase.h"
+#include "CharacterBase/AIControllerBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
 UBTT_RotateToTarget::UBTT_RotateToTarget()
@@ -18,6 +18,7 @@ EBTNodeResult::Type UBTT_RotateToTarget::ExecuteTask(UBehaviorTreeComponent& Own
 	const AActor* const enemyOnBlackBoard = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(TEXT("Enemy")));
 	const FVector toTargetVector = enemyOnBlackBoard->GetActorLocation() - owner->GetActorLocation();
 	const FRotator LookAtRotation = FRotator(0.f, toTargetVector.Rotation().Yaw, 0.f);
+	
 	owner->SetActorRotation(LookAtRotation);
 
 	return EBTNodeResult::Succeeded;

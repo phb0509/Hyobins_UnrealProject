@@ -3,7 +3,7 @@
 
 #include "Monster/BTS_FindPatrolPos.h"
 #include "Monster/Monster.h"
-#include "Utility/AIControllerBase.h"
+#include "CharacterBase/AIControllerBase.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "NavigationSystem.h"
 

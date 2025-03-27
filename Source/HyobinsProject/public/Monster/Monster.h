@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Utility/CharacterBase.h"
+#include "CharacterBase/CharacterBase.h"
 #include "Interfaces/PoolableActor.h"
 #include "Templates/IsIntegral.h"
 #include "Templates/IsEnumClass.h"

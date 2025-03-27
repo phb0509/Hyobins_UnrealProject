@@ -8,8 +8,7 @@
 #include "Components/TimelineComponent.h"
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
-
-#include "EnumTypes.h"
+#include "Utility/EnumTypes.h"
 #include "Interfaces/Damageable.h"
 #include "Interfaces/Attacker.h"
 #include "CharacterBase.generated.h"

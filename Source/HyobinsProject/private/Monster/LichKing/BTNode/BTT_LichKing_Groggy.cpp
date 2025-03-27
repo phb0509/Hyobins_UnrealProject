@@ -5,7 +5,7 @@
 #include "AIController.h"
 #include "Monster/Monster.h"
 #include "Component/StatComponent.h"
-#include "Utility/AnimInstanceBase.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "Utility/EnumTypes.h"
 
 UBTT_LichKing_Groggy::UBTT_LichKing_Groggy() :
@@ -17,7 +17,7 @@ EBTNodeResult::Type UBTT_LichKing_Groggy::ExecuteTask(UBehaviorTreeComponent& Ow
 {
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 	
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
 	owner->SetIsSuperArmor(true);

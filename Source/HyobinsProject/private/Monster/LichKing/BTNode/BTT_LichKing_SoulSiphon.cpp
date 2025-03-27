@@ -3,8 +3,8 @@
 
 #include "Monster/LichKing/BTNode/BTT_LichKing_SoulSiphon.h"
 #include "AIController.h"
-#include "Monster/Monster.h"
-#include "Utility/AnimInstanceBase.h"
+#include "CharacterBase/CharacterBase.h"
+#include "CharacterBase/AnimInstanceBase.h"
 
 
 UBTT_LichKing_SoulSiphon::UBTT_LichKing_SoulSiphon()
@@ -15,7 +15,7 @@ EBTNodeResult::Type UBTT_LichKing_SoulSiphon::ExecuteTask(UBehaviorTreeComponent
 {
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 	
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
 	animInstance->PlayMontage(TEXT("SoulSiphon"));
@@ -26,7 +26,9 @@ EBTNodeResult::Type UBTT_LichKing_SoulSiphon::ExecuteTask(UBehaviorTreeComponent
 void UBTT_LichKing_SoulSiphon::InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	EBTMemoryInit::Type InitType) const
 {
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	Super::InitializeMemory(OwnerComp, NodeMemory, InitType);
+	
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	
 	if (owner != nullptr)
 	{
@@ -45,6 +47,4 @@ void UBTT_LichKing_SoulSiphon::InitializeMemory(UBehaviorTreeComponent& OwnerCom
 			});
 		}
 	}
-	
-	Super::InitializeMemory(OwnerComp, NodeMemory, InitType);
 }

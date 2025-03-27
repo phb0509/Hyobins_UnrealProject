@@ -2,9 +2,8 @@
 
 
 #include "Monster/ServiceNodes/BTS_SetMaxWalkSpeed.h"
-
 #include "AIController.h"
-#include "Utility/CharacterBase.h"
+#include "CharacterBase/CharacterBase.h"
 
 UBTS_SetMaxWalkSpeed::UBTS_SetMaxWalkSpeed() :
 	m_MaxWalkSpeed(600.0f)

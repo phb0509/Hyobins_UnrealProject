@@ -3,7 +3,7 @@
 
 #include "Monster/BTS_SetFSMState.h"
 #include "Monster/Monster.h"
-#include "Utility/AIControllerBase.h"
+#include "CharacterBase/AIControllerBase.h"
 
 
 UBTS_SetFSMState::UBTS_SetFSMState() :

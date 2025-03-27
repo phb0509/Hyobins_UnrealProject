@@ -3,8 +3,8 @@
 
 #include "Monster/LichKing/BTNode/BTT_LichKing_CrashAttack.h"
 #include "AIController.h"
-#include "Monster/Monster.h"
-#include "Utility/AnimInstanceBase.h"
+#include "CharacterBase/CharacterBase.h"
+#include "CharacterBase/AnimInstanceBase.h"
 
 UBTT_LichKing_CrashAttack::UBTT_LichKing_CrashAttack()
 {
@@ -14,10 +14,9 @@ EBTNodeResult::Type UBTT_LichKing_CrashAttack::ExecuteTask(UBehaviorTreeComponen
 {
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 	
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
-
 	animInstance->PlayMontage(TEXT("CrashAttack"));
 	
 	return EBTNodeResult::InProgress;
@@ -26,7 +25,7 @@ EBTNodeResult::Type UBTT_LichKing_CrashAttack::ExecuteTask(UBehaviorTreeComponen
 void UBTT_LichKing_CrashAttack::InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	EBTMemoryInit::Type InitType) const
 {
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	
 	if (owner != nullptr)
 	{

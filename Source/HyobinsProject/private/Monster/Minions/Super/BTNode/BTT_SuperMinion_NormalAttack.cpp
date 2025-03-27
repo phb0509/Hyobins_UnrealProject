@@ -2,9 +2,9 @@
 
 
 #include "Monster/Minions/Super/BTNode/BTT_SuperMinion_NormalAttack.h"
-#include "Monster/Monster.h"
-#include "Utility/AIControllerBase.h"
-#include "Utility/AnimInstanceBase.h"
+#include "CharacterBase/CharacterBase.h"
+#include "CharacterBase/AIControllerBase.h"
+#include "CharacterBase/AnimInstanceBase.h"
 
 
 UBTT_SuperMinion_NormalAttack::UBTT_SuperMinion_NormalAttack()
@@ -14,7 +14,7 @@ EBTNodeResult::Type UBTT_SuperMinion_NormalAttack::ExecuteTask(UBehaviorTreeComp
 {
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 	
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
 	int32 attackIndex = FMath::RandRange(0,1);
@@ -27,7 +27,7 @@ EBTNodeResult::Type UBTT_SuperMinion_NormalAttack::ExecuteTask(UBehaviorTreeComp
 void UBTT_SuperMinion_NormalAttack::InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	EBTMemoryInit::Type InitType) const
 {
-	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	
 	if (owner != nullptr)
 	{

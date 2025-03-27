@@ -3,7 +3,7 @@
 
 #include "Monster/Minions/Super/BTNode/BTT_UpdateSuperMinionState.h"
 #include "Monster/Minions/Super/SuperMinion.h"
-#include "Utility/AIControllerBase.h"
+#include "CharacterBase/AIControllerBase.h"
 #include "Utility/EnumTypes.h"
 
 
@@ -21,9 +21,9 @@ EBTNodeResult::Type UBTT_UpdateSuperMinionState::ExecuteTask(UBehaviorTreeCompon
 	const ACharacterBase* enemyOnBlackBoard = Cast<ACharacterBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject(AMonster::EnemyKey));
 	const float distanceToEnemy = owner->GetDistanceTo(enemyOnBlackBoard);
 	
-	if (distanceToEnemy > m_NormalAttackRange) // ??????? ?????
+	if (distanceToEnemy > m_NormalAttackRange)
 	{
-		owner->SetFSMState(ESuperMinionFSMStates::Chase); // ?????? ?? ??? ??? ?? ?????? ????.
+		owner->SetFSMState(ESuperMinionFSMStates::Chase); 
 	}
 	else if (distanceToEnemy <= m_NormalAttackRange)
 	{

@@ -2,7 +2,7 @@
 
 
 #include "MainPlayer/NotifyState/NotifyState_Check_Collision.h"
-#include "Utility/CharacterBase.h"
+#include "CharacterBase/CharacterBase.h"
 #include "Components/ShapeComponent.h"
 #include "Kismet/GameplayStatics.h"
 

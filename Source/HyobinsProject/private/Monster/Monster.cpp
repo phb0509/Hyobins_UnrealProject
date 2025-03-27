@@ -2,7 +2,7 @@
 
 
 #include "Monster/Monster.h"
-#include "Utility/AIControllerBase.h"
+#include "CharacterBase/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
 #include "Component/StatComponent.h"
 #include "Utility/EnumTypes.h"
