@@ -31,18 +31,9 @@ void UEarthStrike_InAir::Initialize()
 void UEarthStrike_InAir::Execute()
 {
 	Super::Execute();
-
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
-	
-	m_bIsCoolDownActive = false;
 	
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
-	OnExecute.Broadcast();
-
 	m_Owner->GetCharacterMovement()->GravityScale = 6.0f;
 	m_Owner->GetWorldTimerManager().SetTimer
 	(
@@ -116,4 +107,9 @@ void UEarthStrike_InAir::playEffect()
 	{
 		m_Owner->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_CameraShake);
 	}
+}
+
+bool UEarthStrike_InAir::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState();
 }

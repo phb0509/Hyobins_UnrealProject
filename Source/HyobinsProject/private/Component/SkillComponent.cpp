@@ -26,7 +26,11 @@ void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const F
 	if (HasSkill(inputMappingContextName, skillName))
 	{
 		m_CurSkill = m_SkillList[inputMappingContextName].skillList[skillName];
-		m_CurSkill->Execute();
+
+		if (m_CurSkill->GetCanUseSkill())
+		{
+			m_CurSkill->Execute();
+		}
 	}
 }
 
@@ -42,7 +46,7 @@ void USkillComponent::loadSkills()
 		for (const TSubclassOf<USkill> skillClass : iter.Value.skillClassList)
 		{
 			USkill* skill = Cast<USkill>(NewObject<UObject>(GetTransientPackage(), skillClass));
-			const FName skillName = skill->GetSkillName();
+			const FName skillName = skill->GetName();
 
 			m_SkillList[inputMappingContextName].skillList.Add(skillName, skill);
 		}

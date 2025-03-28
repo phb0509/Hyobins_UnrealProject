@@ -27,18 +27,9 @@ void UDashAttack_OnGround::Initialize()
 void UDashAttack_OnGround::Execute()
 {
 	Super::Execute();
-
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
-	
-	m_bIsCoolDownActive = false;
 	
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
-
-	OnExecute.Broadcast();
-
+	
 	m_Owner->RotateActorToKeyInputDirection();
 	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 		TEXT("Forward"),
@@ -48,4 +39,9 @@ void UDashAttack_OnGround::Execute()
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	
 	m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
+}
+
+bool UDashAttack_OnGround::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState() && !m_OwnerSkillComponent->GetIsChargingOnGround();
 }

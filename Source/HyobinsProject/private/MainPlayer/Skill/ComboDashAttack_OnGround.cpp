@@ -27,22 +27,18 @@ void UComboDashAttack_OnGround::Initialize()
 void UComboDashAttack_OnGround::Execute()
 {
 	Super::Execute();
-
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
-	
-	m_bIsCoolDownActive = false;
 	
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
 	if (curSkillState == EMainPlayerSkillStates::Charging_OnGround && m_OwnerSkillComponent->GetCanChargingSkill())
 	{
-		OnExecute.Broadcast();
-
 		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
 		
 		m_OwnerAnimInstance->PlayMontage(TEXT("Charging_ComboDashAttack_OnGround"));
 	}
+}
+
+bool UComboDashAttack_OnGround::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState();
 }

@@ -16,7 +16,7 @@ class UTexture2D;
 DECLARE_MULTICAST_DELEGATE(FOnExecute);
 
 
-UCLASS(Blueprintable, BlueprintType)
+UCLASS(Abstract, Blueprintable, BlueprintType)
 class HYOBINSPROJECT_API USkill : public UObject
 {
 	GENERATED_BODY()
@@ -26,16 +26,21 @@ public:
 
 	virtual void Initialize() {};
 	virtual void Execute();
-
-	FORCEINLINE FName& GetSkillName() { return m_SkillName; }
+	
+	bool GetCanUseSkill() const { return m_bIsCooldownComplete && GetCanExecuteSkill(); }
+	
+	FORCEINLINE FName& GetName() { return m_Name; }
+	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
+	FORCEINLINE float GetCoolDownTime() const { return m_CoolDownTime; }
 	FORCEINLINE UTexture2D* GetThumbnailFillTexture() const { return m_ThumbnailFillTexture; }
 	FORCEINLINE UTexture2D* GetThumbnailBackgroundTexture() const { return m_ThumbnailBackgroundTexture; }
-	FORCEINLINE float GetCoolDownTime() const { return m_CoolDownTime; }
-	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
 	
 	FORCEINLINE void SetOwnerInfo(AMainPlayer* owner);
 	FORCEINLINE void SetCoolDownTime(float coolDownTime) { m_CoolDownTime = coolDownTime; }
 
+protected:
+	virtual bool GetCanExecuteSkill() const { return false; }
+	
 public:
 	FOnExecute OnExecute;
 	
@@ -44,13 +49,15 @@ protected:
 	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
 	TWeakObjectPtr<UMainPlayerSkillComponent> m_OwnerSkillComponent;
 
+	FTimerHandle m_TimerHandle;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "SkillName")
-	FName m_SkillName;
+	FName m_Name;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
 	float m_CoolDownTime;
 
-	bool m_bIsCoolDownActive;
+	bool m_bIsCooldownComplete;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
 	float m_StaminaCost;

@@ -38,74 +38,47 @@ void UMainPlayerSkillComponent::BeginPlay()
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()
 {
-	if (canNonChargingSkill_OnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("DefaultOnGround","NormalAttack_OnGround");
-	}
+	ExecuteSkill("DefaultOnGround","NormalAttack_OnGround");
 }
 
 void UMainPlayerSkillComponent::NormalAttack_InAir()
 {
-	if (m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("InAir","NormalAttack_InAir");
-	}
+	ExecuteSkill("InAir","NormalAttack_InAir");
 }
 
 void UMainPlayerSkillComponent::UpperAttack_OnGround()
 {
-	if (canNonChargingSkill_OnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("DefaultOnGround","UpperAttack_OnGround");
-	}
+	ExecuteSkill("DefaultOnGround","UpperAttack_OnGround");
 }
 
 void UMainPlayerSkillComponent::DashAttack_OnGround()
 {
-	if (canNonChargingSkill_OnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("DefaultOnGround","DashAttack_OnGround");
-	}
+	ExecuteSkill("DefaultOnGround","DashAttack_OnGround");
 }
 
 void UMainPlayerSkillComponent::DashAttack_InAir()
 {
-	if (m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("InAir","DashAttack_InAir");
-	}
+	ExecuteSkill("InAir","DashAttack_InAir");
 }
 
 void UMainPlayerSkillComponent::Dodge_OnGround()
 {
-	if (canNonChargingSkill_OnGround())
-	{
-		ExecuteSkill("DefaultOnGround","Dodge_OnGround");
-	}
+	ExecuteSkill("DefaultOnGround","Dodge_OnGround");
 }
 
 void UMainPlayerSkillComponent::EarthStrike_InAir()
 {
-	if (m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("InAir","EarthStrike_InAir");
-	}
+	ExecuteSkill("InAir","EarthStrike_InAir");
 }
 
 void UMainPlayerSkillComponent::Charging_OnGround()
 {
-	if (m_Owner->GetIsOnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("ChargingOnGround","Charging_OnGround");
-	}
+	ExecuteSkill("ChargingOnGround","Charging_OnGround");
 }
 
 void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
 {
-	if (m_Owner->GetIsOnGround() && m_Owner->GetCrowdControlState() == ECrowdControlStates::None)
-	{
-		ExecuteSkill("ChargingOnGround","ComboDashAttack_OnGround");
-	}
+	ExecuteSkill("ChargingOnGround","ComboDashAttack_OnGround");
 }
 
 void UMainPlayerSkillComponent::ExtendStrikeActivateDecisionTime()
@@ -154,13 +127,12 @@ void UMainPlayerSkillComponent::initSkills()
 
 void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 {
-	// OnMontageEnded 
 	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // 어떤 스킬이든 '끝까지(not Interrupted)' 재생 후 Idle로 전환.
 }
 
-bool UMainPlayerSkillComponent::canNonChargingSkill_OnGround() const
+bool UMainPlayerSkillComponent::GetIsChargingOnGround() const
 {
-	return m_Owner->GetIsOnGround() && m_CurSkillState != EMainPlayerSkillStates::Charging_OnGround;
+	return m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround;
 }
 
 void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, // 로그출력용 틱
@@ -168,12 +140,12 @@ void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
-	//
-	// //GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
-	// GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
-	// GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
-	// GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
+	
+	//GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
+	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
+	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
+	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
 
 FName UMainPlayerSkillComponent::GetHighestPriorityInputMappingContext()

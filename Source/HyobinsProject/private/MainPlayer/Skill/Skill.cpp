@@ -8,7 +8,7 @@
 
 USkill::USkill() :
 	m_CoolDownTime(3.0f),
-	m_bIsCoolDownActive(true),
+	m_bIsCooldownComplete(true),
 	m_StaminaCost(10.0f),
 	m_bIsSuperArmor(false),
 	m_ThumbnailFillTexture(nullptr),
@@ -18,21 +18,18 @@ USkill::USkill() :
 
 void USkill::Execute()
 {
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
+	m_bIsCooldownComplete = false;
+	m_Owner->GetWorldTimerManager().SetTimer(
+		m_TimerHandle,
+		[this]()
+		{
+			m_bIsCooldownComplete = true;
+		},
+		m_CoolDownTime,
+		false);
 
 	m_Owner->SetIsSuperArmor(m_bIsSuperArmor);
-	
-	FTimerHandle timer;
-	m_Owner->GetWorldTimerManager().SetTimer(timer,
-					[this]()
-					{
-						m_bIsCoolDownActive = true;
-					},
-				m_CoolDownTime,
-				false);
+	OnExecute.Broadcast();
 }
 
 void USkill::SetOwnerInfo(AMainPlayer* owner)

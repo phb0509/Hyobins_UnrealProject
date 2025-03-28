@@ -30,20 +30,9 @@ void UDodge_OnGround::Initialize()
 void UDodge_OnGround::Execute()
 {
 	Super::Execute();
-
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
-	
-	m_bIsCoolDownActive = false;
-	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
 	if (m_OwnerSkillComponent->GetCanDodge()) // 어떠한 공격이든 수행중이면
 	{
-		OnExecute.Broadcast(); // UI업데이트용.
-
 		m_Owner->SetCrowdControlState(ECrowdControlStates::None);
 		m_Owner->ClearCrowdControlTimerHandle();
 		
@@ -81,4 +70,9 @@ void UDodge_OnGround::Execute()
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
 	}
+}
+
+bool UDodge_OnGround::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState() && !m_OwnerSkillComponent->GetIsChargingOnGround();
 }

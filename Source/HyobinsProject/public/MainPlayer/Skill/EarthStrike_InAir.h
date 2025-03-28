@@ -9,7 +9,7 @@
 class UParticleSystem;
 class USoundWave;
 
-UCLASS(BlueprintType)
+UCLASS()
 class HYOBINSPROJECT_API UEarthStrike_InAir : public USkill
 {
 	GENERATED_BODY()
@@ -23,6 +23,9 @@ public:
 	void ExecEvent_WhenOnGround();
 	void attack();
 	void playEffect();
+
+protected:
+	virtual bool GetCanExecuteSkill() const override;
 	
 private:
 	FTimerHandle m_Timer;

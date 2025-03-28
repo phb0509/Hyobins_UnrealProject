@@ -42,13 +42,6 @@ void UNormalAttack_InAir::Initialize()
 void UNormalAttack_InAir::Execute()
 {
 	Super::Execute();
-
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
-	
-	m_bIsCoolDownActive = false;
 	
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
@@ -56,8 +49,6 @@ void UNormalAttack_InAir::Execute()
 	{
 		if (m_OwnerSkillComponent->GetHasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
 		{
-			OnExecute.Broadcast();
-
 			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
 			
 			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
@@ -70,22 +61,22 @@ void UNormalAttack_InAir::Execute()
 			linqNextNormalAttackInAirCombo(); // 섹션점프
 		}
 	}
-	else
+	else if (curSkillState == EMainPlayerSkillStates::Idle)
 	{
-		if (curSkillState == EMainPlayerSkillStates::Idle)
-		{
-			OnExecute.Broadcast();
+		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
 
-			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-			
-			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
-			targetVector.Z = 0.0f;
-			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
+		targetVector.Z = 0.0f;
+		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
-			
-			m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_InAir"));
-		}
+
+		m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_InAir"));
 	}
+}
+
+bool UNormalAttack_InAir::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState();
 }
 
 void UNormalAttack_InAir::linqNextNormalAttackInAirCombo()

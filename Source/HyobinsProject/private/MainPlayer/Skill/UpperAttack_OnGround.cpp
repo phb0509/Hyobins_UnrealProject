@@ -28,13 +28,6 @@ void UUpperAttack_OnGround::Initialize()
 void UUpperAttack_OnGround::Execute()
 {
 	Super::Execute();
-
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
-	
-	m_bIsCoolDownActive = false;
 	
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
@@ -42,8 +35,6 @@ void UUpperAttack_OnGround::Execute()
 		curSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
 		curSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
 	{
-		OnExecute.Broadcast();
-		
 		m_Owner->RotateActorToKeyInputDirection();
 
 		if (m_OwnerSkillComponent->GetIsStrikeAttackActive())
@@ -72,4 +63,9 @@ void UUpperAttack_OnGround::Execute()
 			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
 		}
 	}
+}
+
+bool UUpperAttack_OnGround::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState() && !m_OwnerSkillComponent->GetIsChargingOnGround();
 }

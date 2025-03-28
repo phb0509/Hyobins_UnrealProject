@@ -30,7 +30,7 @@ public:
 	TMap<FName, USkill*> skillList;
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, AllowedClasses="APlayableCharacter"))
 class HYOBINSPROJECT_API USkillComponent : public UActorComponent
 {
 	GENERATED_BODY()

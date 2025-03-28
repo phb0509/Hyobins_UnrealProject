@@ -47,6 +47,7 @@ public:
 	FORCEINLINE bool GetCanDodge() const { return m_bCanDodge; }
 	FORCEINLINE bool GetCanChargingSkill() const { return m_bCanChargingSkill; }
 	FORCEINLINE float GetGravityScaleInAir() const { return m_GravityScaleInAir; }
+	bool GetIsChargingOnGround() const;
 
 	FORCEINLINE void SetSkillState(EMainPlayerSkillStates state) { m_CurSkillState = state; }
 	FORCEINLINE void SetHasStartedComboKeyInputCheck(const bool bHasStartedKeyInputCheck) { m_bHasStartedComboKeyInputCheck = bHasStartedKeyInputCheck;}
@@ -61,7 +62,7 @@ public:
 private:
 	void initSkills();
 	void bindFuncOnMontageEvent();
-	bool canNonChargingSkill_OnGround() const;
+	
 	
 
 

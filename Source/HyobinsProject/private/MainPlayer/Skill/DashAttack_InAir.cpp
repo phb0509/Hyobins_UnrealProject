@@ -27,20 +27,11 @@ void UDashAttack_InAir::Initialize()
 void UDashAttack_InAir::Execute()
 {
 	Super::Execute();
-
-	if (!m_bIsCoolDownActive)
-	{
-		return;
-	}
-	
-	m_bIsCoolDownActive = false;
 	
 	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
 	
 	if (curSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround)
 	{
-		OnExecute.Broadcast();
-		
 		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
 		m_Owner->RotateActorToKeyInputDirection();
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
@@ -51,4 +42,9 @@ void UDashAttack_InAir::Execute()
 		
 		m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
 	}
+}
+
+bool UDashAttack_InAir::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState();
 }

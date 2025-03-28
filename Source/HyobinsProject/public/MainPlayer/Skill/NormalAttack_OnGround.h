@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Blueprintable, BlueprintType)
+UCLASS()
 class HYOBINSPROJECT_API UNormalAttack_OnGround : public USkill
 {
 	GENERATED_BODY()
@@ -22,6 +22,9 @@ public:
 	
 	int32 GetCurComboAttackSection() const { return m_CurComboAttackSection; }
 
+protected:
+	virtual bool GetCanExecuteSkill() const override;
+	
 private:
 	void linqNextNormalAttackOnGroundCombo();
 

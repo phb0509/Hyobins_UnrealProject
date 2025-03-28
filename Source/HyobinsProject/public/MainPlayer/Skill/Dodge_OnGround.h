@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(BlueprintType)
+UCLASS()
 class HYOBINSPROJECT_API UDodge_OnGround : public USkill
 {
 	GENERATED_BODY()
@@ -19,7 +19,10 @@ public:
 	
 	virtual void Initialize() override;
 	virtual void Execute() override;
-
+	
+protected:
+	virtual bool GetCanExecuteSkill() const override;
+	
 private:
 	UPROPERTY(EditAnywhere, Category = "Dodge_OnGround")
 	float m_MoveDistance;
