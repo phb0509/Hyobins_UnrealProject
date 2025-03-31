@@ -28,20 +28,21 @@ void UDashAttack_OnGround::Execute()
 {
 	Super::Execute();
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	m_Owner->RotateActorToKeyInputDirection();
 	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 		TEXT("Forward"),
 		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
 	
-	m_OwnerSkillComponent->SetCanDodge(false);
-	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
+	ownerSkillComponent->SetCanDodge(false);
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	
 	m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
 }
 
 bool UDashAttack_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState() && !m_OwnerSkillComponent->GetIsChargingOnGround();
+	return !m_Owner->GetIsCrowdControlState() &&
+		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

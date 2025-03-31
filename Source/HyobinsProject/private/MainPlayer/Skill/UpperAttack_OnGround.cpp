@@ -29,15 +29,15 @@ void UUpperAttack_OnGround::Execute()
 {
 	Super::Execute();
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
-	
-	if (curSkillState == EMainPlayerSkillStates::Idle ||
-		curSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
-		curSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
+	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle) ||
+		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
+		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround))
 	{
 		m_Owner->RotateActorToKeyInputDirection();
 
-		if (m_OwnerSkillComponent->GetIsStrikeAttackActive())
+		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+		
+		if (ownerSkillComponent->GetIsStrikeAttackActive())
 		{
 			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
 
@@ -48,7 +48,7 @@ void UUpperAttack_OnGround::Execute()
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 				TEXT("Forward"), targetLocation);
 			
-			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_GroundToAir);
+			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_GroundToAir);
 			
 			m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
 		}
@@ -58,7 +58,7 @@ void UUpperAttack_OnGround::Execute()
 				TEXT("Forward"),
 				m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
 			
-			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_OnGround);
+			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_OnGround);
 			
 			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
 		}
@@ -67,5 +67,6 @@ void UUpperAttack_OnGround::Execute()
 
 bool UUpperAttack_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState() && !m_OwnerSkillComponent->GetIsChargingOnGround();
+	return !m_Owner->GetIsCrowdControlState() &&
+		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

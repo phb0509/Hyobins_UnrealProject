@@ -11,7 +11,6 @@
 
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
-	m_CurSkillState(EMainPlayerSkillStates::Idle),
 	m_GravityScaleInAir(0.00001f),
 	m_bCanDodge(true),
 	m_bCanChargingSkill(false),
@@ -27,13 +26,9 @@ void UMainPlayerSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	m_Owner = Cast<AMainPlayer>(GetOwner());
-	m_OwnerAnimInstance = Cast<UMainPlayerAnim>(m_Owner->GetMesh()->GetAnimInstance());
-	
-	initSkills();
 	bindFuncOnMontageEvent();
-
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
+	
+	EMainPlayerSkillStates curSkillState = static_cast<EMainPlayerSkillStates>(3);
 }
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()
@@ -106,22 +101,7 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 	if (!bInterrupted)
 	{
 		m_bCanDodge = true;
-		m_CurSkillState = EMainPlayerSkillStates::Idle;
-	}
-}
-
-void UMainPlayerSkillComponent::initSkills()
-{
-	for (const auto iter : m_SkillList)
-	{
-		for (const auto skill : iter.Value.skillList)
-		{
-			if (skill.Value != nullptr)
-			{
-				skill.Value->SetOwnerInfo(m_Owner.Get());
-				skill.Value->Initialize();
-			}
-		}
+		SetSkillState(EMainPlayerSkillStates::Idle);
 	}
 }
 
@@ -130,17 +110,12 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // 어떤 스킬이든 '끝까지(not Interrupted)' 재생 후 Idle로 전환.
 }
 
-bool UMainPlayerSkillComponent::GetIsChargingOnGround() const
-{
-	return m_CurSkillState == EMainPlayerSkillStates::Charging_OnGround;
-}
-
 void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, // 로그출력용 틱
                                               FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	const FString curSkillState = Utility::ConvertEnumToString(m_CurSkillState);
+	const FString curSkillState = Utility::ConvertEnumToString(static_cast<EMainPlayerSkillStates>(m_CurSkillState));
 	
 	//GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
 	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
@@ -148,7 +123,4 @@ void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
 
-FName UMainPlayerSkillComponent::GetHighestPriorityInputMappingContext()
-{
-	return m_Owner->GetHighestPriorityInputMappingContext();
-}
+

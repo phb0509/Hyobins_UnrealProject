@@ -22,7 +22,6 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	virtual FName GetHighestPriorityInputMappingContext() override;
 	
 	void NormalAttack_OnGround();
 	void UpperAttack_OnGround();
@@ -39,17 +38,15 @@ public:
 	void DeactivateStrikeAttack() { ExtendStrikeActivateDecisionTime(); }
 	
 	void ExtendStrikeActivateDecisionTime(); // 강공격키판정을 좀 더 여유롭게하기위한 타이머호출 함수.
+
 	
-	
-	FORCEINLINE EMainPlayerSkillStates GetSkillState() const { return m_CurSkillState; }
 	FORCEINLINE bool GetIsStrikeAttackActive() const { return m_bIsStrikeAttackActive; }
 	FORCEINLINE bool GetHasStartedComboKeyInputCheck() const { return m_bHasStartedComboKeyInputCheck; }
 	FORCEINLINE bool GetCanDodge() const { return m_bCanDodge; }
 	FORCEINLINE bool GetCanChargingSkill() const { return m_bCanChargingSkill; }
 	FORCEINLINE float GetGravityScaleInAir() const { return m_GravityScaleInAir; }
-	bool GetIsChargingOnGround() const;
 
-	FORCEINLINE void SetSkillState(EMainPlayerSkillStates state) { m_CurSkillState = state; }
+	
 	FORCEINLINE void SetHasStartedComboKeyInputCheck(const bool bHasStartedKeyInputCheck) { m_bHasStartedComboKeyInputCheck = bHasStartedKeyInputCheck;}
 	FORCEINLINE void SetCanDodge(bool bCanDodge) { m_bCanDodge = bCanDodge; }
 	FORCEINLINE void SetCanChargingSkill(bool bCanChargingSkill)  { m_bCanChargingSkill = bCanChargingSkill; }
@@ -60,17 +57,11 @@ public:
 	void InitGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 	
 private:
-	void initSkills();
 	void bindFuncOnMontageEvent();
 	
 	
 
-
 private:
-	TWeakObjectPtr<AMainPlayer> m_Owner;
-	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
-	EMainPlayerSkillStates m_CurSkillState;
-	
 	UPROPERTY(EditAnywhere, Category = "GravityScaleInAir")
 	float m_GravityScaleInAir;
 	

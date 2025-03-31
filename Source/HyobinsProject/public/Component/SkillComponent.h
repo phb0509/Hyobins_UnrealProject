@@ -6,8 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "SkillComponent.generated.h"
 
+class UAnimInstanceBase;
+class APlayableCharacter;
 class USkill;
-
 
 USTRUCT(Atomic) 
 struct FSkillClassList // 특정 인풋매핑컨텍스트에 속해있는 스킬들. ex) InAir만의 스킬들..
@@ -39,12 +40,26 @@ public:
 	USkillComponent();
 
 	virtual void BeginPlay() override;
-
-	void ExecEvent_AllSkillEnded();
 	
 	const TMap<FName, FSkillList>* GetSkillList() const { return &m_SkillList; }
-	virtual FName GetHighestPriorityInputMappingContext() PURE_VIRTUAL(USkillComponent::Interact, return "Empty"; );
+	FName GetHighestPriorityInputMappingContext() const;
 	TWeakObjectPtr<USkill> GetCurSkill() const { return m_CurSkill; }
+
+	template<typename T>
+	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), bool>::Type
+	IsCurSkillState(const T state) const
+	{
+		const uint8 enumIndex = static_cast<uint8>(state);
+		return m_CurSkillState == enumIndex;
+	}
+
+	template<typename T>
+	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), void>::Type
+	SetSkillState(const T state)
+	{
+		const uint8 enumIndex = static_cast<uint8>(state);
+		m_CurSkillState = enumIndex;
+	}
 
 protected:
 	void ExecuteSkill(const FName& inputMappingContextName, const FName& skillName);
@@ -57,13 +72,20 @@ protected:
 
 private:
 	void loadSkills();
+	void initSkills();
 	
 protected:
+	TWeakObjectPtr<APlayableCharacter> m_Owner;
+	TWeakObjectPtr<UAnimInstanceBase> m_OwnerAnimInstance;
+	
+	uint8 m_CurSkillState;
+	TWeakObjectPtr<USkill> m_CurSkill;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "SkillList")
 	TMap<FName, FSkillClassList> m_SkillClassList; // Key : InputMappingContextName
 	
 	UPROPERTY(VisibleAnywhere, Transient, Category = "SkillList")
 	TMap<FName, FSkillList> m_SkillList;
 
-	TWeakObjectPtr<USkill> m_CurSkill;
+	
 };

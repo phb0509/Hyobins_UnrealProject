@@ -22,6 +22,7 @@ public:
 
 protected:
 	virtual bool GetCanExecuteSkill() const override;
+	
 private:
 	void linqNextNormalAttackInAirCombo(); // 섹션점프
 	

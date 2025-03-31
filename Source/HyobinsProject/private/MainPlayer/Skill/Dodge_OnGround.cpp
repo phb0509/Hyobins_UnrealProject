@@ -16,11 +16,11 @@ UDodge_OnGround::UDodge_OnGround() :
 void UDodge_OnGround::Initialize()
 {
 	Super::Initialize();
-
+	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Dodge_OnGround"),
 	[this]()
 	{
-		if (m_Owner->GetSkillComponent()->GetSkillState() == EMainPlayerSkillStates::Idle)
+		if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
 		{
 			m_Owner->SetIsSuperArmor(false);
 		}
@@ -31,14 +31,17 @@ void UDodge_OnGround::Execute()
 {
 	Super::Execute();
 	
-	if (m_OwnerSkillComponent->GetCanDodge()) // 어떠한 공격이든 수행중이면
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	
+	if (ownerSkillComponent->GetCanDodge()) // 어떠한 공격이든 수행중이면
 	{
 		m_Owner->SetCrowdControlState(ECrowdControlStates::None);
 		m_Owner->ClearCrowdControlTimerHandle();
 		
 		m_OwnerAnimInstance->StopAllMontages(0.0f);
-		m_OwnerSkillComponent->SetCanDodge(false);
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_OnGround);
+		
+		ownerSkillComponent->SetCanDodge(false);
+		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_OnGround);
 		
 
 		// 키입력에 따른 컨트롤러방향벡터 구하기.
@@ -74,5 +77,6 @@ void UDodge_OnGround::Execute()
 
 bool UDodge_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState() && !m_OwnerSkillComponent->GetIsChargingOnGround();
+	return !m_Owner->GetIsCrowdControlState() &&
+		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

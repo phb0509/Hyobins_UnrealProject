@@ -1,10 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Component/SkillComponent.h"
+#include "CharacterBase/AnimInstanceBase.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "MainPlayer/Skill/Skill.h"
+#include "SubSystems/UIManager.h"
 
-USkillComponent::USkillComponent()
+USkillComponent::USkillComponent() :
+	m_CurSkillState(0)
 {
 	PrimaryComponentTick.bCanEverTick = false; 
 	bWantsInitializeComponent = false;
@@ -14,11 +17,17 @@ void USkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	m_Owner = Cast<APlayableCharacter>(GetOwner());
+	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
+	
 	loadSkills();
+	initSkills();
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
 }
 
-void USkillComponent::ExecEvent_AllSkillEnded()
+FName USkillComponent::GetHighestPriorityInputMappingContext() const
 {
+	return m_Owner->GetHighestPriorityInputMappingContext();
 }
 
 void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const FName& skillName)
@@ -49,6 +58,21 @@ void USkillComponent::loadSkills()
 			const FName skillName = skill->GetName();
 
 			m_SkillList[inputMappingContextName].skillList.Add(skillName, skill);
+		}
+	}
+}
+
+void USkillComponent::initSkills()
+{
+	for (const auto iter : m_SkillList)
+	{
+		for (const auto skill : iter.Value.skillList)
+		{
+			if (skill.Value != nullptr)
+			{
+				skill.Value->SetOwnerInfo(m_Owner.Get());
+				skill.Value->Initialize();
+			}
 		}
 	}
 }

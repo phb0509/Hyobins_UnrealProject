@@ -16,11 +16,13 @@ UDashAttack_InAir::UDashAttack_InAir():
 void UDashAttack_InAir::Initialize()
 {
 	Super::Initialize();
+
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_Owner->GetSkillComponent());
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("DashAttack_InAir"),
-	[this]()
+	[=]()
 	{
-		m_OwnerSkillComponent->InitGravityScaleAfterAttack();
+		ownerSkillComponent->InitGravityScaleAfterAttack();
 	});
 }
 
@@ -28,17 +30,17 @@ void UDashAttack_InAir::Execute()
 {
 	Super::Execute();
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	if (curSkillState != EMainPlayerSkillStates::EarthStrike_FallingToGround)
+	if (!ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround))
 	{
-		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
+		m_Owner->GetCharacterMovement()->GravityScale = ownerSkillComponent->GetGravityScaleInAir();
 		m_Owner->RotateActorToKeyInputDirection();
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"),
 			m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
 		
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
+		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
 		
 		m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
 	}

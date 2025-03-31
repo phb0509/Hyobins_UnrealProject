@@ -25,16 +25,17 @@ void UCharging_OnGround::Initialize()
 void UCharging_OnGround::Execute()
 {
 	Super::Execute();
+
+	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
-	
-	if (curSkillState == EMainPlayerSkillStates::Charging_OnGround) // Â÷Â¡ ÇØÁ¦
+	if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround)) // Â÷Â¡ ÇØÁ¦
 	{
 		m_Owner->GetWorldTimerManager().ClearTimer(m_ChargingTimer);
-		m_Owner->RemoveInputContextMappingOnCharging();
+		owner->RemoveInputContextMappingOnCharging();
 		
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
-		m_OwnerSkillComponent->SetCanChargingSkill(false);
+		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
+		ownerSkillComponent->SetCanChargingSkill(false);
 		
 		m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
 		
@@ -44,15 +45,15 @@ void UCharging_OnGround::Execute()
 	{
 		m_Owner->GetWorldTimerManager().SetTimer(
 			m_ChargingTimer,
-			[this]()
+			[=]()
 			{
-				m_Owner->AddInputContextMappingOnCharging();
-				m_OwnerSkillComponent->SetCanChargingSkill(true);
+				owner->AddInputContextMappingOnCharging();
+				ownerSkillComponent->SetCanChargingSkill(true);
 			},
 			m_ChargingDuration,
 			false);
 
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
+		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
 		
 		m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
 		

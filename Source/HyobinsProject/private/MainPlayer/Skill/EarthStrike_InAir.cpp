@@ -5,7 +5,6 @@
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
 #include "Component/MainPlayerSkillComponent.h"
-#include "Interfaces/Damageable.h"
 #include "Utility/EnumTypes.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -32,7 +31,7 @@ void UEarthStrike_InAir::Execute()
 {
 	Super::Execute();
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	m_Owner->GetCharacterMovement()->GravityScale = 6.0f;
 	m_Owner->GetWorldTimerManager().SetTimer
@@ -44,7 +43,7 @@ void UEarthStrike_InAir::Execute()
 		true, -1
 	);
 	
-	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
 	
 	m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_FallingToGround"));
 }
@@ -65,7 +64,6 @@ void UEarthStrike_InAir::ExecEvent_WhenOnGround()
 void UEarthStrike_InAir::attack()
 {
 	const FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
-	
 	const TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
 	const TArray<AActor*> ignoreActors = {m_Owner.Get()};
 	TArray<AActor*> overlappedActors;
@@ -82,7 +80,7 @@ void UEarthStrike_InAir::attack()
 	{
 		for (AActor* overlappedEnemy : overlappedActors)
 		{
-			if (overlappedEnemy != nullptr)
+			if (IsValid(overlappedEnemy))
 			{
 				m_Owner->Attack(TEXT("EarthStrike"), overlappedEnemy);
 			}

@@ -19,21 +19,23 @@ void UNormalAttack_InAir::Initialize()
 {
 	Super::Initialize();
 
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_InAir"),
-[this]()
+[=]()
 	{
-		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_InAir);
+		m_Owner->GetCharacterMovement()->GravityScale = ownerSkillComponent->GetGravityScaleInAir();
+		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_InAir);
 	});
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
-	[this]()
+	[=]()
 	{
-		m_OwnerSkillComponent->InitGravityScaleAfterAttack();
+		ownerSkillComponent->InitGravityScaleAfterAttack();
 	});
 	
 		m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_InAir"),
-	[this]()
+	[=]()
 		{
 			m_CurComboAttackSection = 1;
 		});
@@ -43,11 +45,11 @@ void UNormalAttack_InAir::Execute()
 {
 	Super::Execute();
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	if (curSkillState == EMainPlayerSkillStates::NormalAttack_InAir)
+	if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_InAir))
 	{
-		if (m_OwnerSkillComponent->GetHasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
+		if (ownerSkillComponent->GetHasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
 		{
 			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
 			
@@ -56,12 +58,12 @@ void UNormalAttack_InAir::Execute()
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 			
-			m_OwnerSkillComponent->SetHasStartedComboKeyInputCheck(false);
+			ownerSkillComponent->SetHasStartedComboKeyInputCheck(false);
 			
 			linqNextNormalAttackInAirCombo(); // 섹션점프
 		}
 	}
-	else if (curSkillState == EMainPlayerSkillStates::Idle)
+	else if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
 	{
 		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
 
@@ -74,13 +76,13 @@ void UNormalAttack_InAir::Execute()
 	}
 }
 
-bool UNormalAttack_InAir::GetCanExecuteSkill() const
-{
-	return !m_Owner->GetIsCrowdControlState();
-}
-
 void UNormalAttack_InAir::linqNextNormalAttackInAirCombo()
 {
 	m_CurComboAttackSection += 1;
 	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_InAir"), m_CurComboAttackSection);
+}
+
+bool UNormalAttack_InAir::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState();
 }

@@ -27,18 +27,13 @@ void UNormalAttack_OnGround::Initialize()
 		});
 }
 
-bool UNormalAttack_OnGround::GetCanExecuteSkill() const
-{
-	return !m_Owner->GetIsCrowdControlState() && !m_OwnerSkillComponent->GetIsChargingOnGround();
-}
-
 void UNormalAttack_OnGround::Execute()
 {
 	Super::Execute();
 	
-	const EMainPlayerSkillStates curSkillState = m_OwnerSkillComponent->GetSkillState();
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	if (curSkillState == EMainPlayerSkillStates::Idle)
+	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
 	{
 		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
 
@@ -48,12 +43,12 @@ void UNormalAttack_OnGround::Execute()
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 		
 		m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_OnGround"));  
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
+		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
 	}
-	else if (curSkillState == EMainPlayerSkillStates::NormalAttack_OnGround ||
-		curSkillState == EMainPlayerSkillStates::NormalStrikeAttack_OnGround)
+	else if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
+		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround))
 	{
-		if (m_OwnerSkillComponent->GetHasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
+		if (ownerSkillComponent->GetHasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
 		{
 			m_Owner->RotateActorToKeyInputDirection();
 
@@ -62,7 +57,7 @@ void UNormalAttack_OnGround::Execute()
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 				TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 			
-			m_OwnerSkillComponent->SetHasStartedComboKeyInputCheck(false);
+			ownerSkillComponent->SetHasStartedComboKeyInputCheck(false);
 			
 			linqNextNormalAttackOnGroundCombo(); // 섹션점프
 		}
@@ -71,40 +66,48 @@ void UNormalAttack_OnGround::Execute()
 
 void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 {
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	
 	if (m_CurComboAttackSection % 2 != 0) // 기본공격중인경우,
 	{
-		if (m_OwnerSkillComponent->GetIsStrikeAttackActive()) // 강공격키 눌려있으면,
+		if (ownerSkillComponent->GetIsStrikeAttackActive()) // 강공격키 눌려있으면,
 		{
-			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround);
+			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround);
 			m_CurComboAttackSection += 1;
 		}
 		else  // 다음 기본공격 연계
 		{
-			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
+			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
 			m_CurComboAttackSection += 2;
 		}
 	}
 	else // 강공격중인경우,
 	{
-		if (m_OwnerSkillComponent->GetIsStrikeAttackActive())
+		if (ownerSkillComponent->GetIsStrikeAttackActive())
 		{
 			m_CurComboAttackSection = FMath::Clamp(m_CurComboAttackSection + 2, 1, m_MaxNormalAttackSection);
 	
 			if (m_CurComboAttackSection == 7) // 마지막 공격
 			{
-				m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
+				ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
 			}
 			else
 			{
-				m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround);
+				ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround);
 			}
 		}
 		else
 		{
-			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
+			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
 			m_CurComboAttackSection += 1;
 		}
 	}
 	
 	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_OnGround"), m_CurComboAttackSection);
+}
+
+bool UNormalAttack_OnGround::GetCanExecuteSkill() const
+{
+	return !m_Owner->GetIsCrowdControlState() &&
+		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }
