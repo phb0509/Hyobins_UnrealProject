@@ -21,7 +21,6 @@ void USkillComponent::BeginPlay()
 	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
 	
 	loadSkills();
-	initSkills();
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
 }
 
@@ -55,6 +54,9 @@ void USkillComponent::loadSkills()
 		for (const TSubclassOf<USkill> skillClass : iter.Value.skillClassList)
 		{
 			USkill* skill = Cast<USkill>(NewObject<UObject>(GetTransientPackage(), skillClass));
+			skill->SetOwnerInfo(m_Owner.Get());
+			skill->Initialize();
+			
 			const FName skillName = skill->GetName();
 
 			m_SkillList[inputMappingContextName].skillList.Add(skillName, skill);

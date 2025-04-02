@@ -66,13 +66,13 @@ protected:
 	
 	FORCEINLINE bool HasSkill(const FName& inputMappingContextName, const FName& skillName) const
 	{
-		return m_SkillList.Contains(inputMappingContextName) && m_SkillList[inputMappingContextName].skillList.Contains(skillName) &&
+		return m_SkillList.Contains(inputMappingContextName) &&
+			m_SkillList[inputMappingContextName].skillList.Contains(skillName) &&
 			m_SkillList[inputMappingContextName].skillList[skillName] != nullptr;
 	}
 
 private:
 	void loadSkills();
-	void initSkills();
 	
 protected:
 	TWeakObjectPtr<APlayableCharacter> m_Owner;
