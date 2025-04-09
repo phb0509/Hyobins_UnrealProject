@@ -167,7 +167,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
-	TMap<FName, TWeakObjectPtr<UAnimMontage>> m_Montages;
+	TMap<FName, TObjectPtr<UAnimMontage>> m_Montages;
 	
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
 };
