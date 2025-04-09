@@ -91,7 +91,6 @@ void AMonster::Activate()
 {
 	SetCrowdControlState(ECrowdControlStates::None);
 	m_StatComponent->InitHP();
-	m_bIsActivated = true;
 	m_bIsDead = false;
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->StartBehaviorTree();
@@ -114,7 +113,7 @@ void AMonster::Activate()
 
 void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
 {
-	m_bIsActivated = false;
+	m_bIsDead = true;
 	m_AIControllerBase->OnUnPossess();
 	
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
@@ -129,7 +128,12 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 	//this->OnTakeDamage.Clear(); // 바인딩했던 함수들 해제.
 }
 
-void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
+ bool AMonster::IsActive()
+ {
+	 return !m_bIsDead;
+ }
+
+ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 {
 	UE_LOG(LogTemp, Warning, TEXT("AMonster :: PlayOnHitEffect"));
 
@@ -154,8 +158,8 @@ void AMonster::SetCrowdControlState(const ECrowdControlStates state)
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::CrowdControlStateKet, static_cast<uint8>(state));
 }
 
-void AMonster::SetFSMStateAsBehaviorTree(uint8 stateIndex) const
+void AMonster::SetFSMStateAsBehaviorTree(uint8 enumIndex) const
 {
-	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, stateIndex);
+	m_AIControllerBase->GetBlackboardComponent()->SetValueAsEnum(AMonster::FSMStateKey, enumIndex);
 }
 

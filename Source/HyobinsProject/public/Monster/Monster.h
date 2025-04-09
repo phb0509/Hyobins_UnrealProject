@@ -25,12 +25,12 @@ public:
 	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), void>::Type
 	SetFSMState(const T state)
 	{
-		const uint8 stateIndex = static_cast<uint8>(state);
-		m_CurFSMState = stateIndex;
-		SetFSMStateAsBehaviorTree(stateIndex);
+		const uint8 enumIndex = static_cast<uint8>(state);
+		m_CurFSMState = enumIndex;
+		SetFSMStateAsBehaviorTree(enumIndex);
 	}
 	
-	void SetFSMStateAsBehaviorTree(uint8 stateIndex) const;
+	void SetFSMStateAsBehaviorTree(uint8 enumIndex) const;
 
 	
 protected:
@@ -41,7 +41,7 @@ protected:
 	virtual void ExecEvent_EndedDeathMontage() override;
 
 	// 사망시 호출할 TimeLine 이벤트.
-	UFUNCTION()
+	UFUNCTION()					
 	void OnCalledTimelineEvent_Loop_AfterDeath(float curveValue); // 특정시간(조절 가능한)동안 디퓨즈값 검은색으로 점점 변환.
 
 	UFUNCTION()
@@ -53,6 +53,7 @@ protected:
 	virtual void Initialize() override;
 	virtual void Activate() override;
 	virtual void DeActivate() override;
+	virtual bool IsActive() override;
 	
 	
 
