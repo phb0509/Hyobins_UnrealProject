@@ -6,12 +6,6 @@
 #include "CharacterBase/AnimInstanceBase.h"
 #include "MainPlayerAnim.generated.h"
 
-enum class EMainPlayerStates : uint8;
-
-
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnteredState_Falling);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnteredState_MoveOnGround);
 
 UCLASS()
 class HYOBINSPROJECT_API UMainPlayerAnim : public UAnimInstanceBase
@@ -26,8 +20,5 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ExecEvent_OnEnteredState_MoveOnGround() const;
-
-public:
-	FOnEnteredState_Falling OnEnteredState_Falling;
-	FOnEnteredState_MoveOnGround OnEnteredState_MoveOnGround;
+	
 };

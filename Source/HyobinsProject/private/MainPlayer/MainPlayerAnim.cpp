@@ -2,6 +2,7 @@
 
 
 #include "MainPlayer/MainPlayerAnim.h"
+#include "MainPlayer/MainPlayer.h"
 
 
 UMainPlayerAnim::UMainPlayerAnim() 
@@ -10,12 +11,16 @@ UMainPlayerAnim::UMainPlayerAnim()
 
 void UMainPlayerAnim::ExecEvent_OnEnteredState_Falling() const
 {
-	OnEnteredState_Falling.Broadcast();
+	AMainPlayer* owner = Cast<AMainPlayer>(TryGetPawnOwner());
+	
+	owner->AddInputMappingContext(TEXT("InAir"));
 }
 
 void UMainPlayerAnim::ExecEvent_OnEnteredState_MoveOnGround() const
 {
-	OnEnteredState_MoveOnGround.Broadcast();
+	AMainPlayer* owner = Cast<AMainPlayer>(TryGetPawnOwner());
+	
+	owner->RemoveInputMappingContext(TEXT("InAir"));
 }
 
 
