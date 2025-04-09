@@ -18,6 +18,8 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual FGenericTeamId GetGenericTeamId() const override;
+	virtual void SetupInputComponent() override;
+	
 	
 	void OpenEnvironmentSettingsState() const;
 

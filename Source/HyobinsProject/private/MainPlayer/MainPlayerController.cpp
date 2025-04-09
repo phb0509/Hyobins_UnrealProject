@@ -8,6 +8,7 @@
 AMainPlayerController::AMainPlayerController():
 	m_TeamID(FGenericTeamId(1))
 {
+	
 }
 
 void AMainPlayerController::BeginPlay()
@@ -18,6 +19,11 @@ void AMainPlayerController::BeginPlay()
 FGenericTeamId AMainPlayerController::GetGenericTeamId() const
 {
 	return m_TeamID;
+}
+
+void AMainPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
 }
 
 void AMainPlayerController::OpenEnvironmentSettingsState() const
