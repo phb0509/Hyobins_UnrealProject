@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "PlayableCharacter//PlayableCharacter.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "MainPlayer.generated.h"
+
 
 struct FInputActionValue;
 class UMainPlayerSkillComponent;
@@ -17,8 +18,8 @@ class UInputMappingContext;
 class UInputAction;
 
 enum class EMainPlayerStates : uint8;
+enum class ETriggerEvent : uint8;
 
-// DECLARE_MULTICAST_DELEGATE(FOnChangeInputMappingContextDelegate);
 
 UCLASS()
 class HYOBINSPROJECT_API AMainPlayer final: public APlayableCharacter
@@ -51,19 +52,17 @@ public:
 	void StopRun() const;
 
 
-	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
-	void AddInputContextMappingInAir();
-
-	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
-	void RemoveInputContextMappingInAir();
+	// UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
+	// void AddInAirInputMappingContext();
+	//
+	// UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
+	// void RemoveInAirInputMappingContext();
+	//
+	// void AddOnChargingInputMappingContext();
+	// void RemoveOnChargingInputMappingContext();
 	
-	void AddInputContextMappingOnCharging();
-	void RemoveInputContextMappingOnCharging();
-	
-	// Get
-	FORCEINLINE UMainPlayerSkillComponent* GetSkillComponent() const { return m_SkillComponent; }
-
-
+	bool GetIsGuard() const { return m_bIsGuard; }
+	void SetIsGuard(bool bIsGuard) { m_bIsGuard = bIsGuard; }
 	
 private:
 	void initAssets();
@@ -74,13 +73,10 @@ public:
 	static const FName SwordColliderName;
 	static const FName ShieldForAttackColliderName;
 	static const FName ShieldForDefendColliderName;
-	
-	
-	//FOnChangeInputMappingContextDelegate OnChangeInputMappingContext;
 
+	
 private:
-	UPROPERTY(VisibleDefaultsOnly)
-	TObjectPtr<UMainPlayerSkillComponent> m_SkillComponent;
+	bool m_bIsGuard;
 	
 	UPROPERTY(EditAnywhere) 
 	TObjectPtr<UCapsuleComponent> m_SwordCollider;
@@ -89,30 +85,30 @@ private:
 	TObjectPtr<UBoxComponent> m_ShieldForAttackCollider;
     
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UBoxComponent> m_ShieldForDefendCollider;
+	TObjectPtr<UBoxComponent> m_ShieldForGuardCollider;
 
 	UPROPERTY(EditAnywhere) 
 	TObjectPtr<UCapsuleComponent> m_ShieldBottomCollider;
 	
 	
-	// KeyInput
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
-	TObjectPtr<UInputMappingContext> m_InputMappingContextOnGround;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
-	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsDefaultOnGround;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
-	TObjectPtr<UInputMappingContext> m_InputMappingContextInAir;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
-	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsInAir;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | Charging", Meta = (AllowPrivateAccess = true))
-	TObjectPtr<UInputMappingContext> m_InputMappingContextOnCharging;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | Charging", Meta = (AllowPrivateAccess = true))
-	TMap<FName, TObjectPtr<UInputAction>> m_InputActionsOnCharging;
+	// // KeyInput
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
+	// TObjectPtr<UInputMappingContext> m_OnGround_InputMappingContext;
+	//
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | OnGround", Meta = (AllowPrivateAccess = true))
+	// TMap<FName, TObjectPtr<UInputAction>> m_OnGround_InputActions;
+	//
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
+	// TObjectPtr<UInputMappingContext> m_InAir_InputMappingContext;
+	//
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | InAir", Meta = (AllowPrivateAccess = true))
+	// TMap<FName, TObjectPtr<UInputAction>> m_InAir_InputActions;
+	//
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | Charging", Meta = (AllowPrivateAccess = true))
+	// TObjectPtr<UInputMappingContext> m_OnCharging_InputMappingContext;
+	//
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput | Charging", Meta = (AllowPrivateAccess = true))
+	// TMap<FName, TObjectPtr<UInputAction>> m_OnCharging_InputActions;
 	
 	
 	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))

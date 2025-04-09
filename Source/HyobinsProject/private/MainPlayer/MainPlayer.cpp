@@ -16,6 +16,7 @@ const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider"
 const FName AMainPlayer::ShieldForDefendColliderName = "ShieldForDefendCollider";
 
 AMainPlayer::AMainPlayer() :
+	m_bIsGuard(false),
 	m_bIsPressedShift(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -40,10 +41,6 @@ void AMainPlayer::BeginPlay()
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
-
-	UMainPlayerAnim* animInstance = Cast<UMainPlayerAnim>(GetMesh()->GetAnimInstance());
-	animInstance->OnEnteredState_Falling.AddDynamic(this, &AMainPlayer::AddInputContextMappingInAir);
-	animInstance->OnEnteredState_MoveOnGround.AddDynamic(this, &AMainPlayer::RemoveInputContextMappingInAir);
 }
 
 void AMainPlayer::Tick(float DeltaTime) 
@@ -62,65 +59,6 @@ void AMainPlayer::StopRun() const
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
 }
-
-void AMainPlayer::AddInputContextMappingInAir()
-{
-	const APlayerController* playerController = Cast<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
-
-	if (!subSystem->HasMappingContext(m_InputMappingContextInAir))
-	{
-		const int8 priority = m_CurActiveMappingContexts.Num();
-		m_CurActiveMappingContexts.Add("InAir", priority);
-		subSystem->AddMappingContext(m_InputMappingContextInAir,priority);
-
-		OnChangeInputMappingContext.Broadcast();
-	}
-}
-
-void AMainPlayer::RemoveInputContextMappingInAir()
-{
-	const APlayerController* playerController = Cast<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
-
-	if (subSystem->HasMappingContext(m_InputMappingContextInAir))
-	{
-		subSystem->RemoveMappingContext(m_InputMappingContextInAir);
-		m_CurActiveMappingContexts.Remove("InAir");
-
-		OnChangeInputMappingContext.Broadcast();
-	}
-}
-
-void AMainPlayer::AddInputContextMappingOnCharging()
-{
-	const APlayerController* playerController = Cast<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
-
-	if (!subSystem->HasMappingContext(m_InputMappingContextOnCharging))
-	{
-		const int8 priority = m_CurActiveMappingContexts.Num();
-		m_CurActiveMappingContexts.Add("ChargingOnGround", priority);
-		subSystem->AddMappingContext(m_InputMappingContextOnCharging,priority);
-
-		OnChangeInputMappingContext.Broadcast();
-	}
-}
-
-void AMainPlayer::RemoveInputContextMappingOnCharging()
-{
-	const APlayerController* playerController = Cast<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
-	
-	if (subSystem->HasMappingContext(m_InputMappingContextOnCharging))
-	{
-		subSystem->RemoveMappingContext(m_InputMappingContextOnCharging);
-		m_CurActiveMappingContexts.Remove("ChargingOnGround");
-
-		OnChangeInputMappingContext.Broadcast();
-	}
-}
-
 
 void AMainPlayer::Move(const FInputActionValue& value)
 {
@@ -158,44 +96,47 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	const APlayerController* playerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
 	subSystem->ClearAllMappings();
-	subSystem->AddMappingContext(m_InputMappingContextOnGround,0);
+	
+	subSystem->AddMappingContext(m_InputMappingConfigs["DefaultOnGround"].inputMappingContext,0);
 	m_CurActiveMappingContexts.Add("DefaultOnGround", 0);
 	
 	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
+	UMainPlayerSkillComponent* skillComponent = Cast<UMainPlayerSkillComponent>(m_SkillComponent);
 	
 	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
 	
 	// UI
-	EIC->BindAction(m_InputActionsDefaultOnGround["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
 
 	// Move
-	EIC->BindAction(m_InputActionsDefaultOnGround["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
-	EIC->BindAction(m_InputActionsDefaultOnGround["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
-	EIC->BindAction(m_InputActionsDefaultOnGround["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
-	EIC->BindAction(m_InputActionsDefaultOnGround["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
-	EIC->BindAction(m_InputActionsDefaultOnGround["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
 
 	// Skill_OnGround
-	EIC->BindAction(m_InputActionsDefaultOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, m_SkillComponent.Get(), &UMainPlayerSkillComponent::ActivateStrikeAttack);
-	EIC->BindAction(m_InputActionsDefaultOnGround["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Completed, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DeactivateStrikeAttack);
-	
-	EIC->BindAction(m_InputActionsDefaultOnGround["NormalAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_OnGround);
-	EIC->BindAction(m_InputActionsDefaultOnGround["UpperAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::UpperAttack_OnGround);
-	EIC->BindAction(m_InputActionsDefaultOnGround["DashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_OnGround);
-	EIC->BindAction(m_InputActionsDefaultOnGround["Dodge_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Dodge_OnGround);
-
-	EIC->BindAction(m_InputActionsDefaultOnGround["Charging_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["NormalAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::NormalAttack_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["UpperAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::UpperAttack_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["DashAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::DashAttack_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Dodge_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Dodge_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Charging_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Guard_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Guard_OnGround);
 	
 	// Skill_InAir
-	EIC->BindAction(m_InputActionsInAir["NormalAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::NormalAttack_InAir);
-	EIC->BindAction(m_InputActionsInAir["EarthStrike_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::EarthStrike_InAir);
-	EIC->BindAction(m_InputActionsInAir["DashAttack_InAir"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::DashAttack_InAir);
+	EIC->BindAction(m_InputMappingConfigs["InAir"].inputActions["NormalAttack_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::NormalAttack_InAir);
+	EIC->BindAction(m_InputMappingConfigs["InAir"].inputActions["EarthStrike_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::EarthStrike_InAir);
+	EIC->BindAction(m_InputMappingConfigs["InAir"].inputActions["DashAttack_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::DashAttack_InAir);
 
 	
 	// Charging Skill
-	EIC->BindAction(m_InputActionsOnCharging["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, m_SkillComponent.Get(), &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
-	
+	EIC->BindAction(m_InputMappingConfigs["ChargingOnGround"].inputActions["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
+
+	// StrikeAttack
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, skillComponent, &UMainPlayerSkillComponent::ActivateStrikeAttack);
+	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Completed, skillComponent, &UMainPlayerSkillComponent::DeactivateStrikeAttack);
 }
+
 
 void AMainPlayer::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
 {
@@ -212,6 +153,29 @@ void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
     }
 }
 
+void AMainPlayer::playAttackEffect()
+{
+	// 카메라흔들림 적용
+	UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
+	m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
+	
+	FTimerHandle timer;
+	GetWorldTimerManager().SetTimer
+	( 
+		timer,
+		[=]()
+		{
+			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
+		},
+		m_GameSpeedDelay,
+		false
+	);
+	
+	if (m_AttackCameraShake != nullptr)
+	{
+		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
+	}
+}
 
 void AMainPlayer::initAssets()
 {
@@ -276,13 +240,13 @@ void AMainPlayer::initAssets()
 	// ShieldCollider For Defend
 	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.375f, 1.625f, 0.225f} };
 
-	m_ShieldForDefendCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForDefendCollider"));
-	m_ShieldForDefendCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
-	m_ShieldForDefendCollider->SetWorldTransform(collisionTransform);
-	m_ShieldForDefendCollider->SetCollisionProfileName(TEXT("DefendCollider_Player"));
-	m_ShieldForDefendCollider->SetGenerateOverlapEvents(true);
-	m_ShieldForDefendCollider->SetNotifyRigidBodyCollision(false);
-	m_ShieldForDefendCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	m_ShieldForGuardCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForGuardCollider"));
+	m_ShieldForGuardCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
+	m_ShieldForGuardCollider->SetWorldTransform(collisionTransform);
+	m_ShieldForGuardCollider->SetCollisionProfileName(TEXT("DefendCollider_Player"));
+	m_ShieldForGuardCollider->SetGenerateOverlapEvents(true);
+	m_ShieldForGuardCollider->SetNotifyRigidBodyCollision(false);
+	m_ShieldForGuardCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 
 	// ShieldBotoomCollider
@@ -299,7 +263,7 @@ void AMainPlayer::initAssets()
 	
 	m_Colliders.Add(SwordColliderName,m_SwordCollider);
 	m_Colliders.Add(ShieldForAttackColliderName,m_ShieldForAttackCollider);
-	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForDefendCollider);
+	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForGuardCollider);
 	m_Colliders.Add(TEXT("ShieldBottomCollider"),m_ShieldBottomCollider);
 	m_Colliders.Add(HitColliderName,m_ShieldBottomCollider);
 }
@@ -337,26 +301,4 @@ void AMainPlayer::printLog() const
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
 
-void AMainPlayer::playAttackEffect()
-{
-	// 카메라흔들림 적용
-	UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
-	m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
-	
-	FTimerHandle timer;
-	GetWorldTimerManager().SetTimer
-	( 
-		timer,
-		[=]()
-		{
-			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
-		},
-		m_GameSpeedDelay,
-		false
-	);
-	
-	if (m_AttackCameraShake != nullptr)
-	{
-		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
-	}
-}
+
