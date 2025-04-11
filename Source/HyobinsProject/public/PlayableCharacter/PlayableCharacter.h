@@ -6,13 +6,31 @@
 #include "CharacterBase/CharacterBase.h"
 #include "PlayableCharacter.generated.h"
 
+class USkillComponent;
 struct FInputActionValue;
-class UMainPlayerSkillComponent;
 class USpringArmComponent;
 class UCameraComponent;
 class UMotionWarpingComponent;
 class UInputMappingContext;
 class UInputAction;
+
+
+USTRUCT(Atomic) 
+struct FInputConfig 
+{
+	GENERATED_USTRUCT_BODY() 
+
+public:
+	FName inputMappingContextName;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputMappingContext> inputMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TMap<FName, TObjectPtr<UInputAction>> inputActions;
+};
+
+
 
 DECLARE_MULTICAST_DELEGATE(FOnChangeInputMappingContextDelegate);
 
@@ -28,6 +46,12 @@ public:
 	
 	void RotateActorToKeyInputDirection();
 	void RotateActorToControllerYaw(); // 액터의 z축회전값을 컨트롤러의 z축회전값으로 변경.
+
+	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
+	void AddInputMappingContext(const FName& inputMappingContextName);
+
+	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
+	void RemoveInputMappingContext(const FName& inputMappingContextName);
 	
 	// Get
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
@@ -35,16 +59,17 @@ public:
 	FORCEINLINE int32 GetDirectionIndexFromKeyInput() const { return DirectionIndex[m_CurInputVertical + 1][m_CurInputHorizontal + 1]; }
 	FORCEINLINE TWeakObjectPtr<AActor> GetCurTarget() const { return m_CurTarget; }
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
+	FORCEINLINE USkillComponent* GetSkillComponent() const { return m_SkillComponent; }
 	FName GetHighestPriorityInputMappingContext() const;
 
 	FVector GetForwardVectorFromControllerYaw() const;
 	FVector GetRightVectorFromControllerYaw() const;
 	FVector GetControllerKeyInputDirectionVector(const int32 keyInputDirection) const;
 	int32 GetLocalDirection(const FVector& otherDirectionVector) const;
-
 	
 	// Set
 	void SetCurTarget(AActor* target) { m_CurTarget = target; }
+
 
 public:
 	static const int32 DirectionIndex[3][3];
@@ -52,12 +77,17 @@ public:
 
 private:
 	void initAssets();
-
-
-
+	void initInputConfigs();
 
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "InputMappingContext")
+	TMap<FName, FInputConfig> m_InputMappingConfigs;
+	TMap<FName, int32> m_CurActiveMappingContexts;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USkillComponent> m_SkillComponent;
+	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
 	
@@ -75,7 +105,6 @@ protected:
 	int32 m_CurInputVertical;
 
 	TWeakObjectPtr<AActor> m_CurTarget;
-	TMap<FName, int32> m_CurActiveMappingContexts;
 	
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
