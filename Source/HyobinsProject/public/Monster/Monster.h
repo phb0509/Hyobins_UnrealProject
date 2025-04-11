@@ -34,7 +34,7 @@ public:
 
 	
 protected:
-	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) override;
+	virtual void execEvent_CommonCrowdControl(AActor* instigator) override;
 	virtual void SetCrowdControlState(const ECrowdControlStates state) override;
 
 	virtual void Die() override;

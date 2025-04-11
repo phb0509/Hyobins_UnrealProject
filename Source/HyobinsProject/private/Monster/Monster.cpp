@@ -5,7 +5,7 @@
 #include "CharacterBase/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
 #include "Component/StatComponent.h"
-#include "Utility/EnumTypes.h"
+
 
 
 const FName AMonster::HomePosKey(TEXT("HomePos"));
@@ -45,13 +45,11 @@ ACharacterBase* AMonster::GetTarget() const
 	return Cast<ACharacterBase>(m_AIControllerBase->GetBlackboardComponent()->GetValueAsObject(TEXT("Enemy")));
 }
 
-void AMonster::execEvent_CommonCrowdControl(const ACharacterBase* instigator)
+void AMonster::execEvent_CommonCrowdControl(AActor* instigator)
 {
-	ACharacterBase* instigatorCharacter = const_cast<ACharacterBase*>(instigator);
-	
-	if (instigatorCharacter != nullptr && !m_bIsSuperArmor) // 슈퍼아머상태면 피격모션을 재생안시킬것이기 때문에 예외.
+	if (IsValid(instigator) && !m_bIsSuperArmor) // 슈퍼아머상태면 피격모션을 재생안시킬것이기 때문에 예외.
 	{
-		m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigatorCharacter);
+		m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 	}
 }
 
@@ -135,8 +133,6 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 
  void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 {
-	UE_LOG(LogTemp, Warning, TEXT("AMonster :: PlayOnHitEffect"));
-
 	Super::PlayOnHitEffect(hitInfo);
 	
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 바로 붉게 했다가,
