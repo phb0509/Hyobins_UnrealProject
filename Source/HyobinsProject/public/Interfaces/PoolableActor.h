@@ -21,10 +21,7 @@ public:
 	virtual void Initialize() abstract;
 	virtual void Activate() abstract;
 	virtual void DeActivate() abstract;
-
-	FORCEINLINE bool GetIsActivated() const { return m_bIsActivated; } 
+	virtual bool IsActive() abstract;
 
 	
-protected:
-	bool m_bIsActivated = false;
 };
