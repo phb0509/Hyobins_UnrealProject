@@ -3,15 +3,11 @@
 #include "Component/MainPlayerSkillComponent.h"
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
-#include <GameFramework/CharacterMovementComponent.h>
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
-#include "SubSystems/UIManager.h"
-#include "MainPlayer/Skill/Skill.h"
 
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
-	m_GravityScaleInAir(0.00001f),
 	m_bCanDodge(true),
 	m_bCanChargingSkill(false),
 	m_bHasStartedComboKeyInputCheck(false),
@@ -21,24 +17,16 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
 }
 
-
 void UMainPlayerSkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
 	bindFuncOnMontageEvent();
-	
-	EMainPlayerSkillStates curSkillState = static_cast<EMainPlayerSkillStates>(3);
 }
 
 void UMainPlayerSkillComponent::NormalAttack_OnGround()
 {
 	ExecuteSkill("DefaultOnGround","NormalAttack_OnGround");
-}
-
-void UMainPlayerSkillComponent::NormalAttack_InAir()
-{
-	ExecuteSkill("InAir","NormalAttack_InAir");
 }
 
 void UMainPlayerSkillComponent::UpperAttack_OnGround()
@@ -51,14 +39,24 @@ void UMainPlayerSkillComponent::DashAttack_OnGround()
 	ExecuteSkill("DefaultOnGround","DashAttack_OnGround");
 }
 
-void UMainPlayerSkillComponent::DashAttack_InAir()
-{
-	ExecuteSkill("InAir","DashAttack_InAir");
-}
-
 void UMainPlayerSkillComponent::Dodge_OnGround()
 {
 	ExecuteSkill("DefaultOnGround","Dodge_OnGround");
+}
+
+void UMainPlayerSkillComponent::Guard_OnGround()
+{
+	ExecuteSkill("DefaultOnGround","Guard_OnGround");
+}
+
+void UMainPlayerSkillComponent::Charging_OnGround()
+{
+	ExecuteSkill("ChargingOnGround","Charging_OnGround");
+}
+
+void UMainPlayerSkillComponent::NormalAttack_InAir()
+{
+	ExecuteSkill("InAir","NormalAttack_InAir");
 }
 
 void UMainPlayerSkillComponent::EarthStrike_InAir()
@@ -66,9 +64,9 @@ void UMainPlayerSkillComponent::EarthStrike_InAir()
 	ExecuteSkill("InAir","EarthStrike_InAir");
 }
 
-void UMainPlayerSkillComponent::Charging_OnGround()
+void UMainPlayerSkillComponent::DashAttack_InAir()
 {
-	ExecuteSkill("ChargingOnGround","Charging_OnGround");
+	ExecuteSkill("InAir","DashAttack_InAir");
 }
 
 void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
@@ -86,14 +84,6 @@ void UMainPlayerSkillComponent::ExtendStrikeActivateDecisionTime()
 	},
 	m_StrikeAttackDecisionTime,
 	false);
-}
-
-void UMainPlayerSkillComponent::InitGravityScaleAfterAttack()
-{
-	if (m_Owner->GetCharacterMovement()->GravityScale == m_GravityScaleInAir)
-	{
-		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
-	}
 }
 
 void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted)

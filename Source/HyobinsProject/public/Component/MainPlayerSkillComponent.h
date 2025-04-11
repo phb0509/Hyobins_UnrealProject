@@ -6,11 +6,6 @@
 #include "Component/SkillComponent.h"
 #include "MainPlayerSkillComponent.generated.h"
 
-class AMainPlayer;
-class UMainPlayerAnim;
-
-enum class EMainPlayerSkillStates : uint8;
-
 
 UCLASS()
 class HYOBINSPROJECT_API UMainPlayerSkillComponent : public USkillComponent
@@ -27,6 +22,7 @@ public:
 	void UpperAttack_OnGround();
 	void DashAttack_OnGround();
 	void Dodge_OnGround();
+	void Guard_OnGround();
 	
 	void NormalAttack_InAir();
 	void DashAttack_InAir();
@@ -44,7 +40,7 @@ public:
 	FORCEINLINE bool GetHasStartedComboKeyInputCheck() const { return m_bHasStartedComboKeyInputCheck; }
 	FORCEINLINE bool GetCanDodge() const { return m_bCanDodge; }
 	FORCEINLINE bool GetCanChargingSkill() const { return m_bCanChargingSkill; }
-	FORCEINLINE float GetGravityScaleInAir() const { return m_GravityScaleInAir; }
+	
 
 	
 	FORCEINLINE void SetHasStartedComboKeyInputCheck(const bool bHasStartedKeyInputCheck) { m_bHasStartedComboKeyInputCheck = bHasStartedKeyInputCheck;}
@@ -54,7 +50,6 @@ public:
 	UFUNCTION()
 	void SetIdle(UAnimMontage* Montage, bool bInterrupted);
 
-	void InitGravityScaleAfterAttack(); // 특정공격들(공중에 유지시키기위해 중력값을 약하게 만들어놓는) 이후 다시 정상값으로 초기화.
 	
 private:
 	void bindFuncOnMontageEvent();
@@ -62,8 +57,6 @@ private:
 	
 
 private:
-	UPROPERTY(EditAnywhere, Category = "GravityScaleInAir")
-	float m_GravityScaleInAir;
 	
 	bool m_bCanDodge;
 	bool m_bCanChargingSkill;
