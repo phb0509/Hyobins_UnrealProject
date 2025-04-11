@@ -6,9 +6,9 @@
 #include "UObject/NoExportTypes.h"
 #include "Skill.generated.h"
 
-class AMainPlayer;
-class UMainPlayerAnim;
-class UMainPlayerSkillComponent;
+class APlayableCharacter;
+class UAnimInstanceBase;
+class USkillComponent;
 class UImage;
 class UTexture;
 class UTexture2D;
@@ -35,7 +35,7 @@ public:
 	FORCEINLINE UTexture2D* GetThumbnailFillTexture() const { return m_ThumbnailFillTexture; }
 	FORCEINLINE UTexture2D* GetThumbnailBackgroundTexture() const { return m_ThumbnailBackgroundTexture; }
 	
-	FORCEINLINE void SetOwnerInfo(AMainPlayer* owner);
+	FORCEINLINE void SetOwnerInfo(APlayableCharacter* owner);
 	FORCEINLINE void SetCoolDownTime(float coolDownTime) { m_CoolDownTime = coolDownTime; }
 
 protected:
@@ -45,9 +45,9 @@ public:
 	FOnExecute OnExecute;
 	
 protected:
-	TWeakObjectPtr<AMainPlayer> m_Owner;
-	TWeakObjectPtr<UMainPlayerAnim> m_OwnerAnimInstance;
-	TWeakObjectPtr<UMainPlayerSkillComponent> m_OwnerSkillComponent;
+	TWeakObjectPtr<APlayableCharacter> m_Owner;
+	TWeakObjectPtr<UAnimInstanceBase> m_OwnerAnimInstance;
+	TWeakObjectPtr<USkillComponent> m_OwnerSkillComponent;
 
 	FTimerHandle m_TimerHandle;
 	

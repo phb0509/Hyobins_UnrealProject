@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "MainPlayer/Skill/Skill.h"
-#include "MainPlayer/MainPlayer.h"
+#include "PlayableCharacter/Skill.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "MainPlayer/MainPlayerAnim.h"
-#include "Component/MainPlayerSkillComponent.h"
+#include "Component/SkillComponent.h"
 
 USkill::USkill() :
 	m_CoolDownTime(3.0f),
@@ -32,13 +32,13 @@ void USkill::Execute()
 	OnExecute.Broadcast();
 }
 
-void USkill::SetOwnerInfo(AMainPlayer* owner)
+void USkill::SetOwnerInfo(APlayableCharacter* owner)
 {
 	m_Owner = owner;
 
 	if (m_Owner.IsValid())
 	{
-		m_OwnerAnimInstance = Cast<UMainPlayerAnim>(m_Owner->GetMesh()->GetAnimInstance());
+		m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
 		m_OwnerSkillComponent = m_Owner->GetSkillComponent();
 	}
 }
