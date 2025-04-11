@@ -6,7 +6,6 @@
 #include "Monster/LichKing/LichKingAnim.h"
 #include "MotionWarpingComponent.h"
 #include "Component/StatComponent.h"
-#include "Utility/EnumTypes.h"
 #include "Utility/Utility.h"
 #include "SubSystems/DataManager.h"
 #include "SubSystems/UIManager.h"
@@ -46,8 +45,7 @@ void ALichKing::Tick(float DeltaTime)
 	printLog();
 }
 
-void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation,
-	const ACharacterBase* instigator)
+void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator)
 {
 	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator);
 
@@ -72,12 +70,12 @@ void ALichKing::DeActivate()
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar",this, ESlateVisibility::Collapsed);
 }
 
-void ALichKing::ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
+void ALichKing::ExecEvent_TakeAirborneAttack(AActor* instigator, const FAttackInformation* attackInfo)
 {
 	Super::ExecEvent_TakeKnockbackAttack(instigator, attackInfo);
 }
 
-void ALichKing::ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo)
+void ALichKing::ExecEvent_TakeDownAttack(AActor* instigator, const FAttackInformation* attackInfo)
 {
 	Super::ExecEvent_TakeKnockbackAttack(instigator, attackInfo);
 }
@@ -165,28 +163,27 @@ void ALichKing::initAssets()
 
 void ALichKing::printLog()
 {
-	// // 로그출력.
-	// const FVector location = GetActorLocation();
-	// GEngine->AddOnScreenDebugMessage(499, 3.f, FColor::Green, FString::Printf(TEXT("LichKing Location : %f  %f  %f"), location.X, location.Y, location.Z));
-	//
-	// const FString movementMode = GetCharacterMovement()->GetMovementName();
-	// FString log = TEXT("LichKing Mode :: ");
-	// log += movementMode;
-	// GEngine->AddOnScreenDebugMessage(500, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-	//
-	// FString fsmState = Utility::ConvertEnumToString(static_cast<ELichKingFSMStates>(m_CurFSMState));
-	// FString log1 = Tags[0].ToString() + " :: FSMState :: " + fsmState;
-	// GEngine->AddOnScreenDebugMessage(501, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
- //
-	// FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
-	// FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
-	// GEngine->AddOnScreenDebugMessage(502, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
-	//
-	// const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
-	// FString log3 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
-	// GEngine->AddOnScreenDebugMessage(503, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
-	//
-	// GEngine->AddOnScreenDebugMessage(504, 3.f, FColor::Green, FString::Printf(TEXT("CurSpeed : %f  "), m_CurSpeed));
-	// GEngine->AddOnScreenDebugMessage(505, 3.f, FColor::Green, FString::Printf(TEXT("MaxWalkSpeed : %f  "), GetCharacterMovement()->MaxWalkSpeed));
-
+	// 로그출력.
+	const FVector location = GetActorLocation();
+	GEngine->AddOnScreenDebugMessage(499, 3.f, FColor::Green, FString::Printf(TEXT("LichKing Location : %f  %f  %f"), location.X, location.Y, location.Z));
+	
+	const FString movementMode = GetCharacterMovement()->GetMovementName();
+	FString log = TEXT("LichKing Mode :: ");
+	log += movementMode;
+	GEngine->AddOnScreenDebugMessage(500, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	
+	FString fsmState = Utility::ConvertEnumToString(static_cast<ELichKingFSMStates>(m_CurFSMState));
+	FString log1 = Tags[0].ToString() + " :: FSMState :: " + fsmState;
+	GEngine->AddOnScreenDebugMessage(501, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
+ 
+	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
+	GEngine->AddOnScreenDebugMessage(502, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	
+	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
+	FString log3 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
+	GEngine->AddOnScreenDebugMessage(503, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	
+	GEngine->AddOnScreenDebugMessage(504, 3.f, FColor::Green, FString::Printf(TEXT("CurSpeed : %f  "), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(505, 3.f, FColor::Green, FString::Printf(TEXT("MaxWalkSpeed : %f  "), GetCharacterMovement()->MaxWalkSpeed));
 }

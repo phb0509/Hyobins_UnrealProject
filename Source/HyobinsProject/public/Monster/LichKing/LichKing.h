@@ -6,7 +6,6 @@
 #include "Monster/Monster.h"
 #include "LichKing.generated.h"
 
-
 class ALichKingAIController;
 class ULichKingAnim;
 class UMotionWarpingComponent;
@@ -28,10 +27,10 @@ protected:
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 
-	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator) override;
+	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator) override;
 
-	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
-	virtual void ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo) override;
+	virtual void ExecEvent_TakeAirborneAttack(AActor* instigator, const FAttackInformation* attackInfo) override;
+	virtual void ExecEvent_TakeDownAttack(AActor* instigator, const FAttackInformation* attackInfo) override;
 	
 	virtual void ExecEvent_OnStaminaIsZero() override;
 
