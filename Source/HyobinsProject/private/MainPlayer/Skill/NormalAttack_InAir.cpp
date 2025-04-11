@@ -2,8 +2,8 @@
 
 
 #include "MainPlayer/Skill/NormalAttack_InAir.h"
-#include "MainPlayer/MainPlayer.h"
-#include "MainPlayer/MainPlayerAnim.h"
+#include "PlayableCharacter/PlayableCharacter.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "MotionWarpingComponent.h"
 #include "Utility/EnumTypes.h"
@@ -18,24 +18,22 @@ UNormalAttack_InAir::UNormalAttack_InAir():
 void UNormalAttack_InAir::Initialize()
 {
 	Super::Initialize();
-
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_InAir"),
-[=]()
+[this]()
 	{
-		m_Owner->GetCharacterMovement()->GravityScale = ownerSkillComponent->GetGravityScaleInAir();
-		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_InAir);
+		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
+		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_InAir);
 	});
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
-	[=]()
+	[this]()
 	{
-		ownerSkillComponent->InitGravityScaleAfterAttack();
+		m_OwnerSkillComponent->InitGravityScaleAfterAttack();
 	});
 	
 		m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_InAir"),
-	[=]()
+	[this]()
 		{
 			m_CurComboAttackSection = 1;
 		});
@@ -84,5 +82,5 @@ void UNormalAttack_InAir::linqNextNormalAttackInAirCombo()
 
 bool UNormalAttack_InAir::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState();
+	return !m_Owner->IsCrowdControlState();
 }

@@ -2,7 +2,7 @@
 
 
 #include "MainPlayer/Skill/NormalAttack_OnGround.h"
-#include "MainPlayer/MainPlayer.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "MainPlayer/MainPlayerAnim.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "MotionWarpingComponent.h"
@@ -108,6 +108,6 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 
 bool UNormalAttack_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState() &&
+	return !m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }
