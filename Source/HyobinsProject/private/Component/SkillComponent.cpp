@@ -3,11 +3,12 @@
 #include "Component/SkillComponent.h"
 #include "CharacterBase/AnimInstanceBase.h"
 #include "PlayableCharacter/PlayableCharacter.h"
-#include "MainPlayer/Skill/Skill.h"
+#include "PlayableCharacter/Skill.h"
 #include "SubSystems/UIManager.h"
 
 USkillComponent::USkillComponent() :
-	m_CurSkillState(0)
+	m_CurSkillState(0),
+	m_GravityScaleInAir(0.00001f)
 {
 	PrimaryComponentTick.bCanEverTick = false; 
 	bWantsInitializeComponent = false;
@@ -24,11 +25,6 @@ void USkillComponent::BeginPlay()
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
 }
 
-FName USkillComponent::GetHighestPriorityInputMappingContext() const
-{
-	return m_Owner->GetHighestPriorityInputMappingContext();
-}
-
 void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const FName& skillName)
 {
 	if (HasSkill(inputMappingContextName, skillName))
@@ -39,6 +35,14 @@ void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const F
 		{
 			m_CurSkill->Execute();
 		}
+	}
+}
+
+void USkillComponent::InitGravityScaleAfterAttack()
+{
+	if (m_Owner->GetCharacterMovement()->GravityScale == m_GravityScaleInAir)
+	{
+		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
 	}
 }
 
@@ -64,17 +68,4 @@ void USkillComponent::loadSkills()
 	}
 }
 
-void USkillComponent::initSkills()
-{
-	for (const auto iter : m_SkillList)
-	{
-		for (const auto skill : iter.Value.skillList)
-		{
-			if (skill.Value != nullptr)
-			{
-				skill.Value->SetOwnerInfo(m_Owner.Get());
-				skill.Value->Initialize();
-			}
-		}
-	}
-}
+
