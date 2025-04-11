@@ -18,10 +18,10 @@ void UNotifyState_Check_KeyInput::NotifyBegin(USkeletalMeshComponent* MeshComp, 
 	AMainPlayer* owner = Cast<AMainPlayer>(MeshComp->GetOwner());
 	if (owner != nullptr)
 	{
-		UMainPlayerSkillComponent* skillComponent = owner->GetSkillComponent();
-		if (skillComponent != nullptr)
+		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(owner->GetSkillComponent());
+		if (ownerSkillComponent != nullptr)
 		{
-			skillComponent->SetHasStartedComboKeyInputCheck(true);
+			ownerSkillComponent->SetHasStartedComboKeyInputCheck(true);
 		}
 	}
 }
@@ -34,10 +34,10 @@ void UNotifyState_Check_KeyInput::NotifyEnd(USkeletalMeshComponent* MeshComp, UA
 	AMainPlayer* owner = Cast<AMainPlayer>(MeshComp->GetOwner());
 	if (owner != nullptr)
 	{
-		UMainPlayerSkillComponent* skillComponent = owner->GetSkillComponent();
-		if (skillComponent != nullptr)
+		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(owner->GetSkillComponent());
+		if (ownerSkillComponent != nullptr)
 		{
-			skillComponent->SetHasStartedComboKeyInputCheck(false);
+			ownerSkillComponent->SetHasStartedComboKeyInputCheck(false);
 		}
 	}
 }
