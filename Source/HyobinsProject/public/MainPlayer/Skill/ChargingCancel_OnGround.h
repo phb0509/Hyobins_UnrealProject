@@ -4,25 +4,21 @@
 
 #include "CoreMinimal.h"
 #include "PlayableCharacter/Skill.h"
-#include "Charging_OnGround.generated.h"
+#include "ChargingCancel_OnGround.generated.h"
 
 
 UCLASS()
-class HYOBINSPROJECT_API UCharging_OnGround : public USkill
+class HYOBINSPROJECT_API UChargingCancel_OnGround : public USkill
 {
 	GENERATED_BODY()
 
 public:
-	UCharging_OnGround();
+	UChargingCancel_OnGround();
 
 	virtual void Initialize() override;
 	virtual void Execute() override;
 
 protected:
 	virtual bool GetCanExecuteSkill() const override;
-
-private:
-	UPROPERTY(EditAnywhere, Category = "Duration")
-	float m_ChargingDuration;
 	
 };

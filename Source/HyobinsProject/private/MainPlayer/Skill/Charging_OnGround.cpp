@@ -2,8 +2,8 @@
 
 
 #include "MainPlayer/Skill/Charging_OnGround.h"
-#include "MainPlayer/MainPlayer.h"
-#include "MainPlayer/MainPlayerAnim.h"
+#include "PlayableCharacter/PlayableCharacter.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "Utility/EnumTypes.h"
 #include "SubSystems/UIManager.h"
@@ -16,52 +16,35 @@ UCharging_OnGround::UCharging_OnGround() :
 void UCharging_OnGround::Initialize()
 {
 	Super::Initialize();
-	
-	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	OnCharging.BindUObject(uiManager, &UUIManager::CreateChargingGageBar);
-	OnStopCharging.BindUObject(uiManager, &UUIManager::RemoveChargingGageBar);
 }
 
 void UCharging_OnGround::Execute()
 {
 	Super::Execute();
-
-	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround)) // 차징 해제
-	{
-		m_Owner->GetWorldTimerManager().ClearTimer(m_ChargingTimer);
-		owner->RemoveInputContextMappingOnCharging();
-		
-		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
-		ownerSkillComponent->SetCanChargingSkill(false);
-		
-		m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
-		
-		const bool result = OnStopCharging.ExecuteIfBound(m_Owner.Get()); // 게이지바 삭제.
-	}
-	else // 차징
-	{
-		m_Owner->GetWorldTimerManager().SetTimer(
-			m_ChargingTimer,
-			[=]()
-			{
-				owner->AddInputContextMappingOnCharging();
-				ownerSkillComponent->SetCanChargingSkill(true);
-			},
-			m_ChargingDuration,
-			false);
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	FTimerHandle chargingTimer = ownerSkillComponent->GetChargingTimer();
+	
+	m_Owner->GetWorldTimerManager().SetTimer(
+		chargingTimer,
+		[=]()
+		{
+			m_Owner->RemoveInputMappingContext(TEXT("Default_OnGround"));
+			m_Owner->AddInputMappingContext(TEXT("Charging_OnGround"));
+			ownerSkillComponent->SetCanChargingSkill(true);
+		},
+		m_ChargingDuration,
+		false);
 
-		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
-		
-		m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
-		
-		OnCharging.ExecuteIfBound(m_Owner.Get(), m_ChargingDuration); // 게이지바 생성
-	}
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
+	
+	m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
+	
+	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	uiManager->CreateChargingGageBar(m_Owner.Get(), m_ChargingDuration);
 }
 
 bool UCharging_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState();
+	return !m_Owner->IsCrowdControlState();
 }

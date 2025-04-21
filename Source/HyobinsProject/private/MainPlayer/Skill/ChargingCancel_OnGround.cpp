@@ -1,0 +1,44 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "MainPlayer/Skill/ChargingCancel_OnGround.h"
+#include "PlayableCharacter/PlayableCharacter.h"
+#include "CharacterBase/AnimInstanceBase.h"
+#include "Component/MainPlayerSkillComponent.h"
+#include "Utility/EnumTypes.h"
+#include "SubSystems/UIManager.h"
+
+UChargingCancel_OnGround::UChargingCancel_OnGround()
+{
+}
+
+void UChargingCancel_OnGround::Initialize()
+{
+	Super::Initialize();
+}
+
+void UChargingCancel_OnGround::Execute()
+{
+	Super::Execute();
+
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	FTimerHandle chargingTimer = ownerSkillComponent->GetChargingTimer();
+	
+	m_Owner->GetWorldTimerManager().ClearTimer(chargingTimer);
+	m_Owner->RemoveInputMappingContext(TEXT("Charging_OnGround"));
+	m_Owner->AddInputMappingContext(TEXT("Default_OnGround"));
+
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
+	ownerSkillComponent->SetCanChargingSkill(false);
+
+	m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
+
+	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	uiManager->RemoveChargingGageBar();
+	//OnStopCharging.BindUObject(uiManager, &UUIManager::RemoveChargingGageBar);
+}
+
+bool UChargingCancel_OnGround::GetCanExecuteSkill() const
+{
+	return m_OwnerAnimInstance->IsCurrentMontage(TEXT("Charging_OnGround"));
+}
