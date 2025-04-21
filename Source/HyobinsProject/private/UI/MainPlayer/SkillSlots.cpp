@@ -18,52 +18,61 @@ void USkillSlots::NativeConstruct()
 void USkillSlots::CreateSkillListFromSkillComponent(USkillComponent* skillComponent)
 {
 	m_SkillSlots.Empty();
-	
-	m_SkillComponent = skillComponent;
-	
-	const TMap<FName, FSkillList>* temp = m_SkillComponent->GetSkillList();
-	UClass* skillSlotClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlot.SkillSlot_C'"));
 
-	bool bIsFirst = true;
-	
-	for (const auto iter : *temp)
+	if (IsValid(skillComponent))
 	{
-		FName inputModeName = iter.Key;
-		if (bIsFirst)
-		{
-			m_CurModeName = inputModeName;
-		}
-		
-		FSkillSlotInfos skillSlots;
-		
-		for (const auto skill : iter.Value.skillList)
-		{
-			FName skillName = skill.Key;
-			USkill* skillType = skill.Value;
+		m_SkillComponent = skillComponent;
+	
+		const TMap<FName, FSkillList>* skillList = m_SkillComponent->GetSkillList();
+		UClass* skillSlotClass = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlot.SkillSlot_C'"));
 
-			if (skillType != nullptr)
+		bool bIsFirst = true;
+	
+		for (const auto iter : *skillList)
+		{
+			const FName inputMappingContextName = iter.Key;
+			
+			if (bIsFirst)
 			{
-				USkillSlot* skillSlot = Cast<USkillSlot>(CreateWidget(GetWorld(), skillSlotClass));
+				m_CurModeName = inputMappingContextName;
+			}
+		
+			FSkillSlotInfos skillSlots;
+		
+			for (const auto skill : iter.Value.skillList)
+			{
+				FName skillName = skill.Key;
+				USkill* skillType = skill.Value;
 
-				const FMargin paddingValue = {m_LeftPadding, m_TopPadding, m_RightPadding, m_BottomPadding};
-				skillSlot->SetSkill(skillType, paddingValue);
-				skillSlots.skillSlots.Add(skillSlot);
-
-				if (bIsFirst)
+				if (skillType != nullptr)
 				{
-					m_HorizontalBox->AddChildToHorizontalBox(skillSlot);
+					USkillSlot* skillSlot = Cast<USkillSlot>(CreateWidget(GetWorld(), skillSlotClass));
+
+					const FMargin paddingValue = {m_LeftPadding, m_TopPadding, m_RightPadding, m_BottomPadding};
+					skillSlot->SetSkill(skillType, paddingValue);
+					skillSlots.skillSlots.Add(skillSlot);
+
+					if (bIsFirst)
+					{
+						m_HorizontalBox->AddChildToHorizontalBox(skillSlot);
+					}
 				}
 			}
-		}
 		
-		bIsFirst = false;
-		m_SkillSlots.Add(inputModeName,skillSlots);
+			bIsFirst = false;
+			m_SkillSlots.Add(inputMappingContextName,skillSlots);
+		}
 	}
 }
 
 void USkillSlots::ChangeSkillSlots()
 {
 	FName highestPriorityModeName = m_SkillComponent->GetHighestPriorityInputMappingContext();
+
+	if (highestPriorityModeName == TEXT("None"))
+	{
+		return;
+	}
 	
 	if (m_CurModeName != highestPriorityModeName)
 	{

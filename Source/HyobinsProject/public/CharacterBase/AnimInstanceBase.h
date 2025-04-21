@@ -37,6 +37,7 @@ public:
 	void JumpToMontageSectionByIndex(const FName& montageName, int32 newSection);
 	void JumpToMontageSectionByName(const FName& montageName, FName newSection);
 	bool IsCurrentMontage(const FName& montageName);
+	FName GetCurrentMontageName() const;
 	
 	float GetMontagePlayTime(const FName& montageName);
 	UAnimMontage* GetMontage(const FName& montageName);

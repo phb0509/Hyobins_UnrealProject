@@ -2,8 +2,8 @@
 
 
 #include "MainPlayer/Skill/ComboDashAttack_OnGround.h"
-#include "MainPlayer/MainPlayer.h"
-#include "MainPlayer/MainPlayerAnim.h"
+#include "PlayableCharacter/PlayableCharacter.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "Utility/EnumTypes.h"
 
@@ -15,15 +15,15 @@ void UComboDashAttack_OnGround::Initialize()
 {
 	Super::Initialize();
 	
-	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Charging_ComboDashAttack_OnGround"),
 	[=]()
 	{
 		ownerSkillComponent->SetCanChargingSkill(false);
-		owner->RemoveInputContextMappingOnCharging();
-		owner->SetIsSuperArmor(false);
+		m_Owner->RemoveInputMappingContext(TEXT("Charging_OnGround"));
+		m_Owner->AddInputMappingContext(TEXT("Default_OnGround"));
+		m_Owner->SetIsSuperArmor(false, false);
 	});
 }
 
@@ -34,7 +34,7 @@ void UComboDashAttack_OnGround::Execute()
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
 	if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround) &&
-		ownerSkillComponent->GetCanChargingSkill())
+		ownerSkillComponent->CanChargingSkill())
 	{
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
 		
@@ -44,5 +44,5 @@ void UComboDashAttack_OnGround::Execute()
 
 bool UComboDashAttack_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState();
+	return !m_Owner->IsCrowdControlState();
 }

@@ -5,23 +5,29 @@
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
 #include "Component/MainPlayerSkillComponent.h"
-#include "Interfaces/Damageable.h"
+#include "Component/StatComponent.h"
 #include "Utility/EnumTypes.h"
-#include "Kismet/GameplayStatics.h"
 
-UGuard_OnGround::UGuard_OnGround()
+
+UGuard_OnGround::UGuard_OnGround() :
+	m_AdditionalDefense(100.0f)
 {
 }
 
 void UGuard_OnGround::Initialize()
 {
 	Super::Initialize();
+
+	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
+	owner->GetStatComponent()->SetAdditionalDefenseFromGuard(m_AdditionalDefense);
 	
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("GuardEnd_OnGround"),
-	[this]()
-	{
-		m_Owner->SetIsSuperArmor(false);
-	});
+	// m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Guard_OnGround"),
+	// [=]()
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("UGuard_OnGround :: AllEnded"));
+	// 	//owner->SetIsGuarding(false);
+	// 	//owner->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// });
 }
 
 void UGuard_OnGround::Execute()
@@ -32,13 +38,16 @@ void UGuard_OnGround::Execute()
 
 	if (!owner->IsGuard())
 	{
-		owner->SetIsGuard(true);
-		m_OwnerAnimInstance->PlayMontage("Guard_OnGround");
+		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Guard_OnGround);
+		m_OwnerAnimInstance->PlayMontage(TEXT("Guard_OnGround"));
+
+		owner->EnableGuard();
 	}
-	else
+	else // 정상적인 해제.
 	{
-		owner->SetIsGuard(false);
-		m_OwnerAnimInstance->PlayMontage("GuardEnd_OnGround");
+		m_OwnerAnimInstance->PlayMontage(TEXT("GuardEnd_OnGround"));
+
+		owner->DisableGuard();
 	}
 }
 

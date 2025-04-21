@@ -20,7 +20,7 @@ EBTNodeResult::Type UBTT_LichKing_Groggy::ExecuteTask(UBehaviorTreeComponent& Ow
 	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
 	
-	owner->SetIsSuperArmor(true);
+	owner->SetIsSuperArmor(true, false);
 	owner->GetStatComponent()->SetCanRecoveryHP(false);
 	owner->GetStatComponent()->SetCanRecoveryStamina(false);
 	animInstance->PlayMontage(TEXT("Groggy"));
@@ -57,7 +57,7 @@ void UBTT_LichKing_Groggy::InitializeMemory(UBehaviorTreeComponent& OwnerComp, u
 			animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Groggy"),
 		[&,owner]()
 			{
-				if (!owner->GetIsDead())
+				if (!owner->IsDead())
 				{
 					owner->GetStatComponent()->SetStaminaPercent(100.0f);
 					owner->GetStatComponent()->SetCanRecoveryHP(true);

@@ -3,7 +3,6 @@
 
 #include "Monster/Minions/Super/SuperMinion.h"
 #include "Monster/Minions/Super/SuperMinionAIController.h"
-#include "Utility/EnumTypes.h"
 #include "Utility/Utility.h"
 #include "SubSystems/DataManager.h"
 #include "SubSystems/UIManager.h"

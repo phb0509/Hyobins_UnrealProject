@@ -11,9 +11,9 @@
     <file url="file://$PROJECT_DIR$/Source/HyobinsProject/private/Utility/AnimInstanceBase.cpp" charset="x-windows-949" />
     <file url="file://$PROJECT_DIR$/Source/HyobinsProject/private/Utility/CharacterBase.cpp" charset="x-windows-949" />
     <file url="file://$PROJECT_DIR$/Source/HyobinsProject/private/Utility/Utility.cpp" charset="x-windows-949" />
+    <file url="file://$PROJECT_DIR$/Source/HyobinsProject/public/CharacterBase/AnimInstanceBase.h" charset="x-windows-949" />
     <file url="file://$PROJECT_DIR$/Source/HyobinsProject/public/Component/MainPlayerSkillComponent.h" charset="x-windows-949" />
     <file url="file://$PROJECT_DIR$/Source/HyobinsProject/public/SubSystems/UIManager.h" charset="x-windows-949" />
-    <file url="file://$PROJECT_DIR$/Source/HyobinsProject/public/Utility/AnimInstanceBase.h" charset="x-windows-949" />
     <file url="file://$PROJECT_DIR$/Source/HyobinsProject/public/Utility/CustomStructs.h" charset="x-windows-949" />
   </component>
 </project>

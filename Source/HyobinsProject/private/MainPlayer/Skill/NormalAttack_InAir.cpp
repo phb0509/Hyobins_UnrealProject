@@ -47,7 +47,7 @@ void UNormalAttack_InAir::Execute()
 	
 	if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_InAir))
 	{
-		if (ownerSkillComponent->GetHasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
+		if (ownerSkillComponent->HasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
 		{
 			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
 			

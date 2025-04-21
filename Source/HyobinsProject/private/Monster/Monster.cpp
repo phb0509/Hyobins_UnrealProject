@@ -118,7 +118,14 @@ void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회
 	
 	// 충돌체 비활성화.
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	for (const auto collider : m_Colliders)
+	{
+		if (collider.Value.IsValid())
+		{
+			collider.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
 	
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);

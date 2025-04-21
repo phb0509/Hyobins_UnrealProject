@@ -57,7 +57,7 @@ public:
 USTRUCT(Atomic) 
 struct FAttackInformation
 {
-	GENERATED_USTRUCT_BODY() // 언리얼 오브젝트임을 알리는 매크로
+	GENERATED_USTRUCT_BODY() 
 
 public:
 	FName attackName;
@@ -67,7 +67,6 @@ public:
 	float crowdControlTime; // CC기 지속시간
 	float knockBackDistance; // 밀려지는 정도
 	float airbornePower;
-	FVector colliderLocation;
 };
 
 USTRUCT(Atomic) 
@@ -81,6 +80,6 @@ public:
 	FVector hitActorLocation;	
 	float damage;
 	float crowdControlTime;
-	bool bIsCriticalHit;
+	bool bIsCriticalAttack;
 };
 

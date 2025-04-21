@@ -2,7 +2,7 @@
 
 
 #include "MainPlayer/Skill/UpperAttack_OnGround.h"
-#include "MainPlayer/MainPlayer.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "MainPlayer/MainPlayerAnim.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "MotionWarpingComponent.h"
@@ -37,7 +37,7 @@ void UUpperAttack_OnGround::Execute()
 
 		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 		
-		if (ownerSkillComponent->GetIsStrikeAttackActive())
+		if (ownerSkillComponent->IsStrikeAttackActive())
 		{
 			m_Owner->GetCharacterMovement()->SetMovementMode(MOVE_Flying); // Flying모드로 해야 모션워핑이 z축이동.
 
@@ -67,6 +67,6 @@ void UUpperAttack_OnGround::Execute()
 
 bool UUpperAttack_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState() &&
+	return !m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

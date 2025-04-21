@@ -2,7 +2,7 @@
 
 
 #include "UI/MainPlayer/SkillSlot.h"
-#include "MainPlayer/Skill/Skill.h"
+#include "PlayableCharacter/Skill.h"
 #include "Components/ProgressBar.h"
 
 

@@ -2,8 +2,8 @@
 
 
 #include "MainPlayer/Skill/DashAttack_OnGround.h"
-#include "MainPlayer/MainPlayer.h"
-#include "MainPlayer/MainPlayerAnim.h"
+#include "PlayableCharacter/PlayableCharacter.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "MotionWarpingComponent.h"
 #include "Utility/EnumTypes.h"
@@ -20,7 +20,7 @@ void UDashAttack_OnGround::Initialize()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("DashAttack_OnGround"),
     	[this]()
     	{
-    		m_Owner->SetIsSuperArmor(false);
+    		m_Owner->SetIsSuperArmor(false, false);
     	});
 }
 
@@ -35,7 +35,6 @@ void UDashAttack_OnGround::Execute()
 		TEXT("Forward"),
 		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
 	
-	ownerSkillComponent->SetCanDodge(false);
 	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	
 	m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
@@ -43,6 +42,6 @@ void UDashAttack_OnGround::Execute()
 
 bool UDashAttack_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState() &&
+	return !m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

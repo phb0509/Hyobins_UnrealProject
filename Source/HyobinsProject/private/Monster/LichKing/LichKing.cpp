@@ -45,11 +45,11 @@ void ALichKing::Tick(float DeltaTime)
 	printLog();
 }
 
-void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator)
+void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator, const FVector& causerLocation)
 {
-	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator);
+	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
 
-	if (m_StatComponent->GetCanRecoveryStamina())
+	if (m_StatComponent->CanRecoveryStamina())
 	{
 		m_StatComponent->OnDamageStamina(damage * 0.3f);
 	}

@@ -22,5 +22,8 @@ public:
 
 protected:
 	virtual bool GetCanExecuteSkill() const override;
-	
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	float m_AdditionalDefense;
 };

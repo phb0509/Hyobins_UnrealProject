@@ -2,9 +2,9 @@
 
 
 #include "MainPlayer/Skill/EarthStrike_InAir.h"
-#include "MainPlayer/MainPlayer.h"
-#include "MainPlayer/MainPlayerAnim.h"
-#include "Component/MainPlayerSkillComponent.h"
+#include "PlayableCharacter/PlayableCharacter.h"
+#include "CharacterBase/AnimInstanceBase.h"
+#include "Component/SkillComponent.h"
 #include "Utility/EnumTypes.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -31,8 +31,6 @@ void UEarthStrike_InAir::Execute()
 {
 	Super::Execute();
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-	
 	m_Owner->GetCharacterMovement()->GravityScale = 6.0f;
 	m_Owner->GetWorldTimerManager().SetTimer
 	(
@@ -43,14 +41,14 @@ void UEarthStrike_InAir::Execute()
 		true, -1
 	);
 	
-	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
+	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
 	
 	m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_FallingToGround"));
 }
 
 void UEarthStrike_InAir::ExecEvent_WhenOnGround()
 {
-	if (m_Owner->GetIsOnGround())
+	if (m_Owner->IsOnGround())
 	{
 		m_Owner->GetWorldTimerManager().ClearTimer(m_Timer);
 		m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_OnGround"));
@@ -82,7 +80,7 @@ void UEarthStrike_InAir::attack()
 		{
 			if (IsValid(overlappedEnemy))
 			{
-				m_Owner->Attack(TEXT("EarthStrike"), overlappedEnemy);
+				m_Owner->Attack(TEXT("EarthStrike"), overlappedEnemy, startLocation);
 			}
 		}
 	}	
@@ -109,5 +107,5 @@ void UEarthStrike_InAir::playEffect()
 
 bool UEarthStrike_InAir::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState();
+	return !m_Owner->IsCrowdControlState();
 }

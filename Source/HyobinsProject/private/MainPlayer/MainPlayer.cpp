@@ -4,6 +4,7 @@
 #include "MainPlayer/MainPlayerAnim.h"
 #include "MainPlayer/MainPlayerController.h"
 #include "Component/MainPlayerSkillComponent.h"
+#include "Component/StatComponent.h"
 #include "Utility/Utility.h"
 #include "SubSystems/DataManager.h"
 #include "EnhancedInputComponent.h"
@@ -13,10 +14,10 @@
 
 const FName AMainPlayer::SwordColliderName = "SwordCollider";
 const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider";
-const FName AMainPlayer::ShieldForDefendColliderName = "ShieldForDefendCollider";
+const FName AMainPlayer::ShieldForGuardColliderName = "ShieldForGuardCollider";
 
 AMainPlayer::AMainPlayer() :
-	m_bIsGuard(false),
+	m_bIsGuarding(false),
 	m_bIsPressedShift(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -41,6 +42,8 @@ void AMainPlayer::BeginPlay()
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
+
+	m_ShieldCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMainPlayer::Tick(float DeltaTime) 
@@ -89,60 +92,26 @@ void AMainPlayer::Look(const FInputActionValue& value)
 	this->AddControllerPitchInput(axisVector.Y);
 }
 
-void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AMainPlayer::Attack(const FName& attackName, AActor* target, const FVector& causerLocation)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
-	const APlayerController* playerController = Cast<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
-	subSystem->ClearAllMappings();
-	
-	subSystem->AddMappingContext(m_InputMappingConfigs["DefaultOnGround"].inputMappingContext,0);
-	m_CurActiveMappingContexts.Add("DefaultOnGround", 0);
-	
-	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
-	UMainPlayerSkillComponent* skillComponent = Cast<UMainPlayerSkillComponent>(m_SkillComponent);
-	
-	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
-	
-	// UI
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
-
-	// Move
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
-
-	// Skill_OnGround
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["NormalAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::NormalAttack_OnGround);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["UpperAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::UpperAttack_OnGround);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["DashAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::DashAttack_OnGround);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Dodge_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Dodge_OnGround);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Charging_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_OnGround);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["Guard_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Guard_OnGround);
-	
-	// Skill_InAir
-	EIC->BindAction(m_InputMappingConfigs["InAir"].inputActions["NormalAttack_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::NormalAttack_InAir);
-	EIC->BindAction(m_InputMappingConfigs["InAir"].inputActions["EarthStrike_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::EarthStrike_InAir);
-	EIC->BindAction(m_InputMappingConfigs["InAir"].inputActions["DashAttack_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::DashAttack_InAir);
-
-	
-	// Charging Skill
-	EIC->BindAction(m_InputMappingConfigs["ChargingOnGround"].inputActions["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
-
-	// StrikeAttack
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, skillComponent, &UMainPlayerSkillComponent::ActivateStrikeAttack);
-	EIC->BindAction(m_InputMappingConfigs["DefaultOnGround"].inputActions["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Completed, skillComponent, &UMainPlayerSkillComponent::DeactivateStrikeAttack);
-}
-
-
-void AMainPlayer::Attack(const FName& attackName, TWeakObjectPtr<AActor> target)
-{
-	Super::Attack(attackName, target);
+	Super::Attack(attackName, target, causerLocation);
 	
 	playAttackEffect();
+}
+
+void AMainPlayer::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator, const FVector& causerLocation)
+{
+	if (canGuard(instigator))
+	{
+		m_AnimInstanceBase->PlayMontage(TEXT("GuardHit_OnGround"));
+		UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: GuardHit"));
+	}
+	else
+	{
+		DisableGuard(); // 가드 강제해제.
+		Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
+		UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: CCHit"));
+	}
 }
 
 void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
@@ -175,6 +144,77 @@ void AMainPlayer::playAttackEffect()
 	{
 		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
 	}
+}
+
+bool AMainPlayer::canGuard(const AActor* instigator) const
+{
+	return m_bIsGuarding && Utility::GetHitDirection(instigator->GetActorLocation(), this) == 0;
+}
+
+void AMainPlayer::EnableGuard()
+{
+	this->SetIsGuarding(true);
+	this->GetStatComponent()->AddAdditionalDefenseFromGuard();
+	this->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AMainPlayer::DisableGuard()
+{
+	this->SetIsGuarding(false);
+	this->SetIsSuperArmor(false, false);
+	this->GetStatComponent()->RemoveAdditionalDefenseFromGuard();
+	m_ShieldCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	const APlayerController* playerController = Cast<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* subSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerController->GetLocalPlayer());
+	subSystem->ClearAllMappings();
+	
+	subSystem->AddMappingContext(m_InputMappingConfigs["Default_OnGround"].inputMappingContext,0);
+	m_CurActiveMappingContexts.Add("Default_OnGround", 0);
+	
+	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
+	UMainPlayerSkillComponent* skillComponent = Cast<UMainPlayerSkillComponent>(m_SkillComponent);
+	
+	// Completed : 눌렀다 뗐을 때,   Triggered : 누르고 있을 때
+	
+	// UI
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Open_EnvironmentSettings"], ETriggerEvent::Triggered, Cast<AMainPlayerController>(GetController()),&AMainPlayerController::OpenEnvironmentSettingsState);
+
+	// Move (Default_OnGround)
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Move"], ETriggerEvent::Triggered, this, &AMainPlayer::Move);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Move"], ETriggerEvent::Completed, this, &AMainPlayer::InitArrowKeys);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Look"], ETriggerEvent::Triggered, this, &AMainPlayer::Look);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Run"], ETriggerEvent::Triggered, this,&AMainPlayer::Run);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["StopRun"], ETriggerEvent::Triggered, this,&AMainPlayer::StopRun);
+
+	// StrikeAttack (Default_OnGround)
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, skillComponent, &UMainPlayerSkillComponent::ActivateStrikeAttack);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Completed, skillComponent, &UMainPlayerSkillComponent::DeactivateStrikeAttack);
+	
+	// Default_OnGround
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["NormalAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::NormalAttack_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["UpperAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::UpperAttack_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["DashAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::DashAttack_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Dodge_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Dodge_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Charging_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Guard_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Guard_OnGround);
+
+	
+	// Default_InAir
+	EIC->BindAction(m_InputMappingConfigs["Default_InAir"].inputActions["NormalAttack_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::NormalAttack_InAir);
+	EIC->BindAction(m_InputMappingConfigs["Default_InAir"].inputActions["EarthStrike_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::EarthStrike_InAir);
+	EIC->BindAction(m_InputMappingConfigs["Default_InAir"].inputActions["DashAttack_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::DashAttack_InAir);
+
+	
+	// Charging Skill
+	EIC->BindAction(m_InputMappingConfigs["Charging_OnGround"].inputActions["ChargingCancel_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::ChargingCancel_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["Charging_OnGround"].inputActions["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
+	
 }
 
 void AMainPlayer::initAssets()
@@ -238,16 +278,17 @@ void AMainPlayer::initAssets()
 	
 
 	// ShieldCollider For Defend
-	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {1.375f, 1.625f, 0.225f} };
+	collisionTransform = { {0.0f, 90.0f, -10.0f}, {0.0f, 0.0f, 10.0f}, {0.375f, 0.625f, 0.225f} };
 
-	m_ShieldForGuardCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForGuardCollider"));
-	m_ShieldForGuardCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
-	m_ShieldForGuardCollider->SetWorldTransform(collisionTransform);
-	m_ShieldForGuardCollider->SetCollisionProfileName(TEXT("DefendCollider_Player"));
-	m_ShieldForGuardCollider->SetGenerateOverlapEvents(true);
-	m_ShieldForGuardCollider->SetNotifyRigidBodyCollision(false);
-	m_ShieldForGuardCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
+	m_ShieldCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("ShieldForGuardCollider"));
+	m_ShieldCollider->SetupAttachment(GetMesh(), FName(TEXT("shield_inner")));
+	m_ShieldCollider->SetWorldTransform(collisionTransform);
+	m_ShieldCollider->SetCollisionProfileName(TEXT("GuardCollider_Player"));
+	m_ShieldCollider->SetGenerateOverlapEvents(true);
+	m_ShieldCollider->SetNotifyRigidBodyCollision(false);
+	m_ShieldCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	//m_ShieldCollider->OnComponentBeginOverlap.AddDynamic(this, &AMainPlayer::AMainPlayer::OnGuardOverlapBegin);
 
 	// ShieldBotoomCollider
 	
@@ -263,7 +304,7 @@ void AMainPlayer::initAssets()
 	
 	m_Colliders.Add(SwordColliderName,m_SwordCollider);
 	m_Colliders.Add(ShieldForAttackColliderName,m_ShieldForAttackCollider);
-	m_Colliders.Add(ShieldForDefendColliderName,m_ShieldForGuardCollider);
+	m_Colliders.Add(ShieldForGuardColliderName, m_ShieldCollider);
 	m_Colliders.Add(TEXT("ShieldBottomCollider"),m_ShieldBottomCollider);
 	m_Colliders.Add(HitColliderName,m_ShieldBottomCollider);
 }
@@ -297,6 +338,10 @@ void AMainPlayer::printLog() const
 	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
 	FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
 	GEngine->AddOnScreenDebugMessage(9, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
+
+	const FString bIsGuarding = FString::FromInt(m_bIsGuarding);
+	FString log5 = Tags[0].ToString() + " :: Is Guarding :: " + bIsGuarding;
+	GEngine->AddOnScreenDebugMessage(11, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
 	
 	GEngine->AddOnScreenDebugMessage(10, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

@@ -3,7 +3,7 @@
 
 #include "MainPlayer/Skill/Dodge_OnGround.h"
 #include "MainPlayer/MainPlayer.h"
-#include "MainPlayer/MainPlayerAnim.h"
+#include "CharacterBase/AnimInstanceBase.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "MotionWarpingComponent.h"
 #include "Utility/EnumTypes.h"
@@ -22,7 +22,7 @@ void UDodge_OnGround::Initialize()
 	{
 		if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
 		{
-			m_Owner->SetIsSuperArmor(false);
+			m_Owner->SetIsSuperArmor(false, false);
 		}
 	});
 }
@@ -32,51 +32,48 @@ void UDodge_OnGround::Execute()
 	Super::Execute();
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
 	
-	if (ownerSkillComponent->GetCanDodge()) // 어떠한 공격이든 수행중이면
+
+	m_Owner->SetCrowdControlState(ECrowdControlStates::None); // CC상태에서도 시전가능.
+	m_Owner->ClearCrowdControlTimerHandle();
+	
+	m_OwnerAnimInstance->StopAllMontages(0.0f);
+	
+	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_OnGround);
+
+	// 키입력에 따른 컨트롤러방향벡터 구하기.
+	const FVector controllerKeyInputDirection = m_Owner->GetControllerKeyInputDirectionVector(
+		m_Owner->GetDirectionIndexFromKeyInput());
+
+	// 컨트롤러방향벡터를 캐릭터 로컬벡터로 변환해 캐릭터기준 방향 알아오기.
+	const int32 localDirection = m_Owner->GetLocalDirection(controllerKeyInputDirection);
+
+	m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_OnGround"));
+	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("Dodge_OnGround"), localDirection);
+
+	FVector targetVerticalVector;
+	FVector targetHorizontalVector;
+
+	if (m_Owner->GetCurInputHorizontal() == 0 && m_Owner->GetCurInputVertical() == 0) // 키입력 없을 시,
 	{
-		m_Owner->SetCrowdControlState(ECrowdControlStates::None);
-		m_Owner->ClearCrowdControlTimerHandle();
-		
-		m_OwnerAnimInstance->StopAllMontages(0.0f);
-		
-		ownerSkillComponent->SetCanDodge(false);
-		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_OnGround);
-		
-
-		// 키입력에 따른 컨트롤러방향벡터 구하기.
-		const FVector controllerKeyInputDirection = m_Owner->GetControllerKeyInputDirectionVector(
-			m_Owner->GetDirectionIndexFromKeyInput());
-
-		// 컨트롤러방향벡터를 캐릭터 로컬벡터로 변환해 캐릭터기준 방향 알아오기.
-		const int32 localDirection = m_Owner->GetLocalDirection(controllerKeyInputDirection);
-
-		m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_OnGround"));
-		m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("Dodge_OnGround"), localDirection);
-
-		FVector targetVerticalVector;
-		FVector targetHorizontalVector;
-
-		if (m_Owner->GetCurInputHorizontal() == 0 && m_Owner->GetCurInputVertical() == 0) // 키입력 없을 시,
-		{
-			targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_MoveDistance;
-			targetHorizontalVector = {0.0f, 0.0f, 0.0f};
-		}
-		else
-		{
-			targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_MoveDistance * m_Owner
-				->GetCurInputVertical();
-			targetHorizontalVector = m_Owner->GetRightVectorFromControllerYaw() * m_MoveDistance * m_Owner
-				->GetCurInputHorizontal();
-		}
-
-		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
+		targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_MoveDistance;
+		targetHorizontalVector = {0.0f, 0.0f, 0.0f};
 	}
+	else
+	{
+		targetVerticalVector = m_Owner->GetForwardVectorFromControllerYaw() * m_MoveDistance * m_Owner
+			->GetCurInputVertical();
+		targetHorizontalVector = m_Owner->GetRightVectorFromControllerYaw() * m_MoveDistance * m_Owner
+			->GetCurInputHorizontal();
+	}
+
+	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		TEXT("Forward"), m_Owner->GetActorLocation() + targetVerticalVector + targetHorizontalVector);
+	
 }
 
 bool UDodge_OnGround::GetCanExecuteSkill() const
 {
-	return !m_Owner->GetIsCrowdControlState() &&
-		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
+	return !m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

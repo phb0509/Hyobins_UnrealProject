@@ -75,7 +75,7 @@ AActor* AActorPool::spawnActor(const TSubclassOf<AActor> classType, const FVecto
 			IPoolableActor* castedPoolableActor = Cast<IPoolableActor>(poolableActor);
 		
 			if (castedPoolableActor == nullptr ||
-				castedPoolableActor->GetIsActivated())
+				castedPoolableActor->IsActive())
 			{
 				continue;
 			}

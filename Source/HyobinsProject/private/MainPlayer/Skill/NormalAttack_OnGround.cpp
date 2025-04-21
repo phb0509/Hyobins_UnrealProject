@@ -48,7 +48,7 @@ void UNormalAttack_OnGround::Execute()
 	else if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround))
 	{
-		if (ownerSkillComponent->GetHasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
+		if (ownerSkillComponent->HasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
 		{
 			m_Owner->RotateActorToKeyInputDirection();
 
@@ -70,7 +70,7 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 	
 	if (m_CurComboAttackSection % 2 != 0) // 기본공격중인경우,
 	{
-		if (ownerSkillComponent->GetIsStrikeAttackActive()) // 강공격키 눌려있으면,
+		if (ownerSkillComponent->IsStrikeAttackActive()) // 강공격키 눌려있으면,
 		{
 			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround);
 			m_CurComboAttackSection += 1;
@@ -83,7 +83,7 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 	}
 	else // 강공격중인경우,
 	{
-		if (ownerSkillComponent->GetIsStrikeAttackActive())
+		if (ownerSkillComponent->IsStrikeAttackActive())
 		{
 			m_CurComboAttackSection = FMath::Clamp(m_CurComboAttackSection + 2, 1, m_MaxNormalAttackSection);
 	

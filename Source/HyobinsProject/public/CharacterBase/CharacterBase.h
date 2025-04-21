@@ -26,7 +26,7 @@ struct FAttackInformation;
 enum class ECrowdControlStates : uint8;
 enum class ECrowdControlType : uint8;
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, const ACharacterBase*, const FAttackInformation*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, AActor*, const FAttackInformation*);
 DECLARE_MULTICAST_DELEGATE(FOnCrowdControl_End_Delegate);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTakeDamageDelegate, const FHitInformation&);
 DECLARE_MULTICAST_DELEGATE(FOnDeathDelegate);
@@ -42,10 +42,10 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	// IAttacker
-	virtual void Attack(const FName& attackName, TWeakObjectPtr<AActor> target) override;
+	virtual void Attack(const FName& attackName, AActor* target, const FVector& causerLocation) override;
 	
 	// IDamageable
-	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, const ACharacterBase* instigator) override;
+	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 
 	
 	void ClearCrowdControlTimerHandle();
@@ -71,17 +71,20 @@ public:
 	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) { return m_Colliders[colliderName].Get(); }
 
 	FORCEINLINE ECrowdControlStates GetCurCrowdControlState() const { return m_CurCrowdControlState; }
-	FORCEINLINE bool GetIsCrowdControlState() const { return m_CurCrowdControlState != ECrowdControlStates::None; }
+	FORCEINLINE bool IsCrowdControlState() const { return m_CurCrowdControlState != ECrowdControlStates::None; }
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
 	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
-	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
-	FORCEINLINE bool GetIsOnGround() const { return m_bIsOnGround; }
-	FORCEINLINE bool GetIsFalling() const { return m_bIsFalling; }
-	FORCEINLINE bool GetIsFlying() const { return m_bIsFlying; }
-	FORCEINLINE bool GetIsDead() const { return m_bIsDead; }
+	
+	FORCEINLINE bool IsSuperArmor() const { return m_bIsSuperArmor; }
+	FORCEINLINE bool IsSuperArmorBuff() const { return m_bIsSuperArmorBuff; }
+	FORCEINLINE bool IsOnGround() const { return m_bIsOnGround; }
+	FORCEINLINE bool IsFalling() const { return m_bIsFalling; }
+	FORCEINLINE bool IsFlying() const { return m_bIsFlying; }
+	FORCEINLINE bool IsDead() const { return m_bIsDead; }
 
-	FORCEINLINE void SetIsSuperArmor(bool bIsSuperArmor) { m_bIsSuperArmor = bIsSuperArmor; }
+	FORCEINLINE void SetIsSuperArmor(bool bIsSuperArmor, bool bForce);
+	FORCEINLINE void SetIsSuperArmorBuff(bool bIsSuperArmorBuff) { m_bIsSuperArmorBuff = bIsSuperArmorBuff; }
 	
 	void RotateToTarget(const AActor* target, const FRotator& rotatorOffset);
 
@@ -89,17 +92,18 @@ public:
 	{
 		m_CurCrowdControlState = state;
 	}
+
 	
 protected:
-	virtual void execEvent_CommonCrowdControl(const ACharacterBase* instigator) {};
+	virtual void execEvent_CommonCrowdControl(AActor* instigator) {};
 	
-	virtual void ExecEvent_TakeKnockbackAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
+	virtual void ExecEvent_TakeKnockbackAttack(AActor* instigator, const FAttackInformation* attackInfo);
 	virtual void OnCalledTimer_KnockbackOnStanding_End();
 
-	virtual void ExecEvent_TakeAirborneAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
+	virtual void ExecEvent_TakeAirborneAttack(AActor* instigator, const FAttackInformation* attackInfo);
 	virtual void ExecEvent_Down_WhenOnGround();
 
-	virtual void ExecEvent_TakeDownAttack(const ACharacterBase* instigator, const FAttackInformation* attackInfo);
+	virtual void ExecEvent_TakeDownAttack(AActor* instigator, const FAttackInformation* attackInfo);
 	virtual void OnCalledTimer_Down_End();
 
 	void CallTimer_ExecDownEvent_WhenOnGround();
@@ -109,6 +113,7 @@ protected:
 	virtual void ExecEvent_OnStaminaIsZero() {};
 
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) {};
+	void ApplyKnockback(const float knockbackDistance, const FVector& instigatorLocation);
 	
 	// Death
 	UFUNCTION()
@@ -150,8 +155,11 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsFlying;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsSuperArmor;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
+	bool m_bIsSuperArmorBuff;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsDead;
@@ -195,3 +203,4 @@ private:
 	FName m_LastPlayedOnHitMontageName;
 	
 };
+

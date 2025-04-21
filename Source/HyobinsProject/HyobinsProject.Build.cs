@@ -16,7 +16,8 @@ public class HyobinsProject : ModuleRules
 		// Uncomment if you are using Slate UI
 		 PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "PropertyEditor" });
 		
-		 CppStandard = CppStandardVersion.Cpp20;
+		 CppStandard = CppStandardVersion.Cpp17;
+		 //PublicDefinitions.Add("__has_feature(x)=0");
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

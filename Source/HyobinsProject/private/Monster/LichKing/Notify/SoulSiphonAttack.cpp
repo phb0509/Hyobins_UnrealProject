@@ -50,7 +50,7 @@ void USoulSiphonAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 			{
 				if (overlappedEnemy != nullptr)
 				{
-					owner->Attack(TEXT("SoulSiphon"), overlappedEnemy);
+					owner->Attack(TEXT("SoulSiphon"), overlappedEnemy, startLocation);
 				}
 				
 				playHitEffect(overlappedEnemy);

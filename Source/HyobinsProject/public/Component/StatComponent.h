@@ -23,14 +23,19 @@ public:
 	
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
 	FORCEINLINE void ChangeMaxHP(const float hp) { m_MaxHP = hp; }
+
+	FORCEINLINE void AddDefense(const float additionalDefense)
+	{
+		m_Defense += additionalDefense;
+	}
 	
-	FORCEINLINE void AddMoveSpeed(const float additionalMoveSpeed)
+	void AddMoveSpeed(const float additionalMoveSpeed)
 	{
 		m_CurAdditionalMoveSpeed += additionalMoveSpeed;
 		m_CurMoveSpeed = 1.0f + m_CurAdditionalMoveSpeed / 100.0f;
 	}
 	
-	FORCEINLINE void AddAttackSpeed(const float additionalAttackSpeed)
+	void AddAttackSpeed(const float additionalAttackSpeed)
 	{
 		m_CurAdditionalAttackSpeed += additionalAttackSpeed;
 		m_CurAttackSpeed = 1.0f + m_CurAdditionalAttackSpeed / 100.0f;
@@ -40,18 +45,19 @@ public:
 	void RecoveryStamina();
 	
 	// Get
+	FORCEINLINE float GetDefense() const { return m_Defense; }
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
 	FORCEINLINE int32 GetCriticalAttackChance() const { return m_CriticalAttackChance; }
 
 	FORCEINLINE float GetCurHP() const { return m_CurHP; }
 	FORCEINLINE float GetMaxHP() const { return m_MaxHP; }
 	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
-	FORCEINLINE bool GetCanRecoveryHP() const { return m_bCanRecoveryHP; }
+	FORCEINLINE bool CanRecoveryHP() const { return m_bCanRecoveryHP; }
 
 	FORCEINLINE float GetCurStamin() const { return m_CurStamina; }
 	FORCEINLINE float GetMaxStamina() const { return m_MaxStamina; }
 	FORCEINLINE float GetStaminaRatio() const { return m_CurStamina < KINDA_SMALL_NUMBER ? 0.0f : (m_CurStamina / m_MaxStamina); }
-	FORCEINLINE bool GetCanRecoveryStamina() const { return m_bCanRecoveryStamina; }
+	FORCEINLINE bool CanRecoveryStamina() const { return m_bCanRecoveryStamina; }
 	
 	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
 	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
@@ -61,7 +67,13 @@ public:
 	FORCEINLINE void SetCanRecoveryStamina(bool bCanRecoveryStamina) { m_bCanRecoveryStamina = bCanRecoveryStamina; }
 	
 	// Set
-	void OnDamageHP(const float damage);
+	FORCEINLINE void SetDefense(float defense) { m_Defense = defense; }
+	FORCEINLINE void SetAdditionalDefenseFromGuard(float additionalDefenseFromGuard) { m_AdditionalDefenseFromGuard = additionalDefenseFromGuard; }
+
+	FORCEINLINE void AddAdditionalDefenseFromGuard() { m_AdditionalDefenseFromGuard += m_AdditionalDefenseFromGuard; }
+	FORCEINLINE void RemoveAdditionalDefenseFromGuard() { m_Defense -= m_AdditionalDefenseFromGuard; }
+	
+	float OnDamageHP(const float damage);
 	void SetHPPercent(const float hp);
 
 	void OnDamageStamina(const float damage);
@@ -84,6 +96,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_Defense;
+
+	float m_AdditionalDefenseFromGuard;
 	
 	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
 	float m_MaxHP;

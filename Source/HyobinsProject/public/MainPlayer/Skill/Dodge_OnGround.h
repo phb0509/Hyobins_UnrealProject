@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MainPlayer/Skill/Skill.h"
+#include "PlayableCharacter/Skill.h"
 #include "Dodge_OnGround.generated.h"
 
 /**
@@ -22,6 +22,8 @@ public:
 	
 protected:
 	virtual bool GetCanExecuteSkill() const override;
+
+
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "Dodge_OnGround")

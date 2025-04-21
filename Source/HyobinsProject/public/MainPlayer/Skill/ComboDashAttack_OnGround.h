@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MainPlayer/Skill/Skill.h"
+#include "PlayableCharacter/Skill.h"
 #include "ComboDashAttack_OnGround.generated.h"
 
 /**

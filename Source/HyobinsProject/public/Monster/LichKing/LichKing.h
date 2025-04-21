@@ -27,7 +27,7 @@ protected:
 	virtual void Activate() override;
 	virtual void DeActivate() override;
 
-	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator) override;
+	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 
 	virtual void ExecEvent_TakeAirborneAttack(AActor* instigator, const FAttackInformation* attackInfo) override;
 	virtual void ExecEvent_TakeDownAttack(AActor* instigator, const FAttackInformation* attackInfo) override;

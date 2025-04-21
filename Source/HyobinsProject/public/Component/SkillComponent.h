@@ -50,6 +50,13 @@ public:
 	const TMap<FName, FSkillList>* GetSkillList() const { return &m_SkillList; }
 	FName GetHighestPriorityInputMappingContext() const { return m_Owner->GetHighestPriorityInputMappingContext(); }
 	TWeakObjectPtr<USkill> GetCurSkill() const { return m_CurSkill; }
+
+
+	template <typename T> 
+	T GetCurSkillStateEnum(const uint8 enumInteger) const
+	{
+		return static_cast<T>(enumInteger);
+	}
 	
 	template<typename T>
 	typename TEnableIf<(TIsEnumClass<T>::Value || TIsIntegral<T>::Value), bool>::Type

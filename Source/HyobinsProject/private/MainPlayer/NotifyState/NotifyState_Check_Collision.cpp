@@ -8,7 +8,7 @@
 
 
 UNotifyState_Check_Collision::UNotifyState_Check_Collision() :
-m_HitSound(nullptr)
+	m_HitSound(nullptr)
 {
 }
 
@@ -20,7 +20,7 @@ void UNotifyState_Check_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	m_Owner = Cast<ACharacterBase>(MeshComp->GetOwner());
 	if (m_Owner.IsValid())
 	{
-		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		
 		if (m_AttackName != TEXT("Empty"))
 		{
@@ -37,20 +37,26 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 	if (m_Owner.IsValid())
 	{
 		TArray<AActor*> overlappedActors;
-		m_Owner->GetCollider(m_ColliderName)->GetOverlappingActors(overlappedActors);
-		
-		if (overlappedActors.Num() > 0)
-		{
-			for (AActor* overlappingEnemy : overlappedActors)
-			{
-				if (overlappingEnemy != nullptr && !m_Owner->HasContainHitActor(m_AttackName,overlappingEnemy))
-				{
-					m_Owner->AddHitActorsByMe(m_AttackName, overlappingEnemy);
-					m_Owner->Attack(m_AttackName, overlappingEnemy);
 
-					if (m_HitSound != nullptr)
+		UShapeComponent* weaponCollider = m_Owner->GetCollider(m_ColliderName);
+
+		if (IsValid(weaponCollider))
+		{
+			weaponCollider->GetOverlappingActors(overlappedActors);
+		
+			if (overlappedActors.Num() > 0)
+			{
+				for (AActor* overlappedActor : overlappedActors)
+				{
+					if (IsValid(overlappedActor) && !m_Owner->HasContainHitActor(m_AttackName,overlappedActor))
 					{
-						UGameplayStatics::PlaySound2D(m_Owner.Get(), m_HitSound, 2.5f);
+						m_Owner->AddHitActorsByMe(m_AttackName, overlappedActor);
+						m_Owner->Attack(m_AttackName, overlappedActor, weaponCollider->GetComponentLocation());
+						
+						if (IsValid(m_HitSound))
+						{
+							UGameplayStatics::PlaySound2D(m_Owner.Get(), m_HitSound, 2.5f);
+						}
 					}
 				}
 			}
@@ -65,6 +71,7 @@ void UNotifyState_Check_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 	
 	if (m_Owner.IsValid())
 	{
+		//m_Owner->ClearComponentOverlaps();
 		m_Owner->GetCollider(m_ColliderName)->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 }

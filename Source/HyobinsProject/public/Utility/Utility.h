@@ -31,7 +31,7 @@ public:
 		return m_DegreeTable[inputVertical + 1][inputHorizontal + 1];
 	}
 	
-	static int32 GetHitDirection(const AActor* hitActor, const AActor* attackActor); // 상하좌우 4방향 판별.
+	static int32 GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor); // 상하좌우 4방향 판별.
 	
 	template <typename T> 
 	static FString ConvertEnumToString(const T enumType) 

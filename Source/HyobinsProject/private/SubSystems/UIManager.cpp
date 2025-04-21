@@ -2,9 +2,8 @@
 
 
 #include "SubSystems/UIManager.h"
-#include "Utility/CharacterBase.h"
+#include "CharacterBase/CharacterBase.h"
 #include "Utility/CustomStructs.h"
-
 #include "Components/WidgetComponent.h"
 #include "UI/Monster/HPBar.h"
 #include "UI/System/EnvironmentSettings.h"
@@ -38,7 +37,6 @@ void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, AChara
 	mainPlayerStatusBar->AddToViewport();
 	
 	addWidgetContainer(TEXT("MainPlayerStatusBar"), widgetOwner, mainPlayerStatusBar, nullptr);
-
 }
 
 void UUIManager::CreateBossStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
@@ -162,7 +160,7 @@ void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float durati
 	addWidgetContainer(TEXT("ChargingGageBar"), widgetOwner, chargingGageBar, widgetComponent);
 }
 
-void UUIManager::RemoveChargingGageBar(ACharacterBase* widgetComponentOwner)
+void UUIManager::RemoveChargingGageBar()
 {
 	RemoveWidgetContainers("ChargingGageBar");
 }
@@ -237,7 +235,7 @@ void UUIManager::addWidgetContainer(const FName& widgetName, UObject* widgetOwne
 
 	m_UIWidgetsWidgetNameKey[widgetName].Add({widget,widgetComponent});
 
-	if (widgetOwner != nullptr)
+	if (IsValid(widgetOwner))
 	{
 		if (!m_UIWidgetsWidgetOwnerKey.Contains(widgetOwner))
 		{

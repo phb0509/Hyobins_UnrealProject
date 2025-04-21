@@ -28,7 +28,7 @@ void USkill::Execute()
 		m_CoolDownTime,
 		false);
 
-	m_Owner->SetIsSuperArmor(m_bIsSuperArmor);
+	m_Owner->SetIsSuperArmor(m_bIsSuperArmor, false);
 	OnExecute.Broadcast();
 }
 

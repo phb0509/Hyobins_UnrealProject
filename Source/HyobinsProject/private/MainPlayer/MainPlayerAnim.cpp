@@ -13,14 +13,14 @@ void UMainPlayerAnim::ExecEvent_OnEnteredState_Falling() const
 {
 	AMainPlayer* owner = Cast<AMainPlayer>(TryGetPawnOwner());
 	
-	owner->AddInputMappingContext(TEXT("InAir"));
+	owner->AddInputMappingContext(TEXT("Default_InAir"));
 }
 
 void UMainPlayerAnim::ExecEvent_OnEnteredState_MoveOnGround() const
 {
 	AMainPlayer* owner = Cast<AMainPlayer>(TryGetPawnOwner());
 	
-	owner->RemoveInputMappingContext(TEXT("InAir"));
+	owner->RemoveInputMappingContext(TEXT("Default_InAir"));
 }
 
 

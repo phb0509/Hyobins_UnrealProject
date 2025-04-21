@@ -19,15 +19,15 @@ Utility::~Utility()
 {
 }
 
-int32 Utility::GetHitDirection(const AActor* hitActor, const AActor* attackActor) // 공격당한 액터, 공격한 액터
+int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor) // 공격당한 액터, 공격한 액터
 {
-	if (hitActor == nullptr || attackActor == nullptr)
+	if (hitActor == nullptr)
 	{
 		return -1;
 	}
 	
 	const FVector forward = hitActor->GetActorForwardVector();
-	FVector toActor = attackActor->GetActorLocation() - hitActor->GetActorLocation(); // hitActor -> attackActor 벡터.
+	FVector toActor = instigatorLocation - hitActor->GetActorLocation(); // hitActor -> attackActor 벡터.
 	toActor.Normalize();
 	
 	const float cosTheta = FVector::DotProduct(forward, toActor);

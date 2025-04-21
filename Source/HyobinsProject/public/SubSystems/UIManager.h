@@ -10,15 +10,8 @@
 
 class ACharacterBase;
 class UStatComponent;
-class UHPBar;
-class UEnvironmentSettings;
 class UCombo;
-class UChargingGageBar;
-
-class UMainPlayerStatusBar;
 class USkillComponent;
-class UCharging_OnGround;
-class USkillSlots;
 
 struct FHitInformation;
 
@@ -64,7 +57,7 @@ public:
 	FORCEINLINE bool GetIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
 	
 	void CreateChargingGageBar(ACharacterBase* widgetOwner, float duration);
-	void RemoveChargingGageBar(ACharacterBase* widgetComponentOwner);
+	void RemoveChargingGageBar();
 	
 	void SetVisibilityWidgets(const FName& widgetName, UObject* widgetOwner, ESlateVisibility slateVisibility); // 매개변수 widgetName에 해당하는 모든 위젯을 SetVisibility
 	void RemoveWidgetContainers(const FName& widgetName);
