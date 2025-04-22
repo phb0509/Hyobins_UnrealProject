@@ -39,8 +39,8 @@ public:
 
 	
 	// AxisMappings
-	void Move(const FInputActionValue& value);
-	void Look(const FInputActionValue& value);
+	void Move(const FInputActionValue& value); // WSAD
+	void Look(const FInputActionValue& value); // Mouse X,Y
 	
 	FORCEINLINE void InitArrowKeys()
 	{
@@ -49,8 +49,8 @@ public:
 	}
 	
 	// ActionMappings
-	void Run() const;
-	void StopRun() const;
+	void Run();
+	void StopRun();
 	
 	bool IsGuard() const { return m_bIsGuarding; }
 	void SetIsGuarding(bool bIsGuard) { m_bIsGuarding = bIsGuard; }
@@ -79,16 +79,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> m_ShieldForAttackCollider;
 	
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
-	// TObjectPtr<UBoxComponent> m_ShieldForDefendCollider;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> m_ShieldCollider;
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true)) 
 	TObjectPtr<UCapsuleComponent> m_ShieldBottomCollider;
 	
-	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	bool m_bIsPressedShift;
 };

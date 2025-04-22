@@ -37,7 +37,7 @@ void AMainPlayer::BeginPlay()
 
 	UE_LOG(LogTemp, Warning, TEXT("MainPlayer::BeginPlay"));
 	
-	SetActorLocation(FVector(0.0f, 0.0f, 100.0f));
+	SetActorLocation(FVector(0.0f, 0.0f, 40.0f));
 	
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_Player.AttackInformation_Player'");
@@ -53,14 +53,16 @@ void AMainPlayer::Tick(float DeltaTime)
 	printLog();
 }
 
-void AMainPlayer::Run() const
+void AMainPlayer::Run() 
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
+	m_bIsPressedShift = true;
 }
 
-void AMainPlayer::StopRun() const
+void AMainPlayer::StopRun() 
 {
 	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+	m_bIsPressedShift = false;
 }
 
 void AMainPlayer::Move(const FInputActionValue& value)

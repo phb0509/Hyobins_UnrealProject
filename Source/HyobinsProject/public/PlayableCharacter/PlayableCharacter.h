@@ -52,6 +52,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "InputMappingContext")
 	void RemoveInputMappingContext(const FName& inputMappingContextName);
+
+	UFUNCTION(BlueprintCallable, Category = "Input")
+	bool IsMoveKeyPressed() const { return m_CurInputHorizontal || m_CurInputVertical; }
 	
 	// Get
 	FORCEINLINE int32 GetCurInputVertical() const { return m_CurInputVertical; }
@@ -98,10 +101,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Camera)
 	TObjectPtr<UCameraComponent> m_TargetCamera;
 
-	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputHorizontal;
 
-	UPROPERTY(BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputVertical;
 
 	TWeakObjectPtr<AActor> m_CurTarget;
