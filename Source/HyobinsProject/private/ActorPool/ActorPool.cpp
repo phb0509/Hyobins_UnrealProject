@@ -47,7 +47,7 @@ void AActorPool::CreateActorPool(const TSubclassOf<AActor> classType, int reques
 			if (poolableActor != nullptr)
 			{
 				poolableActor->Initialize();
-				poolableActor->DeActivate();
+				poolableActor->Deactivate();
 				m_ActorPool[classType].actors.Add(spawnedActor);
 			}
 		}

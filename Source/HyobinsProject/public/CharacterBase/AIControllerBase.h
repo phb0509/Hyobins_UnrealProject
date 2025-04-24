@@ -6,10 +6,8 @@
 #include "AIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardData.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionTypes.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "Perception/AISenseConfig_Sight.h"
 #include "AIControllerBase.generated.h"
 
 class ACharacterBase;
@@ -27,9 +25,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
-
-	virtual void Tick(float DeltaSeconds) override;
-
+	
 	void StopBehaviorTree();
 	void StartBehaviorTree();
 	void RestartBehaviorTree();
