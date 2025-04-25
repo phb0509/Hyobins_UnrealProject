@@ -23,11 +23,14 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void CreateMinions() const;
 	
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
+	UFUNCTION(BlueprintCallable)
 	void SpawnBoss();
 
-	UFUNCTION(BlueprintCallable, Category = "FirstLevel EventFunction")
+	UFUNCTION(BlueprintCallable)
 	void SpawnMinion();
+
+	UFUNCTION(BlueprintCallable)
+	void ToggleDebugMode();
 
 private:
 	FTimerHandle m_SpawnTimerHandle_MeleeMinion;

@@ -4,7 +4,6 @@
 #include "SubSystems/DebugManager.h"
 
 
-
 UDebugManager::UDebugManager() :
 	m_bIsDebugMode(true)
 {
@@ -19,7 +18,7 @@ void UDebugManager::ToggleDebugMode()
 		GetWorld()->GetTimerManager().SetTimer(m_LogTimer,
 		[this]()
 			{
-				//m_OnDebugMode.Broadcast();
+				OnDebugMode.Broadcast();
 			},
 		GetWorld()->DeltaTimeSeconds,
 		true);
@@ -29,3 +28,4 @@ void UDebugManager::ToggleDebugMode()
 		GetWorld()->GetTimerManager().ClearTimer(m_LogTimer);
 	}
 }
+

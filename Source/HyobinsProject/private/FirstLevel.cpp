@@ -4,7 +4,7 @@
 #include "FirstLevel.h"
 #include "SubSystems/ActorPoolManager.h"
 #include "ActorPool/ActorPool.h"
-
+#include "SubSystems/DebugManager.h"
 
 
 AFirstLevel::	AFirstLevel() :
@@ -38,6 +38,15 @@ void AFirstLevel::SpawnMinion()
 	for (int i = 0; i < m_SpawnCount; ++i)
 	{
 		AActor* spawnedActor = m_ActorPool->SpawnActor<AActor>(m_MonsterClass, positions[i]);
+	}
+}
+
+void AFirstLevel::ToggleDebugMode()
+{
+	UDebugManager* debugManager = GetGameInstance()->GetSubsystem<UDebugManager>();
+	if (debugManager != nullptr)
+	{
+		debugManager->ToggleDebugMode();
 	}
 }
 
