@@ -46,7 +46,6 @@ public:
 	
 	// IDamageable
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
-
 	
 	void ClearCrowdControlTimerHandle();
 	

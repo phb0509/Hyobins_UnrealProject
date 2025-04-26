@@ -23,6 +23,7 @@ void USkillComponent::BeginPlay()
 	
 	loadSkills();
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
+	
 }
 
 void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const FName& skillName)

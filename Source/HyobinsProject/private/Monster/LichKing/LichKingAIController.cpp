@@ -3,6 +3,8 @@
 
 #include "Monster/LichKing/LichKingAIController.h"
 #include "Monster/LichKing/LichKing.h"
+#include "Perception/AISense_Sight.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 ALichKingAIController::ALichKingAIController(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)

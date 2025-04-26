@@ -5,6 +5,7 @@
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Utility/Utility.h"
 #include "SubSystems/DataManager.h"
+#include "SubSystems/DebugManager.h"
 #include "SubSystems/UIManager.h"
 
 int32 ASuperMinion::TagCount(0);
@@ -14,7 +15,7 @@ const FName ASuperMinion::RightSwordColliderName = "RightSwordCollider";
 
 ASuperMinion::ASuperMinion()
 {
-	PrimaryActorTick.bCanEverTick = true; // 로그출력용.
+	PrimaryActorTick.bCanEverTick = false; 
 	AIControllerClass = ASuperMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
@@ -32,6 +33,12 @@ void ASuperMinion::BeginPlay()
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_SuperMinion.AttackInformation_SuperMinion'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
+	
+	UDebugManager* debugManager = GetGameInstance()->GetSubsystem<UDebugManager>();
+	if (debugManager != nullptr)
+	{
+		debugManager->OnDebugMode.AddUObject(this, &ASuperMinion::printLog);
+	}
 }
 
 void ASuperMinion::Activate()
@@ -42,25 +49,30 @@ void ASuperMinion::Activate()
 	SetFSMState(ESuperMinionFSMStates::Patrol);
 }
 
-void ASuperMinion::Tick(float DeltaTime)
+void ASuperMinion::printLog()
 {
-	Super::Tick(DeltaTime);
-	
-	m_DeathTimeline.TickTimeline(DeltaTime);
+	if (!this->IsActive())
+	{
+		return;
+	}
 
 	// 로그출력.
 	const FString movementMode = GetCharacterMovement()->GetMovementName();
 	FString log = TEXT("SuperMinion Mode :: ");
 	log += movementMode;
-	GEngine->AddOnScreenDebugMessage(100, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-	
+	GEngine->AddOnScreenDebugMessage(100, 0.1f, FColor::Green,
+	                                 FString::Printf(TEXT("%s"), *log));
+
 	FString fsmState = Utility::ConvertEnumToString(static_cast<ESuperMinionFSMStates>(m_CurFSMState));
 	FString log1 = Tags[0].ToString() + " :: FSMState :: " + fsmState;
-	GEngine->AddOnScreenDebugMessage(104, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
- 
+	GEngine->AddOnScreenDebugMessage(101, 0.1f, FColor::Green,
+	                                 FString::Printf(TEXT("%s"), *log1));
+
 	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
-    FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
-	GEngine->AddOnScreenDebugMessage(105, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
+	GEngine->AddOnScreenDebugMessage(102, 0.1f, FColor::Green,
+	                                 FString::Printf(TEXT("%s"), *log2));
+	
 }
 
 void ASuperMinion::initAssets()

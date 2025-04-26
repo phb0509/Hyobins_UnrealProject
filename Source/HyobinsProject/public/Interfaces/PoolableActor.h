@@ -20,7 +20,7 @@ class HYOBINSPROJECT_API IPoolableActor
 public:
 	virtual void Initialize() abstract;
 	virtual void Activate() abstract;
-	virtual void DeActivate() abstract;
+	virtual void Deactivate() abstract;
 	virtual bool IsActive() abstract;
 
 	

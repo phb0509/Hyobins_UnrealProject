@@ -16,8 +16,7 @@ public:
 	UMainPlayerSkillComponent();
 	
 	virtual void BeginPlay() override;
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	// Default_OnGround
 	void NormalAttack_OnGround();
 	void UpperAttack_OnGround();
@@ -55,7 +54,7 @@ public:
 	
 private:
 	void bindFuncOnMontageEvent();
-	
+	void printLog();
 	
 
 private:

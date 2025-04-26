@@ -5,6 +5,7 @@
 #include "MainPlayer/MainPlayerAnim.h"
 #include "Utility/Utility.h"
 #include "Utility/EnumTypes.h"
+#include "SubSystems/DebugManager.h"
 
 
 UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
@@ -13,7 +14,7 @@ UMainPlayerSkillComponent::UMainPlayerSkillComponent() :
 	m_bIsStrikeAttackActive(false),
 	m_StrikeAttackDecisionTime(0.5f)
 {
-	PrimaryComponentTick.bCanEverTick = true; // 로그출력용
+	PrimaryComponentTick.bCanEverTick = false; 
 }
 
 void UMainPlayerSkillComponent::BeginPlay()
@@ -21,6 +22,12 @@ void UMainPlayerSkillComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	bindFuncOnMontageEvent();
+	
+	UDebugManager* debugManager = GetOwner()->GetGameInstance()->GetSubsystem<UDebugManager>();
+	if (debugManager != nullptr)
+	{
+		debugManager->OnDebugMode.AddUObject(this, &UMainPlayerSkillComponent::printLog);
+	}
 }
 
 // Default_OnGround
@@ -112,19 +119,18 @@ void UMainPlayerSkillComponent::bindFuncOnMontageEvent()
 	m_OwnerAnimInstance->OnMontageEnded.AddDynamic(this, &UMainPlayerSkillComponent::SetIdle); // 어떤 스킬이든 '끝까지(not Interrupted)' 재생 후 Idle로 전환.
 }
 
-void UMainPlayerSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, // 로그출력용 틱
-                                              FActorComponentTickFunction* ThisTickFunction)
+void UMainPlayerSkillComponent::printLog()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	const FString curSkillState = Utility::ConvertEnumToString(static_cast<EMainPlayerSkillStates>(m_CurSkillState));
 	const FName curMontageName = m_OwnerAnimInstance->GetCurrentMontageName();
 	
 	//GEngine->AddOnScreenDebugMessage(50, 3.f, FColor::Green, FString::Printf(TEXT("curAttackSection : %d"), normalAttack->GetCurComboAttackSection()));
-	GEngine->AddOnScreenDebugMessage(51, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
-	GEngine->AddOnScreenDebugMessage(52, 3.f, FColor::Green, FString::Printf(TEXT("Current Montage : %s"), *curMontageName.ToString()));
-	GEngine->AddOnScreenDebugMessage(53, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
-	GEngine->AddOnScreenDebugMessage(54, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
+	GEngine->AddOnScreenDebugMessage(200, 3.f, FColor::Green, FString::Printf(TEXT("MainPlayerSkillState : %s"), *curSkillState));
+	GEngine->AddOnScreenDebugMessage(201, 3.f, FColor::Green, FString::Printf(TEXT("Current Montage : %s"), *curMontageName.ToString()));
+	GEngine->AddOnScreenDebugMessage(202, 3.f, FColor::Green, FString::Printf(TEXT("HasleftShiftDecision : %d"), m_bIsStrikeAttackActive));
+	GEngine->AddOnScreenDebugMessage(203, 3.f, FColor::Green, FString::Printf(TEXT("==============================")));
 }
+
+
 
 

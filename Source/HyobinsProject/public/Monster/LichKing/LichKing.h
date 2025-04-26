@@ -19,13 +19,12 @@ public:
 	ALichKing();
 
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
 	
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
 	
 protected:
 	virtual void Activate() override;
-	virtual void DeActivate() override;
+	virtual void Deactivate() override;
 
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 

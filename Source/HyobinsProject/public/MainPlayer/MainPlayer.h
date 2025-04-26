@@ -30,13 +30,11 @@ public:
 	AMainPlayer();
 	
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 	virtual void Attack(const FName& attackName, AActor* target, const FVector& causerLocation) override;
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
-
 	
 	// AxisMappings
 	void Move(const FInputActionValue& value); // WSAD
@@ -63,6 +61,7 @@ private:
 	void printLog() const;
 	void playAttackEffect();
 	bool canGuard(const AActor* instigator) const;
+	void printLog();
 	
 public:
 	static const FName SwordColliderName;

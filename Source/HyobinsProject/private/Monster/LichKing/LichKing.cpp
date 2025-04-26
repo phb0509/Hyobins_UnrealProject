@@ -8,12 +8,13 @@
 #include "Component/StatComponent.h"
 #include "Utility/Utility.h"
 #include "SubSystems/DataManager.h"
+#include "SubSystems/DebugManager.h"
 #include "SubSystems/UIManager.h"
 
 
 ALichKing::ALichKing()
 {
-	PrimaryActorTick.bCanEverTick = true; // 로그출력용.
+	PrimaryActorTick.bCanEverTick = false; // 로그출력용.
 	AIControllerClass = ALichKingAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
@@ -34,15 +35,12 @@ void ALichKing::BeginPlay()
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
 
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateBossStatusBar(this->m_StatComponent, this);
-}
 
-void ALichKing::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	
-	m_DeathTimeline.TickTimeline(DeltaTime);
-	
-	printLog();
+	UDebugManager* debugManager = GetGameInstance()->GetSubsystem<UDebugManager>();
+	if (debugManager != nullptr)
+	{
+		debugManager->OnDebugMode.AddUObject(this, &ALichKing::printLog);
+	}
 }
 
 void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator, const FVector& causerLocation)
@@ -63,9 +61,9 @@ void ALichKing::Activate()
 	SetFSMState(static_cast<uint8>(ELichKingFSMStates::Chase));
 }
 
-void ALichKing::DeActivate()
+void ALichKing::Deactivate()
 {
-	Super::DeActivate();
+	Super::Deactivate();
 	
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar",this, ESlateVisibility::Collapsed);
 }
@@ -163,27 +161,28 @@ void ALichKing::initAssets()
 
 void ALichKing::printLog()
 {
+	if (!this->IsActive()) return;
 	// 로그출력.
 	const FVector location = GetActorLocation();
-	GEngine->AddOnScreenDebugMessage(499, 3.f, FColor::Green, FString::Printf(TEXT("LichKing Location : %f  %f  %f"), location.X, location.Y, location.Z));
+	GEngine->AddOnScreenDebugMessage(300, 3.f, FColor::Green, FString::Printf(TEXT("LichKing Location : %f  %f  %f"), location.X, location.Y, location.Z));
 	
 	const FString movementMode = GetCharacterMovement()->GetMovementName();
 	FString log = TEXT("LichKing Mode :: ");
 	log += movementMode;
-	GEngine->AddOnScreenDebugMessage(500, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
+	GEngine->AddOnScreenDebugMessage(301, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log));
 	
 	FString fsmState = Utility::ConvertEnumToString(static_cast<ELichKingFSMStates>(m_CurFSMState));
 	FString log1 = Tags[0].ToString() + " :: FSMState :: " + fsmState;
-	GEngine->AddOnScreenDebugMessage(501, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
+	GEngine->AddOnScreenDebugMessage(302, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
  
 	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
 	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
-	GEngine->AddOnScreenDebugMessage(502, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
+	GEngine->AddOnScreenDebugMessage(303, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
 	
 	const FString bIsSuperArmor = FString::FromInt(m_bIsSuperArmor);
 	FString log3 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
-	GEngine->AddOnScreenDebugMessage(503, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
+	GEngine->AddOnScreenDebugMessage(304, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log3));
 	
-	GEngine->AddOnScreenDebugMessage(504, 3.f, FColor::Green, FString::Printf(TEXT("CurSpeed : %f  "), m_CurSpeed));
-	GEngine->AddOnScreenDebugMessage(505, 3.f, FColor::Green, FString::Printf(TEXT("MaxWalkSpeed : %f  "), GetCharacterMovement()->MaxWalkSpeed));
+	GEngine->AddOnScreenDebugMessage(305, 3.f, FColor::Green, FString::Printf(TEXT("CurSpeed : %f  "), m_CurSpeed));
+	GEngine->AddOnScreenDebugMessage(306, 3.f, FColor::Green, FString::Printf(TEXT("MaxWalkSpeed : %f  "), GetCharacterMovement()->MaxWalkSpeed));
 }

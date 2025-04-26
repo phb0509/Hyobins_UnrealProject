@@ -52,7 +52,7 @@ protected:
 	// IPoolableActor VirtualFunction
 	virtual void Initialize() override;
 	virtual void Activate() override;
-	virtual void DeActivate() override;
+	virtual void Deactivate() override;
 	virtual bool IsActive() override;
 	
 	

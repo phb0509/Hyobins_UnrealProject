@@ -3,7 +3,8 @@
 
 #include "Monster/Minions/Super/SuperMinionAIController.h"
 #include "Monster/Minions/Super/SuperMinion.h"
-
+#include "Perception/AISense_Sight.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 ASuperMinionAIController::ASuperMinionAIController(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer)

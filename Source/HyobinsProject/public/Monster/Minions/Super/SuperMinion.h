@@ -17,14 +17,14 @@ public:
 	ASuperMinion();
 	
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-
+	
+	
 protected:
 	virtual void Activate() override;
 
 private:
 	void initAssets();
-
+	void printLog();
 	
 private:
 	UPROPERTY(EditAnywhere)

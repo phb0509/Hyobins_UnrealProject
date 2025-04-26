@@ -5,6 +5,7 @@
 #include "CharacterBase/AIControllerBase.h"
 #include "SubSystems/UIManager.h"
 #include "Component/StatComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 
 
@@ -75,7 +76,7 @@ void AMonster::OnCalledTimelineEvent_Loop_AfterDeath(float curveValue)
 
 void AMonster::OnCalledTimelineEvent_End_AfterDeath()
 {
-	DeActivate();
+	Deactivate();
 	m_DeathTimeline.SetNewTime(0.0f);
 }
 
@@ -109,7 +110,7 @@ void AMonster::Activate()
 	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
 }
 
-void AMonster::DeActivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
+void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
 {
 	m_bIsDead = true;
 	m_AIControllerBase->OnUnPossess();
