@@ -67,7 +67,7 @@ public:
 
 	FVector GetForwardVectorFromControllerYaw() const;
 	FVector GetRightVectorFromControllerYaw() const;
-	FVector GetControllerKeyInputDirectionVector(const int32 keyInputDirection) const;
+	FVector GetControllerKeyInputDirection(const int32 keyInputDirection) const;
 	int32 GetLocalDirection(const FVector& otherDirectionVector) const;
 	
 	// Set
