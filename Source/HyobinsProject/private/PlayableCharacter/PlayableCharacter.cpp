@@ -120,8 +120,7 @@ FVector APlayableCharacter::GetControllerKeyInputDirection(const int32 keyInputD
 {
 	// keyInputDirection == 0 ~ 7까지의 8방향. 전방 ~ 좌상.
 	
-	//const float controllerYaw = GetController()->GetControlRotation().Yaw + 45.0f * keyInputDirection;
-	const float controllerYaw = 45.0f * keyInputDirection;
+	const float controllerYaw = GetController()->GetControlRotation().Yaw + 45.0f * keyInputDirection;
 	const FRotator rotation = {0.0f, controllerYaw, 0.0f};
 	
 	return rotation.Vector();
