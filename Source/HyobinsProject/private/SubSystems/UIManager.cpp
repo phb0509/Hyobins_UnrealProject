@@ -13,6 +13,7 @@
 #include "UI/MainPlayer/SkillSlots.h"
 #include "UI/MainPlayer/MainPlayerStatusBar.h"
 #include "UI/Monster/BossStatusBar.h"
+#include "UI/System/LockOn.h"
 
 
 void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
@@ -36,7 +37,7 @@ void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, AChara
 	mainPlayerStatusBar->BindStatComponent(statComponent);
 	mainPlayerStatusBar->AddToViewport();
 	
-	addWidgetContainer(TEXT("MainPlayerStatusBar"), widgetOwner, mainPlayerStatusBar, nullptr);
+	addWidgetContainer(TEXT("MainPlayerStatusBar"), mainPlayerStatusBar, nullptr);
 }
 
 void UUIManager::CreateBossStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
@@ -46,7 +47,7 @@ void UUIManager::CreateBossStatusBar(UStatComponent* statComponent, ACharacterBa
 	bossStatusBar->BindStatComponent(statComponent);
 	bossStatusBar->AddToViewport();
 	
-	addWidgetContainer(TEXT("BossStatusBar"), widgetOwner, bossStatusBar, nullptr);
+	addWidgetContainer(TEXT("BossStatusBar"), bossStatusBar, nullptr);
 }
 
 void UUIManager::CreateSkillSlots(USkillComponent* skillComponent, ACharacterBase* widgetOwner)
@@ -54,7 +55,7 @@ void UUIManager::CreateSkillSlots(USkillComponent* skillComponent, ACharacterBas
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlots.SkillSlots_C'"));
 	USkillSlots* skillSlots = Cast<USkillSlots>(CreateWidget(GetWorld(), classType));
 	skillSlots->AddToViewport();
-	addWidgetContainer(TEXT("SkillSlots"), widgetOwner, skillSlots, nullptr);
+	addWidgetContainer(TEXT("SkillSlots"), skillSlots, nullptr);
 	
 	skillSlots->CreateSkillListFromSkillComponent(skillComponent);
 }
@@ -65,14 +66,53 @@ void UUIManager::ChangeSkillList()
 	skillSlots->ChangeSkillSlots();
 }
 
+void UUIManager::CreateLockOn(AActor* target)
+{
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/LockOn.LockOn_C'"));
+
+	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(target, UWidgetComponent::StaticClass(), "LockOn_Widget");
+
+	widgetComponent->SetupAttachment(target->GetRootComponent());
+	widgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	widgetComponent->RegisterComponentWithWorld(GetWorld());
+	widgetComponent->SetWidgetClass(classType);
+	widgetComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
+
+	UUserWidget* widget = widgetComponent->GetUserWidgetObject();
+	ULockOn* lockOnWidget = Cast<ULockOn>(widget);
+	lockOnWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+
+	addWidgetContainer(TEXT("LockOn"), lockOnWidget, widgetComponent);
+	
+	//GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("LockOn",this, ESlateVisibility::HitTestInvisible);
+}
+
+void UUIManager::RenderLockOnToScreen(AActor* target)
+{
+	if (!IsWidgetCreated(TEXT("LockOn")))
+	{
+		CreateLockOn(target);
+		return;
+	}
+	
+	UWidgetComponent* widgetComponent = Cast<UWidgetComponent>(m_UIWidgetsWidgetNameKey["LockOn"][0].widgetComponent);
+	widgetComponent->AttachToComponent(target->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	
+	ULockOn* lockOnWidget = Cast<ULockOn>(widgetComponent->GetUserWidgetObject());
+	lockOnWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+}
+
 void UUIManager::OpenEnvironmentSettings()
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/EnvironmentSettings.EnvironmentSettings_C'"));
 	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), classType));
-	environmentSettings->AddToViewport();
-	addWidgetContainer(TEXT("EnvironmentSettings"), this, environmentSettings, nullptr);
 	
+	environmentSettings->AddToViewport();
 	environmentSettings->Open();
+
+	addWidgetContainer(TEXT("EnvironmentSettings"), environmentSettings, nullptr);
 }
 
 UCombo* UUIManager::CreateComboWidget()
@@ -80,7 +120,7 @@ UCombo* UUIManager::CreateComboWidget()
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
 	UCombo* combo = Cast<UCombo>(CreateWidget(GetWorld(), classType));
 	combo->AddToViewport();
-	addWidgetContainer(TEXT("Combo"), this, combo, nullptr);
+	addWidgetContainer(TEXT("Combo"), combo, nullptr);
 	
 	combo->SetVisibility(ESlateVisibility::Collapsed);
 
@@ -134,7 +174,7 @@ void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 	
 	hpBar->BindStatComponent(widgetOwner->GetStatComponent());
 
-	addWidgetContainer(TEXT("MonsterHPBar"), widgetOwner, hpBar, widgetComponent);
+	addWidgetContainer(TEXT("MonsterHPBar"), hpBar, widgetComponent);
 }
 
 void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float duration) 
@@ -157,31 +197,16 @@ void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float durati
 	chargingGageBar->SetWidgetComponent(widgetComponent);
 	chargingGageBar->StartCharging(duration);
 
-	addWidgetContainer(TEXT("ChargingGageBar"), widgetOwner, chargingGageBar, widgetComponent);
+	addWidgetContainer(TEXT("ChargingGageBar"), chargingGageBar, widgetComponent);
 }
 
-void UUIManager::RemoveChargingGageBar()
+void UUIManager::SetVisibilityWidgets(const FName& widgetName, ESlateVisibility slateVisibility)
 {
-	RemoveWidgetContainers("ChargingGageBar");
-}
-
-void UUIManager::SetVisibilityWidgets(const FName& widgetName, UObject* widgetOwner, ESlateVisibility slateVisibility)
-{
-	if (widgetOwner != nullptr)
+	for (FWidgetContainer widgetContainer : m_UIWidgetsWidgetNameKey[widgetName])
 	{
-		if (m_UIWidgetsWidgetOwnerKey[widgetOwner][widgetName].widget.IsValid())
+		if (widgetContainer.widget.IsValid())
 		{
-			m_UIWidgetsWidgetOwnerKey[widgetOwner][widgetName].widget->SetVisibility(slateVisibility);
-		}
-	}
-	else
-	{
-		for (FWidgetContainer widgetContainer : m_UIWidgetsWidgetNameKey[widgetName])
-		{
-			if (widgetContainer.widget.IsValid())
-			{
-				widgetContainer.widget->SetVisibility(slateVisibility);
-			}
+			widgetContainer.widget->SetVisibility(slateVisibility);
 		}
 	}
 }
@@ -214,17 +239,30 @@ void UUIManager::RemoveAllWidgetContainers()
 	m_UIWidgetsWidgetNameKey.Empty();
 }
 
-UUserWidget* UUIManager::createWidget(const FName& widgetName, const FString& widgetPass, bool bAddToUIWidgets)
+bool UUIManager::IsWidgetCreated(const FName& widgetName)
 {
-	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, *widgetPass);
-	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), classType));
-	environmentSettings->AddToViewport();
-	addWidgetContainer(TEXT("EnvironmentSettings"), this, environmentSettings, nullptr);
+	if (!m_UIWidgetsWidgetNameKey.Contains(widgetName))
+	{
+		return false;
+	}
 	
-	return nullptr;
+	for (FWidgetContainer widgetContainer : m_UIWidgetsWidgetNameKey[widgetName])
+	{
+		if (widgetContainer.widgetComponent.IsValid())
+		{
+			return true;
+		}
+		
+		if (widgetContainer.widget.IsValid())
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
-void UUIManager::addWidgetContainer(const FName& widgetName, UObject* widgetOwner, UUserWidget* widget, UWidgetComponent* widgetComponent)
+void UUIManager::addWidgetContainer(const FName& widgetName, UUserWidget* widget, UWidgetComponent* widgetComponent)
 {
 	if (!m_UIWidgetsWidgetNameKey.Contains(widgetName))
 	{
@@ -234,15 +272,4 @@ void UUIManager::addWidgetContainer(const FName& widgetName, UObject* widgetOwne
 	}
 
 	m_UIWidgetsWidgetNameKey[widgetName].Add({widget,widgetComponent});
-
-	if (IsValid(widgetOwner))
-	{
-		if (!m_UIWidgetsWidgetOwnerKey.Contains(widgetOwner))
-		{
-			TMap<FName, FWidgetContainer> widgetContainer;
-			m_UIWidgetsWidgetOwnerKey.Add(widgetOwner, widgetContainer);
-		}
-	
-		m_UIWidgetsWidgetOwnerKey[widgetOwner].Add(widgetName, {widget, widgetComponent});
-	}
 }

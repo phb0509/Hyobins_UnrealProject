@@ -43,6 +43,9 @@ public:
 	
 	void CreateSkillSlots(USkillComponent* skillComponent, ACharacterBase* widgetOwner);
 	void ChangeSkillList();
+
+	void CreateLockOn(AActor* target);
+	void RenderLockOnToScreen(AActor* target);
 	
 	void OpenEnvironmentSettings();
 
@@ -54,25 +57,21 @@ public:
 	
 	void CreateMonsterHPBar(ACharacterBase* widgetOwner);
 	FORCEINLINE void SetIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
-	FORCEINLINE bool GetIsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
+	FORCEINLINE bool IsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
 	
 	void CreateChargingGageBar(ACharacterBase* widgetOwner, float duration);
-	void RemoveChargingGageBar();
-	
-	void SetVisibilityWidgets(const FName& widgetName, UObject* widgetOwner, ESlateVisibility slateVisibility); // 매개변수 widgetName에 해당하는 모든 위젯을 SetVisibility
+	void SetVisibilityWidgets(const FName& widgetName, ESlateVisibility slateVisibility); // 매개변수 widgetName에 해당하는 모든 위젯을 SetVisibility
 	void RemoveWidgetContainers(const FName& widgetName);
 	void RemoveAllWidgetContainers();
-
+	bool IsWidgetCreated(const FName& widgetName);
 
 
 private:
-	UUserWidget* createWidget(const FName& widgetName, const FString& widgetPass, bool bAddToUIWidgets);
-	void addWidgetContainer(const FName& widgetName, UObject* widgetOwner, UUserWidget* widget, UWidgetComponent* widgetComponent);
+	void addWidgetContainer(const FName& widgetName,UUserWidget* widget, UWidgetComponent* widgetComponent);
 	
 
 private:
 	TMap<FName, TArray<FWidgetContainer>> m_UIWidgetsWidgetNameKey;
-	TMap<TWeakObjectPtr<UObject>, TMap<FName, FWidgetContainer>> m_UIWidgetsWidgetOwnerKey;
 	
 	bool m_bIsShowMonsterHPBar;
 };
