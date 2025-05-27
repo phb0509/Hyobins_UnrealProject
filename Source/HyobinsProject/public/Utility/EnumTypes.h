@@ -46,7 +46,8 @@ enum class EMainPlayerSkillStates : uint8
 	Charging_OnGround					UMETA(DisplayName = "Charging_OnGround"),
 	StopCharging						UMETA(DisplayName = "StopCharging"),
 	Charging_ComboDashAttack_OnGround	UMETA(DisplayName = "Charging_ComboDashAttack_OnGround"),
-	Dodge_OnGround 						UMETA(DisplayName = "Dodge_OnGround"),
+	Dodge_NonTargeting_OnGround 		UMETA(DisplayName = "Dodge_NonTargeting_OnGround"),
+	Dodge_Targeting_OnGround			UMETA(DisplayName = "Dodge_Targeting_OnGround"),
 	Guard_OnGround 						UMETA(DisplayName = "Guard_OnGround"),
 	Parry_OnGround 						UMETA(DisplayName = "Parry_OnGround")
 };
