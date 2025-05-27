@@ -42,7 +42,7 @@ void UComboDashAttack_OnGround::Execute()
 	}
 }
 
-bool UComboDashAttack_OnGround::GetCanExecuteSkill() const
+bool UComboDashAttack_OnGround::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState();
 }

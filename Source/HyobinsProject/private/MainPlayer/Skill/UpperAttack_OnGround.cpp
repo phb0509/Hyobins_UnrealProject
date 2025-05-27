@@ -65,7 +65,7 @@ void UUpperAttack_OnGround::Execute()
 	}
 }
 
-bool UUpperAttack_OnGround::GetCanExecuteSkill() const
+bool UUpperAttack_OnGround::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);

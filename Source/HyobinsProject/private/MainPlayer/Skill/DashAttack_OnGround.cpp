@@ -40,7 +40,7 @@ void UDashAttack_OnGround::Execute()
 	m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
 }
 
-bool UDashAttack_OnGround::GetCanExecuteSkill() const
+bool UDashAttack_OnGround::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);

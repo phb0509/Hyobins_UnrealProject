@@ -51,7 +51,7 @@ void UGuard_OnGround::Execute()
 	}
 }
 
-bool UGuard_OnGround::GetCanExecuteSkill() const
+bool UGuard_OnGround::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);

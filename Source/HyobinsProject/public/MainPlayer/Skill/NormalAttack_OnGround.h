@@ -23,7 +23,7 @@ public:
 	int32 GetCurComboAttackSection() const { return m_CurComboAttackSection; }
 
 protected:
-	virtual bool GetCanExecuteSkill() const override;
+	virtual bool CanExecuteSkill() const override;
 	
 private:
 	void linqNextNormalAttackOnGroundCombo();

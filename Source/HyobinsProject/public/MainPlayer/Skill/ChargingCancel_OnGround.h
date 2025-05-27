@@ -19,6 +19,6 @@ public:
 	virtual void Execute() override;
 
 protected:
-	virtual bool GetCanExecuteSkill() const override;
+	virtual bool CanExecuteSkill() const override;
 	
 };

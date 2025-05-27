@@ -42,7 +42,7 @@ void UDashAttack_InAir::Execute()
 	}
 }
 
-bool UDashAttack_InAir::GetCanExecuteSkill() const
+bool UDashAttack_InAir::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState();
 }

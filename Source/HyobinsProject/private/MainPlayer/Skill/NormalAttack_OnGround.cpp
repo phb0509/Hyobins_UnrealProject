@@ -106,7 +106,7 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_OnGround"), m_CurComboAttackSection);
 }
 
-bool UNormalAttack_OnGround::GetCanExecuteSkill() const
+bool UNormalAttack_OnGround::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);

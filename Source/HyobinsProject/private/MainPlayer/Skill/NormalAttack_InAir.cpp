@@ -80,7 +80,7 @@ void UNormalAttack_InAir::linqNextNormalAttackInAirCombo()
 	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_InAir"), m_CurComboAttackSection);
 }
 
-bool UNormalAttack_InAir::GetCanExecuteSkill() const
+bool UNormalAttack_InAir::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState();
 }

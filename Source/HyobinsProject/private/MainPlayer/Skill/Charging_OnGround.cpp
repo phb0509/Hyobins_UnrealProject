@@ -44,7 +44,7 @@ void UCharging_OnGround::Execute()
 	uiManager->CreateChargingGageBar(m_Owner.Get(), m_ChargingDuration);
 }
 
-bool UCharging_OnGround::GetCanExecuteSkill() const
+bool UCharging_OnGround::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState();
 }

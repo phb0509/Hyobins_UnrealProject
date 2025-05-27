@@ -105,7 +105,7 @@ void UEarthStrike_InAir::playEffect()
 	}
 }
 
-bool UEarthStrike_InAir::GetCanExecuteSkill() const
+bool UEarthStrike_InAir::CanExecuteSkill() const
 {
 	return !m_Owner->IsCrowdControlState();
 }

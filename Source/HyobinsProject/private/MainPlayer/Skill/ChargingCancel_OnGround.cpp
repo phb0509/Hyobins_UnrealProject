@@ -34,11 +34,12 @@ void UChargingCancel_OnGround::Execute()
 	m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
 
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	uiManager->RemoveChargingGageBar();
+	//uiManager->RemoveChargingGageBar();
+	uiManager->RemoveWidgetContainers("ChargingGageBar");
 	//OnStopCharging.BindUObject(uiManager, &UUIManager::RemoveChargingGageBar);
 }
 
-bool UChargingCancel_OnGround::GetCanExecuteSkill() const
+bool UChargingCancel_OnGround::CanExecuteSkill() const
 {
 	return m_OwnerAnimInstance->IsCurrentMontage(TEXT("Charging_OnGround"));
 }
