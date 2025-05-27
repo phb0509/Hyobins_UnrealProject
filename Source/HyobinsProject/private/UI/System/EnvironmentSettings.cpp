@@ -13,7 +13,7 @@ void UEnvironmentSettings::NativeConstruct()
 	m_bHideCheckBox = Cast<UCheckBox>(GetWidgetFromName(TEXT("m_bHideCheckBox")));
 	m_bHideCheckBox->OnCheckStateChanged.AddDynamic(this, &UEnvironmentSettings::ChangeMonsterHPBarState);
 
-	if (GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->GetIsShowMonsterHPBar())
+	if (GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->IsShowMonsterHPBar())
 	{
 		m_bHideCheckBox->SetCheckedState(ECheckBoxState::Checked);
 	}
@@ -55,12 +55,12 @@ void UEnvironmentSettings::ChangeMonsterHPBarState(bool bIsChecked)
 {
 	if (bIsChecked)
 	{
-		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", nullptr, ESlateVisibility::HitTestInvisible);
+		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", ESlateVisibility::HitTestInvisible);
 		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetIsShowMonsterHPBar(true);
 	}
 	else
 	{
-		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", nullptr, ESlateVisibility::Collapsed);
+		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", ESlateVisibility::Collapsed);
 		GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetIsShowMonsterHPBar(false);
 	}
 }

@@ -104,7 +104,7 @@ void AActorPool::ClearActorPool()
 		const TSubclassOf<AActor>& classType = iter.Key;
 		const FActors& blueprintActorPoolActors = m_ActorPool[classType];
 
-		for (const auto& actor : blueprintActorPoolActors.actors)
+		for (AActor* actor : blueprintActorPoolActors.actors)
 		{
 			if (actor != nullptr)
 			{

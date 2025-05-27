@@ -37,7 +37,7 @@ void AFirstLevel::SpawnMinion()
 
 	for (int i = 0; i < m_SpawnCount; ++i)
 	{
-		AActor* spawnedActor = m_ActorPool->SpawnActor<AActor>(m_MonsterClass, positions[i]);
+		m_ActorPool->SpawnActor<AActor>(m_MonsterClass, positions[i]);
 	}
 }
 

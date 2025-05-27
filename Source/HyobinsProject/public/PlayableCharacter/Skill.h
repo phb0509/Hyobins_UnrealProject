@@ -27,7 +27,7 @@ public:
 	virtual void Initialize() {};
 	virtual void Execute();
 	
-	bool GetCanUseSkill() const { return m_bIsCooldownComplete && GetCanExecuteSkill(); }
+	bool GetCanUseSkill() const { return m_bIsCooldownComplete && CanExecuteSkill(); }
 	
 	FORCEINLINE FName& GetName() { return m_Name; }
 	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
@@ -39,7 +39,7 @@ public:
 	FORCEINLINE void SetCoolDownTime(float coolDownTime) { m_CoolDownTime = coolDownTime; }
 
 protected:
-	virtual bool GetCanExecuteSkill() const { return false; }
+	virtual bool CanExecuteSkill() const { return false; }
 	
 public:
 	FOnExecute OnExecute;

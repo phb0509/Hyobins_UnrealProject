@@ -15,7 +15,7 @@ const FName ASuperMinion::RightSwordColliderName = "RightSwordCollider";
 
 ASuperMinion::ASuperMinion()
 {
-	PrimaryActorTick.bCanEverTick = false; 
+	PrimaryActorTick.bCanEverTick = true; 
 	AIControllerClass = ASuperMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
@@ -45,7 +45,7 @@ void ASuperMinion::Activate()
 {
 	Super::Activate();
 
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar",this, ESlateVisibility::HitTestInvisible);
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", ESlateVisibility::HitTestInvisible);
 	SetFSMState(ESuperMinionFSMStates::Patrol);
 }
 
