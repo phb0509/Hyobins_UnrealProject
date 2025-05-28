@@ -68,6 +68,11 @@ void UUIManager::ChangeSkillList()
 
 void UUIManager::CreateLockOn(AActor* target)
 {
+	if (target == nullptr)
+	{
+		return;
+	}
+	
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/LockOn.LockOn_C'"));
 
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(target, UWidgetComponent::StaticClass(), "LockOn_Widget");
@@ -202,6 +207,11 @@ void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float durati
 
 void UUIManager::SetVisibilityWidgets(const FName& widgetName, ESlateVisibility slateVisibility)
 {
+	if (!m_UIWidgetsWidgetNameKey.Contains(widgetName))
+	{
+		return;
+	}
+	
 	for (FWidgetContainer widgetContainer : m_UIWidgetsWidgetNameKey[widgetName])
 	{
 		if (widgetContainer.widget.IsValid())
