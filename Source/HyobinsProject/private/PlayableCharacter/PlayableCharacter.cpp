@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Utility/Utility.h"
 #include "SubSystems/UIManager.h"
+#include "Algo/MinElement.h"
 
 const int32 APlayableCharacter::DirectionIndex[3][3] =
 	{{5,4,3},
@@ -20,7 +21,11 @@ APlayableCharacter::APlayableCharacter() :
 	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
 	m_OnHitCameraShake(nullptr),
-	m_AttackCameraShake(nullptr)
+	m_AttackCameraShake(nullptr),
+	m_bIsPressedShift(false),
+	m_bIsLockOn(false),
+	m_LockOnRotaionDuration(0.2f),
+	m_LockOnCameraPitch(-37.0f)
 {
 	initAssets();
 }
@@ -116,7 +121,7 @@ FVector APlayableCharacter::GetRightVectorFromControllerYaw() const
 	return rightVector;
 }
 
-FVector APlayableCharacter::GetControllerKeyInputDirection(const int32 keyInputDirection) const
+FVector APlayableCharacter::GetWorldKeyInputDirection(const int32 keyInputDirection) const
 {
 	// keyInputDirection == 0 ~ 7까지의 8방향. 전방 ~ 좌상.
 	
@@ -126,29 +131,88 @@ FVector APlayableCharacter::GetControllerKeyInputDirection(const int32 keyInputD
 	return rotation.Vector();
 }
 
-int32 APlayableCharacter::GetLocalDirection(const FVector& otherDirectionVector) const
+int32 APlayableCharacter::GetLocalDirectionIndex(const FVector& worldDirection) const
 {
-	const FVector localDirection = GetActorTransform().InverseTransformVector(otherDirectionVector);
+	const float forwardDot = FVector::DotProduct(GetActorForwardVector(), worldDirection);
+	const float rightDot = FVector::DotProduct(GetActorRightVector(), worldDirection);
+	
+	constexpr float cos22_5 = 0.382f; // cos(67.5)
+	constexpr float cos67_5 = 0.924f; // cos(22.5)
+	
+	if (rightDot >= 0.0f) // 우측
+	{
+		if (forwardDot >= cos22_5)
+		{
+			return 0; // 전방
+		}
+		
+		if (forwardDot >= cos67_5)
+		{
+			return 1; // 전방 우측 대각
+		}
+			
+		if (forwardDot >= -cos22_5)
+		{
+			return 2; // 우측
+		}
+			
+		if (forwardDot >= -cos67_5)
+		{
+			return 3; // 후방 우측 대각
+		}
+
+		return 4; // 후방
+	}
+	
+	else // 좌측
+	{
+		if (forwardDot >= cos22_5)
+		{
+			return 0; // 전방
+		}
+		
+		if (forwardDot >= cos67_5)
+		{
+			return 7; // 전방 좌측 대각
+		}
+			
+		if (forwardDot >= -cos22_5)
+		{
+			return 6; // 좌측
+		}
+			
+		if (forwardDot >= -cos67_5)
+		{
+			return 5; // 후방 좌측 대각
+		}
+
+		return 4; // 후방
+	}
+}
+
+int32 APlayableCharacter::GetLocalDirectionUsingInverseMatrix(const FVector& worldDirection) const
+{
+	const FVector localDirection = GetActorTransform().InverseTransformVector(worldDirection);
 	const float radian = FMath::Atan2(localDirection.Y, localDirection.X);
 
 	constexpr float range = PI / 8; // 22.5도
 
-	if (radian >= -range && radian < range) // 앞쪽
+	if (radian >= -range && radian < range) // Front
 	{
 		return 0;
 	}
 
-	if (radian >= range && radian < 3 * range) 
+	if (radian >= range && radian < 3 * range) // Front Right
 	{
 		return 1;
 	}
 	
-	if (radian >= 3 * range && radian < 5 *	range) // 오른쪽
+	if (radian >= 3 * range && radian < 5 *	range) // Right
 	{
 		return 2;
 	}
 
-	if (radian >= 5 * range && radian < 7 * range) 
+	if (radian >= 5 * range && radian < 7 * range) // Back Right
 	{
 		return 3;
 	}
@@ -159,22 +223,166 @@ int32 APlayableCharacter::GetLocalDirection(const FVector& otherDirectionVector)
 	// 	return 4; 
 	// }
 	
-	if (radian < -5 * range && radian >= -7 * range) 
+	if (radian < -5 * range && radian >= -7 * range) // Back Left
 	{
 		return 5;
 	}
 
-	if (radian < -3 * range && radian >= -5 * range) // 왼쪽
+	if (radian < -3 * range && radian >= -5 * range) // Left
 	{
 		return 6;
 	}
 	
-	if (radian < -range && radian >= -3 * range) 
+	if (radian < -range && radian >= -3 * range) // Front Left
 	{
 		return 7;
 	}
 	
-	return 4;
+	return 4; // Back
+}
+
+void APlayableCharacter::Move(const FInputActionValue& value)
+{
+	const FVector2d movementVector = value.Get<FVector2D>();
+	
+	const FRotator rotation = GetControlRotation();
+	const FRotator yawRotation(0, rotation.Yaw, 0);
+
+	// ForwardVector
+	const FVector forwardDireciton = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::X);
+
+	// RightVector
+	const FVector rightDirection = FRotationMatrix(yawRotation).GetUnitAxis(EAxis::Y);
+
+	// Add Movement
+	this->AddMovementInput(forwardDireciton, movementVector.X);
+	this->AddMovementInput(rightDirection, movementVector.Y);
+
+	m_CurInputHorizontal = movementVector.Y;
+	m_CurInputVertical = movementVector.X;
+}
+
+void APlayableCharacter::Look(const FInputActionValue& value)
+{
+	if (!m_bIsLockOn)
+	{
+		const FVector2d axisVector = value.Get<FVector2d>();
+
+		this->AddControllerYawInput(axisVector.X);
+		this->AddControllerPitchInput(axisVector.Y);
+	}
+}
+
+void APlayableCharacter::Run()
+{
+	GetCharacterMovement()->MaxWalkSpeed = m_RunSpeed;
+	m_bIsPressedShift = true;
+}
+
+void APlayableCharacter::StopRun()
+{
+	GetCharacterMovement()->MaxWalkSpeed = m_WalkSpeed;
+	m_bIsPressedShift = false;
+}
+
+void APlayableCharacter::ToggleTargetMode()
+{
+	m_bIsLockOn = !m_bIsLockOn;
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	
+	if (m_bIsLockOn)
+	{
+		m_CurLockOnTarget = findNearestTarget();
+		lockOnToTarget(m_CurLockOnTarget.Get());
+		
+		uiManager->RenderLockOnToScreen(m_CurLockOnTarget.Get());
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(m_LockOnTimer);
+
+		uiManager->SetVisibilityWidgets(TEXT("LockOn"), ESlateVisibility::Collapsed);
+	}
+}
+
+AActor* APlayableCharacter::findNearestTarget()
+{
+	const FVector startLocation = this->GetActorLocation();
+	const TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
+	const TArray<AActor*> ignoreActors = {this};
+	TArray<AActor*> overlappedActors;
+	
+	UKismetSystemLibrary::SphereOverlapActors(this->GetWorld(),
+		startLocation,
+		1500.0f, // 구체 반지름
+		objectTypes,
+		nullptr,
+		ignoreActors,
+		overlappedActors);
+
+	AActor* nearestEnemy = nullptr;
+	
+	if (overlappedActors.Num() > 0)
+	{
+		nearestEnemy = *Algo::MinElementBy(
+		overlappedActors,
+	[this](const AActor* Actor)
+		{
+			return FVector::DistSquared(this->GetActorLocation(), Actor->GetActorLocation());
+		});
+		
+	}	
+	
+	return nearestEnemy;
+}
+
+void APlayableCharacter::lockOnToTarget(AActor* target)
+{
+	if (target == nullptr)
+	{
+		return;
+	}
+	
+	APlayerController* playerController = Cast<APlayerController>(GetController());
+
+	if (playerController != nullptr)
+	{
+		m_InitialControlRotation = playerController->GetControlRotation();
+		m_LockOnElapsed = 0.0f;
+
+		// 타이머 시작 (Tick 간격 0.01초)
+		GetWorldTimerManager().SetTimer(m_LockOnTimer, this, &APlayableCharacter::updateCameraRotation, 0.01f, true);
+	}
+}
+
+void APlayableCharacter::updateCameraRotation()
+{
+	APlayerController* playerController = Cast<APlayerController>(GetController());
+	if (playerController == nullptr || !m_CurLockOnTarget.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(m_LockOnTimer);
+		return;
+	}
+
+	m_LockOnElapsed += 0.01f;
+	float alpha = FMath::Clamp(m_LockOnElapsed / m_LockOnRotaionDuration, 0.0f, 1.0f);
+
+	// 타겟 위치가 움직일 수 있으니, 매 프레임 갱신
+	FVector myLocation = m_TargetCamera->GetComponentLocation();
+	FVector targetLocation = m_CurLockOnTarget->GetActorLocation();
+	FVector directionToTarget = (targetLocation - myLocation).GetSafeNormal();
+
+	FRotator targetControlRotation = directionToTarget.Rotation();
+	targetControlRotation = directionToTarget.Rotation();
+	targetControlRotation.Roll = 0.0f;
+	targetControlRotation.Pitch = m_LockOnCameraPitch;
+
+	// Slerp 대신 Rotator Lerp (Yaw, Pitch만)
+	FRotator NewRotation = FMath::RInterpTo(m_InitialControlRotation, targetControlRotation, alpha, 1.0f);
+
+	// 실제 회전 적용
+	playerController->SetControlRotation(NewRotation);
+
 }
 
 void APlayableCharacter::initAssets()
@@ -223,3 +431,5 @@ void APlayableCharacter::initInputConfigs()
 		iter.Value.inputMappingContextName = iter.Key;
 	}
 }
+
+
