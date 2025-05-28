@@ -36,19 +36,7 @@ public:
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
 	
-	// AxisMappings
-	void Move(const FInputActionValue& value); // WSAD
-	void Look(const FInputActionValue& value); // Mouse X,Y
 	
-	FORCEINLINE void InitArrowKeys()
-	{
-		m_CurInputHorizontal = 0;
-		m_CurInputVertical = 0;
-	}
-	
-	// ActionMappings
-	void Run();
-	void StopRun();
 	
 	bool IsGuard() const { return m_bIsGuarding; }
 	void SetIsGuarding(bool bIsGuard) { m_bIsGuarding = bIsGuard; }
@@ -84,6 +72,4 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true)) 
 	TObjectPtr<UCapsuleComponent> m_ShieldBottomCollider;
 	
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = true))
-	bool m_bIsPressedShift;
 };
