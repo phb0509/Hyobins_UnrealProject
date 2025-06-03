@@ -85,8 +85,10 @@ public:
 	FORCEINLINE void SetIsSuperArmor(bool bIsSuperArmor, bool bForce);
 	FORCEINLINE void SetIsSuperArmorBuff(bool bIsSuperArmorBuff) { m_bIsSuperArmorBuff = bIsSuperArmorBuff; }
 	
-	void RotateToTarget(const AActor* target, const FRotator& rotatorOffset);
-
+	void RotateToTarget(const AActor* target, const FRotator& rotatorOffset = {0.0f, 0.0f ,0.0f});
+	bool IsWithInRange(const AActor* target, const float range) const;
+	FVector GetDirectionToTarget(const AActor* target) const;
+	
 	virtual void SetCrowdControlState(ECrowdControlStates state)
 	{
 		m_CurCrowdControlState = state;

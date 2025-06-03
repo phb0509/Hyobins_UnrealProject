@@ -377,16 +377,39 @@ void ACharacterBase::SetIsSuperArmor(bool bIsSuperArmor, bool bForce)
 void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)
 {
 	const FVector targetLocation = target->GetActorLocation();
-    const FVector curLocation = GetActorLocation();
+    const FVector myLocation = this->GetActorLocation();
 	
-    const FVector directionToTarget = (targetLocation - curLocation).GetSafeNormal();
+    const FVector directionToTarget = (targetLocation - myLocation).GetSafeNormal();
     const FRotator rotationToTarget = directionToTarget.Rotation();
 	
-	FRotator curRotation = GetActorRotation();
+	FRotator curRotation = this->GetActorRotation();
 	curRotation.Yaw = rotationToTarget.Yaw;
 	curRotation += rotatorOffset;
 	
     SetActorRotation(curRotation);
+}
+
+bool ACharacterBase::IsWithInRange(const AActor* target, const float range) const
+{
+	if (!IsValid(target))
+	{
+		return false;
+	}
+	
+	const FVector myLocation = this->GetActorLocation();
+	const FVector targetLocation = target->GetActorLocation();
+	
+	float distance = FVector::DistSquared(myLocation, targetLocation);
+	
+	return distance <= range * range;
+}
+
+FVector ACharacterBase::GetDirectionToTarget(const AActor* target) const
+{
+	FVector directionToTarget = target->GetActorLocation() - this->GetActorLocation();
+	directionToTarget.Z = 0.0f;
+
+	return directionToTarget;
 }
 
 void ACharacterBase::ClearCrowdControlTimerHandle()
