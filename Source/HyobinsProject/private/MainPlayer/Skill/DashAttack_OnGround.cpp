@@ -30,7 +30,6 @@ void UDashAttack_OnGround::Execute()
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	m_Owner->RotateActorToKeyInputDirection();
 	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 		TEXT("Forward"),
 		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);

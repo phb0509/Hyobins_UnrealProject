@@ -49,8 +49,6 @@ void UNormalAttack_InAir::Execute()
 	{
 		if (ownerSkillComponent->HasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
 		{
-			m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-			
 			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 			targetVector.Z = 0.0f;
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
@@ -63,8 +61,6 @@ void UNormalAttack_InAir::Execute()
 	}
 	else if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
 	{
-		m_Owner->RotateActorToKeyInputDirection(); // 공격시마다 키입력방향으로 회전.
-
 		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 		targetVector.Z = 0.0f;
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(

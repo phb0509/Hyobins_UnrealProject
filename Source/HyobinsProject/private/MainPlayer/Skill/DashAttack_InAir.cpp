@@ -28,21 +28,18 @@ void UDashAttack_InAir::Execute()
 {
 	Super::Execute();
 	
-	if (!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround))
-	{
-		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
-		m_Owner->RotateActorToKeyInputDirection();
-		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
-			TEXT("Forward"),
-			m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
-		
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
-		
-		m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
-	}
+	m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
+	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
+		TEXT("Forward"),
+		m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * m_MoveDistance);
+
+	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
+
+	m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
 }
 
 bool UDashAttack_InAir::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState();
+	return !m_Owner->IsCrowdControlState() &&
+		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
 }

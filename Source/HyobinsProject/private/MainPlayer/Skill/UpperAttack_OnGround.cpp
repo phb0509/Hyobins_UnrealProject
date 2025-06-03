@@ -33,8 +33,6 @@ void UUpperAttack_OnGround::Execute()
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround))
 	{
-		m_Owner->RotateActorToKeyInputDirection();
-
 		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 		
 		if (ownerSkillComponent->IsStrikeAttackActive())
