@@ -9,6 +9,8 @@
 #include "Kismet/GameplayStatics.h"
 
 UEarthStrike_InAir::UEarthStrike_InAir() :
+	m_FallingToGroundMontage(nullptr),
+	m_EarthStrikeMontage(nullptr),
 	m_AttackRangeRadius(500.0f),
 	m_Particle(nullptr),
 	m_CameraShake(nullptr),
@@ -43,7 +45,7 @@ void UEarthStrike_InAir::Execute()
 	
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
 	
-	m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_FallingToGround"));
+	m_OwnerAnimInstance->Montage_Play(m_FallingToGroundMontage, 1.0f);
 }
 
 void UEarthStrike_InAir::ExecEvent_WhenOnGround()
@@ -51,7 +53,7 @@ void UEarthStrike_InAir::ExecEvent_WhenOnGround()
 	if (m_Owner->IsOnGround())
 	{
 		m_Owner->GetWorldTimerManager().ClearTimer(m_Timer);
-		m_OwnerAnimInstance->PlayMontage(TEXT("EarthStrike_OnGround"));
+		m_OwnerAnimInstance->Montage_Play(m_EarthStrikeMontage, 1.0f);
 
 		attack();
 		playEffect();
@@ -63,7 +65,8 @@ void UEarthStrike_InAir::attack()
 {
 	const FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
 	const TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
-	const TArray<AActor*> ignoreActors = {m_Owner.Get()};
+	//const TArray<AActor*> ignoreActors = {m_Owner.Get()};
+	const TArray<AActor*> ignoreActors = {};
 	TArray<AActor*> overlappedActors;
 	
 	UKismetSystemLibrary::SphereOverlapActors(m_Owner->GetWorld(),
@@ -107,5 +110,6 @@ void UEarthStrike_InAir::playEffect()
 
 bool UEarthStrike_InAir::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState();
+	return Super::CanExecuteSkill() &&
+		!m_Owner->IsCrowdControlState();
 }

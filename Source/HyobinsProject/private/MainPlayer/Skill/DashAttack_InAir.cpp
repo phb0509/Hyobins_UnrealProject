@@ -9,6 +9,7 @@
 #include "Utility/EnumTypes.h"
 
 UDashAttack_InAir::UDashAttack_InAir():
+	m_DashAttackMontage(nullptr),
 	m_MoveDistance(150.0f)
 {
 }
@@ -35,11 +36,12 @@ void UDashAttack_InAir::Execute()
 
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_InAir);
 
-	m_OwnerAnimInstance->PlayMontage("DashAttack_InAir");
+	m_OwnerAnimInstance->Montage_Play(m_DashAttackMontage, 1.0f);
 }
 
 bool UDashAttack_InAir::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState() &&
+	return Super::CanExecuteSkill() &&
+		!m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::EarthStrike_FallingToGround);
 }

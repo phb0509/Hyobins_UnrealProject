@@ -8,13 +8,20 @@
 #include "Utility/EnumTypes.h"
 #include "SubSystems/UIManager.h"
 
-UChargingCancel_OnGround::UChargingCancel_OnGround()
+UChargingCancel_OnGround::UChargingCancel_OnGround() :
+	m_StopChargingMontage(nullptr)
 {
 }
 
 void UChargingCancel_OnGround::Initialize()
 {
 	Super::Initialize();
+
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("StopCharging_OnGround"),
+		[this]()
+		{
+			m_Owner->SetIsSuperArmor(false);
+		});
 }
 
 void UChargingCancel_OnGround::Execute()
@@ -31,15 +38,13 @@ void UChargingCancel_OnGround::Execute()
 	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::StopCharging);
 	ownerSkillComponent->SetCanChargingSkill(false);
 
-	m_OwnerAnimInstance->PlayMontage(TEXT("StopCharging_OnGround"));
+	m_OwnerAnimInstance->Montage_Play(m_StopChargingMontage,1.0f);
 
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	//uiManager->RemoveChargingGageBar();
 	uiManager->RemoveWidgetContainers("ChargingGageBar");
-	//OnStopCharging.BindUObject(uiManager, &UUIManager::RemoveChargingGageBar);
 }
 
 bool UChargingCancel_OnGround::CanExecuteSkill() const
 {
-	return m_OwnerAnimInstance->IsCurrentMontage(TEXT("Charging_OnGround"));
+	return Super::CanExecuteSkill() && m_OwnerAnimInstance->IsCurrentMontage(TEXT("Charging_OnGround"));
 }

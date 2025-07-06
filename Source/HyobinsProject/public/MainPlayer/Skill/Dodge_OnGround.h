@@ -26,6 +26,18 @@ protected:
 
 	
 private:
-	UPROPERTY(EditAnywhere, Category = "Dodge_OnGround")
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_TargetingDodgeMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_NonTargetingDodgeMontage;
+
+	UPROPERTY(EditAnywhere)
 	float m_MoveDistance;
+
+	UPROPERTY(EditAnywhere)
+	float m_InvincibleTime;
+	
+	FTimerHandle m_InvincibilityTimer;
+	
 };

@@ -9,17 +9,24 @@
 #include "Utility/EnumTypes.h"
 
 UNormalAttack_OnGround::UNormalAttack_OnGround():
+	m_NormalAttackMontage(nullptr),
 	m_CurComboAttackSection(1),
 	m_MaxNormalAttackSection(7),
 	m_MoveDistance(100.0f)
 {
-	
+
 }
 
 void UNormalAttack_OnGround::Initialize()
 {
 	Super::Initialize(); 
 
+	// m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_OnGround"),
+	// 	[this]()
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("NormalAttack_OnGround"));
+	// 	});
+	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_OnGround"),
 		[this]()
 		{
@@ -33,14 +40,14 @@ void UNormalAttack_OnGround::Execute()
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 	
-	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
+	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
 	{
 		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 		targetVector.Z = 0.0f;
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 		
-		m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_OnGround"));  
+		m_OwnerAnimInstance->Montage_Play(m_NormalAttackMontage,1.0f);
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
 	}
 	else if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
@@ -104,6 +111,7 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 
 bool UNormalAttack_OnGround::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState() &&
+	return Super::CanExecuteSkill() &&
+		!m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

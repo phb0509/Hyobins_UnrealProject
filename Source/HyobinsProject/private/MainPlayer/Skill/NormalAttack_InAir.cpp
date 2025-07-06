@@ -9,10 +9,12 @@
 #include "Utility/EnumTypes.h"
 
 UNormalAttack_InAir::UNormalAttack_InAir():
+	m_NormalAttackMontage(nullptr),
 	m_CurComboAttackSection(1),
 	m_MaxNormalAttackSection(7),
 	m_MoveDistance(100.0f)
 {
+
 }
 
 void UNormalAttack_InAir::Initialize()
@@ -59,14 +61,14 @@ void UNormalAttack_InAir::Execute()
 			linqNextNormalAttackInAirCombo(); // 섹션점프
 		}
 	}
-	else if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
+	else if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
 	{
 		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 		targetVector.Z = 0.0f;
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 
-		m_OwnerAnimInstance->PlayMontage(TEXT("NormalAttack_InAir"));
+		m_OwnerAnimInstance->Montage_Play(m_NormalAttackMontage, 1.0f);
 	}
 }
 
@@ -78,5 +80,5 @@ void UNormalAttack_InAir::linqNextNormalAttackInAirCombo()
 
 bool UNormalAttack_InAir::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState();
+	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState();
 }

@@ -7,7 +7,8 @@
 #include "Component/MainPlayerSkillComponent.h"
 #include "Utility/EnumTypes.h"
 
-UComboDashAttack_OnGround::UComboDashAttack_OnGround()
+UComboDashAttack_OnGround::UComboDashAttack_OnGround() :
+	m_ComboDashAttackMontage(nullptr)
 {
 }
 
@@ -23,8 +24,9 @@ void UComboDashAttack_OnGround::Initialize()
 		ownerSkillComponent->SetCanChargingSkill(false);
 		m_Owner->RemoveInputMappingContext(TEXT("Charging_OnGround"));
 		m_Owner->AddInputMappingContext(TEXT("Default_OnGround"));
-		m_Owner->SetIsSuperArmor(false, false);
+		m_Owner->SetIsSuperArmor(false);
 	});
+	
 }
 
 void UComboDashAttack_OnGround::Execute()
@@ -38,11 +40,11 @@ void UComboDashAttack_OnGround::Execute()
 	{
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
 		
-		m_OwnerAnimInstance->PlayMontage(TEXT("Charging_ComboDashAttack_OnGround"));
+		m_OwnerAnimInstance->Montage_Play(m_ComboDashAttackMontage,1.0f);
 	}
 }
 
 bool UComboDashAttack_OnGround::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState();
+	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState();
 }

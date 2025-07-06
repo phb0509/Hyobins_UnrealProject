@@ -22,6 +22,9 @@ protected:
 	virtual bool CanExecuteSkill() const override;
 
 private:
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_ChargingMontage;
+
 	UPROPERTY(EditAnywhere, Category = "Duration")
 	float m_ChargingDuration;
 	

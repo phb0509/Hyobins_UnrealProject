@@ -28,6 +28,12 @@ protected:
 	virtual bool CanExecuteSkill() const override;
 	
 private:
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_FallingToGroundMontage;
+	
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_EarthStrikeMontage;
+
 	FTimerHandle m_Timer;
 
 	UPROPERTY(EditAnywhere, Category = "AttackRange")

@@ -9,7 +9,10 @@
 #include "Utility/EnumTypes.h"
 
 UDodge_OnGround::UDodge_OnGround() :
-	m_MoveDistance(400.0f)
+	m_TargetingDodgeMontage(nullptr),
+	m_NonTargetingDodgeMontage(nullptr),
+	m_MoveDistance(400.0f),
+	m_InvincibleTime(0.5f)
 {
 }
 
@@ -17,19 +20,31 @@ void UDodge_OnGround::Initialize()
 {
 	Super::Initialize();
 	
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Dodge_NonTargeting_OnGround"),
-	[this]()
-	{
-		if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle))
-		{
-			m_Owner->SetIsSuperArmor(false, false);
-		}
-	});
+	// m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Dodge_NonTargeting_OnGround"),
+	// [this]()
+	// {
+	// 	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
+	// 	{
+	// 		m_Owner->SetIsSuperArmor(false);
+	// 	}
+	// });
 }
 
 void UDodge_OnGround::Execute()
 {
 	Super::Execute();
+
+	m_Owner->SetInvincible(true);
+	
+	m_Owner->GetWorldTimerManager().SetTimer(
+		m_InvincibilityTimer,
+		[this]()
+		{
+			m_Owner->SetInvincible(false);
+		},
+		m_InvincibleTime, 
+		false 
+	);
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 
@@ -45,9 +60,10 @@ void UDodge_OnGround::Execute()
 
 	// 캐릭터기준으로 어디방향인지 구하기.
 	const int32 localDirectionIndex = m_Owner->GetLocalDirectionIndex(worldKeyInputDirection);
+	const FString jumpSection = FString::FromInt(localDirectionIndex);
 	
-	m_OwnerAnimInstance->PlayMontage(TEXT("Dodge_NonTargeting_OnGround"));
-	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("Dodge_NonTargeting_OnGround"), localDirectionIndex);
+	m_OwnerAnimInstance->Montage_Play(m_TargetingDodgeMontage,1.0f);
+	m_OwnerAnimInstance->Montage_JumpToSection(*jumpSection, m_TargetingDodgeMontage);
 
 	FVector targetVerticalVector;
 	FVector targetHorizontalVector;
@@ -72,5 +88,6 @@ void UDodge_OnGround::Execute()
 
 bool UDodge_OnGround::CanExecuteSkill() const
 {
-	return !m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
+	return Super::CanExecuteSkill() &&
+		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

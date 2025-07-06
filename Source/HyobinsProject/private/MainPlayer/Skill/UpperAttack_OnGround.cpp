@@ -9,6 +9,8 @@
 #include "Utility/EnumTypes.h"
 
 UUpperAttack_OnGround::UUpperAttack_OnGround():
+	m_UpperAttackMontage(nullptr),
+	m_UpperAttackToAirMontage(nullptr),
 	m_MoveDistance(140.0f),
 	m_JumpDistance(500.0f)
 {
@@ -29,7 +31,7 @@ void UUpperAttack_OnGround::Execute()
 {
 	Super::Execute();
 	
-	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Idle) ||
+	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None) ||
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround))
 	{
@@ -48,7 +50,7 @@ void UUpperAttack_OnGround::Execute()
 			
 			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_GroundToAir);
 			
-			m_OwnerAnimInstance->PlayMontage(TEXT("UpperAttack_GroundToAir"));
+			m_OwnerAnimInstance->Montage_Play(m_UpperAttackToAirMontage, 1.0f);
 		}
 		else
 		{
@@ -58,13 +60,14 @@ void UUpperAttack_OnGround::Execute()
 			
 			ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::UpperAttack_OnGround);
 			
-			m_OwnerAnimInstance->PlayMontage("UpperAttack_OnGround");
+			m_OwnerAnimInstance->Montage_Play(m_UpperAttackMontage, 1.0f);
 		}
 	}
 }
 
 bool UUpperAttack_OnGround::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState() &&
+	return Super::CanExecuteSkill() &&
+		!m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

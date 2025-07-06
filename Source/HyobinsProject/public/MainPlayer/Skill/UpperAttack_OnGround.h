@@ -24,6 +24,12 @@ protected:
 	virtual bool CanExecuteSkill() const override;
 	
 private:
+	UPROPERTY(EditAnywhere, Category = "Montage")
+    TObjectPtr<UAnimMontage> m_UpperAttackMontage;
+    
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_UpperAttackToAirMontage;
+	
 	UPROPERTY(EditAnywhere, Category = "MoveDistance")
 	float m_MoveDistance;
 	

@@ -24,6 +24,11 @@ protected:
 	virtual bool CanExecuteSkill() const override;
 
 private:
-	UPROPERTY(EditDefaultsOnly)
-	float m_AdditionalDefense;
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_GuardMontage;
+	
+	FTimerHandle m_ParryingTimer;
+
+	UPROPERTY(EditAnywhere)
+	float m_ParryingTime;
 };

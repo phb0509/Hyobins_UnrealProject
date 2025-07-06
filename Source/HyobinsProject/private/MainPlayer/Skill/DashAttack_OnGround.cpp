@@ -9,6 +9,7 @@
 #include "Utility/EnumTypes.h"
 
 UDashAttack_OnGround::UDashAttack_OnGround() :
+	m_DashAttackMontage(nullptr),
 	m_MoveDistance(500.0f)
 {
 }
@@ -17,10 +18,10 @@ void UDashAttack_OnGround::Initialize()
 {
 	Super::Initialize();
 	
-	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("DashAttack_OnGround"),
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("DashAttack_OnGround"),
     	[this]()
     	{
-    		m_Owner->SetIsSuperArmor(false, false);
+    		m_Owner->SetIsSuperArmor(false);
     	});
 }
 
@@ -36,11 +37,12 @@ void UDashAttack_OnGround::Execute()
 	
 	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::DashAttack_OnGround);
 	
-	m_OwnerAnimInstance->PlayMontage("DashAttack_OnGround");
+	m_OwnerAnimInstance->Montage_Play(m_DashAttackMontage, 1.0f);
 }
 
 bool UDashAttack_OnGround::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState() &&
+	return Super::CanExecuteSkill() &&
+		!m_Owner->IsCrowdControlState() &&
 		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
 }

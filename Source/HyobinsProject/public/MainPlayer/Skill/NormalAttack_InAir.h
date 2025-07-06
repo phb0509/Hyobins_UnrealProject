@@ -28,6 +28,9 @@ private:
 	
 	
 private:
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_NormalAttackMontage;
+
 	int32 m_CurComboAttackSection;
 	int32 m_MaxNormalAttackSection;
 

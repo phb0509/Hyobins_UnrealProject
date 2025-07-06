@@ -9,8 +9,10 @@
 #include "SubSystems/UIManager.h"
 
 UCharging_OnGround::UCharging_OnGround() :
+	m_ChargingMontage(nullptr),
 	m_ChargingDuration(2.0f)
 {
+	
 }
 
 void UCharging_OnGround::Initialize()
@@ -38,7 +40,7 @@ void UCharging_OnGround::Execute()
 
 	ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_OnGround);
 	
-	m_OwnerAnimInstance->PlayMontage(TEXT("Charging_OnGround"));
+	m_OwnerAnimInstance->Montage_Play(m_ChargingMontage, 1.0f);
 	
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	uiManager->CreateChargingGageBar(m_Owner.Get(), m_ChargingDuration);
@@ -46,5 +48,5 @@ void UCharging_OnGround::Execute()
 
 bool UCharging_OnGround::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState();
+	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState();
 }
