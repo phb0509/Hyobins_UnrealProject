@@ -41,6 +41,8 @@ public:
 	
 	float GetMontagePlayTime(const FName& montageName);
 	UAnimMontage* GetMontage(const FName& montageName);
+
+	FORCEINLINE bool IsLastMontagePlayInterrupted() const { return m_bIsLastMontagePlayInterrupted; }
 	
 
 
@@ -171,6 +173,8 @@ protected:
 	TMap<FName, TObjectPtr<UAnimMontage>> m_Montages;
 	
 	TMap<FName, FMontageFunc> m_FuncsOnCalledMontageEvent;
+
+	bool m_bIsLastMontagePlayInterrupted;
 };
 
 

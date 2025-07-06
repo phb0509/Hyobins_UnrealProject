@@ -3,7 +3,8 @@
 #include "CharacterBase/AnimInstanceBase.h"
 
 
-UAnimInstanceBase::UAnimInstanceBase() 
+UAnimInstanceBase::UAnimInstanceBase() :
+	m_bIsLastMontagePlayInterrupted(false)
 {
 }
 
@@ -28,6 +29,7 @@ void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* Montage)
 void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	const FName montageName = Montage->GetFName();
+	m_bIsLastMontagePlayInterrupted = bInterrupted;
 	
 	if (m_FuncsOnCalledMontageEvent.Contains(montageName))
 	{
