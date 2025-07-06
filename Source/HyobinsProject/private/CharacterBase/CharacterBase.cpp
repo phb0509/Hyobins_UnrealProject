@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
 #include "SubSystems/DataManager.h"
+#include "MotionWarpingComponent.h"
 
 
 int32 attackCount = 0; // 로그용 임시값
@@ -68,8 +69,7 @@ void ACharacterBase::Tick(float DeltaSeconds)
 	m_bIsOnGround = GetCharacterMovement()->IsMovingOnGround();
 	m_bIsFalling = GetCharacterMovement()->IsFalling();
 	m_bIsFlying = GetCharacterMovement()->IsFlying();
-
-	m_DeathTimeline.TickTimeline(DeltaSeconds);
+	
 }
 
 void ACharacterBase::Attack(const FName& attackName, AActor* target, const FVector& causerLocation)
@@ -139,6 +139,11 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack,
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }
 
+void ACharacterBase::OnDamageStamina(const float staminaDamage) const
+{
+	m_StatComponent->OnDamageStamina(staminaDamage);
+}
+
 void ACharacterBase::ExecEvent_TakeKnockbackAttack(AActor* instigator, const FAttackInformation* attackInfo)
 {
 	if (m_CurCrowdControlState == ECrowdControlStates::Down) 
@@ -152,7 +157,7 @@ void ACharacterBase::ExecEvent_TakeKnockbackAttack(AActor* instigator, const FAt
 		DisableMovementComponentForDuration(0.2f);
 		CallTimer_ExecDownEvent_WhenOnGround();
 	}
-	else 
+	else // KnockbackOnGround
 	{
 		playOnHitMontage(KnockbackMontageNames[m_HitDirection]);
 		SetCrowdControlState(ECrowdControlStates::KnockbackOnStanding);
@@ -318,14 +323,19 @@ void ACharacterBase::Die()
 		GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 	}
 	
-	GetCharacterMovement()->Activate();
-	
 	m_AnimInstanceBase->StopAllMontages(0.0f);
-
-	UAnimMontage* deathMontage = m_AnimInstanceBase->GetMontage(DeathMontageNames[m_HitDirection]);
-	m_AnimInstanceBase->PlayMontage(deathMontage == nullptr ? "Death0" : DeathMontageNames[m_HitDirection]);
 	
-	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	UAnimMontage* deathMontage = m_AnimInstanceBase->GetMontage(DeathMontageNames[m_HitDirection]);
+	if (deathMontage != nullptr)
+	{
+		m_AnimInstanceBase->PlayMontage(deathMontage == nullptr ? "Death0" : DeathMontageNames[m_HitDirection]);
+	}
+
+	UShapeComponent* hitCollider = m_Colliders[HitColliderName].Get();
+	if (hitCollider != nullptr)
+	{
+		hitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void ACharacterBase::OnCalledNotify_End_Death() 
@@ -361,16 +371,8 @@ void ACharacterBase::ApplyKnockback(const float knockbackDistance, const FVector
 	this->SetActorLocation(GetActorLocation() + dirToInstigator, false);
 }
 
-void ACharacterBase::SetIsSuperArmor(bool bIsSuperArmor, bool bForce)
+void ACharacterBase::SetIsSuperArmor(const bool bIsSuperArmor)
 {
-	if (!bIsSuperArmor) // 슈퍼아머를 해제하려는 시도를 할 경우
-	{
-		if (!m_bIsSuperArmorBuff || bForce) // 버프 없을때나, 강제로 해제하려하는 경우에만 해제.
-		{
-			m_bIsSuperArmorBuff = false;
-		}
-	}
-	
 	m_bIsSuperArmor = bIsSuperArmor;
 }
 
@@ -412,7 +414,44 @@ FVector ACharacterBase::GetDirectionToTarget(const AActor* target) const
 	return directionToTarget;
 }
 
+bool ACharacterBase::HasEnoughStamina(const float cost) const
+{
+	return m_StatComponent->HasEnoughStamina(cost);
+}
+
+UAnimInstanceBase* ACharacterBase::GetAnimInstanceBase() const
+{
+	return m_AnimInstanceBase.Get();
+}
+
+UMotionWarpingComponent* ACharacterBase::GetMotionWarpingComponent() const
+{
+	return m_MotionWarpingComponent.Get();
+}
+
 void ACharacterBase::ClearCrowdControlTimerHandle()
 {
 	GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+}
+
+void ACharacterBase::SetInvincible(const bool bIsInvincible)
+{
+	UShapeComponent* hitCollider = GetCollider(TEXT("HitCollider"));
+
+	if (hitCollider != nullptr)
+	{
+		if (bIsInvincible)
+		{
+			hitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		else
+		{
+			hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		}
+	}
+}
+
+UShapeComponent* ACharacterBase::GetCollider(const FName& colliderName) const
+{
+	return m_Colliders.Contains(colliderName) ? m_Colliders[colliderName].Get() : nullptr;
 }

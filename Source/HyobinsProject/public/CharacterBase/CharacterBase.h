@@ -20,6 +20,7 @@ class AAIControllerBase;
 class UAIPerceptionComponent;
 class UNiagaraSystem;
 class USoundCue;
+class UMotionWarpingComponent;
 
 struct FHitInformation;
 struct FAttackInformation;
@@ -46,9 +47,9 @@ public:
 	
 	// IDamageable
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
+	void OnDamageStamina(const float staminaDamage) const;
 	
 	void ClearCrowdControlTimerHandle();
-	
 	
 	bool HasContainHitActor(const FName& attackName, AActor* hitActor)
 	{
@@ -65,9 +66,11 @@ public:
 		m_HitActorsByMe[attackName].Empty();
 	}
 
+	void SetInvincible(const bool bIsInvincible);
+	
 	// Get
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
-	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) { return m_Colliders[colliderName].Get(); }
+	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) const;
 
 	FORCEINLINE ECrowdControlStates GetCurCrowdControlState() const { return m_CurCrowdControlState; }
 	FORCEINLINE bool IsCrowdControlState() const { return m_CurCrowdControlState != ECrowdControlStates::None; }
@@ -76,14 +79,12 @@ public:
 	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
 	
 	FORCEINLINE bool IsSuperArmor() const { return m_bIsSuperArmor; }
-	FORCEINLINE bool IsSuperArmorBuff() const { return m_bIsSuperArmorBuff; }
 	FORCEINLINE bool IsOnGround() const { return m_bIsOnGround; }
 	FORCEINLINE bool IsFalling() const { return m_bIsFalling; }
 	FORCEINLINE bool IsFlying() const { return m_bIsFlying; }
 	FORCEINLINE bool IsDead() const { return m_bIsDead; }
 
-	FORCEINLINE void SetIsSuperArmor(bool bIsSuperArmor, bool bForce);
-	FORCEINLINE void SetIsSuperArmorBuff(bool bIsSuperArmorBuff) { m_bIsSuperArmorBuff = bIsSuperArmorBuff; }
+	FORCEINLINE void SetIsSuperArmor(const bool bIsSuperArmor);
 	
 	void RotateToTarget(const AActor* target, const FRotator& rotatorOffset = {0.0f, 0.0f ,0.0f});
 	bool IsWithInRange(const AActor* target, const float range) const;
@@ -94,6 +95,10 @@ public:
 		m_CurCrowdControlState = state;
 	}
 
+	bool HasEnoughStamina(const float cost) const;
+
+	UAnimInstanceBase* GetAnimInstanceBase() const;
+	UMotionWarpingComponent* GetMotionWarpingComponent() const;
 	
 protected:
 	virtual void execEvent_CommonCrowdControl(AActor* instigator) {};
@@ -158,10 +163,7 @@ protected:
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsSuperArmor;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
-	bool m_bIsSuperArmorBuff;
-
+	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = State, Meta = (AllowProtectedAccess = true))
 	bool m_bIsDead;
 
@@ -183,10 +185,6 @@ protected:
 	float m_CrowdControlTime;
 	int32 m_HitDirection;
 	
-	FTimeline m_DeathTimeline;					
-
-	UPROPERTY(EditAnywhere, Category = "Timeline | Death")
-	TObjectPtr<UCurveFloat> m_DeathCurveFloat;
 	
 	UPROPERTY(EditAnywhere, Category = "HitEffect")
 	TObjectPtr<UNiagaraSystem> m_HitEffect;
@@ -199,6 +197,10 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	float m_OnHitPlayRate;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
+
 	
 private:
 	FName m_LastPlayedOnHitMontageName;
