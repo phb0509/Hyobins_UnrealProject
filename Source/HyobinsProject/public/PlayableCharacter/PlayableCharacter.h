@@ -7,12 +7,14 @@
 #include "PlayableCharacter.generated.h"
 
 class USkillComponent;
+class USkill;
 struct FInputActionValue;
 class USpringArmComponent;
 class UCameraComponent;
 class UMotionWarpingComponent;
 class UInputMappingContext;
 class UInputAction;
+class USoundWave;
 
 
 USTRUCT(Atomic)
@@ -64,7 +66,8 @@ public:
 		return DirectionIndex[m_CurInputVertical + 1][m_CurInputHorizontal + 1];
 	}
 
-	FORCEINLINE TWeakObjectPtr<AActor> GetCurTarget() const { return m_CurTarget; }
+	FORCEINLINE bool IsLockOnMode() const { return m_bIsLockOnMode; }
+	FORCEINLINE TWeakObjectPtr<AActor> GetCurLockOnTarget() const { return m_CurLockOnTarget; }
 	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
 	FORCEINLINE USkillComponent* GetSkillComponent() const { return m_SkillComponent; }
 	FName GetHighestPriorityInputMappingContext() const;
@@ -75,10 +78,7 @@ public:
 	int32 GetLocalDirectionIndex(const FVector& worldDirection) const;
 	int32 GetLocalDirectionUsingInverseMatrix(const FVector& worldDirection) const;
 
-
-	// Set
-	void SetCurTarget(AActor* target) { m_CurTarget = target; }
-
+	USkill* GetCurExecutingSkill() const;
 	// Input
 
 	// AxisMappings
@@ -94,7 +94,7 @@ public:
 	// ActionMappings
 	void Run();
 	void StopRun();
-	void ToggleTargetMode();
+	void ToggleLockOnMode();
 
 
 public:
@@ -117,8 +117,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USkillComponent> m_SkillComponent;
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
+	// UPROPERTY(EditAnywhere)
+	// TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
 	TObjectPtr<USpringArmComponent> m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
@@ -132,27 +132,18 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Input", Meta = (AllowPrivateAccess = true))
 	int32 m_CurInputVertical;
-
-	TWeakObjectPtr<AActor> m_CurTarget;
-
+	
 	float m_MoveDeltaSecondsOffset;
 	float m_RotationDeltaSecondsOffset;
-
-	UPROPERTY(EditAnywhere, Category = "CameraShake")
-	TSubclassOf<UCameraShakeBase> m_OnHitCameraShake;
-
-	UPROPERTY(EditAnywhere, Category = "CameraShake")
-	TSubclassOf<UCameraShakeBase> m_AttackCameraShake;
 	
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Input", Meta = (AllowPrivateAccess = true))
 	bool m_bIsPressedShift;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "State", Meta = (AllowProtectedAccess = true))
-	bool m_bIsLockOn;
+	bool m_bIsLockOnMode;
 	
-	FTimerHandle m_LockOnTimer;
-
 	TWeakObjectPtr<AActor> m_CurLockOnTarget;
+	FTimerHandle m_LockOnTimer;
 
 	FRotator m_InitialControlRotation;
 	float m_LockOnElapsed;
@@ -162,4 +153,14 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "LockOn", Meta = (AllowPrivateAccess = true))
 	float m_LockOnCameraPitch;
+	
+	UPROPERTY(EditAnywhere, Category = "OnHitEffect")
+	TSubclassOf<UCameraShakeBase> m_OnHitCameraShake;
+	
+	UPROPERTY(EditAnywhere, Category = "ParryingEffect")
+	TSubclassOf<UCameraShakeBase> m_ParryingShake;
+	
+	UPROPERTY(EditAnywhere, Category = "ParryingEffect")
+	TObjectPtr<USoundWave> m_ParryingSound;
+	
 };

@@ -8,6 +8,7 @@
 #include "Utility/Utility.h"
 #include "SubSystems/UIManager.h"
 #include "Algo/MinElement.h"
+#include "Component/SkillComponent.h"
 
 const int32 APlayableCharacter::DirectionIndex[3][3] =
 	{{5,4,3},
@@ -20,12 +21,13 @@ APlayableCharacter::APlayableCharacter() :
 	m_CurInputVertical(0),
 	m_MoveDeltaSecondsOffset(20000.0f),
 	m_RotationDeltaSecondsOffset(50.0f),
-	m_OnHitCameraShake(nullptr),
-	m_AttackCameraShake(nullptr),
 	m_bIsPressedShift(false),
-	m_bIsLockOn(false),
+	m_bIsLockOnMode(false),
 	m_LockOnRotaionDuration(0.2f),
-	m_LockOnCameraPitch(-37.0f)
+	m_LockOnCameraPitch(-37.0f),
+	m_OnHitCameraShake(nullptr),
+	m_ParryingShake(nullptr),
+	m_ParryingSound(nullptr)
 {
 	initAssets();
 }
@@ -40,6 +42,7 @@ void APlayableCharacter::BeginPlay()
 
 	initInputConfigs();
 }
+
 
 void APlayableCharacter::RotateActorToKeyInputDirection() // WSAD 키입력방향으로 액터회전.
 {
@@ -241,6 +244,11 @@ int32 APlayableCharacter::GetLocalDirectionUsingInverseMatrix(const FVector& wor
 	return 4; // Back
 }
 
+USkill* APlayableCharacter::GetCurExecutingSkill() const
+{
+	return m_SkillComponent->GetCurExecutingSkill();
+}
+
 void APlayableCharacter::Move(const FInputActionValue& value)
 {
 	const FVector2d movementVector = value.Get<FVector2D>();
@@ -264,7 +272,7 @@ void APlayableCharacter::Move(const FInputActionValue& value)
 
 void APlayableCharacter::Look(const FInputActionValue& value)
 {
-	if (!m_bIsLockOn)
+	if (!m_bIsLockOnMode)
 	{
 		const FVector2d axisVector = value.Get<FVector2d>();
 
@@ -285,23 +293,32 @@ void APlayableCharacter::StopRun()
 	m_bIsPressedShift = false;
 }
 
-void APlayableCharacter::ToggleTargetMode()
+void APlayableCharacter::ToggleLockOnMode()
 {
-	m_bIsLockOn = !m_bIsLockOn;
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	
-	if (m_bIsLockOn)
+	if (m_bIsLockOnMode)
 	{
-		m_CurLockOnTarget = findNearestTarget();
-		lockOnToTarget(m_CurLockOnTarget.Get());
-		
-		uiManager->RenderLockOnToScreen(m_CurLockOnTarget.Get());
-	}
-	else
-	{
+		m_bIsLockOnMode = false;
 		GetWorldTimerManager().ClearTimer(m_LockOnTimer);
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
 		uiManager->SetVisibilityWidgets(TEXT("LockOn"), ESlateVisibility::Collapsed);
+	}
+	else // 락온모드 키려할 경우
+	{
+		m_CurLockOnTarget = findNearestTarget();
+
+		if (m_CurLockOnTarget != nullptr)
+		{
+			m_bIsLockOnMode = true;
+			lockOnToTarget(m_CurLockOnTarget.Get());
+			GetCharacterMovement()->bOrientRotationToMovement = false;
+			GetCharacterMovement()->bUseControllerDesiredRotation = true;
+		
+			uiManager->RenderLockOnToScreen(m_CurLockOnTarget.Get());
+		}
 	}
 }
 
@@ -350,8 +367,9 @@ void APlayableCharacter::lockOnToTarget(AActor* target)
 		m_InitialControlRotation = playerController->GetControlRotation();
 		m_LockOnElapsed = 0.0f;
 
+		constexpr float updateRate = 1 / 60.0f;
 		// 타이머 시작 (Tick 간격 0.01초)
-		GetWorldTimerManager().SetTimer(m_LockOnTimer, this, &APlayableCharacter::updateCameraRotation, 0.01f, true);
+		GetWorldTimerManager().SetTimer(m_LockOnTimer, this, &APlayableCharacter::updateCameraRotation, updateRate, true);
 	}
 }
 
@@ -366,23 +384,18 @@ void APlayableCharacter::updateCameraRotation()
 
 	m_LockOnElapsed += 0.01f;
 	float alpha = FMath::Clamp(m_LockOnElapsed / m_LockOnRotaionDuration, 0.0f, 1.0f);
-
-	// 타겟 위치가 움직일 수 있으니, 매 프레임 갱신
-	FVector myLocation = m_TargetCamera->GetComponentLocation();
+							 
+	FVector cameraLocation = m_TargetCamera->GetComponentLocation();
 	FVector targetLocation = m_CurLockOnTarget->GetActorLocation();
-	FVector directionToTarget = (targetLocation - myLocation).GetSafeNormal();
+	FVector directionToTarget = (targetLocation - cameraLocation).GetSafeNormal();
 
 	FRotator targetControlRotation = directionToTarget.Rotation();
-	targetControlRotation = directionToTarget.Rotation();
 	targetControlRotation.Roll = 0.0f;
 	targetControlRotation.Pitch = m_LockOnCameraPitch;
-
-	// Slerp 대신 Rotator Lerp (Yaw, Pitch만)
+	
 	FRotator NewRotation = FMath::RInterpTo(m_InitialControlRotation, targetControlRotation, alpha, 1.0f);
-
-	// 실제 회전 적용
+	
 	playerController->SetControlRotation(NewRotation);
-
 }
 
 void APlayableCharacter::initAssets()
