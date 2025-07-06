@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "SubSystems/DebugManager.h"
 
 
@@ -19,7 +20,7 @@ const FName AMainPlayer::ShieldForAttackColliderName = "ShieldForAttackCollider"
 const FName AMainPlayer::ShieldForGuardColliderName = "ShieldForGuardCollider";
 
 AMainPlayer::AMainPlayer() :
-	m_bIsGuarding(false)
+	m_bIsParrying(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AIControllerClass = AMainPlayerController::StaticClass();
@@ -62,75 +63,63 @@ void AMainPlayer::Attack(const FName& attackName, AActor* target, const FVector&
 
 void AMainPlayer::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator, const FVector& causerLocation)
 {
-	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
-	// if (canGuard(instigator))
-	// {
-	// 	m_AnimInstanceBase->PlayMontage(TEXT("GuardHit_OnGround"));
-	// 	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: GuardHit"));
-	// }
-	// else
-	// {
-	// 	DisableGuard(); // 가드 강제해제.
-	// 	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
-	// 	
-	// 	UE_LOG(LogTemp, Warning, TEXT("AMainPlayer :: CCHit"));
-	// }
+	if (m_bIsParrying)
+	{
+		ACharacterBase* attacker = Cast<ACharacterBase>(instigator);
+		if (attacker != nullptr)
+		{
+			attacker->OnDamageStamina(1000.0f);
+			this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_ParryingShake);
+			UGameplayStatics::PlaySoundAtLocation(this, m_ParryingSound, this->GetActorLocation());
+
+			if (m_ParryingHitParticle)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(
+					GetWorld(),
+					m_ParryingHitParticle,
+					this->GetActorLocation(),
+					FRotator::ZeroRotator,
+					true // bAutoDestroy
+				);
+			}
+		}
+	}
+	else
+	{
+		Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
+	}
 }
 
 void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
 {
 	if (m_OnHitCameraShake != nullptr)
-    {
-    	this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_OnHitCameraShake);
-    }
+	{
+		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_OnHitCameraShake);
+	}
 }
 
 void AMainPlayer::playAttackEffect()
 {
-	// 카메라흔들림 적용
-	UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
-	m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
-	
-	FTimerHandle timer;
-	GetWorldTimerManager().SetTimer
-	( 
-		timer,
-		[=]()
-		{
-			m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
-		},
-		m_GameSpeedDelay,
-		false
-	);
-	
-	if (m_AttackCameraShake != nullptr)
-	{
-		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
-	}
-}
-
-bool AMainPlayer::canGuard(const AActor* instigator) const
-{
-	return m_bIsGuarding && Utility::GetHitDirection(instigator->GetActorLocation(), this) == 0;
-}
-
-void AMainPlayer::EnableGuard()
-{
-	this->SetIsGuarding(true);
-	this->GetStatComponent()->AddAdditionalDefenseFromGuard();
-	this->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-}
-
-void AMainPlayer::DisableGuard()
-{
-	this->SetIsGuarding(false);
-	this->SetIsSuperArmor(false, false);
-	this->GetStatComponent()->RemoveAdditionalDefenseFromGuard();
-	m_ShieldCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	GetCharacterMovement()->bOrientRotationToMovement = true;
+	// // 카메라흔들림 적용
+	// UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
+	// m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
+	//
+	// FTimerHandle timer;
+	// GetWorldTimerManager().SetTimer
+	// ( 
+	// 	timer,
+	// 	[=]()
+	// 	{
+	// 		m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
+	// 	},
+	// 	m_GameSpeedDelay,
+	// 	false
+	// );
+	//
+	// if (m_AttackCameraShake != nullptr)
+	// {
+	// 	this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
+	// }
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -160,7 +149,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Look"], ETriggerEvent::Triggered, playableCharacter, &APlayableCharacter::Look);
 	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Run"], ETriggerEvent::Triggered, playableCharacter,&APlayableCharacter::Run);
 	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["StopRun"], ETriggerEvent::Triggered, playableCharacter,&APlayableCharacter::StopRun);
-	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Targeting"], ETriggerEvent::Triggered, playableCharacter,&APlayableCharacter::ToggleTargetMode);
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Targeting"], ETriggerEvent::Triggered, playableCharacter,&APlayableCharacter::ToggleLockOnMode);
 
 	// StrikeAttack (Default_OnGround)
 	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["SetModifierKeyInput_StrikeAttack"], ETriggerEvent::Started, skillComponent, &UMainPlayerSkillComponent::ActivateStrikeAttack);
@@ -271,12 +260,12 @@ void AMainPlayer::initAssets()
 	m_ShieldBottomCollider->SetGenerateOverlapEvents(false);
 	m_ShieldBottomCollider->SetNotifyRigidBodyCollision(false);
 	m_ShieldBottomCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
+	m_Colliders.Add(HitColliderName,m_HitCollider);
 	m_Colliders.Add(SwordColliderName,m_SwordCollider);
 	m_Colliders.Add(ShieldForAttackColliderName,m_ShieldForAttackCollider);
 	m_Colliders.Add(ShieldForGuardColliderName, m_ShieldCollider);
 	m_Colliders.Add(TEXT("ShieldBottomCollider"),m_ShieldBottomCollider);
-	m_Colliders.Add(HitColliderName,m_ShieldBottomCollider);
 }
 
 void AMainPlayer::printLog()
@@ -309,8 +298,8 @@ void AMainPlayer::printLog()
 	FString log4 = Tags[0].ToString() + " :: Is SuperArmor :: " + bIsSuperArmor;
 	GEngine->AddOnScreenDebugMessage(9, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log4));
 
-	const FString bIsGuarding = FString::FromInt(m_bIsGuarding);
-	FString log5 = Tags[0].ToString() + " :: Is Guarding :: " + bIsGuarding;
+	const FString bIsGuarding = FString::FromInt(m_bIsParrying);
+	FString log5 = Tags[0].ToString() + " :: Is Parrying :: " + bIsGuarding;
 	GEngine->AddOnScreenDebugMessage(10, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
 	
 	const FString log6 = "Controller Yaw :: " + FString::SanitizeFloat(GetController()->GetControlRotation().Yaw);
@@ -318,7 +307,16 @@ void AMainPlayer::printLog()
 
 	const FString log7 = "Camera Yaw :: " + FString::SanitizeFloat(m_TargetCamera->GetComponentRotation().Yaw);
 	GEngine->AddOnScreenDebugMessage(12, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log7));
+
+	const FString log8 = "Cur Stamina :: " + FString::SanitizeFloat(m_StatComponent->GetCurStamina());
+	GEngine->AddOnScreenDebugMessage(13, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log8));
+
+	const FString log9 = "Is LockOn?? :: " + FString::FromInt(m_bIsLockOnMode);
+	GEngine->AddOnScreenDebugMessage(14, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log9));
 	
 	
-	GEngine->AddOnScreenDebugMessage(10, 0.1f, FColor::Green, FString::Printf(TEXT("==============================")));
+
+
+	
+	GEngine->AddOnScreenDebugMessage(20, 0.1f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

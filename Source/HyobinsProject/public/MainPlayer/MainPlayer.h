@@ -16,6 +16,8 @@ class UMotionWarpingComponent;
 class AMainPlayer;
 class UInputMappingContext;
 class UInputAction;
+class UParticleSystem;
+
 
 enum class EMainPlayerStates : uint8;
 enum class ETriggerEvent : uint8;
@@ -35,20 +37,15 @@ public:
 	virtual void Attack(const FName& attackName, AActor* target, const FVector& causerLocation) override;
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
-	
-	
-	
-	bool IsGuard() const { return m_bIsGuarding; }
-	void SetIsGuarding(bool bIsGuard) { m_bIsGuarding = bIsGuard; }
 
-	void EnableGuard();
-	void DisableGuard();
+	FORCEINLINE bool IsParrying() const { return m_bIsParrying; }
+	FORCEINLINE void SetIsParrying(const bool bIsParrying) { m_bIsParrying = bIsParrying; }
 
+	
 private:
 	void initAssets();
 	void printLog() const;
 	void playAttackEffect();
-	bool canGuard(const AActor* instigator) const;
 	void printLog();
 	
 public:
@@ -58,7 +55,7 @@ public:
 
 	
 private:
-	bool m_bIsGuarding;
+	bool m_bIsParrying;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true)) 
 	TObjectPtr<UCapsuleComponent> m_SwordCollider;
@@ -72,4 +69,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true)) 
 	TObjectPtr<UCapsuleComponent> m_ShieldBottomCollider;
 	
+	UPROPERTY(EditAnywhere, Category = "Parrying Effect")
+    TObjectPtr<UParticleSystem> m_ParryingHitParticle;
 };
