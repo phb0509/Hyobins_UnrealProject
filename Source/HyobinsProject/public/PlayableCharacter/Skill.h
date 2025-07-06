@@ -3,14 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "Skill.generated.h"
 
 class APlayableCharacter;
 class UAnimInstanceBase;
 class USkillComponent;
-class UImage;
-class UTexture;
 class UTexture2D;
 
 DECLARE_MULTICAST_DELEGATE(FOnExecute);
@@ -26,24 +23,24 @@ public:
 
 	virtual void Initialize() {};
 	virtual void Execute();
-	
-	bool GetCanUseSkill() const { return m_bIsCooldownComplete && CanExecuteSkill(); }
+	virtual bool CanExecuteSkill() const;
 	
 	FORCEINLINE FName& GetName() { return m_Name; }
-	FORCEINLINE bool GetIsSuperArmor() const { return m_bIsSuperArmor; }
 	FORCEINLINE float GetCoolDownTime() const { return m_CoolDownTime; }
+	FORCEINLINE bool IsSuperArmor() const { return m_bIsSuperArmor; }
+	
 	FORCEINLINE UTexture2D* GetThumbnailFillTexture() const { return m_ThumbnailFillTexture; }
 	FORCEINLINE UTexture2D* GetThumbnailBackgroundTexture() const { return m_ThumbnailBackgroundTexture; }
 	
 	FORCEINLINE void SetOwnerInfo(APlayableCharacter* owner);
 	FORCEINLINE void SetCoolDownTime(float coolDownTime) { m_CoolDownTime = coolDownTime; }
 
-protected:
-	virtual bool CanExecuteSkill() const { return false; }
-	
+
+
 public:
 	FOnExecute OnExecute;
 	
+
 protected:
 	TWeakObjectPtr<APlayableCharacter> m_Owner;
 	TWeakObjectPtr<UAnimInstanceBase> m_OwnerAnimInstance;
@@ -51,12 +48,12 @@ protected:
 
 	FTimerHandle m_TimerHandle;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "SkillName")
+	UPROPERTY(EditDefaultsOnly, Category = "Default Property")
 	FName m_Name;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Status")
+	UPROPERTY(EditDefaultsOnly, Category = "Default Property")
 	float m_CoolDownTime;
-
+	
 	bool m_bIsCooldownComplete;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Status")
@@ -70,8 +67,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Thumbnail")
 	TObjectPtr<UTexture2D> m_ThumbnailBackgroundTexture;
-	
-	
 
-
+	
 };

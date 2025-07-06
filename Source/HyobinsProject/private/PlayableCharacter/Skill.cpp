@@ -5,6 +5,7 @@
 #include "PlayableCharacter/PlayableCharacter.h"
 #include "MainPlayer/MainPlayerAnim.h"
 #include "Component/SkillComponent.h"
+#include "Component/StatComponent.h"
 
 USkill::USkill() :
 	m_CoolDownTime(3.0f),
@@ -28,8 +29,25 @@ void USkill::Execute()
 		m_CoolDownTime,
 		false);
 
-	m_Owner->SetIsSuperArmor(m_bIsSuperArmor, false);
+	m_Owner->SetIsSuperArmor(m_bIsSuperArmor);
+	m_Owner->GetStatComponent()->OnDamageStamina(m_StaminaCost);
+	
+	if (m_Owner->IsLockOnMode())
+	{
+		AActor* lockOnTarget = m_Owner->GetCurLockOnTarget().Get();
+		m_Owner->RotateToTarget(lockOnTarget);
+	}
+	else
+	{
+		m_Owner->RotateActorToKeyInputDirection();
+	}
+	
 	OnExecute.Broadcast();
+}
+
+bool USkill::CanExecuteSkill() const
+{
+	return m_bIsCooldownComplete && m_Owner->HasEnoughStamina(m_StaminaCost);
 }
 
 void USkill::SetOwnerInfo(APlayableCharacter* owner)
@@ -42,3 +60,6 @@ void USkill::SetOwnerInfo(APlayableCharacter* owner)
 		m_OwnerSkillComponent = m_Owner->GetSkillComponent();
 	}
 }
+
+
+
