@@ -2,11 +2,11 @@
 
 
 #include "MainPlayer/Notify/Notify_FindTarget.h"
-#include "MainPlayer/MainPlayer.h"
-#include "Kismet/GameplayStatics.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "MotionWarpingComponent.h"
 
-UNotify_FindTarget::UNotify_FindTarget()
+UNotify_FindTarget::UNotify_FindTarget() :
+	m_CollisionRadius(1000.0f)
 {
 }
 
@@ -15,36 +15,43 @@ void UNotify_FindTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 
-	AMainPlayer* owner = Cast<AMainPlayer>(MeshComp->GetOwner());
+	APlayableCharacter* owner = Cast<APlayableCharacter>(MeshComp->GetOwner());
 
 	if (owner != nullptr)
 	{
-		const FVector startLocation = owner->GetActorLocation();
-		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
-		const TArray<AActor*> IgnoreActors = {owner};
-		TArray<AActor*> overlappedActors;
+		AActor* lockOnTarget = owner->GetCurLockOnTarget().Get();
 		
-		UKismetSystemLibrary::SphereOverlapActors(
-			MeshComp->GetWorld(),
-			startLocation,
-			1000.0f, // 구체 반지름
-			ObjectTypes,
-			nullptr,
-			IgnoreActors,
-			overlappedActors);
-
-		if (overlappedActors.Num() > 0)
+		if (lockOnTarget != nullptr && owner->IsLockOnMode() && owner->IsWithInRange(lockOnTarget, m_CollisionRadius))
 		{
-			for (AActor* overlappedEnemy : overlappedActors)
+			owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocationAndRotation(
+				TEXT("Forward"),
+				lockOnTarget->GetActorLocation(),
+				owner->GetDirectionToTarget(lockOnTarget).Rotation());
+		}
+		else
+		{
+			const FVector startLocation = owner->GetActorLocation();
+			const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
+			const TArray<AActor*> IgnoreActors = {owner};
+			TArray<AActor*> overlappedActors;
+		
+			UKismetSystemLibrary::SphereOverlapActors(
+				MeshComp->GetWorld(),
+				startLocation,
+				m_CollisionRadius, // 구체 반지름
+				ObjectTypes,
+				nullptr,
+				IgnoreActors,
+				overlappedActors);
+
+			if (overlappedActors.Num() > 0)
 			{
-				ACharacterBase* target = Cast<ACharacterBase>(overlappedEnemy);
-				
-				FVector targetVector = target->GetActorLocation() - owner->GetActorLocation();
-				targetVector.Z = 0.0f;
+				ACharacterBase* target = Cast<ACharacterBase>(overlappedActors[0]);
+
 				owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocationAndRotation(
-					TEXT("Forward"), target->GetActorLocation(), targetVector.Rotation());
-				
-				break;
+					TEXT("Forward"),
+					target->GetActorLocation(),
+					owner->GetDirectionToTarget(target).Rotation());
 			}
 		}
 	}
