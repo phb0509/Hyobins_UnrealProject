@@ -34,6 +34,8 @@ protected:
 	virtual void ExecEvent_OnStaminaIsZero() override;
 
 	virtual void ExecEvent_EndedDeathMontage() override;
+
+	virtual void Die() override;
 	
 private:
 	void initAssets();
@@ -47,6 +49,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UBoxComponent> m_HammerCollider;
 
-	UPROPERTY(EditAnywhere)
-    TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
+	// UPROPERTY(EditAnywhere)
+ //    TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
 };

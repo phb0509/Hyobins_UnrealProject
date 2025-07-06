@@ -17,6 +17,7 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActo
 public:
 	AMonster();
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	uint8 GetCurFSMState() const { return m_CurFSMState; }
 	ACharacterBase* GetTarget() const;
@@ -46,6 +47,12 @@ protected:
 
 	UFUNCTION()
 	void OnCalledTimelineEvent_End_AfterDeath(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수.)
+
+	UFUNCTION()					
+	void OnCalledTimelineEvent_Loop_DeathDissolve(float curveValue); // 특정시간(조절 가능한)동안 디퓨즈값 검은색으로 점점 변환.
+
+	UFUNCTION()
+	void OnCalledTimelineEvent_End_DeathDissolve(); // 타임라인 이벤트 종료시 호출(액터풀 회수직전 호출함수.)
 	
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) override;
 	
@@ -55,7 +62,8 @@ protected:
 	virtual void Deactivate() override;
 	virtual bool IsActive() override;
 	
-	
+private:
+	void setTimeline();
 
 public:
 	static const FName HomePosKey;
@@ -67,6 +75,15 @@ public:
 protected:
 	uint8 m_CurFSMState;
 	FTimerHandle m_DiffuseRatioOnHitTimer;
+
+	FTimeline m_DeathTimeline;		
+	FTimeline m_DeathDissolveTimeline;			
+
+	UPROPERTY(EditAnywhere, Category = "Timeline | Death")
+	TObjectPtr<UCurveFloat> m_DeathCurveFloat;
+
+	UPROPERTY(EditAnywhere, Category = "Timeline | Death")
+	TObjectPtr<UCurveFloat> m_DeathDissolveCurveFloat;
 	
 private:
 	TWeakObjectPtr<AAIControllerBase> m_AIControllerBase;

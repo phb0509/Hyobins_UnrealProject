@@ -49,7 +49,7 @@ void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const
 
 	if (m_StatComponent->CanRecoveryStamina())
 	{
-		m_StatComponent->OnDamageStamina(damage * 0.3f);
+		m_StatComponent->OnDamageStamina(damage * 0.01f);
 	}
 }
 
@@ -57,7 +57,7 @@ void ALichKing::Activate()
 {
 	Super::Activate();
 
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar",this, ESlateVisibility::HitTestInvisible);
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::HitTestInvisible);
 	SetFSMState(static_cast<uint8>(ELichKingFSMStates::Chase));
 }
 
@@ -65,7 +65,7 @@ void ALichKing::Deactivate()
 {
 	Super::Deactivate();
 	
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar",this, ESlateVisibility::Collapsed);
+	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::Collapsed);
 }
 
 void ALichKing::ExecEvent_TakeAirborneAttack(AActor* instigator, const FAttackInformation* attackInfo)
@@ -90,20 +90,31 @@ void ALichKing::ExecEvent_EndedDeathMontage()
 {
 	Super::ExecEvent_EndedDeathMontage();
 
-	UCapsuleComponent* rootComponent = Cast<UCapsuleComponent>(GetRootComponent());
-	rootComponent->SetCapsuleHalfHeight(30.0f);
-	rootComponent->SetCapsuleRadius(30.0f);
+	UE_LOG(LogTemp, Warning, TEXT("ALichKing :: ExecEvent_EndedDeathMontage"));
+
+	//GetMesh()->SetSimulatePhysics(true);
 	
-	FTimerHandle timer;
-	GetWorldTimerManager().SetTimer(timer,
-				[this]()
-				{
-					FVector newLocation = GetActorLocation();
-					newLocation.Z -= 1.0;
-					this->SetActorLocation(newLocation);
-				},
-			0.1f,
-			true);
+
+	//
+	// FTimerHandle timer;
+	// GetWorldTimerManager().SetTimer(timer,
+	// 			[this]()
+	// 			{
+	// 				FVector newLocation = GetActorLocation();
+	// 				newLocation.Z -= 1.0;
+	// 				this->SetActorLocation(newLocation);
+	// 			},
+	// 		0.1f,
+	// 		true);
+}
+
+void ALichKing::Die()
+{
+	Super::Die();
+
+	UCapsuleComponent* rootComponent = Cast<UCapsuleComponent>(GetRootComponent());
+	rootComponent->SetCapsuleHalfHeight(10.0f);
+	rootComponent->SetCapsuleRadius(10.0f);
 }
 
 

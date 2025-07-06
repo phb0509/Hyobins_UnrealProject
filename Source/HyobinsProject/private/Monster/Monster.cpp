@@ -17,7 +17,9 @@ const FName AMonster::CrowdControlStateKet(TEXT("CrowdControlState"));
 
 
 AMonster::AMonster() :
-	m_CurFSMState(0)
+	m_CurFSMState(0),
+	m_DeathCurveFloat(nullptr),
+	m_DeathDissolveCurveFloat(nullptr)
 {
 }
 
@@ -27,18 +29,15 @@ void AMonster::BeginPlay()
 	
 	m_AIControllerBase = Cast<AAIControllerBase>(GetController());
 
-	if (m_DeathCurveFloat != nullptr)
-	{
-		m_DeathTimeline.SetLooping(false);
-		
-		FOnTimelineFloat afterDeathTimeline_Loop;
-		afterDeathTimeline_Loop.BindDynamic(this, &AMonster::OnCalledTimelineEvent_Loop_AfterDeath);
-		m_DeathTimeline.AddInterpFloat(m_DeathCurveFloat, afterDeathTimeline_Loop);
+	setTimeline();
+}
 
-		FOnTimelineEvent afterDeathTimeline_End;
-		afterDeathTimeline_End.BindDynamic(this, &AMonster::OnCalledTimelineEvent_End_AfterDeath);
-		m_DeathTimeline.SetTimelineFinishedFunc(afterDeathTimeline_End);
-	}
+void AMonster::Tick(float DeltaSeconds)
+{
+	 Super::Tick(DeltaSeconds);
+
+	m_DeathTimeline.TickTimeline(DeltaSeconds);
+	m_DeathDissolveTimeline.TickTimeline(DeltaSeconds);
 }
 
 ACharacterBase* AMonster::GetTarget() const
@@ -65,22 +64,35 @@ void AMonster::Die()
 void AMonster::ExecEvent_EndedDeathMontage()
 {
 	Super::ExecEvent_EndedDeathMontage();
-
+	
 	m_DeathTimeline.Play();
 }
 
 void AMonster::OnCalledTimelineEvent_Loop_AfterDeath(float curveValue)
 {
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatioOnDeath"), 1-(curveValue*2));
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatioOnDeath"), curveValue*2);
 }
 
 void AMonster::OnCalledTimelineEvent_End_AfterDeath()
 {
-	Deactivate();
-	m_DeathTimeline.SetNewTime(0.0f);
+	// 디졸브효과 시작.
+	m_DeathDissolveTimeline.Play();
 }
 
-void AMonster::Initialize()
+void AMonster::OnCalledTimelineEvent_Loop_DeathDissolve(float curveValue)
+{
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DissolveAmount"), curveValue);
+}
+
+void AMonster::OnCalledTimelineEvent_End_DeathDissolve()
+{
+	this->Deactivate();
+	
+	m_DeathDissolveTimeline.SetNewTime(0.0f);
+	m_DeathTimeline.SetNewTime(0.0f); // 초기화
+}
+
+ void AMonster::Initialize()
 {
 	// HPBar 위젯 생성 및 부착.
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this);
@@ -94,7 +106,7 @@ void AMonster::Activate()
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->StartBehaviorTree();
 	
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), 1.0f);
+	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), 0.0f);
 
 	// 충돌체들 활성화
 	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -138,6 +150,35 @@ void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회
  {
 	 return !m_bIsDead;
  }
+
+void AMonster::setTimeline()
+{
+	 if (m_DeathCurveFloat != nullptr)
+	 {
+		 m_DeathTimeline.SetLooping(false);
+
+		 FOnTimelineFloat afterDeathTimeline_Loop;
+		 afterDeathTimeline_Loop.BindDynamic(this, &AMonster::OnCalledTimelineEvent_Loop_AfterDeath);
+		 m_DeathTimeline.AddInterpFloat(m_DeathCurveFloat, afterDeathTimeline_Loop);
+
+		 FOnTimelineEvent afterDeathTimeline_End;
+		 afterDeathTimeline_End.BindDynamic(this, &AMonster::OnCalledTimelineEvent_End_AfterDeath);
+		 m_DeathTimeline.SetTimelineFinishedFunc(afterDeathTimeline_End);
+	 }
+
+	if (m_DeathDissolveCurveFloat != nullptr)
+	{
+		m_DeathDissolveTimeline.SetLooping(false);
+
+		FOnTimelineFloat dissolveDeathTimeline_Loop;
+		dissolveDeathTimeline_Loop.BindDynamic(this, &AMonster::OnCalledTimelineEvent_Loop_DeathDissolve);
+		m_DeathDissolveTimeline.AddInterpFloat(m_DeathDissolveCurveFloat, dissolveDeathTimeline_Loop);
+
+		FOnTimelineEvent dissolvTimeline_End;
+		dissolvTimeline_End.BindDynamic(this, &AMonster::OnCalledTimelineEvent_End_DeathDissolve);
+		m_DeathDissolveTimeline.SetTimelineFinishedFunc(dissolvTimeline_End);
+	}
+}
 
  void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 {
