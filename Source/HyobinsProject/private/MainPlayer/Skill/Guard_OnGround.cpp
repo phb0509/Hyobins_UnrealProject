@@ -5,21 +5,18 @@
 #include "MainPlayer/MainPlayer.h"
 #include "MainPlayer/MainPlayerAnim.h"
 #include "Component/MainPlayerSkillComponent.h"
-#include "Component/StatComponent.h"
 #include "Utility/EnumTypes.h"
 
 
 UGuard_OnGround::UGuard_OnGround() :
-	m_AdditionalDefense(100.0f)
+	m_GuardMontage(nullptr),
+	m_ParryingTime(0.5f)
 {
 }
 
 void UGuard_OnGround::Initialize()
 {
 	Super::Initialize();
-
-	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
-	owner->GetStatComponent()->SetAdditionalDefenseFromGuard(m_AdditionalDefense);
 	
 	// m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Guard_OnGround"),
 	// [=]()
@@ -35,24 +32,37 @@ void UGuard_OnGround::Execute()
 	Super::Execute();
 
 	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
+	
+	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Parry_OnGround);
+	m_OwnerAnimInstance->Montage_Play(m_GuardMontage, 1.0f);
+	
+	owner->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	
+	owner->SetIsParrying(true);
 
-	if (!owner->IsGuard())
-	{
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Guard_OnGround);
-		m_OwnerAnimInstance->PlayMontage(TEXT("Guard_OnGround"));
-
-		owner->EnableGuard();
-	}
-	else // 정상적인 해제.
-	{
-		m_OwnerAnimInstance->PlayMontage(TEXT("GuardEnd_OnGround"));
-
-		owner->DisableGuard();
-	}
+	owner->GetWorldTimerManager().SetTimer(
+	   m_ParryingTimer,
+	   [=]()
+	   {
+	   		owner->SetIsParrying(false);
+	   		owner->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	   },
+	   m_ParryingTime,   
+	   false   
+   );
+	
 }
 
 bool UGuard_OnGround::CanExecuteSkill() const
 {
-	return !m_Owner->IsCrowdControlState() &&
-		!m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround);
+	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
+	{
+		return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState();
+	}
+	
+	bool skillRequirements =
+		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
+		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround);
+	
+	return Super::CanExecuteSkill() && skillRequirements;
 }
