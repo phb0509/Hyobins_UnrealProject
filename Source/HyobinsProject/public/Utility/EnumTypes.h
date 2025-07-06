@@ -17,7 +17,8 @@ enum class ECrowdControlStates : uint8
 	KnockbackInAir			UMETA(DisplayName = "KnockbackInAir"),
 	Down					UMETA(DisplayName = "Down"),
 	Groggy					UMETA(DisplayName = "Groggy"),
-	Dead					UMETA(DisplayName = "Dead")
+	Dead					UMETA(DisplayName = "Dead"),
+	Execution				UMETA(DisplayName = "Execution")
 };
 
 UENUM(BlueprintType)
@@ -33,7 +34,7 @@ enum class EMainPlayerStates : uint8
 UENUM(BlueprintType)
 enum class EMainPlayerSkillStates : uint8
 {
-	Idle 								UMETA(DisplayName = "Idle"),
+	None 								UMETA(DisplayName = "None"),
 	NormalAttack_OnGround				UMETA(DisplayName = "NormalAttack_OnGround"),
 	NormalStrikeAttack_OnGround			UMETA(DisplayName = "NormalStrikeAttack_OnGround"),
 	DashAttack_OnGround					UMETA(DisplayName = "DashAttack_OnGround"),
@@ -69,6 +70,7 @@ enum class ELichKingFSMStates : uint8
 	CrashAttack				UMETA(DisplayName = "CrashAttack"),
 	SoulSiphon				UMETA(DisplayName = "SoulSiphon"),
 	Groggy					UMETA(DisplayName = "Groggy"),
+	Execution				UMETA(DisplayName = "Execution")
 };
 
 
@@ -79,7 +81,8 @@ enum class ECrowdControlType : uint8
 	Knockback	UMETA(DisplayName = "Knockback"),
 	Airborne	UMETA(DisplayName = "Airborne"),
 	Down		UMETA(DisplayName = "Down"),
-	Groggy		UMETA(DisplayName = "Groggy")
+	Groggy		UMETA(DisplayName = "Groggy"),
+	Execution	UMETA(DisplayName = "Execution")
 };
 
 template <typename T1, typename T2>
