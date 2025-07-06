@@ -22,7 +22,7 @@ public:
 	virtual void BeginPlay() override;
 	
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
-	FORCEINLINE void ChangeMaxHP(const float hp) { m_MaxHP = hp; }
+	FORCEINLINE void SetMaxHP(const float maxHP) { m_MaxHP = maxHP; }
 
 	FORCEINLINE void AddDefense(const float additionalDefense)
 	{
@@ -44,6 +44,8 @@ public:
 	void RecoveryHP();
 	void RecoveryStamina();
 	
+	FORCEINLINE bool HasEnoughStamina(const float cost) const { return cost <= m_CurStamina; } 
+	
 	// Get
 	FORCEINLINE float GetDefense() const { return m_Defense; }
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
@@ -54,7 +56,7 @@ public:
 	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
 	FORCEINLINE bool CanRecoveryHP() const { return m_bCanRecoveryHP; }
 
-	FORCEINLINE float GetCurStamin() const { return m_CurStamina; }
+	FORCEINLINE float GetCurStamina() const { return m_CurStamina; }
 	FORCEINLINE float GetMaxStamina() const { return m_MaxStamina; }
 	FORCEINLINE float GetStaminaRatio() const { return m_CurStamina < KINDA_SMALL_NUMBER ? 0.0f : (m_CurStamina / m_MaxStamina); }
 	FORCEINLINE bool CanRecoveryStamina() const { return m_bCanRecoveryStamina; }
@@ -70,7 +72,7 @@ public:
 	FORCEINLINE void SetDefense(float defense) { m_Defense = defense; }
 	FORCEINLINE void SetAdditionalDefenseFromGuard(float additionalDefenseFromGuard) { m_AdditionalDefenseFromGuard = additionalDefenseFromGuard; }
 
-	FORCEINLINE void AddAdditionalDefenseFromGuard() { m_AdditionalDefenseFromGuard += m_AdditionalDefenseFromGuard; }
+	FORCEINLINE void AddAdditionalDefenseFromGuard() { m_Defense += m_AdditionalDefenseFromGuard; }
 	FORCEINLINE void RemoveAdditionalDefenseFromGuard() { m_Defense -= m_AdditionalDefenseFromGuard; }
 	
 	float OnDamageHP(const float damage);
@@ -80,10 +82,11 @@ public:
 	void SetStaminaPercent(const float stamina);
 	
 	FOnChangedStatDelegate OnChangedHP;
-	FOnStatIsZeroDelegate OnHPIsZero;
+	FOnStatIsZeroDelegate OnHPIsZero;  
 
 	FOnChangedStatDelegate OnChangedStamina;
 	FOnStatIsZeroDelegate OnStaminaIsZero;
+
 	
 private:
 	TWeakObjectPtr<ACharacterBase> m_Owner;

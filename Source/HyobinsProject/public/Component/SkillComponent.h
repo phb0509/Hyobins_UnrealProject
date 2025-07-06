@@ -24,7 +24,7 @@ public:
 
 
 USTRUCT(Atomic) 
-struct FSkillList // 특정 인풋매핑컨텍스트에 속해있는 스킬들. ex) InAir만의 스킬들..
+struct FSkillList 
 {
 	GENERATED_USTRUCT_BODY() 
 
@@ -49,7 +49,7 @@ public:
 	FORCEINLINE float GetGravityScaleInAir() const { return m_GravityScaleInAir; }
 	const TMap<FName, FSkillList>* GetSkillList() const { return &m_SkillList; }
 	FName GetHighestPriorityInputMappingContext() const { return m_Owner->GetHighestPriorityInputMappingContext(); }
-	TWeakObjectPtr<USkill> GetCurSkill() const { return m_CurSkill; }
+	USkill* GetCurExecutingSkill() const { return m_CurSkill.Get(); }
 
 
 	template <typename T> 

@@ -93,6 +93,7 @@ void UStatComponent::RecoveryStamina()
 float UStatComponent::OnDamageHP(const float damage)
 {
 	const float finalDamage = damage - m_Defense > 0.0f ? damage - m_Defense : 0.0f;
+	
 	m_CurHP = FMath::Clamp<float>(m_CurHP - finalDamage, 0.0f, m_MaxHP); // 상수값
 	OnChangedHP.Broadcast(finalDamage); // UI체력바 업데이트.
 	
@@ -115,10 +116,10 @@ void UStatComponent::SetHPPercent(const float hp)
 	OnChangedHP.Broadcast(0.0f);
 }
 
-void UStatComponent::OnDamageStamina(const float stamina)
+void UStatComponent::OnDamageStamina(const float cost)
 {
-	m_CurStamina = FMath::Clamp<float>(m_CurStamina - stamina, 0.0f, m_MaxStamina);
-	OnChangedStamina.Broadcast(stamina);
+	m_CurStamina = FMath::Clamp<float>(m_CurStamina - cost, 0.0f, m_MaxStamina);
+	OnChangedStamina.Broadcast(cost);
 	
 	if (m_CurStamina < KINDA_SMALL_NUMBER)
 	{

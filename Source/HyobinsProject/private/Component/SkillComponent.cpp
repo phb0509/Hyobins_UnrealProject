@@ -32,7 +32,7 @@ void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const F
 	{
 		m_CurSkill = m_SkillList[inputMappingContextName].skillList[skillName];
 
-		if (m_CurSkill->GetCanUseSkill())
+		if (m_CurSkill->CanExecuteSkill())
 		{
 			m_CurSkill->Execute();
 		}
@@ -63,7 +63,6 @@ void USkillComponent::loadSkills()
 			skill->Initialize();
 			
 			const FName skillName = skill->GetName();
-
 			m_SkillList[inputMappingContextName].skillList.Add(skillName, skill);
 		}
 	}
