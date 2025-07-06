@@ -9,6 +9,9 @@
 class ACharacterBase;
 class UDataManager;
 class USoundWave;
+class UParticleSystem;
+class UCameraShakeBase;
+
 
 UCLASS()
 class HYOBINSPROJECT_API UNotifyState_Check_Collision : public UAnimNotifyState
@@ -23,6 +26,11 @@ public:
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
 private:
+	void playHitEffect(const FVector& overlapLocation);
+	FCollisionShape makeCollisionShape() const;
+	FCollisionObjectQueryParams makeCollisionObjectParams() const;
+
+private:
 	TWeakObjectPtr<ACharacterBase> m_Owner;
 	
 	UPROPERTY(EditAnywhere)
@@ -31,6 +39,26 @@ private:
 	UPROPERTY(EditAnywhere)
 	FName m_AttackName;
 
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USoundWave> m_HitSound;
+	UPROPERTY(EditAnywhere, Category = "OnHit Effect")
+	TObjectPtr<USoundWave> m_OnHitSound;
+
+	UPROPERTY(EditAnywhere, Category = "OnHit Effect")
+	TObjectPtr<UParticleSystem> m_OnHitParticle;
+
+	UPROPERTY(EditAnywhere, Category = "OnHit Effect")
+	TSubclassOf<UCameraShakeBase> m_OnHitCameraShake;
+
+	UPROPERTY(EditAnywhere, Category = "OnHit Effect")
+	float m_MontagePlayRate;
+
+	UPROPERTY(EditAnywhere, Category = "OnHit Effect")
+	float m_MontageDelayTime;
+
+	float m_MontageDefaultPlayRate;
+
+	TWeakObjectPtr<UShapeComponent> m_WeaponCollider;
+	FVector m_PrevColliderLocation;
 };
+
+
+
