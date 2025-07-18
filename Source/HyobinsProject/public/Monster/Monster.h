@@ -7,7 +7,10 @@
 #include "Interfaces/PoolableActor.h"
 #include "Templates/IsIntegral.h"
 #include "Templates/IsEnumClass.h"
+#include "Components/TimelineComponent.h"
 #include "Monster.generated.h"
+
+struct FTimeline;
 
 UCLASS(Abstract)
 class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActor
@@ -19,6 +22,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	uint8 GetCurFSMState() const { return m_CurFSMState; }
 	ACharacterBase* GetTarget() const;
 	
@@ -32,12 +36,12 @@ public:
 	}
 	
 	void SetFSMStateAsBehaviorTree(uint8 enumIndex) const;
+	void SetIsDead(bool bIsDead);
 
 	
 protected:
-	virtual void execEvent_CommonCrowdControl(AActor* instigator) override;
-	virtual void SetCrowdControlState(const ECrowdControlStates state) override;
-
+	virtual void OnStaminaIsZero() override;
+	
 	virtual void Die() override;
 	virtual void ExecEvent_EndedDeathMontage() override;
 
@@ -70,7 +74,7 @@ public:
 	static const FName PatrolPosKey;
 	static const FName EnemyKey;
 	static const FName FSMStateKey;
-	static const FName CrowdControlStateKet;
+	static const FName IsCrowdControlState;
 
 protected:
 	uint8 m_CurFSMState;

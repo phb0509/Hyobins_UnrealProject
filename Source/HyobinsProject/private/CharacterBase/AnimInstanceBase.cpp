@@ -100,9 +100,8 @@ FName UAnimInstanceBase::GetCurrentMontageName() const
 	return montage == nullptr ? "" : montage->GetFName();
 }
 
-float UAnimInstanceBase::GetMontagePlayTime(const FName& montageName)
+float UAnimInstanceBase::GetMontagePlayTime(const UAnimMontage* montage)
 {
-	const UAnimMontage* montage = GetMontage(montageName);
 	const int32 frameCount = montage->GetNumberOfSampledKeys();
 	
 	return montage->GetTimeAtFrame(frameCount) / montage->RateScale;

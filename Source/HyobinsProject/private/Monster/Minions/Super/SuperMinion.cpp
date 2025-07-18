@@ -7,6 +7,8 @@
 #include "SubSystems/DataManager.h"
 #include "SubSystems/DebugManager.h"
 #include "SubSystems/UIManager.h"
+#include "Component/CrowdControlComponent.h"
+
 
 int32 ASuperMinion::TagCount(0);
 const FName ASuperMinion::LeftSwordColliderName = "LeftSwordCollider";
@@ -60,19 +62,19 @@ void ASuperMinion::printLog()
 	const FString movementMode = GetCharacterMovement()->GetMovementName();
 	FString log = TEXT("SuperMinion Mode :: ");
 	log += movementMode;
-	GEngine->AddOnScreenDebugMessage(100, 0.1f, FColor::Green,
-	                                 FString::Printf(TEXT("%s"), *log));
+	GEngine->AddOnScreenDebugMessage(100, 0.1f, FColor::Green,FString::Printf(TEXT("%s"), *log));
 
 	FString fsmState = Utility::ConvertEnumToString(static_cast<ESuperMinionFSMStates>(m_CurFSMState));
 	FString log1 = Tags[0].ToString() + " :: FSMState :: " + fsmState;
-	GEngine->AddOnScreenDebugMessage(101, 0.1f, FColor::Green,
-	                                 FString::Printf(TEXT("%s"), *log1));
+	GEngine->AddOnScreenDebugMessage(101, 0.1f, FColor::Green,FString::Printf(TEXT("%s"), *log1));
 
-	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+	FString crowdState = Utility::ConvertEnumToString(m_CrowdControlComponent->GetCrowdControlState());
 	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
-	GEngine->AddOnScreenDebugMessage(102, 0.1f, FColor::Green,
-	                                 FString::Printf(TEXT("%s"), *log2));
-	
+	GEngine->AddOnScreenDebugMessage(102, 0.1f, FColor::Green,FString::Printf(TEXT("%s"), *log2));
+
+	FString isDead = FString::FromInt(IsDead());
+	FString log3 = Tags[0].ToString() + " :: IsDead :: " + isDead;
+	GEngine->AddOnScreenDebugMessage(103, 0.1f, FColor::Green,FString::Printf(TEXT("%s"), *log3));
 }
 
 void ASuperMinion::initAssets()

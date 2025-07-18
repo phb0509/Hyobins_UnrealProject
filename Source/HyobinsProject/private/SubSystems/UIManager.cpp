@@ -90,8 +90,6 @@ void UUIManager::CreateLockOn(AActor* target)
 	lockOnWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 
 	addWidgetContainer(TEXT("LockOn"), lockOnWidget, widgetComponent);
-	
-	//GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("LockOn",this, ESlateVisibility::HitTestInvisible);
 }
 
 void UUIManager::RenderLockOnToScreen(AActor* target)
@@ -151,10 +149,10 @@ void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 	damageWidget->AddToViewport();
 	
 	FVector2D screenPosition;
-	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(hitInfo.hitActorLocation, screenPosition);
+	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(hitInfo.hitActor->GetActorLocation(), screenPosition);
 	screenPosition.Y -= 100.0f;
 	damageWidget->SetPositionInViewport(screenPosition);
-	damageWidget->SetDamage(hitInfo.damage);
+	damageWidget->SetDamage(hitInfo.finalDamage);
 	damageWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 

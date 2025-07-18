@@ -79,7 +79,7 @@ AActor* AActorPool::spawnActor(const TSubclassOf<AActor> classType, const FVecto
 			{
 				continue;
 			}
-		
+			
 			actor = poolableActor;
 			actor->SetActorLocation(spawnLocation);
 			castedPoolableActor->Activate();

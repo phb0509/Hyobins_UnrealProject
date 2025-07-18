@@ -19,7 +19,7 @@ void UNotify_FindTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 	if (owner != nullptr)
 	{
-		AActor* lockOnTarget = owner->GetCurLockOnTarget().Get();
+		AActor* lockOnTarget = owner->GetCurLockOnTarget();
 		
 		if (lockOnTarget != nullptr && owner->IsLockOnMode() && owner->IsWithInRange(lockOnTarget, m_CollisionRadius))
 		{

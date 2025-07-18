@@ -110,7 +110,7 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("UMainPlayerSkillComponent :: SetIdle"));
 		
-		SetSkillState(EMainPlayerSkillStates::Idle);
+		SetSkillState(EMainPlayerSkillStates::None);
 	}
 }
 

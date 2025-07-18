@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include <GameFramework/CharacterMovementComponent.h>
-#include "Components/TimelineComponent.h"
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
 #include "Utility/EnumTypes.h"
@@ -21,13 +20,12 @@ class UAIPerceptionComponent;
 class UNiagaraSystem;
 class USoundCue;
 class UMotionWarpingComponent;
+class UCrowdControlComponent;
 
 struct FHitInformation;
 struct FAttackInformation;
-enum class ECrowdControlStates : uint8;
 enum class ECrowdControlType : uint8;
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, AActor*, const FAttackInformation*);
 DECLARE_MULTICAST_DELEGATE(FOnCrowdControl_End_Delegate);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnTakeDamageDelegate, const FHitInformation&);
 DECLARE_MULTICAST_DELEGATE(FOnDeathDelegate);
@@ -48,8 +46,6 @@ public:
 	// IDamageable
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	void OnDamageStamina(const float staminaDamage) const;
-	
-	void ClearCrowdControlTimerHandle();
 	
 	bool HasContainHitActor(const FName& attackName, AActor* hitActor)
 	{
@@ -72,8 +68,7 @@ public:
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
 	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) const;
 
-	FORCEINLINE ECrowdControlStates GetCurCrowdControlState() const { return m_CurCrowdControlState; }
-	FORCEINLINE bool IsCrowdControlState() const { return m_CurCrowdControlState != ECrowdControlStates::None; }
+	FORCEINLINE bool IsCrowdControlState() const;
 	FORCEINLINE float GetWalkSpeed() const { return m_WalkSpeed; }
 	FORCEINLINE float GetRunSpeed() const { return m_RunSpeed; }
 	FORCEINLINE float GetCurSpeed() const { return m_CurSpeed; }
@@ -84,53 +79,37 @@ public:
 	FORCEINLINE bool IsFlying() const { return m_bIsFlying; }
 	FORCEINLINE bool IsDead() const { return m_bIsDead; }
 
-	FORCEINLINE void SetIsSuperArmor(const bool bIsSuperArmor);
+	FORCEINLINE void SetIsSuperArmor(const bool bIsSuperArmor) { m_bIsSuperArmor = bIsSuperArmor; }
 	
 	void RotateToTarget(const AActor* target, const FRotator& rotatorOffset = {0.0f, 0.0f ,0.0f});
 	bool IsWithInRange(const AActor* target, const float range) const;
 	FVector GetDirectionToTarget(const AActor* target) const;
 	
-	virtual void SetCrowdControlState(ECrowdControlStates state)
-	{
-		m_CurCrowdControlState = state;
-	}
-
 	bool HasEnoughStamina(const float cost) const;
 
 	UAnimInstanceBase* GetAnimInstanceBase() const;
 	UMotionWarpingComponent* GetMotionWarpingComponent() const;
+
+	void BreakCrowdControlState();
 	
 protected:
 	virtual void execEvent_CommonCrowdControl(AActor* instigator) {};
 	
-	virtual void ExecEvent_TakeKnockbackAttack(AActor* instigator, const FAttackInformation* attackInfo);
-	virtual void OnCalledTimer_KnockbackOnStanding_End();
+	virtual void OnHPIsZero();
+	virtual void OnStaminaIsZero() {};
 
-	virtual void ExecEvent_TakeAirborneAttack(AActor* instigator, const FAttackInformation* attackInfo);
-	virtual void ExecEvent_Down_WhenOnGround();
-
-	virtual void ExecEvent_TakeDownAttack(AActor* instigator, const FAttackInformation* attackInfo);
-	virtual void OnCalledTimer_Down_End();
-
-	void CallTimer_ExecDownEvent_WhenOnGround();
-	void DisableMovementComponentForDuration(float duration) const;
-	
-	virtual void ExecEvent_OnHPIsZero();
-	virtual void ExecEvent_OnStaminaIsZero() {};
-
-	virtual void PlayOnHitEffect(const FHitInformation& hitInformation) {};
+	virtual void PlayOnHitEffect(const FHitInformation& hitInformation);
 	void ApplyKnockback(const float knockbackDistance, const FVector& instigatorLocation);
 	
 	// Death
 	UFUNCTION()
 	virtual void Die();
+	
 	virtual void ExecEvent_EndedDeathMontage() {};
 	virtual void OnCalledNotify_End_Death();
-	
-private:
-	void playOnHitMontage(const FName& montageName);
-	
 
+private:
+	void playDeathMontage(const int32 hitDirection);
 	
 public:
 	FOnTakeDamageDelegate OnTakeDamage;
@@ -141,7 +120,6 @@ public:
 	static const FName DeathMontageNames[4];
 	
 protected:
-	ECrowdControlStates m_CurCrowdControlState;
 	
 	UPROPERTY(EditDefaultsOnly) 
 	float m_WalkSpeed;
@@ -175,32 +153,26 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
 	TObjectPtr<UStatComponent> m_StatComponent;
+
+	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+	TObjectPtr<UCrowdControlComponent> m_CrowdControlComponent;
 	
 	UPROPERTY(EditAnywhere) 
     TObjectPtr<UCapsuleComponent> m_HitCollider;
 	
-	TMap<ECrowdControlType, FOnCrowdControl_Start_Delegate> m_CrowdControlStartDelegates;
-	
-	FTimerHandle m_CrowdControlTimerHandle;
-	float m_CrowdControlTime;
-	int32 m_HitDirection;
-	
+	int32 m_LastHitDirection;
 	
 	UPROPERTY(EditAnywhere, Category = "HitEffect")
 	TObjectPtr<UNiagaraSystem> m_HitEffect;
 
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	TObjectPtr<USoundCue> m_HitSound;
-
-	UPROPERTY(EditAnywhere)
-	float m_GameSpeedDelay;
-
-	UPROPERTY(EditAnywhere)
-	float m_OnHitPlayRate;
-
+	
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default Montages")
+	TArray<TObjectPtr<UAnimMontage>> m_DeathMontages;
 	
 private:
 	FName m_LastPlayedOnHitMontageName;

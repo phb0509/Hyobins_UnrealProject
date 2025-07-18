@@ -39,7 +39,7 @@ public:
 	bool IsCurrentMontage(const FName& montageName);
 	FName GetCurrentMontageName() const;
 	
-	float GetMontagePlayTime(const FName& montageName);
+	float GetMontagePlayTime(const UAnimMontage* montage);
 	UAnimMontage* GetMontage(const FName& montageName);
 
 	FORCEINLINE bool IsLastMontagePlayInterrupted() const { return m_bIsLastMontagePlayInterrupted; }

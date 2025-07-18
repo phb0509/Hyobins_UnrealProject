@@ -34,7 +34,7 @@ void USkill::Execute()
 	
 	if (m_Owner->IsLockOnMode())
 	{
-		AActor* lockOnTarget = m_Owner->GetCurLockOnTarget().Get();
+		AActor* lockOnTarget = m_Owner->GetCurLockOnTarget();
 		m_Owner->RotateToTarget(lockOnTarget);
 	}
 	else

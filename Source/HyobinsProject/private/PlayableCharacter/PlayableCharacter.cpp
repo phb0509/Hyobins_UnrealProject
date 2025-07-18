@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayableCharacter/PlayableCharacter.h"
+#include "Monster/Monster.h"
 #include "MotionWarpingComponent.h"
 #include <GameFramework/SpringArmComponent.h.>
 #include <Camera/CameraComponent.h>
@@ -322,7 +323,7 @@ void APlayableCharacter::ToggleLockOnMode()
 	}
 }
 
-AActor* APlayableCharacter::findNearestTarget()
+ACharacterBase* APlayableCharacter::findNearestTarget()
 {
 	const FVector startLocation = this->GetActorLocation();
 	const TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
@@ -350,7 +351,7 @@ AActor* APlayableCharacter::findNearestTarget()
 		
 	}	
 	
-	return nearestEnemy;
+	return Cast<ACharacterBase>(nearestEnemy);
 }
 
 void APlayableCharacter::lockOnToTarget(AActor* target)
@@ -368,7 +369,7 @@ void APlayableCharacter::lockOnToTarget(AActor* target)
 		m_LockOnElapsed = 0.0f;
 
 		constexpr float updateRate = 1 / 60.0f;
-		// 타이머 시작 (Tick 간격 0.01초)
+		
 		GetWorldTimerManager().SetTimer(m_LockOnTimer, this, &APlayableCharacter::updateCameraRotation, updateRate, true);
 	}
 }
@@ -376,9 +377,9 @@ void APlayableCharacter::lockOnToTarget(AActor* target)
 void APlayableCharacter::updateCameraRotation()
 {
 	APlayerController* playerController = Cast<APlayerController>(GetController());
-	if (playerController == nullptr || !m_CurLockOnTarget.IsValid())
+	if (playerController == nullptr || !m_CurLockOnTarget.IsValid() || m_CurLockOnTarget->IsDead())
 	{
-		GetWorldTimerManager().ClearTimer(m_LockOnTimer);
+		ToggleLockOnMode();
 		return;
 	}
 
@@ -393,9 +394,9 @@ void APlayableCharacter::updateCameraRotation()
 	targetControlRotation.Roll = 0.0f;
 	targetControlRotation.Pitch = m_LockOnCameraPitch;
 	
-	FRotator NewRotation = FMath::RInterpTo(m_InitialControlRotation, targetControlRotation, alpha, 1.0f);
+	FRotator newRotation = FMath::RInterpTo(m_InitialControlRotation, targetControlRotation, alpha, 1.0f);
 	
-	playerController->SetControlRotation(NewRotation);
+	playerController->SetControlRotation(newRotation);
 }
 
 void APlayableCharacter::initAssets()

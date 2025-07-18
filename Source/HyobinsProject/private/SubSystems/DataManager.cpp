@@ -39,7 +39,6 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 			FAttackInformation attackInfo;
 			attackInfo.attackName = data.attackName;
 			attackInfo.damageRatio = data.damageRatio;
-			attackInfo.bHasCrowdControl = data.bHasCrowdControl;
 			attackInfo.crowdControlType = crowdControlType;
 			attackInfo.crowdControlTime = data.crowdControlTime;
 			attackInfo.knockBackDistance = data.knockBackDistance;

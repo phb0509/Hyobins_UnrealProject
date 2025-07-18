@@ -50,11 +50,6 @@ void ASuperMinionAIController::OnUnPossess()
 	GetAIPerceptionComponent()->SetSenseEnabled(UAISense_Sight::StaticClass(), false);
 }
 
-void ASuperMinionAIController::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-}
-
 void ASuperMinionAIController::UpdatePerceptedTargetActor(AActor* actor, FAIStimulus const Stimulus)
 {
 	if (m_Owner.IsValid())

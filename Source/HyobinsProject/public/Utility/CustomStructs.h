@@ -62,7 +62,6 @@ struct FAttackInformation
 public:
 	FName attackName;
 	float damageRatio;
-	bool bHasCrowdControl;
 	ECrowdControlType crowdControlType; // CC기 종류
 	float crowdControlTime; // CC기 지속시간
 	float knockBackDistance; // 밀려지는 정도
@@ -76,10 +75,14 @@ struct FHitInformation
 
 public:
 	FName attackName;
-	FName hitActorName;
-	FVector hitActorLocation;	
-	float damage;
-	float crowdControlTime;
+	TWeakObjectPtr<AActor> instigator;
+	TWeakObjectPtr<AActor> hitActor;
+	float finalDamage;
 	bool bIsCriticalAttack;
+	int32 hitDirection;
+	ECrowdControlType crowdControlType; // CC기 종류
+	float crowdControlTime; // CC기 지속시간
+	float knockBackDistance; // 밀려지는 정도
+	float airbornePower;
 };
 

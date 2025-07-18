@@ -75,12 +75,16 @@ public:
 	FORCEINLINE void AddAdditionalDefenseFromGuard() { m_Defense += m_AdditionalDefenseFromGuard; }
 	FORCEINLINE void RemoveAdditionalDefenseFromGuard() { m_Defense -= m_AdditionalDefenseFromGuard; }
 	
-	float OnDamageHP(const float damage);
+	void OnDamageHP(const float damage);
 	void SetHPPercent(const float hp);
 
 	void OnDamageStamina(const float damage);
 	void SetStaminaPercent(const float stamina);
+
+	FORCEINLINE float CalculateFinalCrowdControlTime(const float crowdControlTime) const { return m_HitRecovery * crowdControlTime; }
+	FORCEINLINE float CalculateFinalDamage(const float damage) const { return damage - m_Defense > 0.0f ? damage - m_Defense : 0.0f; }
 	
+public:
 	FOnChangedStatDelegate OnChangedHP;
 	FOnStatIsZeroDelegate OnHPIsZero;  
 

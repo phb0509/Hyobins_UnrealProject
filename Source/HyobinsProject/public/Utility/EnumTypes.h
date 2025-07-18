@@ -9,16 +9,27 @@
 #include "EnumTypes.generated.h"
 
 
+// UENUM(BlueprintType)
+// enum class ECrowdControlStates : uint8
+// {
+// 	None					UMETA(DisplayName = "None"),
+// 	KnockbackOnStanding		UMETA(DisplayName = "KnockbackOnStanding"),
+// 	KnockbackInAir			UMETA(DisplayName = "KnockbackInAir"),
+// 	Down					UMETA(DisplayName = "Down"),
+// 	Groggy					UMETA(DisplayName = "Groggy"),
+// 	Dead					UMETA(DisplayName = "Dead"),
+// 	Execution				UMETA(DisplayName = "Execution")
+// };
+
 UENUM(BlueprintType)
-enum class ECrowdControlStates : uint8
+enum class ECrowdControlType : uint8
 {
-	None					UMETA(DisplayName = "None"),
-	KnockbackOnStanding		UMETA(DisplayName = "KnockbackOnStanding"),
-	KnockbackInAir			UMETA(DisplayName = "KnockbackInAir"),
-	Down					UMETA(DisplayName = "Down"),
-	Groggy					UMETA(DisplayName = "Groggy"),
-	Dead					UMETA(DisplayName = "Dead"),
-	Execution				UMETA(DisplayName = "Execution")
+	None		UMETA(DisplayName = "None"),
+	Knockback	UMETA(DisplayName = "Knockback"),
+	Airborne	UMETA(DisplayName = "Airborne"),
+	Down		UMETA(DisplayName = "Down"),
+	Groggy		UMETA(DisplayName = "Groggy"),
+	Execution	UMETA(DisplayName = "Execution")
 };
 
 UENUM(BlueprintType)
@@ -69,21 +80,11 @@ enum class ELichKingFSMStates : uint8
 	NormalAttack			UMETA(DisplayName = "NormalAttack"),
 	CrashAttack				UMETA(DisplayName = "CrashAttack"),
 	SoulSiphon				UMETA(DisplayName = "SoulSiphon"),
-	Groggy					UMETA(DisplayName = "Groggy"),
-	Execution				UMETA(DisplayName = "Execution")
 };
 
 
-UENUM(BlueprintType)
-enum class ECrowdControlType : uint8
-{
-	None		UMETA(DisplayName = "None"),
-	Knockback	UMETA(DisplayName = "Knockback"),
-	Airborne	UMETA(DisplayName = "Airborne"),
-	Down		UMETA(DisplayName = "Down"),
-	Groggy		UMETA(DisplayName = "Groggy"),
-	Execution	UMETA(DisplayName = "Execution")
-};
+
+
 
 template <typename T1, typename T2>
 typename TEnableIf< (TIsEnumClass<T1>::Value || TIsIntegral<T1>::Value) &&

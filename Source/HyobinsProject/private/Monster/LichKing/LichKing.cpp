@@ -10,7 +10,7 @@
 #include "SubSystems/DataManager.h"
 #include "SubSystems/DebugManager.h"
 #include "SubSystems/UIManager.h"
-
+#include "Component/CrowdControlComponent.h"
 
 ALichKing::ALichKing()
 {
@@ -68,23 +68,13 @@ void ALichKing::Deactivate()
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::Collapsed);
 }
 
-void ALichKing::ExecEvent_TakeAirborneAttack(AActor* instigator, const FAttackInformation* attackInfo)
-{
-	Super::ExecEvent_TakeKnockbackAttack(instigator, attackInfo);
-}
-
-void ALichKing::ExecEvent_TakeDownAttack(AActor* instigator, const FAttackInformation* attackInfo)
-{
-	Super::ExecEvent_TakeKnockbackAttack(instigator, attackInfo);
-}
-
-void ALichKing::ExecEvent_OnStaminaIsZero()
-{
-	Super::ExecEvent_OnStaminaIsZero();
-	
-	SetFSMState(ELichKingFSMStates::Groggy);
-	m_AIController->RestartBehaviorTree();
-}
+// void ALichKing::OnStaminaIsZero()
+// {
+// 	Super::OnStaminaIsZero();
+// 	
+// 	// SetFSMState(ELichKingFSMStates::Groggy);
+// 	// m_AIController->RestartBehaviorTree();
+// }
 
 void ALichKing::ExecEvent_EndedDeathMontage()
 {
@@ -92,20 +82,6 @@ void ALichKing::ExecEvent_EndedDeathMontage()
 
 	UE_LOG(LogTemp, Warning, TEXT("ALichKing :: ExecEvent_EndedDeathMontage"));
 
-	//GetMesh()->SetSimulatePhysics(true);
-	
-
-	//
-	// FTimerHandle timer;
-	// GetWorldTimerManager().SetTimer(timer,
-	// 			[this]()
-	// 			{
-	// 				FVector newLocation = GetActorLocation();
-	// 				newLocation.Z -= 1.0;
-	// 				this->SetActorLocation(newLocation);
-	// 			},
-	// 		0.1f,
-	// 		true);
 }
 
 void ALichKing::Die()
@@ -186,7 +162,7 @@ void ALichKing::printLog()
 	FString log1 = Tags[0].ToString() + " :: FSMState :: " + fsmState;
 	GEngine->AddOnScreenDebugMessage(302, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
  
-	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+	FString crowdState = Utility::ConvertEnumToString(m_CrowdControlComponent->GetCrowdControlState());
 	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
 	GEngine->AddOnScreenDebugMessage(303, 3.f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
 	

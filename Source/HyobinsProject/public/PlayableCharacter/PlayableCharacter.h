@@ -15,6 +15,7 @@ class UMotionWarpingComponent;
 class UInputMappingContext;
 class UInputAction;
 class USoundWave;
+class AMonster;
 
 
 USTRUCT(Atomic)
@@ -67,8 +68,7 @@ public:
 	}
 
 	FORCEINLINE bool IsLockOnMode() const { return m_bIsLockOnMode; }
-	FORCEINLINE TWeakObjectPtr<AActor> GetCurLockOnTarget() const { return m_CurLockOnTarget; }
-	FORCEINLINE UMotionWarpingComponent* GetMotionWarpingComponent() const { return m_MotionWarpingComponent; }
+	FORCEINLINE ACharacterBase* GetCurLockOnTarget() const { return m_CurLockOnTarget.Get(); }
 	FORCEINLINE USkillComponent* GetSkillComponent() const { return m_SkillComponent; }
 	FName GetHighestPriorityInputMappingContext() const;
 
@@ -104,7 +104,7 @@ public:
 private:
 	void initAssets();
 	void initInputConfigs();
-	AActor* findNearestTarget();
+	ACharacterBase* findNearestTarget();
 	void lockOnToTarget(AActor* target);
 	void updateCameraRotation();
 	
@@ -116,10 +116,7 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USkillComponent> m_SkillComponent;
-
-	// UPROPERTY(EditAnywhere)
-	// TObjectPtr<UMotionWarpingComponent> m_MotionWarpingComponent;
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Camera")
 	TObjectPtr<USpringArmComponent> m_SpringArm; // 이 컴포넌트로 등록된 자식 컴포넌트를
 												 // 자신과의 지정된 거리 안에 유지되도록 처리한다.
@@ -142,7 +139,7 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "State", Meta = (AllowProtectedAccess = true))
 	bool m_bIsLockOnMode;
 	
-	TWeakObjectPtr<AActor> m_CurLockOnTarget;
+	TWeakObjectPtr<ACharacterBase> m_CurLockOnTarget;
 	FTimerHandle m_LockOnTimer;
 
 	FRotator m_InitialControlRotation;

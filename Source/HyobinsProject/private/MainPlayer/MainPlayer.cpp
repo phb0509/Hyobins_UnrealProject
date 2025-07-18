@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
+#include "Component/CrowdControlComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "SubSystems/DebugManager.h"
 
@@ -100,26 +101,7 @@ void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
 
 void AMainPlayer::playAttackEffect()
 {
-	// // 카메라흔들림 적용
-	// UAnimMontage* curMontage = m_AnimInstanceBase->GetCurrentActiveMontage();
-	// m_AnimInstanceBase->Montage_SetPlayRate(curMontage,0.1f);
-	//
-	// FTimerHandle timer;
-	// GetWorldTimerManager().SetTimer
-	// ( 
-	// 	timer,
-	// 	[=]()
-	// 	{
-	// 		m_AnimInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
-	// 	},
-	// 	m_GameSpeedDelay,
-	// 	false
-	// );
-	//
-	// if (m_AttackCameraShake != nullptr)
-	// {
-	// 	this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_AttackCameraShake);
-	// }
+
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -286,7 +268,7 @@ void AMainPlayer::printLog()
 	log += movementMode;
 	GEngine->AddOnScreenDebugMessage(6, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log));
 	
-	FString crowdState = Utility::ConvertEnumToString(m_CurCrowdControlState);
+	FString crowdState = Utility::ConvertEnumToString(m_CrowdControlComponent->GetCrowdControlState());
 	FString log2 = Tags[0].ToString() + " :: CrowdState :: " + crowdState;
 	GEngine->AddOnScreenDebugMessage(7, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log2));
 	
@@ -302,14 +284,14 @@ void AMainPlayer::printLog()
 	FString log5 = Tags[0].ToString() + " :: Is Parrying :: " + bIsGuarding;
 	GEngine->AddOnScreenDebugMessage(10, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log5));
 	
-	const FString log6 = "Controller Yaw :: " + FString::SanitizeFloat(GetController()->GetControlRotation().Yaw);
-	GEngine->AddOnScreenDebugMessage(11, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log6));
-
-	const FString log7 = "Camera Yaw :: " + FString::SanitizeFloat(m_TargetCamera->GetComponentRotation().Yaw);
-	GEngine->AddOnScreenDebugMessage(12, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log7));
-
-	const FString log8 = "Cur Stamina :: " + FString::SanitizeFloat(m_StatComponent->GetCurStamina());
-	GEngine->AddOnScreenDebugMessage(13, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log8));
+	// const FString log6 = "Controller Yaw :: " + FString::SanitizeFloat(GetController()->GetControlRotation().Yaw);
+	// GEngine->AddOnScreenDebugMessage(11, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log6));
+	//
+	// const FString log7 = "Camera Yaw :: " + FString::SanitizeFloat(m_TargetCamera->GetComponentRotation().Yaw);
+	// GEngine->AddOnScreenDebugMessage(12, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log7));
+	//
+	// const FString log8 = "Cur Stamina :: " + FString::SanitizeFloat(m_StatComponent->GetCurStamina());
+	// GEngine->AddOnScreenDebugMessage(13, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log8));
 
 	const FString log9 = "Is LockOn?? :: " + FString::FromInt(m_bIsLockOnMode);
 	GEngine->AddOnScreenDebugMessage(14, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log9));

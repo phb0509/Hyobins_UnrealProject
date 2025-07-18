@@ -48,8 +48,9 @@ void UDodge_OnGround::Execute()
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
 
-	m_Owner->SetCrowdControlState(ECrowdControlStates::None); // CC상태에서도 시전가능.
-	m_Owner->ClearCrowdControlTimerHandle();
+	// m_Owner->SetCrowdControlState(ECrowdControlStates::None); // CC상태에서도 시전가능.
+	// m_Owner->ClearCrowdControlTimerHandle();
+	m_Owner->BreakCrowdControlState();
 	
 	m_OwnerAnimInstance->StopAllMontages(0.0f);
 	
