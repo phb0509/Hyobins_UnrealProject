@@ -54,7 +54,6 @@ void ACharacterBase::Tick(float DeltaSeconds)
 	m_bIsOnGround = GetCharacterMovement()->IsMovingOnGround();
 	m_bIsFalling = GetCharacterMovement()->IsFalling();
 	m_bIsFlying = GetCharacterMovement()->IsFlying();
-	
 }
 
 void ACharacterBase::Attack(const FName& attackName, AActor* target, const FVector& causerLocation)
@@ -80,8 +79,7 @@ void ACharacterBase::Attack(const FName& attackName, AActor* target, const FVect
 	damageableActor->OnDamage(damage, bIsCriticalAttack, attackInfo, this, causerLocation);
 }
 
-void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack,
-	const FAttackInformation* attackInfo, AActor* instigator, const FVector& causerLocation)
+void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, AActor* instigator, const FVector& causerLocation)
 {
 	const ECrowdControlType crowdControlType = attackInfo->crowdControlType;
 	const float finalCrowdControlTime = m_StatComponent->CalculateFinalCrowdControlTime(attackInfo->crowdControlTime);
@@ -138,8 +136,8 @@ void ACharacterBase::Die()
 {
 	m_bIsDead = true;
 	m_CrowdControlComponent->ClearCrowdControlTimerHandle();
-	m_StatComponent->SetCanRecoveryHP(false);
-	m_StatComponent->SetCanRecoveryStamina(false);
+	m_StatComponent->StopRecoveryHP();
+	m_StatComponent->StopRecoveryStamina();
 	
 	OnDeath.Broadcast();
 	
@@ -181,16 +179,6 @@ void ACharacterBase::PlayOnHitEffect(const FHitInformation& hitInformation)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, m_HitSound, GetActorLocation());
 	}
-}
-
-void ACharacterBase::ApplyKnockback(const float knockbackDistance, const FVector& instigatorLocation)
-{
-	// FVector dirToInstigator = instigatorLocation - this->GetActorLocation(); 
-	// dirToInstigator.Normalize();
-	// dirToInstigator *= -1 * knockbackDistance;
-	// dirToInstigator.Z = 0.0f;
-	//
-	// this->SetActorLocation(GetActorLocation() + dirToInstigator, false);
 }
 
 void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)
@@ -249,6 +237,16 @@ UMotionWarpingComponent* ACharacterBase::GetMotionWarpingComponent() const
 void ACharacterBase::BreakCrowdControlState()
 {
 	m_CrowdControlComponent->BreakCrowdControlState();
+}
+
+bool ACharacterBase::IsGroggy() const
+{
+	return m_CrowdControlComponent->IsGroggy();
+}
+
+float ACharacterBase::GetGroggyTime() const
+{
+	return m_CrowdControlComponent->GetGroggyTime();
 }
 
 void ACharacterBase::SetInvincible(const bool bIsInvincible)

@@ -7,7 +7,7 @@
 #include "StatComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnStatIsZeroDelegate);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnChangedStatDelegate, float changeAmount);
+DECLARE_MULTICAST_DELEGATE(FOnChangedStatDelegate);
 
 class ACharacterBase;
 
@@ -24,6 +24,20 @@ public:
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
 	FORCEINLINE void SetMaxHP(const float maxHP) { m_MaxHP = maxHP; }
 
+	void OnDamageHP(const float damage);
+	void SetHPPercent(const float hp);
+
+	void OnDamageStamina(const float damage);
+	void SetStaminaPercent(const float stamina);
+
+	void RecoveryHP();
+	void RecoveryStamina();
+	
+	void StopRecoveryHP();
+	void StopRecoveryStamina();
+
+	
+	
 	FORCEINLINE void AddDefense(const float additionalDefense)
 	{
 		m_Defense += additionalDefense;
@@ -40,13 +54,10 @@ public:
 		m_CurAdditionalAttackSpeed += additionalAttackSpeed;
 		m_CurAttackSpeed = 1.0f + m_CurAdditionalAttackSpeed / 100.0f;
 	}
-
-	void RecoveryHP();
-	void RecoveryStamina();
 	
 	FORCEINLINE bool HasEnoughStamina(const float cost) const { return cost <= m_CurStamina; } 
 	
-	// Get
+
 	FORCEINLINE float GetDefense() const { return m_Defense; }
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
 	FORCEINLINE int32 GetCriticalAttackChance() const { return m_CriticalAttackChance; }
@@ -54,41 +65,37 @@ public:
 	FORCEINLINE float GetCurHP() const { return m_CurHP; }
 	FORCEINLINE float GetMaxHP() const { return m_MaxHP; }
 	FORCEINLINE float GetHPRatio() const { return m_CurHP < KINDA_SMALL_NUMBER ? 0.0f : (m_CurHP / m_MaxHP); }
-	FORCEINLINE bool CanRecoveryHP() const { return m_bCanRecoveryHP; }
+	FORCEINLINE bool CanRecoveryHP() const;
 
 	FORCEINLINE float GetCurStamina() const { return m_CurStamina; }
 	FORCEINLINE float GetMaxStamina() const { return m_MaxStamina; }
 	FORCEINLINE float GetStaminaRatio() const { return m_CurStamina < KINDA_SMALL_NUMBER ? 0.0f : (m_CurStamina / m_MaxStamina); }
-	FORCEINLINE bool CanRecoveryStamina() const { return m_bCanRecoveryStamina; }
+	FORCEINLINE bool CanRecoveryStamina() const;
 	
 	FORCEINLINE float GetHitRecovery() const { return m_HitRecovery; }
 	FORCEINLINE float GetMoveSpeed() const { return m_CurMoveSpeed; }
 	FORCEINLINE float GetAttackSpeed() const { return m_CurAttackSpeed; }
 
-	FORCEINLINE void SetCanRecoveryHP(bool bCanRecoveryHP) { m_bCanRecoveryHP = bCanRecoveryHP; }
-	FORCEINLINE void SetCanRecoveryStamina(bool bCanRecoveryStamina) { m_bCanRecoveryStamina = bCanRecoveryStamina; }
 	
-	// Set
 	FORCEINLINE void SetDefense(float defense) { m_Defense = defense; }
 	FORCEINLINE void SetAdditionalDefenseFromGuard(float additionalDefenseFromGuard) { m_AdditionalDefenseFromGuard = additionalDefenseFromGuard; }
 
 	FORCEINLINE void AddAdditionalDefenseFromGuard() { m_Defense += m_AdditionalDefenseFromGuard; }
 	FORCEINLINE void RemoveAdditionalDefenseFromGuard() { m_Defense -= m_AdditionalDefenseFromGuard; }
 	
-	void OnDamageHP(const float damage);
-	void SetHPPercent(const float hp);
-
-	void OnDamageStamina(const float damage);
-	void SetStaminaPercent(const float stamina);
-
+	
 	FORCEINLINE float CalculateFinalCrowdControlTime(const float crowdControlTime) const { return m_HitRecovery * crowdControlTime; }
 	FORCEINLINE float CalculateFinalDamage(const float damage) const { return damage - m_Defense > 0.0f ? damage - m_Defense : 0.0f; }
-	
+
+	FORCEINLINE float GetGroggyTime() const;
+ 		
 public:
-	FOnChangedStatDelegate OnChangedHP;
+	FOnChangedStatDelegate OnDamagedHP;
+	FOnChangedStatDelegate OnRecoveredHP; 
 	FOnStatIsZeroDelegate OnHPIsZero;  
 
-	FOnChangedStatDelegate OnChangedStamina;
+	FOnChangedStatDelegate OnDamagedStamina;
+	FOnChangedStatDelegate OnRecoveredStamina; 
 	FOnStatIsZeroDelegate OnStaminaIsZero;
 
 	
@@ -134,7 +141,5 @@ private:
 
 	FTimerHandle m_HPRecoveryTimer;
 	FTimerHandle m_StaminaRecoveryTimer;
-
-	bool m_bCanRecoveryHP;
-	bool m_bCanRecoveryStamina;
+	
 };

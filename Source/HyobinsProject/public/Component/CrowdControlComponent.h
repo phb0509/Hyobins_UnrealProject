@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Utility/EnumTypes.h"
 #include "CrowdControlComponent.generated.h"
 
 class ACharacterBase;
@@ -14,7 +15,7 @@ struct FHitInformation;
 enum class ECrowdControlType : uint8;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnCrowdControl_Start_Delegate, AActor*, const FHitInformation&);
-
+DECLARE_MULTICAST_DELEGATE(FOnEndedGroggy);
 
 USTRUCT(Atomic)
 struct FCrowdControlMontages
@@ -22,7 +23,7 @@ struct FCrowdControlMontages
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "Test")
+	UPROPERTY(EditDefaultsOnly)
 	TArray<TObjectPtr<UAnimMontage>> montages;
 };
 
@@ -31,11 +32,15 @@ struct FCrowdControlSettings
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "CrowdControl Montages")
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "CrowdControl Montages")
 	TMap<ECrowdControlType, FCrowdControlMontages> crowdControlMontages;
 	
-	UPROPERTY(EditAnywhere, Category = "CrowdControl Montages")
+	UPROPERTY(EditDefaultsOnly, Category = "CrowdControl Montages")
 	TObjectPtr<UAnimMontage> getUpMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CrowdControl Time")
+	float groggyTime;
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent, AllowedClasses = "ACharacter"))
@@ -47,11 +52,16 @@ public:
 	UCrowdControlComponent();
 
 	void ApplyCrowdControl(AActor* instigator, const FHitInformation& attackInfo);
+	void Groggy();
+	void Execution();
 	void ClearCrowdControlTimerHandle();
 	void BreakCrowdControlState();
 	
 	FORCEINLINE ECrowdControlType GetCrowdControlState() const { return m_CurCrowdControlState; }
 	FORCEINLINE bool IsCrowdControlState() const;
+	FORCEINLINE bool IsGroggy() const { return m_CurCrowdControlState == ECrowdControlType::Groggy; }
+	FORCEINLINE float GetGroggyTime() const { return m_CrowdControlSetting.groggyTime; }
+	
 	void SetCrowdControlState(ECrowdControlType crowdControlType);
 	
 protected:
@@ -75,13 +85,16 @@ private:
 	UCharacterMovementComponent* getCharacterMovementComponent();
 	void playCrowdControlMontage(const ECrowdControlType crowdControlType, const int32 hitDirection);
 
+public:
+	FOnEndedGroggy OnEndedGroggy;
+	
 private:
 	TWeakObjectPtr<ACharacterBase> m_Owner;
 	TWeakObjectPtr<AAIController> m_OnwerAIController;
 	TWeakObjectPtr<UAnimInstanceBase> m_OwnerAnimInstance;
 
-	UPROPERTY(EditAnywhere, Category = "Setting")
-	FCrowdControlSettings m_CrowdControlSettings;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting")
+	FCrowdControlSettings m_CrowdControlSetting;
 	
 	TWeakObjectPtr<UCharacterMovementComponent> m_CharacterMovementComponent;
 	

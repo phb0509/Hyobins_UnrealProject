@@ -30,7 +30,8 @@ void AMonster::BeginPlay()
 	Super::BeginPlay();
 
 	m_AIControllerBase = Cast<AAIControllerBase>(GetController());
-
+	m_CrowdControlComponent->OnEndedGroggy.AddUObject(this, &AMonster::EndedGroggy);
+	
 	setTimeline();
 }
 
@@ -48,6 +49,35 @@ void AMonster::OnDamage(const float damage, const bool bIsCriticalAttack, const 
 	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
 
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
+	
+	if (!IsDead() && !m_CrowdControlComponent->IsGroggy())
+	{
+		m_StatComponent->OnDamageStamina(damage * 0.1f);
+	}
+}
+
+void AMonster::OnStaminaIsZero()
+{
+	Super::OnStaminaIsZero();
+	
+	this->SetIsSuperArmor(true);
+	
+	m_StatComponent->StopRecoveryHP();
+	m_StatComponent->StopRecoveryStamina();
+	m_CrowdControlComponent->Groggy();
+
+	// 체력바 UI에 그로기상태 넘기기..
+}
+
+void AMonster::EndedGroggy()
+{
+	m_CrowdControlComponent->BreakCrowdControlState();
+	
+	this->SetIsSuperArmor(false);
+	
+	m_StatComponent->SetStaminaPercent(100.0f);
+	m_StatComponent->RecoveryHP();
+	m_StatComponent->RecoveryStamina();
 }
 
 void AMonster::Die()
@@ -99,6 +129,7 @@ void AMonster::Initialize()
 void AMonster::Activate()
 {
 	SetIsDead(false);
+	
 	m_CrowdControlComponent->SetCrowdControlState(ECrowdControlType::None);
 	m_StatComponent->InitHP();
 
@@ -185,12 +216,12 @@ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 
 	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
 	this->GetWorldTimerManager().SetTimer(m_DiffuseRatioOnHitTimer,
-	                                      [this]()
-	                                      {
-		                                      GetMesh()->SetScalarParameterValueOnMaterials(
-			                                      TEXT("DiffuseRedRatioOnHit"), 1.0f); // 다시 원래대로
-	                                      },
-	                                      0.25f, false
+	[this]()
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials(
+		TEXT("DiffuseRedRatioOnHit"), 1.0f); // 다시 원래대로
+	},
+	0.25f, false
 	);
 }
 
@@ -203,13 +234,6 @@ void AMonster::SetIsDead(bool bIsDead)
 {
 	m_bIsDead = bIsDead;
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), m_bIsDead);
-}
-
-void AMonster::OnStaminaIsZero()
-{
-	Super::OnStaminaIsZero();
-
-	
 }
 
 ACharacterBase* AMonster::GetTarget() const

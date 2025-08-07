@@ -23,6 +23,9 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
+
+	virtual void EndedGroggy();
+	
 	uint8 GetCurFSMState() const { return m_CurFSMState; }
 	ACharacterBase* GetTarget() const;
 	

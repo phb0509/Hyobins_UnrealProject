@@ -5,7 +5,6 @@
 #include "CharacterBase/CharacterBase.h"
 #include "Utility/CustomStructs.h"
 #include "Components/WidgetComponent.h"
-#include "UI/Monster/HPBar.h"
 #include "UI/System/EnvironmentSettings.h"
 #include "UI/System/Combo.h"
 #include "UI/System/Damage.h"
@@ -158,21 +157,19 @@ void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 
 void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 {
-	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/HPBar.HPBar_C'"));
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/NewHealth/MonsterHPBar.MonsterHPBar_C'"));
 	
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
 		widgetOwner, UWidgetComponent::StaticClass(), "UpperHPBar_Widget");
 	
 	widgetComponent->SetupAttachment(widgetOwner->GetMesh());
-	widgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
 	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
 	widgetComponent->RegisterComponentWithWorld(GetWorld());
 	widgetComponent->SetWidgetClass(classType);
-	widgetComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
 	
 	UUserWidget* monsterHPBarWidget = widgetComponent->GetUserWidgetObject();
-	UHPBar* hpBar = Cast<UHPBar>(monsterHPBarWidget);
+	UMonsterHPBar* hpBar = Cast<UMonsterHPBar>(monsterHPBarWidget);
 	hpBar->SetVisibility(ESlateVisibility::Collapsed);
 	
 	hpBar->BindStatComponent(widgetOwner->GetStatComponent());

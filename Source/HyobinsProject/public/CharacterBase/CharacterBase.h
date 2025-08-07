@@ -7,7 +7,6 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
-#include "Utility/EnumTypes.h"
 #include "Interfaces/Damageable.h"
 #include "Interfaces/Attacker.h"
 #include "CharacterBase.generated.h"
@@ -91,6 +90,9 @@ public:
 	UMotionWarpingComponent* GetMotionWarpingComponent() const;
 
 	void BreakCrowdControlState();
+
+	FORCEINLINE bool IsGroggy() const;
+	FORCEINLINE float GetGroggyTime() const;
 	
 protected:
 	virtual void execEvent_CommonCrowdControl(AActor* instigator) {};
@@ -99,7 +101,6 @@ protected:
 	virtual void OnStaminaIsZero() {};
 
 	virtual void PlayOnHitEffect(const FHitInformation& hitInformation);
-	void ApplyKnockback(const float knockbackDistance, const FVector& instigatorLocation);
 	
 	// Death
 	UFUNCTION()
@@ -151,13 +152,13 @@ protected:
 
 	TWeakObjectPtr<UAnimInstanceBase> m_AnimInstanceBase;
 	
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TObjectPtr<UStatComponent> m_StatComponent;
 
-	UPROPERTY(BlueprintReadOnly, VisibleDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TObjectPtr<UCrowdControlComponent> m_CrowdControlComponent;
 	
-	UPROPERTY(EditAnywhere) 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite) 
     TObjectPtr<UCapsuleComponent> m_HitCollider;
 	
 	int32 m_LastHitDirection;

@@ -1,11 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "Component/CrowdControlComponent.h"
 #include "Monster/Monster.h"
 #include "CharacterBase/AnimInstanceBase.h"
 #include <GameFramework/CharacterMovementComponent.h>
-
 #include "BehaviorTree/BlackboardComponent.h"
 #include "CharacterBase/AIControllerBase.h"
 #include "Utility/EnumTypes.h"
@@ -14,7 +11,7 @@
 
 UCrowdControlComponent::UCrowdControlComponent() :
 	m_Owner(nullptr),
-	m_CrowdControlSettings({}),
+	m_CrowdControlSetting({}),
 	m_CharacterMovementComponent(nullptr)
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -40,10 +37,10 @@ UCrowdControlComponent::UCrowdControlComponent() :
 void UCrowdControlComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	m_Owner = Cast<ACharacterBase>(GetOwner());
 	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
-
+	
 	m_CrowdControlStartDelegates[ECrowdControlType::Knockback].AddUObject(this, &UCrowdControlComponent::TakeAttack_Knockback);
 	m_CrowdControlStartDelegates[ECrowdControlType::Down].AddUObject(this, &UCrowdControlComponent::TakeAttack_Down);
     m_CrowdControlStartDelegates[ECrowdControlType::Airborne].AddUObject(this, &UCrowdControlComponent::TakeAttack_Airborne);
@@ -60,10 +57,38 @@ void UCrowdControlComponent::ApplyCrowdControl(AActor* instigator, const FHitInf
 	
 	m_CrowdControlStartDelegates[attackInfo.crowdControlType].Broadcast(instigator, attackInfo);
 
+
 	if (attackInfo.knockBackDistance > 0.0f)
 	{
 		applyKnockback(attackInfo);
 	}
+}
+
+void UCrowdControlComponent::Groggy()
+{
+	ClearCrowdControlTimerHandle();
+	SetCrowdControlState(ECrowdControlType::Groggy);
+	playCrowdControlMontage(ECrowdControlType::Groggy, 0);
+
+	FTimerHandle timerHandle;
+	m_Owner->GetWorldTimerManager().SetTimer
+		(
+			timerHandle,
+			[this]()
+			{
+				if (!m_Owner->IsDead())
+				{
+					m_OwnerAnimInstance->StopAllMontages(0.0f);
+					OnEndedGroggy.Broadcast();
+				}
+			},
+		m_CrowdControlSetting.groggyTime,
+		false);
+}
+
+void UCrowdControlComponent::Execution()
+{
+	
 }
 
 void UCrowdControlComponent::applyKnockback(const FHitInformation& hitInfo)
@@ -145,7 +170,7 @@ void UCrowdControlComponent::TakeAttack_Down(AActor* instigator, const FHitInfor
 		SetCrowdControlState(ECrowdControlType::Down);
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);
 		
-		UAnimMontage* downMontage = m_CrowdControlSettings.crowdControlMontages[ECrowdControlType::Down].montages[0];
+		UAnimMontage* downMontage = m_CrowdControlSetting.crowdControlMontages[ECrowdControlType::Down].montages[0];
 		const float downPlayTime = m_OwnerAnimInstance->GetMontagePlayTime(downMontage) + 0.2f; // 다운몽타주재생시간이 CC시간보다 짧을경우를 대비한 보정값
 		
 		GetOwner()->GetWorldTimerManager().SetTimer(
@@ -182,7 +207,7 @@ void UCrowdControlComponent::CheckOnGround() // OnGround인지 틱마다 호출되어지는
 		playCrowdControlMontage(ECrowdControlType::Down, 0);
 		SetCrowdControlState(ECrowdControlType::Down);
 
-		UAnimMontage* downMontage = m_CrowdControlSettings.crowdControlMontages[ECrowdControlType::Down].montages[0];
+		UAnimMontage* downMontage = m_CrowdControlSetting.crowdControlMontages[ECrowdControlType::Down].montages[0];
 		const float downPlayTime = m_OwnerAnimInstance->GetMontagePlayTime(downMontage) + 0.2f;
 
 		GetOwner()->GetWorldTimerManager().SetTimer(
@@ -196,7 +221,7 @@ void UCrowdControlComponent::CheckOnGround() // OnGround인지 틱마다 호출되어지는
 
 void UCrowdControlComponent::GetUp()
 {
-	UAnimMontage* getUpMontage = m_CrowdControlSettings.getUpMontage;
+	UAnimMontage* getUpMontage = m_CrowdControlSetting.getUpMontage;
 	m_OwnerAnimInstance->Montage_Play(getUpMontage);
 	
 	const float getupPlayTime = m_OwnerAnimInstance->GetMontagePlayTime(getUpMontage) + 0.2f;
@@ -248,7 +273,7 @@ void UCrowdControlComponent::DisableMovementComponentForDuration(float duration)
 
 void UCrowdControlComponent::ClearCrowdControlTimerHandle()
 {
-	GetOwner()->GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+	m_Owner->GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
 }
 
 
@@ -264,12 +289,12 @@ UCharacterMovementComponent* UCrowdControlComponent::getCharacterMovementCompone
 
 void UCrowdControlComponent::playCrowdControlMontage(const ECrowdControlType crowdControlType, const int32 hitDirection)
 {
-	if (!m_CrowdControlSettings.crowdControlMontages.Contains(crowdControlType))
+	if (!m_CrowdControlSetting.crowdControlMontages.Contains(crowdControlType))
 	{
 		return;
 	}
 	
-	auto montages = m_CrowdControlSettings.crowdControlMontages[crowdControlType].montages;
+	auto montages = m_CrowdControlSetting.crowdControlMontages[crowdControlType].montages;
 
 	if (montages.Num() >= 1) // 최소 1개이상있으면
 	{
