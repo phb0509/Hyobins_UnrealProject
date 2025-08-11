@@ -5,35 +5,35 @@
 #include "Components/ProgressBar.h"
 #include "Component/StatComponent.h"
 #include "Components/Image.h"
+#include "Components/Overlay.h"
 
 
 void UMonsterHPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	//m_HPBarOverlay = Cast<UOverlay>(GetWidgetFromName(TEXT("m_HPBarOverlay")));
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
+	m_HPBarBorder= Cast<UImage>(GetWidgetFromName(TEXT("m_HPBarBorder")));
 
 	if (m_HPProgressBarMaterialInstanceDynamic == nullptr)
 	{
 		UMaterialInterface* materialInterface = Cast<UMaterialInterface>(m_HPProgressBar->WidgetStyle.FillImage.GetResourceObject());
 		m_HPProgressBarMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(materialInterface, this);
 		m_HPProgressBar->WidgetStyle.FillImage.SetResourceObject(m_HPProgressBarMaterialInstanceDynamic.Get());
-	
-		//m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), 0.0f);
 	}
-	
-	m_HPProgressBar->SetPercent(1.0f);
 	
 	m_GuardRegainProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_GuardRegainProgressBar")));
 
 	FSlateBrush brush = m_HPBarBorder->Brush; 
 	m_HPBarBorderTexture2D = Cast<UTexture2D>(brush.GetResourceObject());
-	
+
+	InitHPBar();
 }
 
-void UMonsterHPBar::BindStatComponent(UStatComponent* statComponent)
+void UMonsterHPBar::BindStatComponent(UStatComponent* ownerStatComponent)
 {
-	m_OwnerStatComponent = statComponent;
+	m_OwnerStatComponent = ownerStatComponent;
 
 	m_OwnerStatComponent->OnDamagedHP.AddUObject(this, &UMonsterHPBar::OnDamagedHPBar);
 	m_OwnerStatComponent->OnRecoveredHP.AddUObject(this, &UMonsterHPBar::OnRecoveredHPBar);
@@ -102,17 +102,16 @@ void UMonsterHPBar::OnStaminaIsZero()
 		[this]()
 		{
 			m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border 원래 텍스쳐로 복구
-			startWhiteBlink(); // 
+			startWhiteBlink(); 
 		},
-		1.0f,
+		1.3f,
 		false);
 	
 }
 
 void UMonsterHPBar::startWhiteBlink()
 {
-	// ProgressBar 하얗게 깜박
-	const float groggyTime = m_OwnerStatComponent->GetGroggyTime() - 1.0f <= 0.0f ? 0.0f : m_OwnerStatComponent->GetGroggyTime() - 1.0f;
+	const float groggyTime = m_OwnerStatComponent->GetGroggyTime() - 1.3f <= 0.0f ? 0.0f : m_OwnerStatComponent->GetGroggyTime() - 1.3f;
 	
 	m_WhiteBlinkLerpAlpha = 0.0f;
 	m_WhiteBlnkStopAccumulatedTime = 0.0f;
@@ -134,7 +133,7 @@ void UMonsterHPBar::startWhiteBlink()
 			
 			m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), m_WhiteBlinkLerpAlpha);
 
-			if (m_WhiteBlnkStopAccumulatedTime >= groggyTime)
+			if (m_WhiteBlinkLerpAlpha <= 0.0f && m_WhiteBlnkStopAccumulatedTime >= groggyTime) // 그로기 끝나더라도 깜박임 0.0f까지는 유지되게
 			{
 				m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), 0.0f);
 				GetWorld()->GetTimerManager().ClearTimer(m_WhiteBlinkTimer);
@@ -142,17 +141,4 @@ void UMonsterHPBar::startWhiteBlink()
 		},
 		GetWorld()->GetDeltaSeconds(),
 		true);
-}
-
-
-void UMonsterHPBar::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	
-	FString log = "LerpAlpha : " + FString::SanitizeFloat(m_WhiteBlinkLerpAlpha);
-	GEngine->AddOnScreenDebugMessage(500, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log));
-
-	FString log1 = "Time : " + FString::SanitizeFloat(m_WhiteBlnkStopAccumulatedTime);
-	GEngine->AddOnScreenDebugMessage(501, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log1));
 }

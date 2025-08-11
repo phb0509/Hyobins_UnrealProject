@@ -7,6 +7,7 @@
 #include "MonsterHPBar.generated.h"
 
 class UStatComponent;
+//class UOverlay;
 class UProgressBar;
 class UImage;
 
@@ -19,15 +20,13 @@ class HYOBINSPROJECT_API UMonsterHPBar : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	
-	void BindStatComponent(UStatComponent* statComponent);
+	void BindStatComponent(UStatComponent* ownerStatComponent);
 	void InitHPBar();
 
 	void OnDamagedHPBar();
 	void OnRecoveredHPBar();
 	
 	void OnStaminaIsZero();
-
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
 	void updateGuardRegainProgressBar();
@@ -36,6 +35,9 @@ private:
 protected:
 	TWeakObjectPtr<UStatComponent> m_OwnerStatComponent;
 
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
+	// TObjectPtr<UOverlay> m_HPBarOverlay;
+	//
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UProgressBar> m_HPProgressBar;
 

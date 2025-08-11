@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/Monster/MonsterHPBar.h"
 #include "BossStatusBar.generated.h"
 
 class UStatComponent;
 class UProgressBar;
+class UMonsterHPBar;
 
 UCLASS()
 class HYOBINSPROJECT_API UBossStatusBar : public UUserWidget
@@ -17,42 +18,12 @@ class HYOBINSPROJECT_API UBossStatusBar : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	
-	void BindStatComponent(UStatComponent* statComponent);
+	void BindStatComponent(UStatComponent* ownerStatComponent) const;
 	
-	void UpdateHPBar(float changeAmount);
-	void UpdateHPBarBackground();
-	
-	void UpdateStaminaBar(float changeAmount);
-	void UpdateStaminaBarBackground();
 
 private:
-	void updateHPBarBackgroundColor(float uvStart, float uvEnd);
-	
-private:
-	TWeakObjectPtr<UStatComponent> m_StatComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
+    TObjectPtr<UMonsterHPBar> m_HPBar;
+    	
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
-	TWeakObjectPtr<UProgressBar> m_HPProgressBar;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
-	TWeakObjectPtr<UProgressBar> m_HPProgressBarBackground;
-	
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
-	TWeakObjectPtr<UProgressBar> m_StaminaProgressBar;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
-	TWeakObjectPtr<UProgressBar> m_StaminaProgressBarBackground;
-
-	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
-	float m_DecreaseSpeed;
-
-	UPROPERTY(EditAnywhere, Meta = (AllowPrivateAccess = true))
-	float m_DecreaseSpeedFirstDelay;
-	
-	FTimerHandle m_HPBarTimer;
-	FTimerHandle m_StaminaBarTimer;
-	
-	UPROPERTY()
-	UMaterialInstanceDynamic* m_DynamicMaterial;
-       
 };

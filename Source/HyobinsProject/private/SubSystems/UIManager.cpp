@@ -157,7 +157,7 @@ void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 
 void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 {
-	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/NewHealth/MonsterHPBar.MonsterHPBar_C'"));
+	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/NewHealth/BP_MonsterHPBar.BP_MonsterHPBar_C'"));
 	
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
 		widgetOwner, UWidgetComponent::StaticClass(), "UpperHPBar_Widget");
@@ -167,6 +167,7 @@ void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 	widgetComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript;
 	widgetComponent->RegisterComponentWithWorld(GetWorld());
 	widgetComponent->SetWidgetClass(classType);
+	widgetComponent->SetRelativeLocation(FVector(0,0,250.0f));
 	
 	UUserWidget* monsterHPBarWidget = widgetComponent->GetUserWidgetObject();
 	UMonsterHPBar* hpBar = Cast<UMonsterHPBar>(monsterHPBarWidget);
