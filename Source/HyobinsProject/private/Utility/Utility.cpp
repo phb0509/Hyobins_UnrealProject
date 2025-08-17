@@ -19,11 +19,11 @@ Utility::~Utility()
 {
 }
 
-int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor) // 공격당한 액터, 공격한 액터
+int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor) // 공격한 액터, 공격당한 액터
 {
 	if (hitActor == nullptr)
 	{
-		return -1;
+		return 0;
 	}
 	
 	const FVector forward = hitActor->GetActorForwardVector();
@@ -31,7 +31,7 @@ int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* 
 	toActor.Normalize();
 	
 	const float cosTheta = FVector::DotProduct(forward, toActor);
-	const float theta = FMath::Acos(cosTheta);
+	const float theta = FMath::Acos(cosTheta); // 전방벡터기준 플레이어
 	const FVector cross = FVector::CrossProduct(forward, toActor);
 	
 	if (theta >= 0.0f && theta < PI / 4) // Front

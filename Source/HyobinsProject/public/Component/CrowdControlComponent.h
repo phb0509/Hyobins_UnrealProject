@@ -52,14 +52,14 @@ public:
 	UCrowdControlComponent();
 
 	void ApplyCrowdControl(AActor* instigator, const FHitInformation& attackInfo);
-	void Groggy();
-	void Execution();
+	void OnGroggy();
 	void ClearCrowdControlTimerHandle();
+	void ClearGroggyTimerHandle();
 	void BreakCrowdControlState();
 	
 	FORCEINLINE ECrowdControlType GetCrowdControlState() const { return m_CurCrowdControlState; }
 	FORCEINLINE bool IsCrowdControlState() const;
-	FORCEINLINE bool IsGroggy() const { return m_CurCrowdControlState == ECrowdControlType::Groggy; }
+	bool IsGroggy() const;
 	FORCEINLINE float GetGroggyTime() const { return m_CrowdControlSetting.groggyTime; }
 	
 	void SetCrowdControlState(ECrowdControlType crowdControlType);
@@ -84,13 +84,14 @@ private:
 	void applyKnockback(const FHitInformation& hitInfo);
 	UCharacterMovementComponent* getCharacterMovementComponent();
 	void playCrowdControlMontage(const ECrowdControlType crowdControlType, const int32 hitDirection);
+	void endedCrowdControl();
 
 public:
 	FOnEndedGroggy OnEndedGroggy;
 	
 private:
 	TWeakObjectPtr<ACharacterBase> m_Owner;
-	TWeakObjectPtr<AAIController> m_OnwerAIController;
+	TWeakObjectPtr<AAIController> m_OwnerAIController;
 	TWeakObjectPtr<UAnimInstanceBase> m_OwnerAnimInstance;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting")
@@ -100,10 +101,9 @@ private:
 	
 	TMap<ECrowdControlType, FOnCrowdControl_Start_Delegate> m_CrowdControlStartDelegates;
 	FTimerHandle m_CrowdControlTimerHandle;
+	FTimerHandle m_GroggyTimerHandle;
 
 	ECrowdControlType m_CurCrowdControlState;
-	
-	FName m_LastPlayedOnHitMontageName;
 
 	float m_LastCrowdControlTime;
 };

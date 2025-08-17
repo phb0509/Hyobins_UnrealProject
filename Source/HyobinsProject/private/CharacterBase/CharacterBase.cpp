@@ -100,11 +100,11 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 		crowdControlType,
 		finalCrowdControlTime,
 		attackInfo->knockBackDistance,
-		attackInfo->airbornePower
+		attackInfo->airbornePower,
+		attackInfo->staminaDamage
 	};
 	
 	OnTakeDamage.Broadcast(hitInfo); // 데미지UI 및 HitEffect
-	execEvent_CommonCrowdControl(instigator);
 	
 	if (!m_bIsDead && !m_bIsSuperArmor)
 	{
@@ -124,7 +124,6 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 void ACharacterBase::OnDamageStamina(const float staminaDamage) const
 {
 	m_StatComponent->OnDamageStamina(staminaDamage);
-	
 }
 
 void ACharacterBase::OnHPIsZero()
@@ -135,13 +134,13 @@ void ACharacterBase::OnHPIsZero()
 void ACharacterBase::Die()
 {
 	m_bIsDead = true;
-	m_CrowdControlComponent->ClearCrowdControlTimerHandle();
+	m_CrowdControlComponent->BreakCrowdControlState();
 	m_StatComponent->StopRecoveryHP();
 	m_StatComponent->StopRecoveryStamina();
 	
 	OnDeath.Broadcast();
 	
-	playDeathMontage(0);
+	playDeathMontage(m_LastHitDirection);
 
 	
 	UShapeComponent* hitCollider = m_Colliders[HitColliderName].Get();
@@ -247,6 +246,16 @@ bool ACharacterBase::IsGroggy() const
 float ACharacterBase::GetGroggyTime() const
 {
 	return m_CrowdControlComponent->GetGroggyTime();
+}
+
+void ACharacterBase::RecoveryHP() const
+{
+	m_StatComponent->RecoveryHP();
+}
+
+void ACharacterBase::RecoveryStamina() const
+{
+	m_StatComponent->RecoveryStamina();
 }
 
 void ACharacterBase::SetInvincible(const bool bIsInvincible)

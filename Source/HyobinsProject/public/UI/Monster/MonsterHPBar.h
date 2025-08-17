@@ -7,7 +7,6 @@
 #include "MonsterHPBar.generated.h"
 
 class UStatComponent;
-//class UOverlay;
 class UProgressBar;
 class UImage;
 
@@ -27,6 +26,10 @@ public:
 	void OnRecoveredHPBar();
 	
 	void OnStaminaIsZero();
+	
+	void InitWhiteBlink();
+    	
+	bool WhiteBlinkTick(float deltaSeconds);
 
 private:
 	void updateGuardRegainProgressBar();
@@ -35,9 +38,6 @@ private:
 protected:
 	TWeakObjectPtr<UStatComponent> m_OwnerStatComponent;
 
-	// UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
-	// TObjectPtr<UOverlay> m_HPBarOverlay;
-	//
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UProgressBar> m_HPProgressBar;
 
@@ -71,4 +71,7 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float m_WhiteBlinkSpeed;
+
+	float m_GroggyTime;
+
 };

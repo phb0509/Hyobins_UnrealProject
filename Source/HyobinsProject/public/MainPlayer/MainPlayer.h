@@ -13,7 +13,6 @@ class USpringArmComponent;
 class UCameraComponent;
 class UBoxComponent;
 class UMotionWarpingComponent;
-class AMainPlayer;
 class UInputMappingContext;
 class UInputAction;
 class UParticleSystem;

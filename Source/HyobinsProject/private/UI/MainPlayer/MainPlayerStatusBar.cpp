@@ -12,18 +12,18 @@ void UMainPlayerStatusBar::NativeConstruct()
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
 	m_StaminaProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_StaminaProgressBar")));
 	
-	UpdateHPBar(0.0f);
-	UpdateStaminaBar(0.0f);
+	UpdateHPBar();
+	UpdateStaminaBar();
 }
 
 void UMainPlayerStatusBar::BindStatComponent(UStatComponent* statComponent)
 {
 	m_StatComponent = statComponent;
-	m_StatComponent->OnChangedHP.AddUObject(this, &UMainPlayerStatusBar::UpdateHPBar);
-	m_StatComponent->OnChangedStamina.AddUObject(this, &UMainPlayerStatusBar::UpdateStaminaBar);
+	m_StatComponent->OnDamagedHP.AddUObject(this, &UMainPlayerStatusBar::UpdateHPBar);
+	m_StatComponent->OnDamagedStamina.AddUObject(this, &UMainPlayerStatusBar::UpdateStaminaBar);
 }
 
-void UMainPlayerStatusBar::UpdateHPBar(const float changeAmount)
+void UMainPlayerStatusBar::UpdateHPBar()
 {
 	if (m_StatComponent.IsValid())
 	{
@@ -31,7 +31,7 @@ void UMainPlayerStatusBar::UpdateHPBar(const float changeAmount)
 	}
 }
 
-void UMainPlayerStatusBar::UpdateStaminaBar(const float changeAmount)
+void UMainPlayerStatusBar::UpdateStaminaBar()
 {
 	if (m_StatComponent.IsValid())
 	{

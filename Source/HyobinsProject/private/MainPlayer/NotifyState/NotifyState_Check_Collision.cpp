@@ -57,7 +57,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 		FVector curLocation = m_WeaponCollider->GetComponentLocation();
 		
 		TArray<FHitResult> hitResults;
-		FCollisionQueryParams Params;
+		FCollisionQueryParams params;
 		
 		FCollisionShape collisionShape = makeCollisionShape();
 		FCollisionObjectQueryParams objectParams = makeCollisionObjectParams();
@@ -69,7 +69,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 			m_WeaponCollider->GetComponentQuat(),
 			objectParams, 
 			collisionShape,
-			Params
+			params
 		);
 		
 		if (bHit)
@@ -90,7 +90,6 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 
 		// 위치 갱신
 		m_PrevColliderLocation = curLocation;
-		
 	}
 }
 
@@ -99,10 +98,6 @@ void UNotifyState_Check_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	
-	if (m_Owner.IsValid())
-	{
-		//m_WeaponCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
 }
 
 void UNotifyState_Check_Collision::playHitEffect(const FVector& overlapLocation)

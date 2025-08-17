@@ -5,6 +5,7 @@
 #include "SubSystems/ActorPoolManager.h"
 #include "ActorPool/ActorPool.h"
 #include "SubSystems/DebugManager.h"
+#include "SubSystems/UIManager.h"
 
 
 AFirstLevel::	AFirstLevel() :
@@ -23,6 +24,8 @@ void AFirstLevel::BeginPlay()
 	m_ActorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
 	
 	CreateMinions();
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	uiManager->ReserveMonsterHPBars();
 }
 
 void AFirstLevel::CreateMinions() const
@@ -37,7 +40,7 @@ void AFirstLevel::SpawnMinion()
 
 	for (int i = 0; i < m_SpawnCount; ++i)
 	{
-		m_ActorPool->SpawnActor<AActor>(m_MonsterClass, positions[i]);
+		AActor* spawnedMonster = m_ActorPool->SpawnActor<AActor>(m_MonsterClass, positions[i]);
 	}
 }
 
@@ -53,22 +56,6 @@ void AFirstLevel::ToggleDebugMode()
 
 void AFirstLevel::SpawnBoss()
 {
-	// const FVector positions[4] = { {700.0f,0.0f,50.0f}, {-700.0f,0.0f,50.0f},
-	// 	{0.0f,700.0f,50.0f}, {0.0f,-700.0f,50.0f} };
-	//
-	// //AHyobinsProjectGameModeBase* gameModeBase = Cast<AHyobinsProjectGameModeBase>(GetWorld()->GetAuthGameMode());
-	//
-	// for (int i = 0; i < 1; ++i)
-	// {
-	// 	TWeakObjectPtr<AActor> spawnedActor = m_ActorPool->SpawnActor(m_MonsterClass, positions[i]);
-	//
-	// 	// if (spawnedActor.IsValid() && gameModeBase != nullptr)
-	// 	// {
-	// 	// 	ACharacterBase* minion = Cast<ACharacterBase>(spawnedActor.Get());
-	// 	// 	minion->OnDeath.AddUObject(gameModeBase, &AHyobinsProjectGameModeBase::CountMinionDeath);
-	// 	// }
-	// }
-
 	AActorPool* actorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
 	actorPool->CreateActorPool(m_LichKingClass,1);
 	
@@ -83,6 +70,9 @@ void AFirstLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
   
 	m_ActorPool->ClearActorPool();
+
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	uiManager->EmptyMonsterHPBars();
 }
 
 

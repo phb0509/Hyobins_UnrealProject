@@ -20,6 +20,7 @@ void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 	
 	m_bIsShowMonsterHPBar = true;
+	m_HPBarReserveSize = 0;
 }
 
 void UUIManager::Deinitialize()
@@ -27,6 +28,7 @@ void UUIManager::Deinitialize()
 	Super::Deinitialize();
 
 	RemoveAllWidgetContainers();
+	m_WhiteBlinkHPBars.Empty();
 }
 
 void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
@@ -155,6 +157,16 @@ void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 	damageWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
+void UUIManager::ReserveMonsterHPBars()
+{
+	m_WhiteBlinkHPBars.Reserve(m_HPBarReserveSize);
+}
+
+void UUIManager::EmptyMonsterHPBars()
+{
+	m_WhiteBlinkHPBars.Empty();
+}
+
 void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/NewHealth/BP_MonsterHPBar.BP_MonsterHPBar_C'"));
@@ -176,6 +188,55 @@ void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 	hpBar->BindStatComponent(widgetOwner->GetStatComponent());
 
 	addWidgetContainer(TEXT("MonsterHPBar"), hpBar, widgetComponent);
+
+	++m_HPBarReserveSize;
+}
+
+void UUIManager::StartHPBarWhiteBlink(UMonsterHPBar* hpBar)
+{
+	if (hpBar == nullptr || m_WhiteBlinkHPBars.Contains(hpBar))
+	{
+		return;
+	}
+	
+	m_WhiteBlinkHPBars.Add(hpBar);
+	hpBar->InitWhiteBlink(); 
+
+	if (!GetWorld()->GetTimerManager().IsTimerActive(m_WhiteBlinkSharedTimerHandle))
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			m_WhiteBlinkSharedTimerHandle,
+			this,
+			&UUIManager::UpdateHPBarWhiteBlink,
+			GetWorld()->DeltaTimeSeconds,
+			true
+		);
+	}
+}
+
+void UUIManager::UpdateHPBarWhiteBlink()
+{
+	for (int32 i = m_WhiteBlinkHPBars.Num() - 1; i >= 0; --i)
+	{
+		TWeakObjectPtr<UMonsterHPBar> hpBar = m_WhiteBlinkHPBars[i].Get();
+		
+		if (!hpBar.IsValid())
+		{
+			m_WhiteBlinkHPBars.RemoveAtSwap(i,1,false);
+			
+			continue;
+		}
+		
+		if (!hpBar->WhiteBlinkTick(GetWorld()->DeltaTimeSeconds))
+		{
+			m_WhiteBlinkHPBars.RemoveAtSwap(i,1,false);
+		}
+	}
+	
+	if (m_WhiteBlinkHPBars.Num() == 0)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(m_WhiteBlinkSharedTimerHandle);
+	}
 }
 
 void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float duration) 

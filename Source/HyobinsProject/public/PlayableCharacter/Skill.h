@@ -26,6 +26,7 @@ public:
 	virtual bool CanExecuteSkill() const;
 	
 	FORCEINLINE FName& GetName() { return m_Name; }
+	FORCEINLINE bool GetIsAddedSkillSlots() const { return m_bIsAddedSkillSlots; }
 	FORCEINLINE float GetCoolDownTime() const { return m_CoolDownTime; }
 	FORCEINLINE bool IsSuperArmor() const { return m_bIsSuperArmor; }
 	
@@ -35,7 +36,7 @@ public:
 	FORCEINLINE void SetOwnerInfo(APlayableCharacter* owner);
 	FORCEINLINE void SetCoolDownTime(float coolDownTime) { m_CoolDownTime = coolDownTime; }
 
-
+	
 
 public:
 	FOnExecute OnExecute;
@@ -51,6 +52,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Default Property")
 	FName m_Name;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Default Property")
+	bool m_bIsAddedSkillSlots;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Default Property")
 	float m_CoolDownTime;
 	

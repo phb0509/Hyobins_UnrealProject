@@ -6,6 +6,7 @@
 #include "UI/MainPlayer/SkillSlot.h"
 #include "Components/Image.h"
 #include "Components/HorizontalBox.h"
+#include "PlayableCharacter/Skill.h"
 
 void USkillSlots::NativeConstruct()
 {
@@ -19,7 +20,7 @@ void USkillSlots::CreateSkillListFromSkillComponent(USkillComponent* skillCompon
 {
 	m_SkillSlots.Empty();
 
-	if (IsValid(skillComponent))
+	if (skillComponent != nullptr)
 	{
 		m_SkillComponent = skillComponent;
 	
@@ -39,17 +40,16 @@ void USkillSlots::CreateSkillListFromSkillComponent(USkillComponent* skillCompon
 		
 			FSkillSlotInfos skillSlots;
 		
-			for (const auto skill : iter.Value.skillList)
+			for (const auto skillInfo : iter.Value.skillList)
 			{
-				FName skillName = skill.Key;
-				USkill* skillType = skill.Value;
+				USkill* skill = skillInfo.Value;
 
-				if (skillType != nullptr)
+				if (skill != nullptr && skill->GetIsAddedSkillSlots())
 				{
 					USkillSlot* skillSlot = Cast<USkillSlot>(CreateWidget(GetWorld(), skillSlotClass));
 
 					const FMargin paddingValue = {m_LeftPadding, m_TopPadding, m_RightPadding, m_BottomPadding};
-					skillSlot->SetSkill(skillType, paddingValue);
+					skillSlot->SetSkill(skill, paddingValue);
 					skillSlots.skillSlots.Add(skillSlot);
 
 					if (bIsFirst)

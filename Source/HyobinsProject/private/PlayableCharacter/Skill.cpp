@@ -8,6 +8,7 @@
 #include "Component/StatComponent.h"
 
 USkill::USkill() :
+	m_bIsAddedSkillSlots(true),
 	m_CoolDownTime(3.0f),
 	m_bIsCooldownComplete(true),
 	m_StaminaCost(10.0f),
@@ -30,19 +31,26 @@ void USkill::Execute()
 		false);
 
 	m_Owner->SetIsSuperArmor(m_bIsSuperArmor);
-	m_Owner->GetStatComponent()->OnDamageStamina(m_StaminaCost);
+	m_Owner->GetStatComponent()->OnDamageStamina(m_StaminaCost * 0.5f);
 	
 	if (m_Owner->IsLockOnMode())
 	{
 		AActor* lockOnTarget = m_Owner->GetCurLockOnTarget();
-		m_Owner->RotateToTarget(lockOnTarget);
+
+		if (lockOnTarget != nullptr)
+		{
+			m_Owner->RotateToTarget(lockOnTarget);
+		}
 	}
 	else
 	{
 		m_Owner->RotateActorToKeyInputDirection();
 	}
-	
-	OnExecute.Broadcast();
+
+	if (m_bIsAddedSkillSlots)
+	{
+		OnExecute.Broadcast(); // 스킬아이콘 쿨다운 업데이트.
+	}
 }
 
 bool USkill::CanExecuteSkill() const

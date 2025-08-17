@@ -144,7 +144,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Dodge_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Dodge_OnGround);
 	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Charging_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_OnGround);
 	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Guard_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Guard_OnGround);
-
+	EIC->BindAction(m_InputMappingConfigs["Default_OnGround"].inputActions["Execution_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Execution_OnGround);
 	
 	// Default_InAir
 	EIC->BindAction(m_InputMappingConfigs["Default_InAir"].inputActions["NormalAttack_InAir"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::NormalAttack_InAir);
@@ -295,10 +295,10 @@ void AMainPlayer::printLog()
 
 	const FString log9 = "Is LockOn?? :: " + FString::FromInt(m_bIsLockOnMode);
 	GEngine->AddOnScreenDebugMessage(14, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log9));
-	
-	
 
-
+	const FString log10 = "Cur Stamina :: " + FString::SanitizeFloat(m_StatComponent->GetCurStamina());
+	GEngine->AddOnScreenDebugMessage(15, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log10));
+	
 	
 	GEngine->AddOnScreenDebugMessage(20, 0.1f, FColor::Green, FString::Printf(TEXT("==============================")));
 }

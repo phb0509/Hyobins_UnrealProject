@@ -12,6 +12,7 @@ class ACharacterBase;
 class UStatComponent;
 class UCombo;
 class USkillComponent;
+class UMonsterHPBar;
 
 struct FHitInformation;
 
@@ -55,10 +56,17 @@ public:
 	void BindActorToDamageWidget(ACharacterBase* hitActor);
 	void RenderDamageToScreen(const FHitInformation& hitInfo);
 	
+	void ReserveMonsterHPBars();
+	void EmptyMonsterHPBars();
+
+	// HPBar
 	void CreateMonsterHPBar(ACharacterBase* widgetOwner);
 	FORCEINLINE void SetIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
 	FORCEINLINE bool IsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
-	
+	void StartHPBarWhiteBlink(UMonsterHPBar* hpBar);
+	void UpdateHPBarWhiteBlink();
+
+	// Player ChargingGageBar
 	void CreateChargingGageBar(ACharacterBase* widgetOwner, float duration);
 	void SetVisibilityWidgets(const FName& widgetName, ESlateVisibility slateVisibility); // 매개변수 widgetName에 해당하는 모든 위젯을 SetVisibility
 	void RemoveWidgetContainers(const FName& widgetName);
@@ -74,6 +82,10 @@ private:
 	TMap<FName, TArray<FWidgetContainer>> m_UIWidgetsWidgetNameKey;
 	
 	bool m_bIsShowMonsterHPBar;
+	
+    TArray<TWeakObjectPtr<UMonsterHPBar>> m_WhiteBlinkHPBars;           
+    FTimerHandle m_WhiteBlinkSharedTimerHandle;         
+    int32  m_HPBarReserveSize;
 };
 
 

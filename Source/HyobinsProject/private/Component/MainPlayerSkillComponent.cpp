@@ -61,6 +61,11 @@ void UMainPlayerSkillComponent::Charging_OnGround()
 	ExecuteSkill("Default_OnGround","Charging_OnGround");
 }
 
+void UMainPlayerSkillComponent::Execution_OnGround()
+{
+	ExecuteSkill("Default_OnGround","Execution_OnGround");
+}
+
 
 // Default_InAir
 void UMainPlayerSkillComponent::NormalAttack_InAir()
@@ -108,8 +113,6 @@ void UMainPlayerSkillComponent::SetIdle(UAnimMontage* Montage, bool bInterrupted
 {
 	if (!bInterrupted)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("UMainPlayerSkillComponent :: SetIdle"));
-		
 		SetSkillState(EMainPlayerSkillStates::None);
 	}
 }

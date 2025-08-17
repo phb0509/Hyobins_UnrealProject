@@ -78,7 +78,11 @@ public:
 	int32 GetLocalDirectionIndex(const FVector& worldDirection) const;
 	int32 GetLocalDirectionUsingInverseMatrix(const FVector& worldDirection) const;
 
+	UCameraComponent* GetCameraComponent() const;
+
 	USkill* GetCurExecutingSkill() const;
+
+	
 	// Input
 
 	// AxisMappings

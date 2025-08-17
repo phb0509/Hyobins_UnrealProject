@@ -21,16 +21,17 @@ public:
 	virtual void BeginPlay() override;
 
 protected:
-	virtual void Activate() override;
-	virtual void Deactivate() override;
-
-	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	
-	//virtual void OnStaminaIsZero() override;
-
+	virtual void EndedGroggy() override;
+	
 	virtual void ExecEvent_EndedDeathMontage() override;
 
 	virtual void Die() override;
+
+
+	// IPoolableActor
+	virtual void Activate() override;
+	virtual void Deactivate() override;
 	
 private:
 	void initAssets();

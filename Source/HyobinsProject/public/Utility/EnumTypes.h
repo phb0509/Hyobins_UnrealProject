@@ -9,17 +9,6 @@
 #include "EnumTypes.generated.h"
 
 
-// UENUM(BlueprintType)
-// enum class ECrowdControlStates : uint8
-// {
-// 	None					UMETA(DisplayName = "None"),
-// 	KnockbackOnStanding		UMETA(DisplayName = "KnockbackOnStanding"),
-// 	KnockbackInAir			UMETA(DisplayName = "KnockbackInAir"),
-// 	Down					UMETA(DisplayName = "Down"),
-// 	Groggy					UMETA(DisplayName = "Groggy"),
-// 	Dead					UMETA(DisplayName = "Dead"),
-// 	Execution				UMETA(DisplayName = "Execution")
-// };
 
 UENUM(BlueprintType)
 enum class ECrowdControlType : uint8
@@ -61,7 +50,8 @@ enum class EMainPlayerSkillStates : uint8
 	Dodge_NonTargeting_OnGround 		UMETA(DisplayName = "Dodge_NonTargeting_OnGround"),
 	Dodge_Targeting_OnGround			UMETA(DisplayName = "Dodge_Targeting_OnGround"),
 	Guard_OnGround 						UMETA(DisplayName = "Guard_OnGround"),
-	Parry_OnGround 						UMETA(DisplayName = "Parry_OnGround")
+	Parry_OnGround 						UMETA(DisplayName = "Parry_OnGround"),
+	Execution_OnGround 					UMETA(DisplayName = "Execution_OnGround")
 };
 
 

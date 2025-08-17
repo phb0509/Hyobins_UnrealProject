@@ -63,7 +63,6 @@ public:
 
 	void SetInvincible(const bool bIsInvincible);
 	
-	// Get
 	FORCEINLINE UStatComponent* GetStatComponent() const { return m_StatComponent; }
 	FORCEINLINE UShapeComponent* GetCollider(const FName& colliderName) const;
 
@@ -93,10 +92,11 @@ public:
 
 	FORCEINLINE bool IsGroggy() const;
 	FORCEINLINE float GetGroggyTime() const;
+
+	void RecoveryHP() const;
+	void RecoveryStamina() const;
 	
 protected:
-	virtual void execEvent_CommonCrowdControl(AActor* instigator) {};
-	
 	virtual void OnHPIsZero();
 	virtual void OnStaminaIsZero() {};
 

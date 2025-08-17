@@ -43,14 +43,11 @@ void ALichKing::BeginPlay()
 	}
 }
 
-void ALichKing::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator, const FVector& causerLocation)
+void ALichKing::EndedGroggy()
 {
-	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
+	Super::EndedGroggy();
 
-	if (m_StatComponent->CanRecoveryStamina())
-	{
-		m_StatComponent->OnDamageStamina(damage * 0.01f);
-	}
+	SetIsSuperArmor(true);
 }
 
 void ALichKing::Activate()
@@ -67,14 +64,6 @@ void ALichKing::Deactivate()
 	
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::Collapsed);
 }
-
-// void ALichKing::OnStaminaIsZero()
-// {
-// 	Super::OnStaminaIsZero();
-// 	
-// 	// SetFSMState(ELichKingFSMStates::Groggy);
-// 	// m_AIController->RestartBehaviorTree();
-// }
 
 void ALichKing::ExecEvent_EndedDeathMontage()
 {

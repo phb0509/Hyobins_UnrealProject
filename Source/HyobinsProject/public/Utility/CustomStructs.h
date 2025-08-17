@@ -28,7 +28,8 @@ public:
 	crowdControlType("None"),
 	crowdControlTime(0.0f),
 	knockBackDistance(0.0f),
-	airbornePower(0.0f)
+	airbornePower(0.0f),
+	staminaDamage(10.0f)
 	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
@@ -51,6 +52,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float airbornePower;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
+	float staminaDamage;
 };
 
 
@@ -66,6 +70,7 @@ public:
 	float crowdControlTime; // CC기 지속시간
 	float knockBackDistance; // 밀려지는 정도
 	float airbornePower;
+	float staminaDamage;
 };
 
 USTRUCT(Atomic) 
@@ -84,5 +89,6 @@ public:
 	float crowdControlTime; // CC기 지속시간
 	float knockBackDistance; // 밀려지는 정도
 	float airbornePower;
+	float staminaDamage;
 };
 

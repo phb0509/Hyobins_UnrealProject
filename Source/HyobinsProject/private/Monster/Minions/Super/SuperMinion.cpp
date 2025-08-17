@@ -29,8 +29,6 @@ ASuperMinion::ASuperMinion()
 void ASuperMinion::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("ASuperMinion :: BeginPlay"));
 	
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_SuperMinion.AttackInformation_SuperMinion'");

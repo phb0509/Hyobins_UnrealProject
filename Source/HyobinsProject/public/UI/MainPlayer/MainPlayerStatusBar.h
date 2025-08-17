@@ -17,8 +17,8 @@ class HYOBINSPROJECT_API UMainPlayerStatusBar : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	void BindStatComponent(UStatComponent* statComponent);
-	void UpdateHPBar(const float changeAmount);
-	void UpdateStaminaBar(const float changeAmount);
+	void UpdateHPBar();
+	void UpdateStaminaBar();
 
 	
 private:

@@ -35,6 +35,7 @@ void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const F
 		if (m_CurSkill->CanExecuteSkill())
 		{
 			m_CurSkill->Execute();
+			//m_Owner->RecoveryStamina();
 		}
 	}
 }

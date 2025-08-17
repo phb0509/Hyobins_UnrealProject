@@ -245,6 +245,11 @@ int32 APlayableCharacter::GetLocalDirectionUsingInverseMatrix(const FVector& wor
 	return 4; // Back
 }
 
+UCameraComponent* APlayableCharacter::GetCameraComponent() const
+{
+	return m_TargetCamera;
+}
+
 USkill* APlayableCharacter::GetCurExecutingSkill() const
 {
 	return m_SkillComponent->GetCurExecutingSkill();

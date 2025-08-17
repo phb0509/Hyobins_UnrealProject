@@ -64,6 +64,8 @@ void DetailCustomization_SetFSMServiceNode::CustomizeDetails(IDetailLayoutBuilde
 
 void DetailCustomization_SetFSMServiceNode::OnEnumClassNameCommitted(const FText& NewText, ETextCommit::Type CommitInfo)
 {
+	UE_LOG(LogTemp, Warning, TEXT("DetailCustomization_SetFSMServiceNode :: OnEnumClassNameCommitted"));
+	
 	if (m_ServiceNode.IsValid())
 	{
 		const UEnum* enumType = FindObject<UEnum>(ANY_PACKAGE, *NewText.ToString(), true);

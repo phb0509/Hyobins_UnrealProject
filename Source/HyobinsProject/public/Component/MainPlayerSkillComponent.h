@@ -24,6 +24,7 @@ public:
 	void Dodge_OnGround();
 	void Guard_OnGround();
 	void Charging_OnGround();
+	void Execution_OnGround();
 
 	// Default_InAir
 	void NormalAttack_InAir();

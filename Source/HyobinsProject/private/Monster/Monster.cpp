@@ -9,6 +9,7 @@
 #include "Component/CrowdControlComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Component/CrowdControlComponent.h"
+#include "Utility/CustomStructs.h"
 
 
 const FName AMonster::HomePosKey(TEXT("HomePos"));
@@ -52,7 +53,7 @@ void AMonster::OnDamage(const float damage, const bool bIsCriticalAttack, const 
 	
 	if (!IsDead() && !m_CrowdControlComponent->IsGroggy())
 	{
-		m_StatComponent->OnDamageStamina(damage * 0.1f);
+		m_StatComponent->OnDamageStamina(AttackInformation->staminaDamage);
 	}
 }
 
@@ -60,24 +61,21 @@ void AMonster::OnStaminaIsZero()
 {
 	Super::OnStaminaIsZero();
 	
-	this->SetIsSuperArmor(true);
-	
+	OnGroggy();
+}
+
+void AMonster::OnGroggy()
+{
 	m_StatComponent->StopRecoveryHP();
 	m_StatComponent->StopRecoveryStamina();
-	m_CrowdControlComponent->Groggy();
-
-	// 체력바 UI에 그로기상태 넘기기..
+	m_CrowdControlComponent->OnGroggy();
 }
 
 void AMonster::EndedGroggy()
 {
-	m_CrowdControlComponent->BreakCrowdControlState();
-	
-	this->SetIsSuperArmor(false);
-	
-	m_StatComponent->SetStaminaPercent(100.0f);
-	m_StatComponent->RecoveryHP();
-	m_StatComponent->RecoveryStamina();
+	m_StatComponent->SetStaminaPercent(100.0f); 
+	m_StatComponent->RecoveryHP(); 
+	m_StatComponent->RecoveryStamina(); 
 }
 
 void AMonster::Die()

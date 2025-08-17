@@ -43,6 +43,7 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 			attackInfo.crowdControlTime = data.crowdControlTime;
 			attackInfo.knockBackDistance = data.knockBackDistance;
 			attackInfo.airbornePower = data.airbornePower;
+			attackInfo.staminaDamage = data.staminaDamage;
 
 			attackInfos.Add(attackInfo.attackName, attackInfo);
 		}
