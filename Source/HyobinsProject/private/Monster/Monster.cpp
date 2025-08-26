@@ -145,8 +145,6 @@ void AMonster::Activate()
 
 	// UI
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->BindActorToComboWidget(this);
-
 	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
 }
 
@@ -154,6 +152,7 @@ void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회
 {
 	SetIsDead(true);
 	m_AIControllerBase->OnUnPossess();
+	OnTakeDamage.Clear();
 
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
 

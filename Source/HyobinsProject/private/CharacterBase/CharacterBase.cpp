@@ -30,7 +30,7 @@ ACharacterBase::ACharacterBase() :
 	m_StatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("StatComponent"));
 	m_StatComponent->OnHPIsZero.AddUObject(this, &ACharacterBase::OnHPIsZero);
 	m_StatComponent->OnStaminaIsZero.AddUObject(this, &ACharacterBase::OnStaminaIsZero);
-
+	
 	m_CrowdControlComponent = CreateDefaultSubobject<UCrowdControlComponent>(TEXT("CrowdControlComponent"));
 }
 
@@ -56,36 +56,13 @@ void ACharacterBase::Tick(float DeltaSeconds)
 	m_bIsFlying = GetCharacterMovement()->IsFlying();
 }
 
-void ACharacterBase::Attack(const FName& attackName, AActor* target, const FVector& causerLocation)
-{
-	if (!IsValid(target))
-	{
-		return;
-	}
-	
-	IDamageable* damageableActor = Cast<IDamageable>(target);
-
-	if (damageableActor == nullptr)
-	{
-		return;
-	}
-	
-	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
-	const FAttackInformation* attackInfo = dataManager->GetAttackInformation(this->GetClass(), attackName);
-	
-	const bool bIsCriticalAttack = FMath::FRandRange(0.0f, 100.0f) <= m_StatComponent->GetCriticalAttackChance();
-	const float damage = (m_StatComponent->GetDefaultDamage() * attackInfo->damageRatio) * (bIsCriticalAttack ? 2.0f : 1.0f);
-	
-	damageableActor->OnDamage(damage, bIsCriticalAttack, attackInfo, this, causerLocation);
-}
-
-void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, AActor* instigator, const FVector& causerLocation)
+void ACharacterBase::OnDamage(const float finalDamage, const bool bIsCriticalAttack, const FAttackInformation* attackInfo, AActor* instigator, const FVector& causerLocation)
 {
 	const ECrowdControlType crowdControlType = attackInfo->crowdControlType;
 	const float finalCrowdControlTime = m_StatComponent->CalculateFinalCrowdControlTime(attackInfo->crowdControlTime);
-	const float finalDamage = m_StatComponent->CalculateFinalDamage(damage); 
+	const float _finaldamage = m_StatComponent->CalculateFinalDamage(finalDamage); 
 
-	m_StatComponent->OnDamageHP(finalDamage);
+	m_StatComponent->OnDamageHP(_finaldamage);
 	m_LastHitDirection = Utility::GetHitDirection(instigator->GetActorLocation(), this); // 피격방향 계산.
 	
 	// 피격정보 생성.
@@ -94,7 +71,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 		attackInfo->attackName,
 		instigator,
 		this,
-		finalDamage,
+		_finaldamage,
 		bIsCriticalAttack,
 		m_LastHitDirection,
 		crowdControlType,
@@ -116,7 +93,7 @@ void ACharacterBase::OnDamage(const float damage, const bool bIsCriticalAttack, 
 	
 	// 로그용
 	++attackCount;
-	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(finalDamage) + " damage from " +
+	const FString log = Tags[0].ToString() + " Takes " + FString::SanitizeFloat(_finaldamage) + " damage from " +
 		instigator->Tags[0].ToString() + "::" + attackInfo->attackName.ToString() + "::" + FString::FromInt(attackCount);
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *log);
 }

@@ -8,7 +8,6 @@
 #include <Components/CapsuleComponent.h>
 #include <Components/BoxComponent.h>
 #include "Interfaces/Damageable.h"
-#include "Interfaces/Attacker.h"
 #include "CharacterBase.generated.h"
 
 class ACharacterBase;
@@ -30,7 +29,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnTakeDamageDelegate, const FHitInformation
 DECLARE_MULTICAST_DELEGATE(FOnDeathDelegate);
 
 UCLASS(abstract)
-class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IAttacker, public IDamageable
+class HYOBINSPROJECT_API ACharacterBase : public ACharacter, public IDamageable
 {
 	GENERATED_BODY()
 
@@ -40,10 +39,10 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	// IAttacker
-	virtual void Attack(const FName& attackName, AActor* target, const FVector& causerLocation) override;
+	//virtual void Attack(const FName& attackName, AActor* target, const FVector& causerLocation) override;
 	
 	// IDamageable
-	virtual void OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
+	virtual void OnDamage(const float finalDamage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	void OnDamageStamina(const float staminaDamage) const;
 	
 	bool HasContainHitActor(const FName& attackName, AActor* hitActor)

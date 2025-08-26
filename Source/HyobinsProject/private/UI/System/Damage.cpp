@@ -2,7 +2,7 @@
 
 
 #include "UI/System/Damage.h"
-#include "UI/System/Combo.h"
+//#include "UI/System/Combo.h"
 #include "Components/TextBlock.h"
 
 void UDamage::NativeConstruct()
@@ -14,6 +14,13 @@ void UDamage::NativeConstruct()
 	FWidgetAnimationDynamicEvent endDelegate;
 	endDelegate.BindDynamic(this, &UDamage::Remove);
 	BindToAnimationFinished(m_DamageAnimation, endDelegate);
+}
+
+void UDamage::NativeDestruct()
+{
+	Super::NativeDestruct();
+	
+	UnbindAllFromAnimationFinished(m_DamageAnimation);
 }
 
 void UDamage::SetDamage(float damage)

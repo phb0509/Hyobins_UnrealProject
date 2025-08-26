@@ -50,8 +50,8 @@ public:
 	
 	void OpenEnvironmentSettings();
 
-	UCombo* CreateComboWidget();
-	void BindActorToComboWidget(ACharacterBase* hitActor);
+	void CreateComboWidget();
+	void UpdateComboCount();
 	
 	void BindActorToDamageWidget(ACharacterBase* hitActor);
 	void RenderDamageToScreen(const FHitInformation& hitInfo);
@@ -86,6 +86,8 @@ private:
     TArray<TWeakObjectPtr<UMonsterHPBar>> m_WhiteBlinkHPBars;           
     FTimerHandle m_WhiteBlinkSharedTimerHandle;         
     int32  m_HPBarReserveSize;
+
+	TWeakObjectPtr<UCombo> m_Combo;
 };
 
 

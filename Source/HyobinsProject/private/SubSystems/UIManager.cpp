@@ -98,6 +98,7 @@ void UUIManager::RenderLockOnToScreen(AActor* target)
 	if (!IsWidgetCreated(TEXT("LockOn")))
 	{
 		CreateLockOn(target);
+		
 		return;
 	}
 	
@@ -119,23 +120,26 @@ void UUIManager::OpenEnvironmentSettings()
 	addWidgetContainer(TEXT("EnvironmentSettings"), environmentSettings, nullptr);
 }
 
-UCombo* UUIManager::CreateComboWidget()
+void UUIManager::CreateComboWidget()
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
 	UCombo* combo = Cast<UCombo>(CreateWidget(GetWorld(), classType));
 	combo->AddToViewport();
+	combo->SetVisibility(ESlateVisibility::Collapsed);
+	
 	addWidgetContainer(TEXT("Combo"), combo, nullptr);
 	
-	combo->SetVisibility(ESlateVisibility::Collapsed);
-
-	return combo;
+	m_Combo = combo;
 }
 
-void UUIManager::BindActorToComboWidget(ACharacterBase* hitActor)
+void UUIManager::UpdateComboCount()
 {
-	UCombo* combo = CreateComboWidget();
+	if (!m_Combo.IsValid())
+	{
+		CreateComboWidget();
+	}
 	
-	hitActor->OnTakeDamage.AddUObject(combo, &UCombo::UpdateComboCount);
+	m_Combo->UpdateComboCount();
 }
 
 void UUIManager::BindActorToDamageWidget(ACharacterBase* hitActor)

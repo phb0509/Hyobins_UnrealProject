@@ -55,13 +55,6 @@ void AMainPlayer::BeginPlay()
 	}
 }
 
-void AMainPlayer::Attack(const FName& attackName, AActor* target, const FVector& causerLocation)
-{
-	Super::Attack(attackName, target, causerLocation);
-	
-	playAttackEffect();
-}
-
 void AMainPlayer::OnDamage(const float damage, const bool bIsCriticalAttack, const FAttackInformation* AttackInformation, AActor* instigator, const FVector& causerLocation)
 {
 	if (m_bIsParrying)
@@ -97,11 +90,6 @@ void AMainPlayer::PlayOnHitEffect(const FHitInformation& hitInformation)
 	{
 		this->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_OnHitCameraShake);
 	}
-}
-
-void AMainPlayer::playAttackEffect()
-{
-
 }
 
 void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

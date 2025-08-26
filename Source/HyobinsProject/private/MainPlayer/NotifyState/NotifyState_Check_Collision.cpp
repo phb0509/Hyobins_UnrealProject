@@ -8,6 +8,7 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayableCharacter/PlayableCharacter.h"
+#include "SubSystems/BattleManager.h"
 
 
 UNotifyState_Check_Collision::UNotifyState_Check_Collision() :
@@ -54,13 +55,14 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 
 	if (m_Owner.IsValid() && m_WeaponCollider != nullptr)
 	{
+		UBattleManager* battleManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
 		FVector curLocation = m_WeaponCollider->GetComponentLocation();
 		
 		TArray<FHitResult> hitResults;
 		FCollisionQueryParams params;
 		
-		FCollisionShape collisionShape = makeCollisionShape();
-		FCollisionObjectQueryParams objectParams = makeCollisionObjectParams();
+		FCollisionShape collisionShape = battleManager->MakeCollisionShape(m_WeaponCollider.Get());
+		FCollisionObjectQueryParams objectParams = battleManager->MakeCollisionObjectParams(m_Owner.Get());
 
 		bool bHit = m_Owner->GetWorld()->SweepMultiByObjectType(
 			hitResults,
@@ -76,11 +78,13 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 		{
 			for (const FHitResult& hitResult : hitResults)
 			{
-				AActor* hitActor = hitResult.GetActor();
-				if (IsValid(hitActor) && !m_Owner->HasContainHitActor(m_AttackName, hitActor))
+				ACharacterBase* hitActor = Cast<ACharacterBase>(hitResult.GetActor());
+				
+				if (hitActor != nullptr && !m_Owner->HasContainHitActor(m_AttackName, hitActor))
 				{
 					m_Owner->AddHitActorsByMe(m_AttackName, hitActor);
-					m_Owner->Attack(m_AttackName, hitActor, hitResult.Location);
+					//m_Owner->Attack(m_AttackName, hitActor, hitResult.Location);
+					battleManager->Attack(m_Owner.Get(), m_AttackName, hitActor, hitResult.Location);
 
 					// 이펙트, 사운드, 카메라쉐이크 등
 					playHitEffect(hitResult.ImpactPoint);
@@ -91,13 +95,6 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 		// 위치 갱신
 		m_PrevColliderLocation = curLocation;
 	}
-}
-
-void UNotifyState_Check_Collision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
-                                             const FAnimNotifyEventReference& EventReference)
-{
-	Super::NotifyEnd(MeshComp, Animation, EventReference);
-	
 }
 
 void UNotifyState_Check_Collision::playHitEffect(const FVector& overlapLocation)
@@ -151,40 +148,4 @@ void UNotifyState_Check_Collision::playHitEffect(const FVector& overlapLocation)
 			false 
 		);
 	}
-}
-
-FCollisionShape UNotifyState_Check_Collision::makeCollisionShape() const
-{
-	if (auto* Sphere = Cast<USphereComponent>(m_WeaponCollider))
-	{
-		return FCollisionShape::MakeSphere(Sphere->GetScaledSphereRadius());
-	}
-
-	if (auto* Box = Cast<UBoxComponent>(m_WeaponCollider))
-	{
-		return FCollisionShape::MakeBox(Box->GetScaledBoxExtent());
-	}
-	
-	if (auto* Capsule = Cast<UCapsuleComponent>(m_WeaponCollider))
-	{
-		return FCollisionShape::MakeCapsule(Capsule->GetScaledCapsuleRadius(), Capsule->GetScaledCapsuleHalfHeight());
-	}
-
-	return FCollisionShape::MakeSphere(10.0f);
-}
-
-FCollisionObjectQueryParams UNotifyState_Check_Collision::makeCollisionObjectParams() const
-{
-	FCollisionObjectQueryParams collisionObjectParams;
-	
-	if (APlayableCharacter* playableCharacter = Cast<APlayableCharacter>(m_Owner))
-	{
-		collisionObjectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1);
-	}
-	else
-	{
-		collisionObjectParams.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel5);
-	}
-
-	return collisionObjectParams;
 }

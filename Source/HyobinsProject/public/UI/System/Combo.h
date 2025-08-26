@@ -18,14 +18,14 @@ class HYOBINSPROJECT_API UCombo : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
-	void BindActor(ACharacterBase* takeDamageActor);
-	
-	void UpdateComboCount(const FHitInformation& hitInfo);
+	void UpdateComboCount();
 	
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UTextBlock> m_ComboCountText;
+
 	FTimerHandle m_ComboCountTimer;
 	int32 m_ComboCount;
 

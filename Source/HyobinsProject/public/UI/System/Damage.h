@@ -15,6 +15,7 @@ class HYOBINSPROJECT_API UDamage : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	void SetDamage(float damage);
 

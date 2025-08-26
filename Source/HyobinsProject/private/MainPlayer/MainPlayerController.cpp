@@ -2,6 +2,8 @@
 
 
 #include "MainPlayer/MainPlayerController.h"
+
+#include "SubSystems/BattleManager.h"
 #include "SubSystems/UIManager.h"
 
 
@@ -14,11 +16,11 @@ AMainPlayerController::AMainPlayerController():
 void AMainPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-}
-
-FGenericTeamId AMainPlayerController::GetGenericTeamId() const
-{
-	return m_TeamID;
+	
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	UBattleManager* battleManager = GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
+	
+	battleManager->OnPlayerAttack.AddUObject(uiManager, &UUIManager::UpdateComboCount);
 }
 
 void AMainPlayerController::SetupInputComponent()
@@ -29,4 +31,9 @@ void AMainPlayerController::SetupInputComponent()
 void AMainPlayerController::OpenEnvironmentSettingsState() const
 {
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->OpenEnvironmentSettings();
+}
+
+FGenericTeamId AMainPlayerController::GetGenericTeamId() const
+{
+	return m_TeamID;
 }

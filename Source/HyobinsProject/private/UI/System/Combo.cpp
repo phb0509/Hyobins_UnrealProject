@@ -4,7 +4,7 @@
 #include "UI/System/Combo.h"
 #include "Components/TextBlock.h"
 #include "TimerManager.h"
-#include "CharacterBase/CharacterBase.h"
+
 
 
 void UCombo::NativeConstruct()
@@ -14,15 +14,14 @@ void UCombo::NativeConstruct()
 	m_ComboCountText = Cast<UTextBlock>(GetWidgetFromName(TEXT("m_ComboCountText")));
 }
 
-void UCombo::BindActor(ACharacterBase* takeDamageActor)
+void UCombo::NativeDestruct()
 {
-	if (IsValid(takeDamageActor))
-	{
-		takeDamageActor->OnTakeDamage.AddUObject(this, &UCombo::UpdateComboCount);
-	}
+	Super::NativeDestruct();
+
+	UnbindAllFromAnimationFinished(m_ComboAnimation);
 }
 
-void UCombo::UpdateComboCount(const FHitInformation& hitInfo)
+void UCombo::UpdateComboCount()
 {
 	++m_ComboCount;
 	m_ComboCountText->SetText(FText::AsNumber(m_ComboCount));

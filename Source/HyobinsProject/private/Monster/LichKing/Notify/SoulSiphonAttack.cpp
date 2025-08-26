@@ -3,9 +3,8 @@
 
 #include "Monster/LichKing/Notify/SoulSiphonAttack.h"
 #include "Monster/LichKing/LichKing.h"
-#include "Interfaces/Damageable.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "SubSystems/BattleManager.h"
 
 USoulSiphonAttack::USoulSiphonAttack() :
 	m_SphereCollisionRadius(300.0f),
@@ -27,35 +26,39 @@ void USoulSiphonAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 		FVector startLocation = owner->GetActorLocation();
 		startLocation += owner->GetActorForwardVector() * m_SphereCollisionSpawnDistanceFromOwner;
 
-		const TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes = {
-			UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel5)
-		};
-		const TArray<AActor*> IgnoreActors = {owner};
-		TArray<AActor*> overlappedActors;
-
-		UKismetSystemLibrary::SphereOverlapActors(
-			MeshComp->GetWorld(),
-			startLocation,
-			m_SphereCollisionRadius, // 구체 반지름
-			ObjectTypes,
-			nullptr,
-			IgnoreActors,
-			overlappedActors);
-
-		playAttackEffect(owner);
+		UBattleManager* battleManager = owner->GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
 		
-		if (overlappedActors.Num() > 0)
+		TArray<FHitResult> hitResults;
+		FCollisionShape sphereShape = FCollisionShape::MakeSphere(m_SphereCollisionRadius);
+		FCollisionQueryParams params;
+		FCollisionObjectQueryParams objectParams = battleManager->MakeCollisionObjectParams(owner);
+	
+		bool bHit = owner->GetWorld()->SweepMultiByObjectType(
+			hitResults,
+			startLocation,
+			startLocation,
+			FQuat::Identity,
+			objectParams, 
+			sphereShape,
+			params
+		);
+		
+		if (bHit)
 		{
-			for (AActor* overlappedEnemy : overlappedActors)
+			for (const FHitResult& hitResult : hitResults)
 			{
-				if (overlappedEnemy != nullptr)
-				{
-					owner->Attack(TEXT("SoulSiphon"), overlappedEnemy, startLocation);
-				}
+				ACharacterBase* hitActor = Cast<ACharacterBase>(hitResult.GetActor());
+				const FName atatckName = TEXT("SoulSiphon");
 				
-				playHitEffect(overlappedEnemy);
+				if (hitActor != nullptr && !owner->HasContainHitActor(atatckName, hitActor))
+				{
+					owner->AddHitActorsByMe(atatckName, hitActor);
+					battleManager->Attack(owner, atatckName, hitActor, hitResult.Location);
+				}
 			}
 		}
+		
+		playAttackEffect(owner);
 	}
 }
 
