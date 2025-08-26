@@ -18,6 +18,7 @@ class HYOBINSPROJECT_API UChargingGageBar : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	void StartCharging(float chargingDuration);
 	void LoopCharging();
@@ -38,9 +39,14 @@ private:
 	UPROPERTY(Transient, meta = (BindWidgetAnim), Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UWidgetAnimation> m_CompleteTextAnimation;
 
+	UPROPERTY(EditDefaultsOnly, Meta = (AllowPrivateAccess = true))
+	float m_UpdateFPS;
+
 	TWeakObjectPtr<UWidgetComponent> m_WidgetComponent;
 
 	FTimerHandle m_ChargingBarUpdateTimer;
 	float m_CurAccumulatedTime;
 	float m_CurUpdateDuration;
+	float m_TimerInterval;
+	
 };

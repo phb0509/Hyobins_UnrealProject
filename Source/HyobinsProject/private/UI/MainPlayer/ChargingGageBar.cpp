@@ -18,25 +18,35 @@ void UChargingGageBar::NativeConstruct()
 	BindToAnimationFinished(m_CompleteTextAnimation, endDelegate);
 }
 
+void UChargingGageBar::NativeDestruct()
+{
+	Super::NativeDestruct();
+	
+	UnbindAllFromAnimationFinished(m_CompleteTextAnimation);
+}
+
 void UChargingGageBar::StartCharging(float chargingDuration)
 {
 	m_CurUpdateDuration = chargingDuration;
 	m_CurAccumulatedTime = 0.0f;
+	m_TimerInterval = 1.0f / m_UpdateFPS;
 
 	GetWorld()->GetTimerManager().SetTimer(
-            m_ChargingBarUpdateTimer, 
-            this, 
-            &UChargingGageBar::LoopCharging, 
-            GetWorld()->DeltaTimeSeconds,  // 호출 간격
-            true     // 반복 여부
-        );
+		m_ChargingBarUpdateTimer, 
+		this, 
+		&UChargingGageBar::LoopCharging, 
+		m_TimerInterval,  
+		true            
+	);
 }
 
 void UChargingGageBar::LoopCharging()
 {
-	m_CurAccumulatedTime += GetWorld()->DeltaTimeSeconds;
-	m_ChargingGageBar->SetPercent(m_CurAccumulatedTime / m_CurUpdateDuration);
-	
+	m_CurAccumulatedTime += m_TimerInterval;
+
+	float percent = FMath::Clamp(m_CurAccumulatedTime / m_CurUpdateDuration, 0.0f, 1.0f);
+	m_ChargingGageBar->SetPercent(percent);
+
 	if (m_CurAccumulatedTime >= m_CurUpdateDuration)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(m_ChargingBarUpdateTimer);
@@ -45,7 +55,6 @@ void UChargingGageBar::LoopCharging()
 		PlayAnimation(m_CompleteTextAnimation);
 	}
 }
-
 
 void UChargingGageBar::Remove()
 {
