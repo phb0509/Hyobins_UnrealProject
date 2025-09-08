@@ -24,8 +24,8 @@ void UNormalAttack_InAir::Initialize()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_InAir"),
 [this]()
 	{
+		m_Owner->GetCharacterMovement()->Velocity.Z = 0.0f;
 		m_Owner->GetCharacterMovement()->GravityScale = m_OwnerSkillComponent->GetGravityScaleInAir();
-		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_InAir);
 	});
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("NormalAttack_InAir"),
@@ -34,11 +34,11 @@ void UNormalAttack_InAir::Initialize()
 		m_OwnerSkillComponent->InitGravityScaleAfterAttack();
 	});
 	
-		m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_InAir"),
+	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_InAir"),
 	[this]()
-		{
-			m_CurComboAttackSection = 1;
-		});
+	{
+		m_CurComboAttackSection = 1;
+	});
 }
 
 void UNormalAttack_InAir::Execute()
@@ -51,6 +51,8 @@ void UNormalAttack_InAir::Execute()
 	{
 		if (ownerSkillComponent->HasStartedComboKeyInputCheck()) // 섹션점프 구간이면,
 		{
+			m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_InAir);
+			
 			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 			targetVector.Z = 0.0f;
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
@@ -63,6 +65,8 @@ void UNormalAttack_InAir::Execute()
 	}
 	else if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
 	{
+		m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_InAir);
+		
 		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 		targetVector.Z = 0.0f;
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
