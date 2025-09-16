@@ -17,7 +17,7 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 		return;
 	}
 	
-	const UDataTable* dataTable = LoadObject<UDataTable>(NULL, *assetPath, NULL, LOAD_None, NULL);
+	const UDataTable* dataTable = LoadObject<UDataTable>(nullptr, *assetPath, nullptr, LOAD_None, nullptr);
 	TMap<FName,FAttackInformation> attackInfos;
 	
 	if (dataTable != nullptr)
@@ -66,4 +66,14 @@ void UDataManager::InitHitActors(TSubclassOf<AActor> classType, OUT TMap<FName, 
 
 		hitActors.Add(attackName, temp);
 	}
+}
+
+const FAttackInformation* UDataManager::GetAttackInformation(TSubclassOf<AActor> classType, const FName& attackName) const
+{
+	if (!m_AttackInformations.Contains(classType) || !m_AttackInformations[classType].Contains(attackName))
+	{
+		return nullptr;
+	}
+		
+	return &m_AttackInformations[classType][attackName];
 }

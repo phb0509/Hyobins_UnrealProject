@@ -12,7 +12,7 @@ void UMonsterHPBar::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	m_GroggyTime = 6.0f;
+	m_WhiteBlinkTime = 6.0f;
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
 	m_HPBarBorder= Cast<UImage>(GetWidgetFromName(TEXT("m_HPBarBorder")));
 
@@ -28,7 +28,20 @@ void UMonsterHPBar::NativeConstruct()
 	FSlateBrush brush = m_HPBarBorder->Brush; 
 	m_HPBarBorderTexture2D = Cast<UTexture2D>(brush.GetResourceObject());
 
+	m_GroggyAnimationTime = m_GroggyAnimation->GetEndTime();
+
+	FWidgetAnimationDynamicEvent endDelegate;
+	endDelegate.BindDynamic(this, &UMonsterHPBar::onGroggyAnimationEnded);
+	BindToAnimationFinished(m_GroggyAnimation, endDelegate);
+	
 	InitHPBar();
+}
+
+void UMonsterHPBar::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	UnbindAllFromAnimationFinished(m_GroggyAnimation);
 }
 
 void UMonsterHPBar::BindStatComponent(UStatComponent* ownerStatComponent)
@@ -38,8 +51,8 @@ void UMonsterHPBar::BindStatComponent(UStatComponent* ownerStatComponent)
 	m_OwnerStatComponent->OnDamagedHP.AddUObject(this, &UMonsterHPBar::OnDamagedHPBar);
 	m_OwnerStatComponent->OnRecoveredHP.AddUObject(this, &UMonsterHPBar::OnRecoveredHPBar);
 	m_OwnerStatComponent->OnStaminaIsZero.AddUObject(this, &UMonsterHPBar::OnStaminaIsZero);
-
-	m_GroggyTime = m_OwnerStatComponent->GetGroggyTime() - 1.3f <= 0.0f ? 0.0f : m_OwnerStatComponent->GetGroggyTime() - 1.3f;
+	
+	m_WhiteBlinkTime = m_OwnerStatComponent->GetGroggyTime() - m_GroggyAnimationTime <= 0.0f ? 0.0f : m_OwnerStatComponent->GetGroggyTime() - m_GroggyAnimationTime;
 }
 
 void UMonsterHPBar::InitHPBar()
@@ -93,62 +106,78 @@ void UMonsterHPBar::updateGuardRegainProgressBar()
 void UMonsterHPBar::OnStaminaIsZero()
 {
 	// Groggy
+	m_HPBarBorder->SetBrushFromMaterial(m_HPBarBorderMaterialInstance); // Border 하얗게
 	PlayAnimation(m_GroggyAnimation); // 커지며 흔들리는 애니메이션
 	
-	m_HPBarBorder->SetBrushFromMaterial(m_HPBarBorderMaterialInstance); // Border 하얗게
-	
-	FTimerHandle timer;
-	GetWorld()->GetTimerManager().SetTimer
-	(
-		timer,
-		[this]()
-		{
-			m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border 원래 텍스쳐로 복구
-			//startWhiteBlink();
-			UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-			
-			if (uiManager != nullptr)
-			{
-				uiManager->StartHPBarWhiteBlink(this);
-			}
-			
-		},
-		1.3f,
-		false);
+	// FTimerHandle timer;
+	// GetWorld()->GetTimerManager().SetTimer
+	// (
+	// 	timer,
+	// 	[this]()
+	// 	{
+	// 		m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border 원래 텍스쳐로 복구
+	// 		
+	// 		//startWhiteBlink();
+	// 		UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	// 		
+	// 		if (uiManager != nullptr)
+	// 		{
+	// 			uiManager->RegistWhiteBlinkTick(this);
+	// 		}
+	// 		
+	// 	},
+	// 	m_GroggyAnimationTime,
+	// 	false);
 	
 }
 
+void UMonsterHPBar::onGroggyAnimationEnded()
+{
+	m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border 원래 텍스쳐로 복구
+			
+	//startWhiteBlink();
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+			
+	if (uiManager != nullptr)
+	{
+		uiManager->RegistWhiteBlinkTick(this);
+	}
+}
+
+
 void UMonsterHPBar::startWhiteBlink()
 {
-	m_WhiteBlinkLerpAlpha = 0.0f;
-	m_WhiteBlnkStopAccumulatedTime = 0.0f;
-	m_WhiteBlinkDirection = 1;
+	InitWhiteBlink();
 	
 	GetWorld()->GetTimerManager().SetTimer
 	(
 		m_WhiteBlinkTimer,
 		[=]()
 		{
-			float deltaSeconds = GetWorld()->GetDeltaSeconds();
+			//float deltaSeconds = GetWorld()->GetDeltaSeconds();
+			float deltaSeconds = 0.03f;
+			
 			m_WhiteBlinkLerpAlpha += deltaSeconds * m_WhiteBlinkSpeed * m_WhiteBlinkDirection;
 			m_WhiteBlnkStopAccumulatedTime += deltaSeconds;
-
+	
 			if (m_WhiteBlinkLerpAlpha > 1.0f || m_WhiteBlinkLerpAlpha < 0.0f)
 			{
 				m_WhiteBlinkDirection *= -1; // 증감방향전환.
 			}
 			
 			m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), m_WhiteBlinkLerpAlpha);
-
-			if (m_WhiteBlinkLerpAlpha <= 0.0f && m_WhiteBlnkStopAccumulatedTime >= m_GroggyTime) // 그로기 끝나더라도 깜박임 0.0f까지는 유지되게
+			
+			if (m_WhiteBlnkStopAccumulatedTime >= m_WhiteBlinkTime) 
 			{
 				m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), 0.0f);
 				GetWorld()->GetTimerManager().ClearTimer(m_WhiteBlinkTimer);
 			}
 		},
-		GetWorld()->GetDeltaSeconds(),
+		0.03f,
 		true);
 }
+
+
 
 void UMonsterHPBar::InitWhiteBlink()
 {
@@ -157,10 +186,10 @@ void UMonsterHPBar::InitWhiteBlink()
 	m_WhiteBlinkDirection = 1;
 }
 
-bool UMonsterHPBar::WhiteBlinkTick(float deltaSeconds)
+bool UMonsterHPBar::WhiteBlinkTick()
 {
-	m_WhiteBlinkLerpAlpha += deltaSeconds * m_WhiteBlinkSpeed * m_WhiteBlinkDirection;
-	m_WhiteBlnkStopAccumulatedTime += deltaSeconds;
+	m_WhiteBlinkLerpAlpha += 0.03f * m_WhiteBlinkSpeed * m_WhiteBlinkDirection;
+	m_WhiteBlnkStopAccumulatedTime += 0.03f;
 
 	if (m_WhiteBlinkLerpAlpha > 1.0f || m_WhiteBlinkLerpAlpha < 0.0f)
 	{
@@ -168,8 +197,8 @@ bool UMonsterHPBar::WhiteBlinkTick(float deltaSeconds)
 	}
 
 	m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), m_WhiteBlinkLerpAlpha);
-
-	if (m_WhiteBlinkLerpAlpha <= 0.0f && m_WhiteBlnkStopAccumulatedTime >= m_GroggyTime)
+	
+	if (m_WhiteBlnkStopAccumulatedTime >= m_WhiteBlinkTime)
 	{
 		m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), 0.0f);
 		

@@ -22,7 +22,7 @@ public:
 
 	
 private:
-	TWeakObjectPtr<UStatComponent> m_StatComponent;
+	TWeakObjectPtr<UStatComponent> m_OwnerStatComponent;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget), Meta = (AllowPrivateAccess = true))
 	TObjectPtr<UProgressBar> m_HPProgressBar;

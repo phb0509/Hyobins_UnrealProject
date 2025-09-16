@@ -24,7 +24,8 @@ protected:
 	virtual bool CanExecuteSkill() const override;
 
 private:
-	ACharacterBase* findTarget();
+	ACharacterBase* findTarget() const;
+	void playExecutionCamera();
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "Montage")
@@ -32,12 +33,15 @@ private:
 
 	TWeakObjectPtr<ACameraActor> m_ExecutionCamera;
 	
-	UPROPERTY(EditAnywhere, Category = "ExecutionCameraSettings")
-	float m_ExecutionCameraBlendTime;
+	UPROPERTY(EditAnywhere, Category = "ExecutionCamera Settings")
+	float m_CameraBlendTime;
 
-	UPROPERTY(EditAnywhere, Category = "ExecutionCameraSettings")
-	float m_ExecutionCameraDistance;
+	UPROPERTY(EditAnywhere, Category = "ExecutionCamera Settings")
+	float m_CameraDistance;
 	
-	UPROPERTY(EditAnywhere, Category = "ExecutionCameraSettings")
-	float m_ExecutionCameraFOV;
+	UPROPERTY(EditAnywhere, Category = "ExecutionCamera Settings")
+	float m_CameraFOV;
+
+	UPROPERTY(EditAnywhere, Category = "ExecutionCamera Settings")
+	float m_CameraLocationLeftOffset;
 };

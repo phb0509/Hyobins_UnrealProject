@@ -63,7 +63,7 @@ public:
 	void CreateMonsterHPBar(ACharacterBase* widgetOwner);
 	FORCEINLINE void SetIsShowMonsterHPBar(bool bIsShowMonsterHPBar) { m_bIsShowMonsterHPBar = bIsShowMonsterHPBar; }
 	FORCEINLINE bool IsShowMonsterHPBar() const { return m_bIsShowMonsterHPBar; }
-	void StartHPBarWhiteBlink(UMonsterHPBar* hpBar);
+	void RegistWhiteBlinkTick(UMonsterHPBar* hpBar);
 	void UpdateHPBarWhiteBlink();
 
 	// Player ChargingGageBar

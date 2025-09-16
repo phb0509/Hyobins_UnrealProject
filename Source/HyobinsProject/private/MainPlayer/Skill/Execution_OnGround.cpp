@@ -2,7 +2,7 @@
 
 
 #include "MainPlayer/Skill/Execution_OnGround.h"
-
+#include "CineCameraActor.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "PlayableCharacter/PlayableCharacter.h"
@@ -13,9 +13,10 @@
 
 UExecution_OnGround::UExecution_OnGround() :
 	m_ExecutionMontage(nullptr),
-	m_ExecutionCameraBlendTime(1.0f),
-	m_ExecutionCameraDistance(400.0f),
-	m_ExecutionCameraFOV(70.0f)
+	m_CameraBlendTime(1.0f),
+	m_CameraDistance(400.0f),
+	m_CameraFOV(70.0f),
+	m_CameraLocationLeftOffset(0.0f)
 {
 }
 
@@ -29,7 +30,7 @@ void UExecution_OnGround::Initialize()
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Execution_OnGround"),
 	[=]()
 	{
-		PC->SetViewTargetWithBlend(m_Owner.Get(), m_ExecutionCameraBlendTime);
+		PC->SetViewTargetWithBlend(m_Owner.Get(), 1.0f);
 		
 		m_ExecutionCamera->Destroy();
 	});
@@ -48,35 +49,13 @@ void UExecution_OnGround::Execute()
 
 		m_Owner->RotateToTarget(target);
 		
-		// 몬스터와 플레이어 정보를 가져왔다고 가정
-        APlayerController* PC = Cast<APlayerController>(m_Owner->GetController());
-        
-        // 몬스터 좌측 지점 계산 (좌측은 -RightVector)
-        FVector MonsterLocation = target->GetActorLocation();
-        FVector MonsterRight = target->GetActorRightVector();
-        FVector CameraPos = MonsterLocation + (MonsterRight * m_ExecutionCameraDistance);
-        
-        // 몬스터를 바라보는 방향 계산 (Look At)
-        FRotator CameraRot = (MonsterLocation - CameraPos).Rotation();
-        
-        // 임시 카메라 액터 생성
-       m_ExecutionCamera = PC->GetWorld()->SpawnActor<ACameraActor>(CameraPos, CameraRot);
-        
-        // (옵션) FOV 등 카메라 세부 설정 가능
-        m_ExecutionCamera->GetCameraComponent()->SetFieldOfView(70.0f); // 예시값
-		
-		PC->SetViewTargetWithBlend(m_ExecutionCamera.Get(), m_ExecutionCameraBlendTime);
+		playExecutionCamera();
 		
 		m_OwnerAnimInstance->Montage_Play(m_ExecutionMontage,1.0f);
 	}
 }
 
-bool UExecution_OnGround::CanExecuteSkill() const
-{
-	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState();
-}
-
-ACharacterBase* UExecution_OnGround::findTarget()
+ACharacterBase* UExecution_OnGround::findTarget() const
 {
 	const FVector startLocation = m_Owner->GetActorLocation() + m_Owner->GetActorForwardVector() * 60.0f;
 	const TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
@@ -103,4 +82,32 @@ ACharacterBase* UExecution_OnGround::findTarget()
 	}	
 	
 	return nullptr;
+}
+
+void UExecution_OnGround::playExecutionCamera()
+{
+	APlayerController* pc = Cast<APlayerController>(m_Owner->GetController());
+        
+	// 카메라 위치 셋팅. (플레이어 좌측정면에서 볼 수 있게)
+	const FVector ownerLocation = m_Owner->GetActorLocation();
+	FVector cameraInverseForward = m_Owner->GetActorRightVector() * -1.0f;
+	cameraInverseForward.Z = 0.0f;
+	FVector cameraLocation = ownerLocation + (cameraInverseForward * m_CameraDistance);
+	FRotator cameraRotation = (ownerLocation - cameraLocation).Rotation();
+	
+	m_ExecutionCamera = pc->GetWorld()->SpawnActor<ACameraActor>(cameraLocation, cameraRotation);
+
+	FVector offset = m_ExecutionCamera->GetActorRightVector() * -1.0f * m_CameraLocationLeftOffset;
+	cameraLocation += offset;
+	m_ExecutionCamera->SetActorLocation(cameraLocation);
+	
+	m_ExecutionCamera->GetCameraComponent()->SetFieldOfView(m_CameraFOV);
+	m_ExecutionCamera->GetCameraComponent()->AspectRatio = 2.0f;
+		
+	pc->SetViewTargetWithBlend(m_ExecutionCamera.Get(), m_CameraBlendTime);
+}
+
+bool UExecution_OnGround::CanExecuteSkill() const
+{
+	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState();
 }

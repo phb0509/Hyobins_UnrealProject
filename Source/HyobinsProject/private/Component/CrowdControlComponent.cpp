@@ -101,7 +101,7 @@ void UCrowdControlComponent::OnGroggy()
 				}
 
 				ClearGroggyTimerHandle();
-				OnEndedGroggy.Broadcast(); // 무조건 수행. (스테미나 100% + 체력 및 스테미나 자가회복 시작.)
+				OnEndedGroggy.Broadcast(); // 스테미나 100% + 체력 및 스테미나 자가회복 시작.
 			},
 		m_CrowdControlSetting.groggyTime,
 		false);
@@ -120,7 +120,7 @@ void UCrowdControlComponent::TakeAttack_Knockback(AActor* instigator, const FHit
 		DisableMovementComponentForDuration(0.2f);
 		CallTimer_CheckOnGround();
 	} 
-	else // Not CC or 넉백 or 그로기
+	else // 상태이상 X or 넉백 or 그로기
 	{
 		SetCrowdControlState(ECrowdControlType::Knockback);
 		playCrowdControlMontage(ECrowdControlType::Knockback, attackInfo.hitDirection);
@@ -164,7 +164,7 @@ void UCrowdControlComponent::TakeAttack_Down(AActor* instigator, const FHitInfor
 		playCrowdControlMontage(ECrowdControlType::Airborne, attackInfo.hitDirection);
 		DisableMovementComponentForDuration(0.2f); 
 	}
-	else // 다운 or 넉백 or 그로기
+	else // 상태이상 X or 다운 or 넉백 or 그로기
 	{
 		SetCrowdControlState(ECrowdControlType::Down);
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);

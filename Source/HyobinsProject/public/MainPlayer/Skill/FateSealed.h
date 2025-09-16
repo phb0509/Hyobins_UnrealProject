@@ -27,18 +27,23 @@ private:
 	void findTargets();
 	void attackNextTarget();
 	void moveToTarget();
-	void OnAttackMontageEnded();
+	void onFateSealedEnded();
 	void finishSkill();
+	void onFateSealedFinishEnded();
+
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	TObjectPtr<UAnimMontage> m_FateSealedMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Montage")
+	TObjectPtr<UAnimMontage> m_FateSealedFinishMontage;
 	
 	UPROPERTY(EditAnywhere, Category = "Skill Settings")
 	float m_SkillRange;
 
 	UPROPERTY(EditAnywhere, Category = "Post Processing")
-	TObjectPtr<UMaterialInstance> m_PostProcessingMaterial;
+	TObjectPtr<UMaterialInstance> m_PPMaterial;
 	
 	UPROPERTY(EditAnywhere, Category = "Finish Sound")
     TObjectPtr<USoundWave> m_FinishSound;
@@ -47,4 +52,15 @@ private:
 	int32 m_CurTargetIndex;
 	
 	TWeakObjectPtr<UBattleManager> m_BattleManager;
+
+	TWeakObjectPtr<UMaterialInstanceDynamic> m_DynamicPPMaterial;
+
+	TWeakObjectPtr<AMonster> m_CurTarget;
+
+	FVector m_SkillStartLocation;	
+	
+	UPROPERTY(EditAnywhere, Category = "Skill Settings")
+	float m_FinishAttackDelay;
+	
+	float m_AttackDelay;
 };

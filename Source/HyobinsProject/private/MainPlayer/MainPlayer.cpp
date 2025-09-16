@@ -143,6 +143,7 @@ void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Charging Skill
 	EIC->BindAction(m_InputMappingConfigs["Charging_OnGround"].inputActions["ChargingCancel_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::ChargingCancel_OnGround);
 	EIC->BindAction(m_InputMappingConfigs["Charging_OnGround"].inputActions["Charging_ComboDashAttack_OnGround"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround);
+	EIC->BindAction(m_InputMappingConfigs["Charging_OnGround"].inputActions["FateSealed"], ETriggerEvent::Triggered, skillComponent, &UMainPlayerSkillComponent::FateSealed);
 	
 }
 
@@ -284,8 +285,12 @@ void AMainPlayer::printLog()
 	const FString log9 = "Is LockOn?? :: " + FString::FromInt(m_bIsLockOnMode);
 	GEngine->AddOnScreenDebugMessage(14, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log9));
 
-	const FString log10 = "Cur Stamina :: " + FString::SanitizeFloat(m_StatComponent->GetCurStamina());
+	const FString log10 = "Cur HP :: " + FString::SanitizeFloat(m_StatComponent->GetCurHP());
 	GEngine->AddOnScreenDebugMessage(15, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log10));
+
+	
+	const FString log11 = "Cur Stamina :: " + FString::SanitizeFloat(m_StatComponent->GetCurStamina());
+	GEngine->AddOnScreenDebugMessage(16, 0.1f, FColor::Green, FString::Printf(TEXT("%s"), *log11));
 	
 	
 	GEngine->AddOnScreenDebugMessage(20, 0.1f, FColor::Green, FString::Printf(TEXT("==============================")));

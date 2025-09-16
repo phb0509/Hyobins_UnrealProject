@@ -95,6 +95,11 @@ void UMainPlayerSkillComponent::Charging_ComboDashAttack_OnGround()
 	ExecuteSkill("Charging_OnGround","ComboDashAttack_OnGround");
 }
 
+void UMainPlayerSkillComponent::FateSealed()
+{
+	ExecuteSkill("Charging_OnGround","FateSealed");
+}
+
 
 void UMainPlayerSkillComponent::ExtendStrikeActivateDecisionTime()
 {

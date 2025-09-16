@@ -34,6 +34,7 @@ public:
 	// Charging_OnGround
 	void ChargingCancel_OnGround();
 	void Charging_ComboDashAttack_OnGround();
+	void FateSealed();
 
 	FORCEINLINE void ActivateStrikeAttack() { m_bIsStrikeAttackActive = true; }
 	void DeactivateStrikeAttack() { ExtendStrikeActivateDecisionTime(); }

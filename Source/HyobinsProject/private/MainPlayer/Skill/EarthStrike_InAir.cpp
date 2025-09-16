@@ -64,20 +64,6 @@ void UEarthStrike_InAir::ExecEvent_WhenOnGround()
 
 void UEarthStrike_InAir::attack()
 {
-	// const FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
-	// const TArray<TEnumAsByte<EObjectTypeQuery>> objectTypes = {UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)};
-	// //const TArray<AActor*> ignoreActors = {m_Owner.Get()};
-	// const TArray<AActor*> ignoreActors = {};
-	// TArray<AActor*> overlappedActors;
-	
-	// UKismetSystemLibrary::SphereOverlapActors(m_Owner->GetWorld(),
-	// 	startLocation,
-	// 	500.0f, // 구체 반지름
-	// 	objectTypes,
-	// 	nullptr,
-	// 	ignoreActors,
-	// 	overlappedActors);
-	
 	UBattleManager* battleManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
 	
 	const FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
@@ -106,8 +92,7 @@ void UEarthStrike_InAir::attack()
 				
 			if (hitActor != nullptr && !m_Owner->HasContainHitActor(atatckName, hitActor))
 			{
-				m_Owner->AddHitActorsByMe(atatckName, hitActor);
-				//m_Owner->Attack(m_AttackName, hitActor, hitResult.Location);
+				//m_Owner->AddHitActorsByMe(atatckName, hitActor);
 				battleManager->Attack(m_Owner.Get(), atatckName, hitActor, hitResult.Location);
 			}
 		}

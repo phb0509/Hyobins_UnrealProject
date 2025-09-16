@@ -6,7 +6,7 @@
 #include "ActorPool/ActorPool.h"
 #include "SubSystems/DebugManager.h"
 #include "SubSystems/UIManager.h"
-
+#include "Monster/Monster.h"
 
 AFirstLevel::	AFirstLevel() :
 	m_SpawnTimerTime_MeleeMinion(2.0f),
@@ -30,7 +30,17 @@ void AFirstLevel::BeginPlay()
 
 void AFirstLevel::CreateMinions() const
 {
-	m_ActorPool->CreateActorPool(m_MonsterClass,8);
+	m_ActorPool->CreateActorPool(m_MonsterClass, 8);
+	
+	//m_ActorPool->CreateActorPool(m_TestMonsterClass,25);
+
+	// for (int i = 0; i < 5; ++i)
+	// {
+	// 	for (int j = 0; j < 5; ++j)
+	// 	{
+	// 		m_ActorPool->SpawnActor<AActor>(m_TestMonsterClass, {i * 50.0f, 0.0f, j * 50.0f});
+	// 	}
+	// }
 }
 
 void AFirstLevel::SpawnMinion()
@@ -42,6 +52,16 @@ void AFirstLevel::SpawnMinion()
 	{
 		AActor* spawnedMonster = m_ActorPool->SpawnActor<AActor>(m_MonsterClass, positions[i]);
 	}
+
+	// for (int i = 0; i < 20; ++i)
+	// {
+	// 	for (int j = 0; j < 20; ++j)
+	// 	{
+	// 		AMonster* monster = Cast<AMonster>(m_ActorPool->SpawnActor<AActor>(m_MonsterClass, {i * 100.0f, j * 100.0f, 20.0f}));
+	// 		monster->Pause();
+	// 		monster->GetMesh()->SetHiddenInGame(true);
+	// 	}
+	// }
 }
 
 void AFirstLevel::ToggleDebugMode()

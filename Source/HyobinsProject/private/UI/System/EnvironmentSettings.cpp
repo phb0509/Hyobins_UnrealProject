@@ -39,6 +39,7 @@ void UEnvironmentSettings::Open()
 	GetOwningPlayer()->SetPause(true);
 	GetOwningPlayer()->SetShowMouseCursor(true);
 	GetOwningPlayer()->SetInputMode(FInputModeUIOnly());
+	
 	SetKeyboardFocus();
 }
 

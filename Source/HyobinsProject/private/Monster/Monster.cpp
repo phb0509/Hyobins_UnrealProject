@@ -130,6 +130,7 @@ void AMonster::Activate()
 	
 	m_CrowdControlComponent->SetCrowdControlState(ECrowdControlType::None);
 	m_StatComponent->InitHP();
+	m_StatComponent->InitStamina();
 
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->StartBehaviorTree();
@@ -140,9 +141,11 @@ void AMonster::Activate()
 	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	SetActorTickEnabled(true);
-	SetActorHiddenInGame(false);
+	this->SetActorTickEnabled(true);
+	this->SetActorHiddenInGame(false);
 
+	this->OnTakeDamage.AddUObject(this, &AMonster::PlayOnHitEffect);
+	
 	// UI
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
 	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
@@ -151,10 +154,14 @@ void AMonster::Activate()
 void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
 {
 	SetIsDead(true);
+	
+	m_AIControllerBase->StopBehaviorTree();
 	m_AIControllerBase->OnUnPossess();
+	
 	OnTakeDamage.Clear();
 
 	GetMesh()->GetAnimInstance()->StopAllMontages(0.0f);
+	
 
 	// 충돌체 비활성화.
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -167,8 +174,11 @@ void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회
 		}
 	}
 
-	SetActorTickEnabled(false);
-	SetActorHiddenInGame(true);
+	// this->Pause();
+	// GetMesh()->SetHiddenInGame(true);
+	// this->SetTickableWhenPaused(true);
+	this->SetActorTickEnabled(false);
+	this->SetActorHiddenInGame(true);
 }
 
 bool AMonster::IsActive()
@@ -210,7 +220,7 @@ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 	Super::PlayOnHitEffect(hitInfo);
 
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 바로 붉게 했다가,
-
+	
 	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
 	this->GetWorldTimerManager().SetTimer(m_DiffuseRatioOnHitTimer,
 	[this]()
@@ -231,6 +241,20 @@ void AMonster::SetIsDead(bool bIsDead)
 {
 	m_bIsDead = bIsDead;
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), m_bIsDead);
+}
+
+void AMonster::Pause()
+{
+	this->GetMesh()->bPauseAnims = true;
+	this->GetCharacterMovement()->SetMovementMode(MOVE_None);
+	m_AIControllerBase->StopBehaviorTree();
+}
+
+void AMonster::Unpause()
+{
+	this->GetMesh()->bPauseAnims = false;
+	this->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	m_AIControllerBase->StartBehaviorTree();
 }
 
 ACharacterBase* AMonster::GetTarget() const

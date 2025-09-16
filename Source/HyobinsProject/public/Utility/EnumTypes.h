@@ -51,7 +51,8 @@ enum class EMainPlayerSkillStates : uint8
 	Dodge_Targeting_OnGround			UMETA(DisplayName = "Dodge_Targeting_OnGround"),
 	Guard_OnGround 						UMETA(DisplayName = "Guard_OnGround"),
 	Parry_OnGround 						UMETA(DisplayName = "Parry_OnGround"),
-	Execution_OnGround 					UMETA(DisplayName = "Execution_OnGround")
+	Execution_OnGround 					UMETA(DisplayName = "Execution_OnGround"),
+	FateSealed 							UMETA(DisplayName = "FateSealed")
 };
 
 

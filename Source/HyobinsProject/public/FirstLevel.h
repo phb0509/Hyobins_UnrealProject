@@ -46,4 +46,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
 	float m_SpawnCount;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn Monster")
+	TSubclassOf<AActor> m_TestMonsterClass;
 };

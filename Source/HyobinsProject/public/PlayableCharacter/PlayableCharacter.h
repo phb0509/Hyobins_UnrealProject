@@ -16,6 +16,7 @@ class UInputMappingContext;
 class UInputAction;
 class USoundWave;
 class AMonster;
+class APostProcessVolume;
 
 
 USTRUCT(Atomic)
@@ -82,8 +83,8 @@ public:
 
 	USkill* GetCurExecutingSkill() const;
 
+	APostProcessVolume* GetGlobalPostProcessVolume() const;
 	
-	// Input
 
 	// AxisMappings
 	void Move(const FInputActionValue& value); // WSAD

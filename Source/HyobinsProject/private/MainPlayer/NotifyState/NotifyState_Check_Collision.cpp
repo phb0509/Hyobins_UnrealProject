@@ -83,7 +83,6 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 				if (hitActor != nullptr && !m_Owner->HasContainHitActor(m_AttackName, hitActor))
 				{
 					m_Owner->AddHitActorsByMe(m_AttackName, hitActor);
-					//m_Owner->Attack(m_AttackName, hitActor, hitResult.Location);
 					battleManager->Attack(m_Owner.Get(), m_AttackName, hitActor, hitResult.Location);
 
 					// 이펙트, 사운드, 카메라쉐이크 등
@@ -91,8 +90,7 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 				}
 			}
 		}
-
-		// 위치 갱신
+		
 		m_PrevColliderLocation = curLocation;
 	}
 }

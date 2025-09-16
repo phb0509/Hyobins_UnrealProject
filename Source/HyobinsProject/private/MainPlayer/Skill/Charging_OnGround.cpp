@@ -34,6 +34,7 @@ void UCharging_OnGround::Execute()
 			m_Owner->RemoveInputMappingContext(TEXT("Default_OnGround"));
 			m_Owner->AddInputMappingContext(TEXT("Charging_OnGround"));
 			ownerSkillComponent->SetCanChargingSkill(true);
+			
 		},
 		m_ChargingDuration,
 		false);

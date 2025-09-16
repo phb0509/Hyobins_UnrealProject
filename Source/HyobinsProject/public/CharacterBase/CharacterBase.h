@@ -38,9 +38,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	// IAttacker
-	//virtual void Attack(const FName& attackName, AActor* target, const FVector& causerLocation) override;
-	
+
 	// IDamageable
 	virtual void OnDamage(const float finalDamage, const bool bIsCriticalAttack, const FAttackInformation*, AActor* instigator, const FVector& causerLocation) override;
 	void OnDamageStamina(const float staminaDamage) const;
@@ -94,7 +92,8 @@ public:
 
 	void RecoveryHP() const;
 	void RecoveryStamina() const;
-	
+
+
 protected:
 	virtual void OnHPIsZero();
 	virtual void OnStaminaIsZero() {};

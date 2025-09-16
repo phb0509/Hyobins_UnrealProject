@@ -37,7 +37,7 @@ void AActorPool::CreateActorPool(const TSubclassOf<AActor> classType, int reques
 
 	for (int i = 0; i < requestedCapacity; ++i)
 	{
-		const FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 10000.0f });
+		const FTransform spawnTransform({ 0.0f,0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f });
 		AActor* spawnedActor = GetWorld()->SpawnActor<AActor>(classType, spawnTransform);
 
 		if (spawnedActor != nullptr)
@@ -49,6 +49,10 @@ void AActorPool::CreateActorPool(const TSubclassOf<AActor> classType, int reques
 				poolableActor->Initialize();
 				poolableActor->Deactivate();
 				m_ActorPool[classType].actors.Add(spawnedActor);
+			}
+			else
+			{
+				spawnedActor->Destroy();
 			}
 		}
 	}
@@ -102,9 +106,9 @@ void AActorPool::ClearActorPool()
 	for (const auto& iter : m_ActorPool)
 	{
 		const TSubclassOf<AActor>& classType = iter.Key;
-		const FActors& blueprintActorPoolActors = m_ActorPool[classType];
+		const FActors& actorPool = m_ActorPool[classType];
 
-		for (AActor* actor : blueprintActorPoolActors.actors)
+		for (AActor* actor : actorPool.actors)
 		{
 			if (actor != nullptr)
 			{

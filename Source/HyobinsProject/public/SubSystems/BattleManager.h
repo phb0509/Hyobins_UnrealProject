@@ -19,7 +19,7 @@ class HYOBINSPROJECT_API UBattleManager : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	
-	void Attack(ACharacterBase* attacker, const FName& attackName, AActor* target, const FVector& causerLocation);
+	void Attack(ACharacterBase* attacker, const FName& attackName, AActor* target, const FVector& causerLocation = {0.0f, 0.0f, 0.0f});
 	
 	FCollisionShape MakeCollisionShape(const UShapeComponent* sweepCollider) const;
     FCollisionObjectQueryParams MakeCollisionObjectParams(const ACharacterBase* owner) const;

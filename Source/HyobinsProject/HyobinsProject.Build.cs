@@ -11,7 +11,7 @@ public class HyobinsProject : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem",
 			"AIModule", "GameplayTasks", "UMG", "MotionWarping", "EnhancedInput", "Niagara", "GameplayCameras"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "AlembicLibrary" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "AlembicLibrary", "DatasmithCore" });
 
 		// Uncomment if you are using Slate UI
 		 PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "PropertyEditor" });

@@ -155,6 +155,8 @@ void ACharacterBase::PlayOnHitEffect(const FHitInformation& hitInformation)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, m_HitSound, GetActorLocation());
 	}
+
+	
 }
 
 void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)

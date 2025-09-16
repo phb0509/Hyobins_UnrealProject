@@ -22,6 +22,7 @@ public:
 	virtual void BeginPlay() override;
 	
 	FORCEINLINE void InitHP() { m_CurHP = m_MaxHP; }
+	FORCEINLINE void InitStamina() { m_CurStamina = m_MaxStamina; }
 	FORCEINLINE void SetMaxHP(const float maxHP) { m_MaxHP = maxHP; }
 
 	void OnDamageHP(const float damage);
@@ -57,7 +58,6 @@ public:
 	
 	FORCEINLINE bool HasEnoughStamina(const float cost) const { return cost <= m_CurStamina; } 
 	
-
 	FORCEINLINE float GetDefense() const { return m_Defense; }
 	FORCEINLINE float GetDefaultDamage() const { return m_DefaultDamage; }
 	FORCEINLINE int32 GetCriticalAttackChance() const { return m_CriticalAttackChance; }

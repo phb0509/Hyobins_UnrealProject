@@ -18,6 +18,7 @@ class HYOBINSPROJECT_API UMonsterHPBar : public UUserWidget
 	
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override; 
 	
 	void BindStatComponent(UStatComponent* ownerStatComponent);
 	void InitHPBar();
@@ -29,11 +30,15 @@ public:
 	
 	void InitWhiteBlink();
     	
-	bool WhiteBlinkTick(float deltaSeconds);
+	bool WhiteBlinkTick();
 
 private:
 	void updateGuardRegainProgressBar();
 	void startWhiteBlink();
+
+	UFUNCTION()
+	void onGroggyAnimationEnded();
+
 	
 protected:
 	TWeakObjectPtr<UStatComponent> m_OwnerStatComponent;
@@ -72,6 +77,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	float m_WhiteBlinkSpeed;
 
-	float m_GroggyTime;
+	float m_WhiteBlinkTime;
 
+	float m_GroggyAnimationTime;
 };

@@ -17,13 +17,12 @@ void UCombo::NativeConstruct()
 void UCombo::NativeDestruct()
 {
 	Super::NativeDestruct();
-
-	UnbindAllFromAnimationFinished(m_ComboAnimation);
 }
 
 void UCombo::UpdateComboCount()
 {
 	++m_ComboCount;
+	
 	m_ComboCountText->SetText(FText::AsNumber(m_ComboCount));
 	this->SetVisibility(ESlateVisibility::HitTestInvisible);
 

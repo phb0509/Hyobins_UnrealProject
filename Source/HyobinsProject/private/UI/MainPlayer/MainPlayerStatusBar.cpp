@@ -18,23 +18,26 @@ void UMainPlayerStatusBar::NativeConstruct()
 
 void UMainPlayerStatusBar::BindStatComponent(UStatComponent* statComponent)
 {
-	m_StatComponent = statComponent;
-	m_StatComponent->OnDamagedHP.AddUObject(this, &UMainPlayerStatusBar::UpdateHPBar);
-	m_StatComponent->OnDamagedStamina.AddUObject(this, &UMainPlayerStatusBar::UpdateStaminaBar);
+	m_OwnerStatComponent = statComponent;
+	m_OwnerStatComponent->OnDamagedHP.AddUObject(this, &UMainPlayerStatusBar::UpdateHPBar);
+	m_OwnerStatComponent->OnRecoveredHP.AddUObject(this, &UMainPlayerStatusBar::UpdateHPBar);
+	
+	m_OwnerStatComponent->OnDamagedStamina.AddUObject(this, &UMainPlayerStatusBar::UpdateStaminaBar);
+	m_OwnerStatComponent->OnRecoveredStamina.AddUObject(this, &UMainPlayerStatusBar::UpdateStaminaBar);
 }
 
 void UMainPlayerStatusBar::UpdateHPBar()
 {
-	if (m_StatComponent.IsValid())
+	if (m_OwnerStatComponent.IsValid())
 	{
-		m_HPProgressBar->SetPercent(m_StatComponent->GetHPRatio());
+		m_HPProgressBar->SetPercent(m_OwnerStatComponent->GetHPRatio());
 	}
 }
 
 void UMainPlayerStatusBar::UpdateStaminaBar()
 {
-	if (m_StatComponent.IsValid())
+	if (m_OwnerStatComponent.IsValid())
 	{
-		m_StaminaProgressBar->SetPercent(m_StatComponent->GetStaminaRatio());
+		m_StaminaProgressBar->SetPercent(m_OwnerStatComponent->GetStaminaRatio());
 	}
 }

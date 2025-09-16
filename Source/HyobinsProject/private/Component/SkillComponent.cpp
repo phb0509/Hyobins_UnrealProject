@@ -23,7 +23,6 @@ void USkillComponent::BeginPlay()
 	
 	loadSkills();
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
-	
 }
 
 void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const FName& skillName)
@@ -35,7 +34,6 @@ void USkillComponent::ExecuteSkill(const FName& inputMappingContextName, const F
 		if (m_CurSkill->CanExecuteSkill())
 		{
 			m_CurSkill->Execute();
-			//m_Owner->RecoveryStamina();
 		}
 	}
 }

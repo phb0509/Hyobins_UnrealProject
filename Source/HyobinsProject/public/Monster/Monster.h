@@ -19,6 +19,7 @@ class HYOBINSPROJECT_API AMonster : public ACharacterBase,  public IPoolableActo
 
 public:
 	AMonster();
+	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -42,6 +43,8 @@ public:
 	void SetFSMStateAsBehaviorTree(uint8 enumIndex) const;
 	void SetIsDead(bool bIsDead);
 
+	void Pause();
+	void Unpause();
 	
 protected:
 	virtual void OnStaminaIsZero() override;

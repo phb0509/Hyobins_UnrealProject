@@ -23,28 +23,24 @@ void UComboDashAttack_OnGround::Initialize()
 	{
 		ownerSkillComponent->SetCanChargingSkill(false);
 		m_Owner->RemoveInputMappingContext(TEXT("Charging_OnGround"));
-		m_Owner->AddInputMappingContext(TEXT("Default_OnGround"));
+		m_Owner->AddInputMappingContext(TEXT("Default_OnGround")); 
 		m_Owner->SetIsSuperArmor(false);
 	});
-	
 }
 
 void UComboDashAttack_OnGround::Execute()
 {
 	Super::Execute();
 	
-	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
 	
-	if (ownerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::Charging_OnGround) &&
-		ownerSkillComponent->CanChargingSkill())
-	{
-		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Charging_ComboDashAttack_OnGround);
-		
-		m_OwnerAnimInstance->Montage_Play(m_ComboDashAttackMontage,1.0f);
-	}
+	m_OwnerAnimInstance->Montage_Play(m_ComboDashAttackMontage,1.0f);
 }
 
 bool UComboDashAttack_OnGround::CanExecuteSkill() const
 {
-	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState();
+	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	
+	return Super::CanExecuteSkill() && !m_Owner->IsCrowdControlState() &&
+		ownerSkillComponent->CanChargingSkill();
 }

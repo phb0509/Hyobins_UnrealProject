@@ -5,11 +5,14 @@
 #include "MotionWarpingComponent.h"
 #include <GameFramework/SpringArmComponent.h.>
 #include <Camera/CameraComponent.h>
+
+#include "EngineUtils.h"
 #include "EnhancedInputSubsystems.h"
 #include "Utility/Utility.h"
 #include "SubSystems/UIManager.h"
 #include "Algo/MinElement.h"
 #include "Component/SkillComponent.h"
+#include "Engine/PostProcessVolume.h"
 
 const int32 APlayableCharacter::DirectionIndex[3][3] =
 	{{5,4,3},
@@ -253,6 +256,20 @@ UCameraComponent* APlayableCharacter::GetCameraComponent() const
 USkill* APlayableCharacter::GetCurExecutingSkill() const
 {
 	return m_SkillComponent->GetCurExecutingSkill();
+}
+
+APostProcessVolume* APlayableCharacter::GetGlobalPostProcessVolume() const
+{
+	for (TActorIterator<APostProcessVolume> iterator(this->GetWorld()); iterator; ++iterator)
+	{
+		APostProcessVolume* postProcessVolume = *iterator;
+		
+		if (postProcessVolume != nullptr) // 전역 적용 설정 확인
+		{
+			return postProcessVolume;
+		}
+	}
+	return nullptr;
 }
 
 void APlayableCharacter::Move(const FInputActionValue& value)

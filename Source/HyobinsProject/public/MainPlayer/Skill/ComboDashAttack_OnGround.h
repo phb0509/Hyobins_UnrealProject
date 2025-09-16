@@ -6,9 +6,7 @@
 #include "PlayableCharacter/Skill.h"
 #include "ComboDashAttack_OnGround.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class HYOBINSPROJECT_API UComboDashAttack_OnGround : public USkill
 {
@@ -26,4 +24,6 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "Montage")
 	TObjectPtr<UAnimMontage> m_ComboDashAttackMontage;
+	
+
 };

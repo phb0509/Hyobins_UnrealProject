@@ -20,7 +20,7 @@ void UUIManager::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 	
 	m_bIsShowMonsterHPBar = true;
-	m_HPBarReserveSize = 0;
+	m_HPBarReserveSize = 100;
 }
 
 void UUIManager::Deinitialize()
@@ -188,7 +188,6 @@ void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 	UUserWidget* monsterHPBarWidget = widgetComponent->GetUserWidgetObject();
 	UMonsterHPBar* hpBar = Cast<UMonsterHPBar>(monsterHPBarWidget);
 	hpBar->SetVisibility(ESlateVisibility::Collapsed);
-	
 	hpBar->BindStatComponent(widgetOwner->GetStatComponent());
 
 	addWidgetContainer(TEXT("MonsterHPBar"), hpBar, widgetComponent);
@@ -196,14 +195,14 @@ void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 	++m_HPBarReserveSize;
 }
 
-void UUIManager::StartHPBarWhiteBlink(UMonsterHPBar* hpBar)
+void UUIManager::RegistWhiteBlinkTick(UMonsterHPBar* hpBar)
 {
 	if (hpBar == nullptr || m_WhiteBlinkHPBars.Contains(hpBar))
 	{
 		return;
 	}
 	
-	m_WhiteBlinkHPBars.Add(hpBar);
+	m_WhiteBlinkHPBars.Add(hpBar); //
 	hpBar->InitWhiteBlink(); 
 
 	if (!GetWorld()->GetTimerManager().IsTimerActive(m_WhiteBlinkSharedTimerHandle))
@@ -212,7 +211,7 @@ void UUIManager::StartHPBarWhiteBlink(UMonsterHPBar* hpBar)
 			m_WhiteBlinkSharedTimerHandle,
 			this,
 			&UUIManager::UpdateHPBarWhiteBlink,
-			GetWorld()->DeltaTimeSeconds,
+			0.03f,
 			true
 		);
 	}
@@ -231,7 +230,7 @@ void UUIManager::UpdateHPBarWhiteBlink()
 			continue;
 		}
 		
-		if (!hpBar->WhiteBlinkTick(GetWorld()->DeltaTimeSeconds))
+		if (!hpBar->WhiteBlinkTick())
 		{
 			m_WhiteBlinkHPBars.RemoveAtSwap(i,1,false);
 		}

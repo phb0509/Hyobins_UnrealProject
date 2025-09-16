@@ -20,15 +20,7 @@ public:
 	void DeleteAttackInformation(TSubclassOf<AActor> classType);
 	void InitHitActors(TSubclassOf<AActor> classType, OUT TMap<FName, TSet<TWeakObjectPtr<AActor>>>& hitActors);
 	
-	const FAttackInformation* GetAttackInformation(TSubclassOf<AActor> classType, const FName& attackName) const
-	{
-		if (!m_AttackInformations.Contains(classType) || !m_AttackInformations[classType].Contains(attackName))
-		{
-			return nullptr;
-		}
-		
-		return &m_AttackInformations[classType][attackName];
-	}
+	const FAttackInformation* GetAttackInformation(TSubclassOf<AActor> classType, const FName& attackName) const;
 	
 private:
 	TMap<TSubclassOf<AActor>, TMap<FName,FAttackInformation>> m_AttackInformations;
