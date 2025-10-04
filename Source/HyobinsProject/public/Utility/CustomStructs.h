@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
+#include "Utility/EnumTypes.h"
 #include "CustomStructs.generated.h"
 
 enum class ECrowdControlType : uint8;
@@ -25,7 +26,7 @@ public:
 	attackName(""),
 	damageRatio(1.0f),
 	bHasCrowdControl(false),
-	crowdControlType("None"),
+	crowdControlType(ECrowdControlType::None),
 	crowdControlTime(0.0f),
 	knockBackDistance(0.0f),
 	airbornePower(0.0f),
@@ -40,10 +41,10 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	bool bHasCrowdControl;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
-	FName crowdControlType;
-
+	ECrowdControlType crowdControlType;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	float crowdControlTime;
 	

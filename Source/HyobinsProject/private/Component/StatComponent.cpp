@@ -29,6 +29,7 @@ void UStatComponent::BeginPlay()
 	Super::BeginPlay();
 
 	m_Owner = Cast<ACharacterBase>(GetOwner());
+	check(m_Owner != nullptr);
 	
 	InitHP();
 }
@@ -57,9 +58,9 @@ void UStatComponent::RecoveryHP()
 		return;
 	}
 	
-	if (!GetOwner()->GetWorld()->GetTimerManager().IsTimerActive(m_HPRecoveryTimer))
+	if (!m_Owner->GetWorld()->GetTimerManager().IsTimerActive(m_HPRecoveryTimer))
 	{
-		GetOwner()->GetWorld()->GetTimerManager().SetTimer(m_HPRecoveryTimer,
+		m_Owner->GetWorld()->GetTimerManager().SetTimer(m_HPRecoveryTimer,
 		[this]()
 		{
 			m_CurHP += m_HPRecoveryPerSecond / 100;
@@ -67,7 +68,7 @@ void UStatComponent::RecoveryHP()
 			
 			if (m_CurHP >= m_MaxHP)
 			{
-				GetOwner()->GetWorld()->GetTimerManager().ClearTimer(m_HPRecoveryTimer);
+				m_Owner->GetWorld()->GetTimerManager().ClearTimer(m_HPRecoveryTimer);
 			}
 			
 			OnRecoveredHP.Broadcast();
@@ -79,24 +80,26 @@ void UStatComponent::RecoveryHP()
 
 void UStatComponent::StopRecoveryHP()
 {
-	GetOwner()->GetWorld()->GetTimerManager().ClearTimer(m_HPRecoveryTimer);
+	m_Owner->GetWorld()->GetTimerManager().ClearTimer(m_HPRecoveryTimer);
 }
 
 bool UStatComponent::CanRecoveryHP() const
 {
-	return GetOwner()->GetWorld()->GetTimerManager().IsTimerActive(m_HPRecoveryTimer);
+	return m_Owner->GetWorld()->GetTimerManager().IsTimerActive(m_HPRecoveryTimer);
 }
 
 void UStatComponent::SetHPPercent(const float hp)
 {
 	m_CurHP = m_MaxHP * hp / 100.0f;
+	
 	OnDamagedHP.Broadcast();
 }
 
 void UStatComponent::OnDamageStamina(const float cost)
 {
 	m_CurStamina = FMath::Clamp<float>(m_CurStamina - cost, 0.0f, m_MaxStamina);
-	OnDamagedStamina.Broadcast();
+	
+	this->OnDamagedStamina.Broadcast();
 	
 	if (m_CurStamina < KINDA_SMALL_NUMBER)
 	{
@@ -111,9 +114,9 @@ void UStatComponent::OnDamageStamina(const float cost)
 
 void UStatComponent::RecoveryStamina()
 {
-	if (!GetOwner()->GetWorld()->GetTimerManager().IsTimerActive(m_StaminaRecoveryTimer))
+	if (!m_Owner->GetWorld()->GetTimerManager().IsTimerActive(m_StaminaRecoveryTimer))
 	{
-		GetOwner()->GetWorld()->GetTimerManager().SetTimer(m_StaminaRecoveryTimer,
+		m_Owner->GetWorld()->GetTimerManager().SetTimer(m_StaminaRecoveryTimer,
 		[this]()
 		{
 			m_CurStamina += m_StaminaRecoveryPerSecond / 100;
@@ -121,7 +124,7 @@ void UStatComponent::RecoveryStamina()
     			
 			if (m_CurStamina >= m_MaxStamina)
 			{
-				GetOwner()->GetWorld()->GetTimerManager().ClearTimer(m_StaminaRecoveryTimer);
+				m_Owner->GetWorld()->GetTimerManager().ClearTimer(m_StaminaRecoveryTimer);
 			}
     			
 			OnRecoveredStamina.Broadcast();
@@ -149,6 +152,7 @@ float UStatComponent::GetGroggyTime() const
 void UStatComponent::SetStaminaPercent(const float stamina)
 {
 	m_CurStamina = m_MaxStamina * stamina / 100.0f;
+	
 	OnDamagedStamina.Broadcast();
 }
 

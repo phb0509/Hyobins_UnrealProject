@@ -15,6 +15,7 @@ EBTNodeResult::Type UBTT_LichKing_UpdateNormalPattern::ExecuteTask(UBehaviorTree
 	EBTNodeResult::Type Result = Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	check(owner != nullptr);
 	
 	const int32 randomValue = FMath::RandRange(0,2);
 	

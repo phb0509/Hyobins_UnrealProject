@@ -27,11 +27,8 @@ protected:
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "Montage")
-	TObjectPtr<UAnimMontage> m_TargetingDodgeMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Montage")
-	TObjectPtr<UAnimMontage> m_NonTargetingDodgeMontage;
-
+	TObjectPtr<UAnimMontage> m_DodgeMontage;
+	
 	UPROPERTY(EditAnywhere)
 	float m_MoveDistance;
 

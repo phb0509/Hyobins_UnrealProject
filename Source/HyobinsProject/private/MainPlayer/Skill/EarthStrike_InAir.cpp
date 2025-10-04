@@ -22,6 +22,12 @@ UEarthStrike_InAir::UEarthStrike_InAir() :
 void UEarthStrike_InAir::Initialize()
 {
 	Super::Initialize();
+
+	check(m_FallingToGroundMontage != nullptr);
+	check(m_EarthStrikeMontage != nullptr);
+	check(m_Particle != nullptr);
+	check(m_CameraShake != nullptr);
+	check(m_Sound != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("EarthStrike_OnGround"),
 [this]()
@@ -58,13 +64,13 @@ void UEarthStrike_InAir::ExecEvent_WhenOnGround()
 
 		attack();
 		playEffect();
-		UGameplayStatics::PlaySound2D(m_Owner.Get(), m_Sound, 1.0f);
 	}
 }
 
 void UEarthStrike_InAir::attack()
 {
 	UBattleManager* battleManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
+	check(battleManager != nullptr);
 	
 	const FVector startLocation = m_Owner->GetCollider(TEXT("ShieldBottomCollider"))->GetComponentLocation();
 	
@@ -115,6 +121,11 @@ void UEarthStrike_InAir::playEffect()
 	if (m_CameraShake != nullptr)
 	{
 		m_Owner->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_CameraShake);
+	}
+
+	if (m_Sound != nullptr)
+	{
+		UGameplayStatics::PlaySound2D(m_Owner.Get(), m_Sound, 1.0f);
 	}
 }
 

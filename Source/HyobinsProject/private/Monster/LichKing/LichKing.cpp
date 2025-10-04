@@ -18,7 +18,7 @@ ALichKing::ALichKing()
 	AIControllerClass = ALichKingAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
-	Tags.Add(FName("LichKing"));
+	Tags.Add(TEXT("LichKing"));
 	
 	initAssets();
 }
@@ -28,15 +28,28 @@ void ALichKing::BeginPlay()
 	Super::BeginPlay();
 
 	m_AnimInstance = Cast<ULichKingAnim>(GetMesh()->GetAnimInstance());
+	check(m_AnimInstance != nullptr);
+	
 	m_AIController = Cast<ALichKingAIController>(GetController());
+	check(m_AIController != nullptr);
 
+	// 공격정보 초기화
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
+	check(dataManager != nullptr);
+	
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_LichKing.AttackInformation_LichKing'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
 
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateBossStatusBar(this->m_StatComponent, this);
+	// 체력바 부착
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
+	uiManager->CreateBossStatusBar(this->m_StatComponent, this);
 
+	// 디버깅용
 	UDebugManager* debugManager = GetGameInstance()->GetSubsystem<UDebugManager>();
+	check(debugManager != nullptr);
+	
 	if (debugManager != nullptr)
 	{
 		debugManager->OnDebugMode.AddUObject(this, &ALichKing::printLog);
@@ -47,30 +60,38 @@ void ALichKing::EndedGroggy()
 {
 	Super::EndedGroggy();
 
-	SetIsSuperArmor(true);
+	this->SetIsSuperArmor(true);
 }
 
 void ALichKing::Activate()
 {
 	Super::Activate();
 
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::HitTestInvisible);
-	SetFSMState(static_cast<uint8>(ELichKingFSMStates::Chase));
+	this->SetActorLocation({0.0f, 0.0f, 500.0f});
+
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
+	uiManager->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::HitTestInvisible);
+	
+	this->SetFSMState(ELichKingFSMStates::Chase);
 }
 
 void ALichKing::Deactivate()
 {
 	Super::Deactivate();
+
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
 	
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::Collapsed);
+	uiManager->SetVisibilityWidgets("BossStatusBar", ESlateVisibility::Collapsed);
 }
 
 void ALichKing::ExecEvent_EndedDeathMontage()
 {
 	Super::ExecEvent_EndedDeathMontage();
 
-	UE_LOG(LogTemp, Warning, TEXT("ALichKing :: ExecEvent_EndedDeathMontage"));
-
+	this->Deactivate();
 }
 
 void ALichKing::Die()
@@ -78,6 +99,8 @@ void ALichKing::Die()
 	Super::Die();
 
 	UCapsuleComponent* rootComponent = Cast<UCapsuleComponent>(GetRootComponent());
+	check(rootComponent != nullptr);
+	
 	rootComponent->SetCapsuleHalfHeight(10.0f);
 	rootComponent->SetCapsuleRadius(10.0f);
 }
@@ -86,6 +109,7 @@ void ALichKing::Die()
 void ALichKing::initAssets()
 {
 	m_MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	check(m_MotionWarpingComponent != nullptr);
 	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> mesh(TEXT("SkeletalMesh'/Game/MonsterAsset/LichKing/LichKing.LichKing'"));
 	if (mesh.Succeeded())
@@ -106,6 +130,8 @@ void ALichKing::initAssets()
 	
 	// HitCollider
 	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
+	check(m_HitCollider != nullptr);
+	
 	m_HitCollider->SetupAttachment(GetMesh(), TEXT("spine_01"));
 	m_HitCollider->SetCapsuleHalfHeight(60.0f);
 	m_HitCollider->SetCapsuleRadius(60.0f);
@@ -114,7 +140,7 @@ void ALichKing::initAssets()
 	m_HitCollider->SetNotifyRigidBodyCollision(false);
 	m_HitCollider->SetGenerateOverlapEvents(true);
 
-	m_Colliders.Add(HitColliderName, m_HitCollider);
+	m_Colliders.Add(TEXT("HitCollider"), m_HitCollider);
 
 
 
@@ -125,6 +151,8 @@ void ALichKing::initAssets()
     		{0.375f, 1.5f, 0.625f} };
 	// LeftSwordCollider
 	m_HammerCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("HammerCollider"));
+	check(m_HammerCollider != nullptr);
+	
 	m_HammerCollider->SetWorldTransform(collisionTransform);
 	m_HammerCollider->SetupAttachment(GetMesh(),TEXT("HammerCenter"));
 	m_HammerCollider->SetCollisionProfileName(TEXT("AttackCollider_Monster"));

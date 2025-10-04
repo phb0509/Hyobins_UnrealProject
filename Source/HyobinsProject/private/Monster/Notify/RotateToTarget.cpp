@@ -20,6 +20,10 @@ void URotateToTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
 	if (owner != nullptr)
 	{
 		ACharacterBase* target = owner->GetTarget();
-		owner->RotateToTarget(target, m_RotatorOffset);
+
+		if (target != nullptr)
+		{
+			owner->RotateToTarget(target, m_RotatorOffset);
+		}
 	}
 }

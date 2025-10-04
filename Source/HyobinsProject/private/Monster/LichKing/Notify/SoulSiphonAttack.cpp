@@ -27,6 +27,7 @@ void USoulSiphonAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 		startLocation += owner->GetActorForwardVector() * m_SphereCollisionSpawnDistanceFromOwner;
 
 		UBattleManager* battleManager = owner->GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
+		check(battleManager != nullptr);
 		
 		TArray<FHitResult> hitResults;
 		FCollisionShape sphereShape = FCollisionShape::MakeSphere(m_SphereCollisionRadius);
@@ -48,12 +49,12 @@ void USoulSiphonAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 			for (const FHitResult& hitResult : hitResults)
 			{
 				ACharacterBase* hitActor = Cast<ACharacterBase>(hitResult.GetActor());
-				const FName atatckName = TEXT("SoulSiphon");
+				const FName attackName = TEXT("SoulSiphon");
 				
-				if (hitActor != nullptr && !owner->HasContainHitActor(atatckName, hitActor))
+				if (hitActor != nullptr && !owner->HasContainHitActor(attackName, hitActor))
 				{
-					owner->AddHitActorsByMe(atatckName, hitActor);
-					battleManager->Attack(owner, atatckName, hitActor, hitResult.Location);
+					owner->AddHitActorsByMe(attackName, hitActor);
+					battleManager->Attack(owner, attackName, hitActor, hitResult.Location);
 				}
 			}
 		}

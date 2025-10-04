@@ -14,19 +14,28 @@ void UMonsterHPBar::NativeConstruct()
 
 	m_WhiteBlinkTime = 6.0f;
 	m_HPProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_HPProgressBar")));
+	check(m_HPProgressBar != nullptr);
+	
 	m_HPBarBorder= Cast<UImage>(GetWidgetFromName(TEXT("m_HPBarBorder")));
+	check(m_HPBarBorder != nullptr);
 
 	if (m_HPProgressBarMaterialInstanceDynamic == nullptr)
 	{
 		UMaterialInterface* materialInterface = Cast<UMaterialInterface>(m_HPProgressBar->WidgetStyle.FillImage.GetResourceObject());
+		check(materialInterface != nullptr);
+		
 		m_HPProgressBarMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(materialInterface, this);
+		check(m_HPProgressBarMaterialInstanceDynamic != nullptr);
+		
 		m_HPProgressBar->WidgetStyle.FillImage.SetResourceObject(m_HPProgressBarMaterialInstanceDynamic.Get());
 	}
 	
 	m_GuardRegainProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_GuardRegainProgressBar")));
+	check(m_GuardRegainProgressBar != nullptr);
 
 	FSlateBrush brush = m_HPBarBorder->Brush; 
 	m_HPBarBorderTexture2D = Cast<UTexture2D>(brush.GetResourceObject());
+	check(m_HPBarBorderTexture2D != nullptr);
 
 	m_GroggyAnimationTime = m_GroggyAnimation->GetEndTime();
 
@@ -47,6 +56,7 @@ void UMonsterHPBar::NativeDestruct()
 void UMonsterHPBar::BindStatComponent(UStatComponent* ownerStatComponent)
 {
 	m_OwnerStatComponent = ownerStatComponent;
+	check(m_OwnerStatComponent.IsValid());
 
 	m_OwnerStatComponent->OnDamagedHP.AddUObject(this, &UMonsterHPBar::OnDamagedHPBar);
 	m_OwnerStatComponent->OnRecoveredHP.AddUObject(this, &UMonsterHPBar::OnRecoveredHPBar);
@@ -63,20 +73,17 @@ void UMonsterHPBar::InitHPBar()
 
 void UMonsterHPBar::OnDamagedHPBar()
 {
-	if (m_OwnerStatComponent.IsValid())
+	m_HPProgressBar->SetPercent(m_OwnerStatComponent->GetHPRatio());
+
+	if (!GetWorld()->GetTimerManager().IsTimerActive(m_HPBarTimer))
 	{
-		m_HPProgressBar->SetPercent(m_OwnerStatComponent->GetHPRatio());
-		
-		if (!GetWorld()->GetTimerManager().IsTimerActive(m_HPBarTimer)) 
-		{
-			GetWorld()->GetTimerManager().SetTimer(
-				m_HPBarTimer,
-				this,&UMonsterHPBar::updateGuardRegainProgressBar,
-				GetWorld()->DeltaTimeSeconds,
-				true,
-				m_DecreaseSpeedFirstDelay
-			);
-		}
+		GetWorld()->GetTimerManager().SetTimer(
+			m_HPBarTimer,
+			this, &UMonsterHPBar::updateGuardRegainProgressBar,
+			GetWorld()->DeltaTimeSeconds,
+			true,
+			m_DecreaseSpeedFirstDelay
+		);
 	}
 }
 
@@ -135,13 +142,11 @@ void UMonsterHPBar::onGroggyAnimationEnded()
 {
 	m_HPBarBorder->SetBrushFromTexture(m_HPBarBorderTexture2D.Get()); // Border 원래 텍스쳐로 복구
 			
-	//startWhiteBlink();
+	//startWhiteBlink(); // 체력바 각각 타이머호출
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-			
-	if (uiManager != nullptr)
-	{
-		uiManager->RegistWhiteBlinkTick(this);
-	}
+	check(uiManager != nullptr);
+	
+	uiManager->RegistWhiteBlinkTick(this);
 }
 
 
@@ -186,7 +191,7 @@ void UMonsterHPBar::InitWhiteBlink()
 	m_WhiteBlinkDirection = 1;
 }
 
-bool UMonsterHPBar::WhiteBlinkTick()
+bool UMonsterHPBar::WhiteBlinkTick() // UI Manager에서 틱마다 호출.
 {
 	m_WhiteBlinkLerpAlpha += 0.03f * m_WhiteBlinkSpeed * m_WhiteBlinkDirection;
 	m_WhiteBlnkStopAccumulatedTime += 0.03f;
@@ -202,7 +207,7 @@ bool UMonsterHPBar::WhiteBlinkTick()
 	{
 		m_HPProgressBarMaterialInstanceDynamic->SetScalarParameterValue(TEXT("LerpAlpha"), 0.0f);
 		
-		return false; // 그로기 끝나서 UIManager에서 제거.
+		return false; // 그로기 끝나서 UIManager 틱업데이트배열에서 제거.
 	}
 	
 	return true; // 계속 업데이트.

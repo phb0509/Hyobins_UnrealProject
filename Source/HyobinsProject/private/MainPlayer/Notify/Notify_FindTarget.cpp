@@ -48,10 +48,13 @@ void UNotify_FindTarget::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 			{
 				ACharacterBase* target = Cast<ACharacterBase>(overlappedActors[0]);
 
-				owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocationAndRotation(
+				if (target != nullptr)
+				{
+					owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocationAndRotation(
 					TEXT("Forward"),
 					target->GetActorLocation(),
 					owner->GetDirectionToTarget(target).Rotation());
+				}
 			}
 		}
 	}

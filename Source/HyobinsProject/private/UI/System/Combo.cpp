@@ -12,6 +12,7 @@ void UCombo::NativeConstruct()
 	Super::NativeConstruct();
 	
 	m_ComboCountText = Cast<UTextBlock>(GetWidgetFromName(TEXT("m_ComboCountText")));
+	check(m_ComboCountText != nullptr);
 }
 
 void UCombo::NativeDestruct()

@@ -11,14 +11,11 @@
 
 
 int32 ASuperMinion::TagCount(0);
-const FName ASuperMinion::LeftSwordColliderName = "LeftSwordCollider";
-const FName ASuperMinion::RightSwordColliderName = "RightSwordCollider";
-
 
 ASuperMinion::ASuperMinion()
 {
 	PrimaryActorTick.bCanEverTick = true; 
-	AIControllerClass = ASuperMinionAIController::StaticClass();
+	//AIControllerClass = ASuperMinionAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	
 	Tags.Add(FName("SuperMinion" + FString::FromInt(++TagCount)));
@@ -31,10 +28,14 @@ void ASuperMinion::BeginPlay()
 	Super::BeginPlay();
 	
 	UDataManager* dataManager = GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
+	check(dataManager != nullptr);
+	
 	dataManager->LoadAttackInformation(this->GetClass(),"DataTable'/Game/DataAsset/AttackInformation_SuperMinion.AttackInformation_SuperMinion'");
 	dataManager->InitHitActors(this->GetClass(),m_HitActorsByMe);
 	
 	UDebugManager* debugManager = GetGameInstance()->GetSubsystem<UDebugManager>();
+	check(debugManager != nullptr);
+	
 	if (debugManager != nullptr)
 	{
 		debugManager->OnDebugMode.AddUObject(this, &ASuperMinion::printLog);
@@ -45,8 +46,12 @@ void ASuperMinion::Activate()
 {
 	Super::Activate();
 
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->SetVisibilityWidgets("MonsterHPBar", ESlateVisibility::HitTestInvisible);
-	SetFSMState(ESuperMinionFSMStates::Patrol);
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
+	uiManager->SetVisibilityWidgets("MonsterHPBar", ESlateVisibility::HitTestInvisible);
+	
+	this->SetFSMState(ESuperMinionFSMStates::Patrol);
 }
 
 void ASuperMinion::printLog()
@@ -97,6 +102,8 @@ void ASuperMinion::initAssets()
 	
 	// HitCollider
 	m_HitCollider = CreateDefaultSubobject<UCapsuleComponent>(TEXT("HitCollider"));
+	check(m_HitCollider != nullptr);
+	
 	m_HitCollider->SetupAttachment(GetMesh(),TEXT("spine_01"));
 	m_HitCollider->SetCapsuleHalfHeight(60.0f);
 	m_HitCollider->SetCapsuleRadius(60.0f);
@@ -115,6 +122,8 @@ void ASuperMinion::initAssets()
 		{0.375f, 1.5f, 0.625f} };
 	// LeftSwordCollider
 	m_LeftSwordCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftSwordCollider"));
+	check(m_LeftSwordCollider != nullptr);
+	
 	m_LeftSwordCollider->SetWorldTransform(collisionTransform);
 	m_LeftSwordCollider->SetupAttachment(GetMesh(),TEXT("weapon_l"));
 	m_LeftSwordCollider->SetCollisionProfileName(TEXT("AttackCollider_Monster")); 
@@ -129,6 +138,8 @@ void ASuperMinion::initAssets()
 	
 	// RightSwordCollider
 	m_RightSwordCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("RightSwordCollider"));
+	check(m_RightSwordCollider != nullptr);
+	
 	m_RightSwordCollider->SetWorldTransform(collisionTransform);
 	m_RightSwordCollider->SetupAttachment(GetMesh(), TEXT("weapon_r"));
 	m_RightSwordCollider->SetCollisionProfileName(TEXT("AttackCollider_Monster")); 
@@ -136,7 +147,7 @@ void ASuperMinion::initAssets()
 	m_RightSwordCollider->SetNotifyRigidBodyCollision(false);
 	m_RightSwordCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	m_Colliders.Add(HitColliderName, m_HitCollider);
-	m_Colliders.Add(LeftSwordColliderName, m_LeftSwordCollider);
-	m_Colliders.Add(RightSwordColliderName, m_RightSwordCollider);
+	m_Colliders.Add(TEXT("HitCollider"), m_HitCollider);
+	m_Colliders.Add(TEXT("LeftSwordCollider"), m_LeftSwordCollider);
+	m_Colliders.Add(TEXT("RightSwordCollider"), m_RightSwordCollider);
 }

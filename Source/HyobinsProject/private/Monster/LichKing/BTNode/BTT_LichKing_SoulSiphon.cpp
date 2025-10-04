@@ -16,7 +16,10 @@ EBTNodeResult::Type UBTT_LichKing_SoulSiphon::ExecuteTask(UBehaviorTreeComponent
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 	
 	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
+	check(owner != nullptr);
+	
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
+	check(animInstance != nullptr);
 	
 	animInstance->PlayMontage(TEXT("SoulSiphon"));
 	
@@ -39,6 +42,7 @@ void UBTT_LichKing_SoulSiphon::InitializeMemory(UBehaviorTreeComponent& OwnerCom
 			instanceNode->bHasInit = true;
 
 			UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
+			check(animInstance != nullptr);
 			
 			animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("SoulSiphon"),
 		[&]()

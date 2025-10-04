@@ -11,6 +11,8 @@ void UEnvironmentSettings::NativeConstruct()
 	Super::NativeConstruct();
 	
 	m_bHideCheckBox = Cast<UCheckBox>(GetWidgetFromName(TEXT("m_bHideCheckBox")));
+	check(m_bHideCheckBox != nullptr);
+	
 	m_bHideCheckBox->OnCheckStateChanged.AddDynamic(this, &UEnvironmentSettings::ChangeMonsterHPBarState);
 
 	if (GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->IsShowMonsterHPBar())
@@ -28,6 +30,7 @@ FReply UEnvironmentSettings::NativeOnKeyDown(const FGeometry& InGeometry, const 
 	if (InKeyEvent.GetKey() == EKeys::P)
 	{
 		Close();
+		
 		return FReply::Handled();
 	}
 	

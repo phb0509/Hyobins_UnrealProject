@@ -18,6 +18,8 @@ UCharging_OnGround::UCharging_OnGround() :
 void UCharging_OnGround::Initialize()
 {
 	Super::Initialize();
+
+	check(m_ChargingMontage != nullptr);
 }
 
 void UCharging_OnGround::Execute()
@@ -25,6 +27,8 @@ void UCharging_OnGround::Execute()
 	Super::Execute();
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	check(ownerSkillComponent != nullptr);
+	
 	FTimerHandle chargingTimer = ownerSkillComponent->GetChargingTimer();
 	
 	m_Owner->GetWorldTimerManager().SetTimer(
@@ -44,6 +48,8 @@ void UCharging_OnGround::Execute()
 	m_OwnerAnimInstance->Montage_Play(m_ChargingMontage, 1.0f);
 	
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
 	uiManager->CreateChargingGageBar(m_Owner.Get(), m_ChargingDuration);
 }
 

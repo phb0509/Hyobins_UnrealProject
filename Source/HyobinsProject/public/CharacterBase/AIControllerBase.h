@@ -26,9 +26,9 @@ public:
 	virtual void OnPossess(APawn* pawn) override;
 	virtual void OnUnPossess() override;
 	
-	void StopBehaviorTree();
 	void StartBehaviorTree();
-	void RestartBehaviorTree();
+	void StopBehaviorTree();
+	void RestartBehaviorTree() const;
 	
     // Get
 	FORCEINLINE UBlackboardComponent* GetBlackBoard() const { return Blackboard; }
@@ -36,9 +36,15 @@ public:
 
 protected:
 	TWeakObjectPtr<ACharacterBase> m_Owner;
-	TWeakObjectPtr<UBehaviorTree> m_BehaviorTree;
-	TWeakObjectPtr<UBlackboardData> m_BlackboardData;
-	TWeakObjectPtr<UBehaviorTreeComponent> m_BehaviorTreeComponent;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBehaviorTree> m_BehaviorTree;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBlackboardData> m_BlackboardData;
+	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UBehaviorTreeComponent> m_BehaviorTreeComponent;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAIPerceptionComponent> m_AIPerceptionComponent;

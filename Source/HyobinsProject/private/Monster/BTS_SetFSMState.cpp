@@ -20,10 +20,8 @@ void UBTS_SetFSMState::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
 	AMonster* owner = Cast<AMonster>(OwnerComp.GetAIOwner()->GetPawn());
+	check(owner != nullptr);
 	
-	if (owner != nullptr)
-	{
-		owner->SetFSMState(m_FSMStateIndex);
-	}
+	owner->SetFSMState(m_FSMStateIndex);
 }
 

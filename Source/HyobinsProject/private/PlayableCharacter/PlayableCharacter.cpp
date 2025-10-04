@@ -41,7 +41,10 @@ void APlayableCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
 	uiManager->CreateMainPlayerStatusBar(this->m_StatComponent, this);
+	
 	OnChangeInputMappingContext.AddUObject(uiManager, &UUIManager::ChangeSkillList);
 
 	initInputConfigs();
@@ -269,6 +272,7 @@ APostProcessVolume* APlayableCharacter::GetGlobalPostProcessVolume() const
 			return postProcessVolume;
 		}
 	}
+	
 	return nullptr;
 }
 
@@ -427,6 +431,8 @@ void APlayableCharacter::initAssets()
 
 	// SpringArm
 	m_SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+	check(m_SpringArm != nullptr);
+	
 	m_SpringArm->SetupAttachment(RootComponent);
 	m_SpringArm->SetRelativeLocation(FVector(0, 0, 0));
 	m_SpringArm->TargetArmLength = 600;
@@ -442,6 +448,8 @@ void APlayableCharacter::initAssets()
 
 	// TargetCamera
 	m_TargetCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TargetCamera"));
+	check(m_TargetCamera != nullptr);
+	
 	m_TargetCamera->SetupAttachment(m_SpringArm);
 
 	// true로 할 경우, 컨트롤러의 회전방향으로 캐릭터를 회전시켜줌.

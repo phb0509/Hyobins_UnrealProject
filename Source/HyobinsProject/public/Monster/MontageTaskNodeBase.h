@@ -6,6 +6,8 @@
 #include "BehaviorTree/BTTaskNode.h"
 #include "MontageTaskNodeBase.generated.h"
 
+class ACharacterBase;
+class UAnimInstanceBase;
 
 struct FInstanceNode
 {
@@ -20,6 +22,10 @@ class HYOBINSPROJECT_API UMontageTaskNodeBase : public UBTTaskNode
 public:
 	UMontageTaskNodeBase();
 	
-	virtual uint16 GetInstanceMemorySize() const override;
-	
+	virtual void InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTMemoryInit::Type InitType) const override;
+	virtual FORCEINLINE uint16 GetInstanceMemorySize()  const override
+	{
+		return sizeof(FInstanceNode);
+	}
+
 };

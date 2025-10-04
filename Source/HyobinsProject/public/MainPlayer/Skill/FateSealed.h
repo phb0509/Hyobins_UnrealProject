@@ -25,11 +25,12 @@ protected:
 	
 private:
 	void findTargets();
-	void attackNextTarget();
-	void moveToTarget();
+	void moveToNextTarget();
 	void onFateSealedEnded();
 	void finishSkill();
 	void onFateSealedFinishEnded();
+	void updateAllStencilValues();
+	void executeStaggeredAttack();
 
 	
 private:
@@ -61,6 +62,18 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = "Skill Settings")
 	float m_FinishAttackDelay;
+
+	UPROPERTY(EditAnywhere, Category = "Skill Settings")
+	float m_FinishAttackDelayGap;
 	
 	float m_AttackDelay;
+
+	UPROPERTY()
+	FTimerHandle m_StencilUpdateTimer;
+
+	UPROPERTY()
+	TArray<TWeakObjectPtr<AMonster>> m_StencilTargets;
+
+	float m_FinishAttackCallTime;
+	
 };

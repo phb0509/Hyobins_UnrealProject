@@ -18,13 +18,7 @@ void UGuard_OnGround::Initialize()
 {
 	Super::Initialize();
 	
-	// m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Guard_OnGround"),
-	// [=]()
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("UGuard_OnGround :: AllEnded"));
-	// 	//owner->SetIsGuarding(false);
-	// 	//owner->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// });
+	check(m_GuardMontage != nullptr);
 }
 
 void UGuard_OnGround::Execute()
@@ -32,14 +26,14 @@ void UGuard_OnGround::Execute()
 	Super::Execute();
 
 	AMainPlayer* owner = Cast<AMainPlayer>(m_Owner);
+	check(owner != nullptr);
 	
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::Parry_OnGround);
 	m_OwnerAnimInstance->Montage_Play(m_GuardMontage, 1.0f);
 	
 	owner->GetCollider(TEXT("ShieldForGuardCollider"))->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	
 	owner->SetIsParrying(true);
-
+	
 	owner->GetWorldTimerManager().SetTimer(
 	   m_ParryingTimer,
 	   [=]()

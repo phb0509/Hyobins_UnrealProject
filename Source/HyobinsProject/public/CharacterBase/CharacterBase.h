@@ -114,7 +114,6 @@ public:
 	FOnTakeDamageDelegate OnTakeDamage;
 	FOnDeathDelegate OnDeath;
 	
-	static const FName HitColliderName;
 	static const FName KnockbackMontageNames[4];
 	static const FName DeathMontageNames[4];
 	

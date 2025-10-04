@@ -16,32 +16,32 @@ void UAnimInstanceBase::NativeBeginPlay()
 	OnMontageEnded.AddDynamic(this, &UAnimInstanceBase::Exec_OnMontageEnded);
 }
 
-void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* Montage)
+void UAnimInstanceBase::Exec_OnMontageStarted(UAnimMontage* montage) // 호출됐다는거 자체가 몽타주가 유효한거라 유효성 체크x.
 {
-	const FName montageName = Montage->GetFName();
+	const FName montageName = montage->GetFName();
 	
 	if (m_FuncsOnCalledMontageEvent.Contains(montageName))
 	{
-		const bool bIsBounded = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.ExecuteIfBound();
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageStarted.ExecuteIfBound();
 	}
 }
 
-void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+void UAnimInstanceBase::Exec_OnMontageEnded(UAnimMontage* montage, bool bInterrupted)
 {
-	const FName montageName = Montage->GetFName();
+	const FName montageName = montage->GetFName();
 	m_bIsLastMontagePlayInterrupted = bInterrupted;
 	
 	if (m_FuncsOnCalledMontageEvent.Contains(montageName))
 	{
-		const bool allEndedBound = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageAllEnded.ExecuteIfBound();
+		m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageAllEnded.ExecuteIfBound();
 		
 		if (bInterrupted)
 		{
-			const bool bIsInterruptedEndedBounded = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.ExecuteIfBound();
+			m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageInterruptedEnded.ExecuteIfBound();
 		}
 		else
 		{
-			const bool bIsNotInterruptedEndedBounded = m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageNotInterruptedEnded.ExecuteIfBound();
+			m_FuncsOnCalledMontageEvent[montageName].funcOnCalledMontageNotInterruptedEnded.ExecuteIfBound();
 		}
 	}
 }
@@ -57,27 +57,19 @@ void UAnimInstanceBase::PlayMontage(const FName& montageName, float inPlayRate)
 	}
 }
 
-void UAnimInstanceBase::JumpToMontageSectionByIndex(const FName& montageName, int32 newSection)
+void UAnimInstanceBase::JumpToMontageSectionByIndex(const UAnimMontage* montage, int32 newSection)
 {
-	if (m_Montages.Contains(montageName))
-	{
-		if(IsValid(m_Montages[montageName]))
-		{
-			const FString section = FString::FromInt(newSection);
-			Montage_JumpToSection(*section, m_Montages[montageName].Get());
-		}
-	}
+	check(montage != nullptr);
+	
+	const FString section = FString::FromInt(newSection);
+	Montage_JumpToSection(*section, montage);
 }
 
-void UAnimInstanceBase::JumpToMontageSectionByName(const FName& montageName, FName newSection)
+void UAnimInstanceBase::JumpToMontageSectionByName(const UAnimMontage* montage, FName newSection)
 {
-	if (m_Montages.Contains(montageName))
-	{
-		if(IsValid(m_Montages[montageName]))
-		{
-			Montage_JumpToSection(newSection, m_Montages[montageName].Get());
-		}
-	}
+	check(montage != nullptr);
+
+	Montage_JumpToSection(newSection, montage);
 }
 
 bool UAnimInstanceBase::IsCurrentMontage(const FName& montageName)
@@ -100,8 +92,10 @@ FName UAnimInstanceBase::GetCurrentMontageName() const
 	return montage == nullptr ? "" : montage->GetFName();
 }
 
-float UAnimInstanceBase::GetMontagePlayTime(const UAnimMontage* montage)
+float UAnimInstanceBase::GetMontagePlayTime(const UAnimMontage* montage) 
 {
+	check(montage != nullptr);
+	
 	const int32 frameCount = montage->GetNumberOfSampledKeys();
 	
 	return montage->GetTimeAtFrame(frameCount) / montage->RateScale;

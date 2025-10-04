@@ -6,6 +6,4 @@
 void ULockOn::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	
 }

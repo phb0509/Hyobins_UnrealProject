@@ -22,15 +22,19 @@ void AFirstLevel::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("AFirstLevel :: BeginPlay"));
 	
 	m_ActorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
+	check(m_ActorPool != nullptr);
 	
 	CreateMinions();
-	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsys tem<UUIManager>();
+	check(uiManager != nullptr);
+	
 	uiManager->ReserveMonsterHPBars();
 }
 
 void AFirstLevel::CreateMinions() const
 {
-	m_ActorPool->CreateActorPool(m_MonsterClass, 8);
+	m_ActorPool->CreateActorPool(m_MonsterClass, 3);
 	
 	//m_ActorPool->CreateActorPool(m_TestMonsterClass,25);
 
@@ -67,16 +71,17 @@ void AFirstLevel::SpawnMinion()
 void AFirstLevel::ToggleDebugMode()
 {
 	UDebugManager* debugManager = GetGameInstance()->GetSubsystem<UDebugManager>();
-	if (debugManager != nullptr)
-	{
-		debugManager->ToggleDebugMode();
-	}
+	check(debugManager != nullptr);
+
+	debugManager->ToggleDebugMode();
 }
 
 
 void AFirstLevel::SpawnBoss()
 {
 	AActorPool* actorPool = GetWorld()->GetGameInstance()->GetSubsystem<UActorPoolManager>()->GetActorPool();
+	check(actorPool != nullptr);
+	
 	actorPool->CreateActorPool(m_LichKingClass,1);
 	
 	const FVector position = {0.0f, 0.0f, 0.0f};
@@ -92,6 +97,8 @@ void AFirstLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	m_ActorPool->ClearActorPool();
 
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
 	uiManager->EmptyMonsterHPBars();
 }
 

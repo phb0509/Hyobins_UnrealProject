@@ -18,7 +18,9 @@ UFateSealed::UFateSealed() :
 	m_FinishSound(nullptr),
 	m_CurTargetIndex(0),
 	m_FinishAttackDelay(3.0f),
-	m_AttackDelay(0.1f)
+	m_FinishAttackDelayGap(0.1f),
+	m_AttackDelay(0.1f),
+	m_FinishAttackCallTime(0.0f)
 {
 	
 }
@@ -26,8 +28,17 @@ UFateSealed::UFateSealed() :
 void UFateSealed::Initialize()
 {
 	Super::Initialize();
+
+	check(m_FateSealedMontage != nullptr);
+	check(m_FateSealedFinishMontage != nullptr);
 	
 	m_BattleManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
+	check(m_BattleManager != nullptr);
+	
+	m_DynamicPPMaterial = UMaterialInstanceDynamic::Create(m_PPMaterial, this);
+	check(m_DynamicPPMaterial != nullptr);
+
+	check(m_FinishSound != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("FateSealed"),
 [this]()
@@ -40,8 +51,7 @@ void UFateSealed::Initialize()
 	{
 		onFateSealedFinishEnded();
 	});
-
-	m_DynamicPPMaterial = UMaterialInstanceDynamic::Create(m_PPMaterial, this);
+	
 }
 
 void UFateSealed::Execute()
@@ -51,10 +61,13 @@ void UFateSealed::Execute()
 	m_OwnerSkillComponent->SetSkillState(EMainPlayerSkillStates::FateSealed);
 	
 	APostProcessVolume* postProcessVolume = m_Owner->GetGlobalPostProcessVolume();
+	check(postProcessVolume != nullptr);
+
 	postProcessVolume->bUnbound = true;
 	postProcessVolume->BlendWeight = 1.0f;
 	postProcessVolume->Settings.AddBlendable(m_PPMaterial.Get(), 1);
 	
+	m_FinishAttackCallTime = 0.0f;
 	findTargets();
 }
 
@@ -82,17 +95,22 @@ void UFateSealed::findTargets()
 	for (FHitResult& hitResult : hitResults)
 	{
 		AMonster* targetMonster = Cast<AMonster>(hitResult.GetActor());
-		targetMonster->Pause();
-		targetMonster->GetMesh()->SetCustomDepthStencilValue(2);
-		
-		m_TargetMonsters.Add(targetMonster);
+
+		if (targetMonster != nullptr)
+		{
+			targetMonster->GetMesh()->SetCustomDepthStencilValue(2);
+			targetMonster->Pause();
+			
+			m_TargetMonsters.Add(targetMonster);
+		}
 	}
 	
 	m_CurTargetIndex = 0;
-	attackNextTarget();
+	moveToNextTarget();
 }
 
-void UFateSealed::attackNextTarget()
+
+void UFateSealed::moveToNextTarget()
 {
 	if (m_CurTargetIndex >= m_TargetMonsters.Num())
 	{
@@ -101,95 +119,113 @@ void UFateSealed::attackNextTarget()
 		return;
 	}
 	
-	moveToTarget();
-}
-
-void UFateSealed::moveToTarget()
-{
 	m_CurTarget = m_TargetMonsters[m_CurTargetIndex].Get();
-	const FVector targetLocation = m_CurTarget->GetActorLocation();
-	const FVector finalLocation = targetLocation + (m_Owner->GetActorLocation() - targetLocation).GetSafeNormal() * 30.0f;
-
-	m_Owner->SetActorLocation(finalLocation);
-	m_Owner->RotateToTarget(m_CurTarget.Get());
-
-	const FName section = *FString::FromInt(m_CurTargetIndex % 5);
-	m_OwnerAnimInstance->Montage_Play(m_FateSealedMontage,1.0f);
-	m_OwnerAnimInstance->Montage_JumpToSection(section, m_FateSealedMontage);
-}
-
-void UFateSealed::onFateSealedEnded()
-{
-	FTimerHandle stencilTimer;
-	m_Owner->GetWorldTimerManager().SetTimer(
-	stencilTimer,
-	[=]() mutable 
-	{
-		int32 stencil = m_CurTarget->GetMesh()->CustomDepthStencilValue + 1;
-		m_CurTarget->GetMesh()->SetCustomDepthStencilValue(stencil);
 	
-		if (stencil >= 102)
-		{
-			m_Owner->GetWorldTimerManager().ClearTimer(stencilTimer);
-		}
-	},
-	0.04f,
-	true
-	);
+	if (m_CurTarget.IsValid())
+	{
+		const FVector targetLocation = m_CurTarget->GetActorLocation();
+		const FVector finalLocation = targetLocation + (m_Owner->GetActorLocation() - targetLocation).GetSafeNormal() * 30.0f;
 
-	++m_CurTargetIndex;
-	attackNextTarget();
+		m_Owner->SetActorLocation(finalLocation);
+		m_Owner->RotateToTarget(m_CurTarget.Get());
+
+		const FName section = *FString::FromInt(m_CurTargetIndex % 5);
+		m_OwnerAnimInstance->Montage_Play(m_FateSealedMontage,1.0f);
+		m_OwnerAnimInstance->Montage_JumpToSection(section, m_FateSealedMontage);
+	}
 }
+
+void UFateSealed::onFateSealedEnded() // 공격몽타주 재생 이후,
+{
+	if (m_CurTarget.IsValid())
+	{
+		m_StencilTargets.Add(m_CurTarget);
+		
+		if (m_StencilTargets.Num() == 1)
+		{
+			m_Owner->GetWorldTimerManager().SetTimer(
+				m_StencilUpdateTimer,
+				this,
+				&UFateSealed::updateAllStencilValues,
+				0.01f,
+				true,
+				0.0f
+			);
+		}
+	}
+	
+	++m_CurTargetIndex;
+
+	moveToNextTarget();
+}
+
+
+void UFateSealed::updateAllStencilValues()
+{
+	for (int32 i = m_StencilTargets.Num() - 1; i >= 0; --i)
+	{
+		TWeakObjectPtr<AMonster> monster = m_StencilTargets[i];
+        
+		if (!monster.IsValid())
+		{
+			m_StencilTargets.RemoveAtSwap(i);
+			
+			continue;
+		}
+		
+		int32 newStencil = monster->GetMesh()->CustomDepthStencilValue + 1;
+        
+		monster->GetMesh()->SetCustomDepthStencilValue(newStencil);
+		
+		if (newStencil >= 102)
+		{
+			m_StencilTargets.RemoveAtSwap(i);
+		} 
+	}
+	
+	if (m_StencilTargets.Num() == 0)
+	{
+		m_Owner->GetWorldTimerManager().ClearTimer(m_StencilUpdateTimer);
+		
+		m_StencilTargets.Empty();
+	}
+}
+
 
 void UFateSealed::finishSkill()
 {
-	// 모든 타겟 처리 완료
-	APostProcessVolume* postProcessVolume = m_Owner->GetGlobalPostProcessVolume();
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
-		
-	postProcessVolume->bUnbound = false;
-	postProcessVolume->Settings.RemoveBlendable(m_PPMaterial.Get());
+	check(ownerSkillComponent != nullptr);
 	
 	ownerSkillComponent->SetCanChargingSkill(false);
+	
 	m_Owner->SetActorLocation(m_SkillStartLocation);
-	
 	m_OwnerAnimInstance->Montage_Play(m_FateSealedFinishMontage,1.0f);
-	
 }
 
 void UFateSealed::onFateSealedFinishEnded()
 {
+	APostProcessVolume* postProcessVolume = m_Owner->GetGlobalPostProcessVolume();
+	check(postProcessVolume != nullptr);
+	
+	postProcessVolume->bUnbound = false;
+	postProcessVolume->Settings.RemoveBlendable(m_PPMaterial.Get());
+	
+	for (TWeakObjectPtr<AMonster> monster : m_TargetMonsters)
+	{
+		if (monster.IsValid())
+		{
+			monster->GetMesh()->SetCustomDepthStencilValue(0);
+		}
+	}
+	
 	FTimerHandle finishTimer;
 	m_Owner->GetWorldTimerManager().SetTimer
 		(
 			finishTimer,
-			[=]() mutable
+			[this]() 
 			{
-				float attackTime = 0.1f;
-				constexpr float attackGap = 0.1f;
-				
-				for (TWeakObjectPtr<AMonster> monster : m_TargetMonsters)
-				{
-					monster->GetMesh()->SetCustomDepthStencilValue(2);
-
-					FTimerHandle attackTimer;
-					m_Owner->GetWorldTimerManager().SetTimer
-					(
-						attackTimer,
-						[=]()
-						{
-							monster->Unpause();
-							m_BattleManager->Attack(m_Owner.Get(), TEXT("FateSealed_Finish"), monster.Get());
-							
-							if (m_FinishSound != nullptr)
-							{
-								UGameplayStatics::PlaySound2D(m_Owner.Get(), m_FinishSound, 2.0f);
-							}
-						},
-						attackTime += attackGap,
-						false
-					);
-				}
+				executeStaggeredAttack();
 				
 				m_TargetMonsters.Empty();
 			},
@@ -202,6 +238,36 @@ void UFateSealed::onFateSealedFinishEnded()
 	m_Owner->SetIsSuperArmor(false);
 }
 
+void UFateSealed::executeStaggeredAttack()
+{
+	for (TWeakObjectPtr<AMonster> monster : m_TargetMonsters)
+	{
+		if (!monster.IsValid())
+		{
+			continue;	
+		}
+					
+		// 실제 공격적용타이머 특정시간 간격으로 셋팅
+		FTimerHandle attackTimer;
+		m_Owner->GetWorldTimerManager().SetTimer
+		(
+			attackTimer, 
+			[=]()
+			{
+				monster->Unpause();
+				m_BattleManager->Attack(m_Owner.Get(), TEXT("FateSealed_Finish"), monster.Get());
+							
+				if (m_FinishSound != nullptr)
+				{
+					UGameplayStatics::PlaySound2D(m_Owner.Get(), m_FinishSound, 2.0f);
+				}
+			},
+			m_FinishAttackCallTime += m_FinishAttackDelayGap,
+			false
+						
+		);
+	}
+}
 
 bool UFateSealed::CanExecuteSkill() const
 {

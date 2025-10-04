@@ -18,37 +18,28 @@ void UDataManager::LoadAttackInformation(TSubclassOf<AActor> classType, const FS
 	}
 	
 	const UDataTable* dataTable = LoadObject<UDataTable>(nullptr, *assetPath, nullptr, LOAD_None, nullptr);
+	check(dataTable != nullptr);
+	
 	TMap<FName,FAttackInformation> attackInfos;
 	
-	if (dataTable != nullptr)
+	const TArray<FName> rowNames = dataTable->GetRowNames();
+
+	for (FName rowName : rowNames)
 	{
-		const TArray<FName> rowNames = dataTable->GetRowNames();
+		const FAttackInformationData data = *(dataTable->FindRow<FAttackInformationData>(rowName, rowName.ToString()));
 
-		for (FName rowName : rowNames)
-		{
-			const FAttackInformationData data = *(dataTable->FindRow<FAttackInformationData>(rowName, rowName.ToString()));
-			ECrowdControlType crowdControlType = ECrowdControlType::None;
-			const UEnum* crowdControlEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ECrowdControlType"), true);
-			
-			if (crowdControlEnum != nullptr)
-			{
-				const int32 index = crowdControlEnum->GetIndexByName(data.crowdControlType);
-				crowdControlType = static_cast<ECrowdControlType>(index);
-			}
+		FAttackInformation attackInfo;
+		attackInfo.attackName = data.attackName;
+		attackInfo.damageRatio = data.damageRatio;
+		attackInfo.crowdControlType = data.crowdControlType;
+		attackInfo.crowdControlTime = data.crowdControlTime;
+		attackInfo.knockBackDistance = data.knockBackDistance;
+		attackInfo.airbornePower = data.airbornePower;
+		attackInfo.staminaDamage = data.staminaDamage;
 
-			FAttackInformation attackInfo;
-			attackInfo.attackName = data.attackName;
-			attackInfo.damageRatio = data.damageRatio;
-			attackInfo.crowdControlType = crowdControlType;
-			attackInfo.crowdControlTime = data.crowdControlTime;
-			attackInfo.knockBackDistance = data.knockBackDistance;
-			attackInfo.airbornePower = data.airbornePower;
-			attackInfo.staminaDamage = data.staminaDamage;
-
-			attackInfos.Add(attackInfo.attackName, attackInfo);
-		}
+		attackInfos.Add(attackInfo.attackName, attackInfo);
 	}
-
+	
 	m_AttackInformations.Add(classType, attackInfos);
 }
 

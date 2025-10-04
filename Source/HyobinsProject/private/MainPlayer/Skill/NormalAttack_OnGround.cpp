@@ -21,11 +21,7 @@ void UNormalAttack_OnGround::Initialize()
 {
 	Super::Initialize(); 
 
-	// m_OwnerAnimInstance->BindLambdaFunc_OnMontageStarted(TEXT("NormalAttack_OnGround"),
-	// 	[this]()
-	// 	{
-	// 		UE_LOG(LogTemp, Warning, TEXT("NormalAttack_OnGround"));
-	// 	});
+	check(m_NormalAttackMontage != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack_OnGround"),
 		[this]()
@@ -39,15 +35,18 @@ void UNormalAttack_OnGround::Execute()
 	Super::Execute();
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	check(ownerSkillComponent != nullptr);
 	
 	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
 	{
 		FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 		targetVector.Z = 0.0f;
+		
 		m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 			TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 		
 		m_OwnerAnimInstance->Montage_Play(m_NormalAttackMontage,1.0f);
+		
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::NormalAttack_OnGround);
 	}
 	else if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalAttack_OnGround) ||
@@ -57,6 +56,7 @@ void UNormalAttack_OnGround::Execute()
 		{
 			FVector targetVector = m_Owner->GetActorForwardVector() * m_MoveDistance;
 			targetVector.Z = 0.0f;
+			
 			m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 				TEXT("Forward"), m_Owner->GetActorLocation() + targetVector);
 			
@@ -70,6 +70,7 @@ void UNormalAttack_OnGround::Execute()
 void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 {
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	check(ownerSkillComponent != nullptr);
 	
 	if (m_CurComboAttackSection % 2 != 0) // 기본공격중인경우,
 	{
@@ -106,7 +107,7 @@ void UNormalAttack_OnGround::linqNextNormalAttackOnGroundCombo()
 		}
 	}
 	
-	m_OwnerAnimInstance->JumpToMontageSectionByIndex(TEXT("NormalAttack_OnGround"), m_CurComboAttackSection);
+	m_OwnerAnimInstance->JumpToMontageSectionByIndex(m_NormalAttackMontage, m_CurComboAttackSection);
 }
 
 bool UNormalAttack_OnGround::CanExecuteSkill() const

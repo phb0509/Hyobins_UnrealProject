@@ -19,7 +19,10 @@ void USkillComponent::BeginPlay()
 	Super::BeginPlay();
 
 	m_Owner = Cast<APlayableCharacter>(GetOwner());
+	check(m_Owner != nullptr);
+	
 	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
+	check(m_OwnerAnimInstance != nullptr);
 	
 	loadSkills();
 	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateSkillSlots(this, m_Owner.Get());
@@ -44,6 +47,13 @@ void USkillComponent::InitGravityScaleAfterAttack()
 	{
 		m_Owner->GetCharacterMovement()->GravityScale = 1.0f;
 	}
+}
+
+bool USkillComponent::HasSkill(const FName& inputMappingContextName, const FName& skillName) const
+{
+	return m_SkillList.Contains(inputMappingContextName) &&
+			m_SkillList[inputMappingContextName].skillList.Contains(skillName) &&
+			m_SkillList[inputMappingContextName].skillList[skillName] != nullptr;
 }
 
 void USkillComponent::loadSkills()

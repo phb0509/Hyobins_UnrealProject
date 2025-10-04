@@ -17,6 +17,7 @@ void UMove::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Ani
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	
 	AActor* owner = MeshComp->GetOwner();
+	check(owner != nullptr);
 	
 	m_StartLocation = owner->GetActorLocation(); // 시작위치
 	m_TargetLocation = m_StartLocation + (owner->GetActorForwardVector() * m_MoveDistance);
@@ -28,17 +29,15 @@ void UMove::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Anim
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 	
-	// 현재 시간 비율 계산 (0.0 ~ 1.0)
 	AActor* owner = MeshComp->GetOwner();
+	check(owner != nullptr);
+	
 	m_ElapsedTime += FrameDeltaTime; // 경과 시간 누적
 	float alpha = FMath::Clamp(m_ElapsedTime / m_Duration, 0.0f, 1.0f);
-
-	// 선형 보간 (Lerp)으로 위치 계산
-	FVector newLocation = FMath::Lerp(m_StartLocation, m_TargetLocation, alpha);
-
-	// 캐릭터 위치 업데이트
-	owner->SetActorLocation(newLocation);
 	
+	FVector newLocation = FMath::Lerp(m_StartLocation, m_TargetLocation, alpha);
+	
+	owner->SetActorLocation(newLocation);
 }
 
 

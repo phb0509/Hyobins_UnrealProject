@@ -30,7 +30,7 @@ class HYOBINSPROJECT_API USkillSlots : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 
-	void CreateSkillListFromSkillComponent(USkillComponent* skillComponent);
+	void CreateSkillList(USkillComponent* skillComponent);
 	void ChangeSkillSlots();
 	
 

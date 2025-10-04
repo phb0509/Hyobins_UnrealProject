@@ -24,10 +24,9 @@ void UMainPlayerSkillComponent::BeginPlay()
 	bindFuncOnMontageEvent();
 	
 	UDebugManager* debugManager = GetOwner()->GetGameInstance()->GetSubsystem<UDebugManager>();
-	if (debugManager != nullptr)
-	{
-		debugManager->OnDebugMode.AddUObject(this, &UMainPlayerSkillComponent::printLog);
-	}
+	check(debugManager != nullptr);
+
+	debugManager->OnDebugMode.AddUObject(this, &UMainPlayerSkillComponent::printLog);
 }
 
 // Default_OnGround

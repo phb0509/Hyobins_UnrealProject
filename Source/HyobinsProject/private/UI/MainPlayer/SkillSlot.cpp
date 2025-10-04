@@ -11,11 +11,14 @@ void USkillSlot::NativeConstruct()
 	Super::NativeConstruct();
 
 	m_ProgressBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_ProgressBar")));
+	check(m_ProgressBar != nullptr);
 }
 
 void USkillSlot::SetSkill(USkill* skill, FMargin paddingValue)
 {
 	m_Skill = skill;
+	check(m_Skill.IsValid());
+	
 	m_Skill->OnExecute.AddUObject(this, &USkillSlot::StartCooldownUpdate);
 
 	UTexture2D* backgroundTexture = m_Skill->GetThumbnailBackgroundTexture();

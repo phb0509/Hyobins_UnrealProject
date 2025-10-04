@@ -1,10 +1,10 @@
 
 #include "Component/CrowdControlComponent.h"
-#include "Monster/Monster.h"
 #include "CharacterBase/AnimInstanceBase.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include "BehaviorTree/BlackboardComponent.h"
 #include "CharacterBase/AIControllerBase.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "Utility/EnumTypes.h"
 #include "Utility/CustomStructs.h"
 
@@ -39,18 +39,25 @@ void UCrowdControlComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	m_Owner = Cast<ACharacterBase>(GetOwner());
+	check(m_Owner != nullptr);
+	
 	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
+	check(m_OwnerAnimInstance != nullptr);
+
+	if (!m_Owner->IsA(APlayableCharacter::StaticClass()))
+	{
+		m_OwnerAIController = Cast<AAIController>(GetOwner()->GetInstigatorController());
+		check(m_OwnerAIController != nullptr);
+	}
 	
 	m_CrowdControlStartDelegates[ECrowdControlType::Knockback].AddUObject(this, &UCrowdControlComponent::TakeAttack_Knockback);
 	m_CrowdControlStartDelegates[ECrowdControlType::Down].AddUObject(this, &UCrowdControlComponent::TakeAttack_Down);
     m_CrowdControlStartDelegates[ECrowdControlType::Airborne].AddUObject(this, &UCrowdControlComponent::TakeAttack_Airborne);
-
-	m_OwnerAIController = Cast<AAIController>(GetOwner()->GetInstigatorController());
 }
 
 void UCrowdControlComponent::ApplyCrowdControl(AActor* instigator, const FHitInformation& attackInfo)
 {
-	if (m_OwnerAIController != nullptr) 
+	if (m_OwnerAIController != nullptr)
 	{
 		m_OwnerAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsCrowdControlState"), true);
 	}
@@ -85,19 +92,21 @@ void UCrowdControlComponent::OnGroggy()
 	if (m_CurCrowdControlState == ECrowdControlType::None || m_CurCrowdControlState == ECrowdControlType::Knockback)
 	{
 		ClearCrowdControlTimerHandle();
-		SetCrowdControlState(ECrowdControlType::Groggy);
 		playCrowdControlMontage(ECrowdControlType::Groggy, 0);
+
+		this->SetCrowdControlState(ECrowdControlType::Groggy);
 	}
 	
 	m_Owner->GetWorldTimerManager().SetTimer
 		(
-			m_GroggyTimerHandle,
+			m_GroggyTimerHandle, 
 			[this]()
 			{
 				if (!m_Owner->IsDead() && m_CurCrowdControlState == ECrowdControlType::Groggy)
 				{
 					m_OwnerAnimInstance->StopAllMontages(0.0f);
-					SetCrowdControlState(ECrowdControlType::None);
+					
+					this->SetCrowdControlState(ECrowdControlType::None);
 				}
 
 				ClearGroggyTimerHandle();
@@ -122,7 +131,8 @@ void UCrowdControlComponent::TakeAttack_Knockback(AActor* instigator, const FHit
 	} 
 	else // 상태이상 X or 넉백 or 그로기
 	{
-		SetCrowdControlState(ECrowdControlType::Knockback);
+		this->SetCrowdControlState(ECrowdControlType::Knockback);
+		
 		playCrowdControlMontage(ECrowdControlType::Knockback, attackInfo.hitDirection);
 
 		GetOwner()->GetWorldTimerManager().SetTimer(
@@ -139,6 +149,7 @@ void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // 넉백CC시
 	if (m_Owner->IsDead())
 	{
 		BreakCrowdControlState();
+		
 		return;
 	}
 	
@@ -146,13 +157,15 @@ void UCrowdControlComponent::OnCalledTimer_KnockbackOnStanding_End() // 넉백CC시
 	{
 		if (IsGroggy())
 		{
-			SetCrowdControlState(ECrowdControlType::Groggy);
+			this->SetCrowdControlState(ECrowdControlType::Groggy);
+			
 			playCrowdControlMontage(ECrowdControlType::Groggy, 0);
 		}
 		else
 		{
+			this->SetCrowdControlState(ECrowdControlType::None);
+			
 			m_OwnerAnimInstance->StopAllMontages(0.0f);
-			SetCrowdControlState(ECrowdControlType::None);
 		}
 	}
 }
@@ -166,7 +179,8 @@ void UCrowdControlComponent::TakeAttack_Down(AActor* instigator, const FHitInfor
 	}
 	else // 상태이상 X or 다운 or 넉백 or 그로기
 	{
-		SetCrowdControlState(ECrowdControlType::Down);
+		this->SetCrowdControlState(ECrowdControlType::Down);
+		
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);
 		
 		UAnimMontage* downMontage = m_CrowdControlSetting.crowdControlMontages[ECrowdControlType::Down].montages[0];
@@ -183,7 +197,7 @@ void UCrowdControlComponent::TakeAttack_Down(AActor* instigator, const FHitInfor
 
 void UCrowdControlComponent::CallTimer_CheckOnGround()
 {
-	GetOwner()->GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
+	m_Owner->GetWorldTimerManager().SetTimer(m_CrowdControlTimerHandle,
 		this,
 			&UCrowdControlComponent::CheckOnGround,	
 			GetWorld()->DeltaTimeSeconds,
@@ -196,20 +210,22 @@ void UCrowdControlComponent::CheckOnGround() // OnGround인지 틱마다 호출되어지는
 	if (m_Owner->IsDead())
 	{
 		BreakCrowdControlState();
+		
 		return;
 	}
 
 	if (getCharacterMovementComponent()->IsMovingOnGround()) 
 	{
-		GetOwner()->GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+		m_Owner->GetWorldTimerManager().ClearTimer(m_CrowdControlTimerHandle);
+
+		this->SetCrowdControlState(ECrowdControlType::Down);
 		
 		playCrowdControlMontage(ECrowdControlType::Down, 0);
-		SetCrowdControlState(ECrowdControlType::Down);
-
+		
 		UAnimMontage* downMontage = m_CrowdControlSetting.crowdControlMontages[ECrowdControlType::Down].montages[0];
 		const float downPlayTime = m_OwnerAnimInstance->GetMontagePlayTime(downMontage) + 0.2f;
 
-		GetOwner()->GetWorldTimerManager().SetTimer(
+		m_Owner->GetWorldTimerManager().SetTimer(
 			m_CrowdControlTimerHandle,
 			this,
 			&UCrowdControlComponent::GetUp,
@@ -228,18 +244,19 @@ void UCrowdControlComponent::GetUp()
 	
 		const float getupPlayTime = m_OwnerAnimInstance->GetMontagePlayTime(getUpMontage);
 	
-		GetOwner()->GetWorldTimerManager().SetTimer(
+		m_Owner->GetWorldTimerManager().SetTimer(
 			m_CrowdControlTimerHandle,
 			[this]()
 			{
 				if (IsGroggy())
 				{
-					SetCrowdControlState(ECrowdControlType::Groggy);
+					this->SetCrowdControlState(ECrowdControlType::Groggy);
+					
 					playCrowdControlMontage(ECrowdControlType::Groggy, 0);
 				}
 				else
 				{
-					SetCrowdControlState(ECrowdControlType::None);
+					this->SetCrowdControlState(ECrowdControlType::None);
 				}
 			},
 			getupPlayTime,
@@ -254,15 +271,17 @@ void UCrowdControlComponent::TakeAttack_Airborne(AActor* instigator, const FHitI
 	if (m_CurCrowdControlState == ECrowdControlType::Down) // 다운 유지
 	{
 		airbornePower.Z /= 2; // 다운상태에서의 에어본은 보정값을 먹인다.
+		
 		playCrowdControlMontage(ECrowdControlType::Down, attackInfo.hitDirection);
 	}
 	else // 넉백 or 에어본 or 그로기
 	{
-		SetCrowdControlState(ECrowdControlType::Airborne);
+		this->SetCrowdControlState(ECrowdControlType::Airborne);
+		
 		playCrowdControlMontage(ECrowdControlType::Airborne, attackInfo.hitDirection);
 	}
 
-	FVector launchVelocity = airbornePower;
+	const FVector launchVelocity = airbornePower;
 	m_Owner->LaunchCharacter(launchVelocity, true, true);
 
 	CallTimer_CheckOnGround();
@@ -273,7 +292,7 @@ void UCrowdControlComponent::DisableMovementComponentForDuration(float duration)
 	getCharacterMovementComponent()->Deactivate();
 
 	FTimerHandle activateTimer;
-	GetOwner()->GetWorldTimerManager().SetTimer(activateTimer,
+	m_Owner->GetWorldTimerManager().SetTimer(activateTimer,
 		[this]()
 		{
 			getCharacterMovementComponent()->Activate();
@@ -289,7 +308,7 @@ UCharacterMovementComponent* UCrowdControlComponent::getCharacterMovementCompone
 		m_CharacterMovementComponent = m_Owner->GetCharacterMovement();
 	}
 	
-	return m_CharacterMovementComponent.Get();
+	return m_CharacterMovementComponent.IsValid() ? m_CharacterMovementComponent.Get() : nullptr;
 }
 
 void UCrowdControlComponent::playCrowdControlMontage(const ECrowdControlType crowdControlType, const int32 hitDirection)
@@ -316,14 +335,15 @@ void UCrowdControlComponent::playCrowdControlMontage(const ECrowdControlType cro
 
 void UCrowdControlComponent::endedCrowdControl()
 {
-	SetCrowdControlState(ECrowdControlType::None);
+	this->SetCrowdControlState(ECrowdControlType::None);
 }
 
 void UCrowdControlComponent::BreakCrowdControlState()
 {
 	ClearCrowdControlTimerHandle();
 	ClearGroggyTimerHandle(); // 이게 실행 안되서 리커버리할 때 isgroggy가 true.
-	SetCrowdControlState(ECrowdControlType::None);
+	
+	this->SetCrowdControlState(ECrowdControlType::None);
 }
 
 bool UCrowdControlComponent::IsCrowdControlState() const
@@ -340,7 +360,7 @@ void UCrowdControlComponent::SetCrowdControlState(ECrowdControlType crowdControl
 {
 	m_CurCrowdControlState = crowdControlType;
 
-	if (m_OwnerAIController != nullptr)
+	if (m_OwnerAIController.IsValid())
 	{
 		m_OwnerAIController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsCrowdControlState"), crowdControlType != ECrowdControlType::None);
 	}

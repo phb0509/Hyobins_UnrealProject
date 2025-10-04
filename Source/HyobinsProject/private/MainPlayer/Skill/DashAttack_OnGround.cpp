@@ -17,6 +17,8 @@ UDashAttack_OnGround::UDashAttack_OnGround() :
 void UDashAttack_OnGround::Initialize()
 {
 	Super::Initialize();
+
+	check(m_DashAttackMontage != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("DashAttack_OnGround"),
     	[this]()
@@ -30,6 +32,7 @@ void UDashAttack_OnGround::Execute()
 	Super::Execute();
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	check(ownerSkillComponent != nullptr);
 	
 	m_Owner->GetMotionWarpingComponent()->AddOrUpdateWarpTargetFromLocation(
 		TEXT("Forward"),

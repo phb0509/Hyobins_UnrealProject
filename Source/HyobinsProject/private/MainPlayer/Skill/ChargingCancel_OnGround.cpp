@@ -17,6 +17,8 @@ void UChargingCancel_OnGround::Initialize()
 {
 	Super::Initialize();
 
+	check(m_StopChargingMontage != nullptr);
+	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("StopCharging_OnGround"),
 		[this]()
 		{
@@ -29,6 +31,8 @@ void UChargingCancel_OnGround::Execute()
 	Super::Execute();
 
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	check(ownerSkillComponent != nullptr);
+	
 	FTimerHandle chargingTimer = ownerSkillComponent->GetChargingTimer();
 	
 	m_Owner->GetWorldTimerManager().ClearTimer(chargingTimer);
@@ -41,6 +45,8 @@ void UChargingCancel_OnGround::Execute()
 	m_OwnerAnimInstance->Montage_Play(m_StopChargingMontage,1.0f);
 
 	UUIManager* uiManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
 	uiManager->RemoveWidgetContainers("ChargingGageBar");
 }
 

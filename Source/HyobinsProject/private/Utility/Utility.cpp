@@ -19,9 +19,9 @@ Utility::~Utility()
 {
 }
 
-int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor) // 공격한 액터, 공격당한 액터
+int32 Utility::GetHitDirection(const FVector& instigatorLocation, const AActor* hitActor) // 공격한 액터위치, 공격당한 액터
 {
-	if (hitActor == nullptr)
+	if (IsValid(hitActor))
 	{
 		return 0;
 	}

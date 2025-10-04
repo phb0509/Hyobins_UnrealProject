@@ -31,7 +31,10 @@ void AMonster::BeginPlay()
 	Super::BeginPlay();
 
 	m_AIControllerBase = Cast<AAIControllerBase>(GetController());
+	check(m_AIControllerBase != nullptr);
+	
 	m_CrowdControlComponent->OnEndedGroggy.AddUObject(this, &AMonster::EndedGroggy);
+	check(IsValid(m_CrowdControlComponent));
 	
 	setTimeline();
 }
@@ -48,11 +51,12 @@ void AMonster::OnDamage(const float damage, const bool bIsCriticalAttack, const 
 	AActor* instigator, const FVector& causerLocation)
 {
 	Super::OnDamage(damage, bIsCriticalAttack, AttackInformation, instigator, causerLocation);
-
+	
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, instigator);
 	
 	if (!IsDead() && !m_CrowdControlComponent->IsGroggy())
 	{
+		check(m_StatComponent != nullptr);
 		m_StatComponent->OnDamageStamina(AttackInformation->staminaDamage);
 	}
 }
@@ -61,13 +65,14 @@ void AMonster::OnStaminaIsZero()
 {
 	Super::OnStaminaIsZero();
 	
-	OnGroggy();
+	this->OnGroggy();
 }
 
 void AMonster::OnGroggy()
 {
 	m_StatComponent->StopRecoveryHP();
 	m_StatComponent->StopRecoveryStamina();
+	
 	m_CrowdControlComponent->OnGroggy();
 }
 
@@ -82,7 +87,8 @@ void AMonster::Die()
 {
 	Super::Die();
 
-	SetIsDead(true);
+	this->SetIsDead(true);
+	
 	m_AIControllerBase->GetBlackboardComponent()->SetValueAsObject(AMonster::EnemyKey, nullptr);
 	m_AIControllerBase->StopBehaviorTree();
 }
@@ -96,7 +102,7 @@ void AMonster::ExecEvent_EndedDeathMontage()
 
 void AMonster::OnCalledTimelineEvent_Loop_AfterDeath(float curveValue)
 {
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatioOnDeath"), curveValue * 2);
+	this->GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatioOnDeath"), curveValue * 2);
 }
 
 void AMonster::OnCalledTimelineEvent_End_AfterDeath()
@@ -107,7 +113,7 @@ void AMonster::OnCalledTimelineEvent_End_AfterDeath()
 
 void AMonster::OnCalledTimelineEvent_Loop_DeathDissolve(float curveValue)
 {
-	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DissolveAmount"), curveValue);
+	this->GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DissolveAmount"), curveValue);
 }
 
 void AMonster::OnCalledTimelineEvent_End_DeathDissolve()
@@ -121,39 +127,48 @@ void AMonster::OnCalledTimelineEvent_End_DeathDissolve()
 void AMonster::Initialize()
 {
 	// HPBar 위젯 생성 및 부착.
-	GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>()->CreateMonsterHPBar(this);
+	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
+	uiManager->CreateMonsterHPBar(this);
 }
 
 void AMonster::Activate()
 {
-	SetIsDead(false);
+	this->SetIsDead(false);
 	
 	m_CrowdControlComponent->SetCrowdControlState(ECrowdControlType::None);
+	
 	m_StatComponent->InitHP();
 	m_StatComponent->InitStamina();
-
+	
 	m_AIControllerBase->OnPossess(this);
 	m_AIControllerBase->StartBehaviorTree();
 
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRatio"), 0.0f);
 
 	// 충돌체들 활성화
-	m_Colliders[HitColliderName]->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	TWeakObjectPtr<UShapeComponent> hitCollider = m_Colliders[TEXT("HitCollider")];
+	check(hitCollider.IsValid());
+	
+	hitCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
 	this->SetActorTickEnabled(true);
 	this->SetActorHiddenInGame(false);
 
-	this->OnTakeDamage.AddUObject(this, &AMonster::PlayOnHitEffect);
+	OnTakeDamage.AddUObject(this, &AMonster::PlayOnHitEffect);
 	
 	// UI
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
-	this->OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
+	check(uiManager != nullptr);
+	
+	OnTakeDamage.AddUObject(uiManager, &UUIManager::RenderDamageToScreen);
 }
 
 void AMonster::Deactivate() // 액터풀에서 첫생성하거나 사망 후 회수되기 직전에 호출.
 {
-	SetIsDead(true);
+	this->SetIsDead(true);
 	
 	m_AIControllerBase->StopBehaviorTree();
 	m_AIControllerBase->OnUnPossess();
@@ -188,6 +203,9 @@ bool AMonster::IsActive()
 
 void AMonster::setTimeline()
 {
+	check(m_DeathCurveFloat != nullptr);
+	check(m_DeathDissolveCurveFloat != nullptr);
+	
 	if (m_DeathCurveFloat != nullptr)
 	{
 		m_DeathTimeline.SetLooping(false);
@@ -221,8 +239,8 @@ void AMonster::PlayOnHitEffect(const FHitInformation& hitInfo)
 
 	GetMesh()->SetScalarParameterValueOnMaterials(TEXT("DiffuseRedRatioOnHit"), 5.0f); // 바로 붉게 했다가,
 	
-	this->GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
-	this->GetWorldTimerManager().SetTimer(m_DiffuseRatioOnHitTimer,
+	GetWorldTimerManager().ClearTimer(m_DiffuseRatioOnHitTimer);
+	GetWorldTimerManager().SetTimer(m_DiffuseRatioOnHitTimer,
 	[this]()
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials(
@@ -245,15 +263,17 @@ void AMonster::SetIsDead(bool bIsDead)
 
 void AMonster::Pause()
 {
-	this->GetMesh()->bPauseAnims = true;
-	this->GetCharacterMovement()->SetMovementMode(MOVE_None);
+	GetMesh()->bPauseAnims = true;
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+	
 	m_AIControllerBase->StopBehaviorTree();
 }
 
 void AMonster::Unpause()
 {
-	this->GetMesh()->bPauseAnims = false;
-	this->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	GetMesh()->bPauseAnims = false;
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	
 	m_AIControllerBase->StartBehaviorTree();
 }
 

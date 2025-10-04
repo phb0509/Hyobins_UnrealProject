@@ -34,7 +34,11 @@ void UUIManager::Deinitialize()
 void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/StatusBar.StatusBar_C'"));
+	check(classType != nullptr);
+	
 	UMainPlayerStatusBar* mainPlayerStatusBar = Cast<UMainPlayerStatusBar>(CreateWidget(GetWorld(), classType));
+	check(mainPlayerStatusBar != nullptr);
+	
 	mainPlayerStatusBar->BindStatComponent(statComponent);
 	mainPlayerStatusBar->AddToViewport();
 	
@@ -44,7 +48,11 @@ void UUIManager::CreateMainPlayerStatusBar(UStatComponent* statComponent, AChara
 void UUIManager::CreateBossStatusBar(UStatComponent* statComponent, ACharacterBase* widgetOwner)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/BossStatusBar.BossStatusBar_C'"));
+	check(classType != nullptr);
+	
 	UBossStatusBar* bossStatusBar = Cast<UBossStatusBar>(CreateWidget(GetWorld(), classType));
+	check(bossStatusBar != nullptr);
+	
 	bossStatusBar->BindStatComponent(statComponent);
 	bossStatusBar->AddToViewport();
 	
@@ -54,16 +62,23 @@ void UUIManager::CreateBossStatusBar(UStatComponent* statComponent, ACharacterBa
 void UUIManager::CreateSkillSlots(USkillComponent* skillComponent, ACharacterBase* widgetOwner)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/SkillSlots.SkillSlots_C'"));
+	check(classType != nullptr);
+	
 	USkillSlots* skillSlots = Cast<USkillSlots>(CreateWidget(GetWorld(), classType));
+	check(skillSlots != nullptr);
+	
 	skillSlots->AddToViewport();
+	
 	addWidgetContainer(TEXT("SkillSlots"), skillSlots, nullptr);
 	
-	skillSlots->CreateSkillListFromSkillComponent(skillComponent);
+	skillSlots->CreateSkillList(skillComponent);
 }
 
 void UUIManager::ChangeSkillList()
 {
 	USkillSlots* skillSlots = Cast<USkillSlots>(m_UIWidgetsWidgetNameKey["SkillSlots"][0].widget);
+	check(skillSlots != nullptr);
+	
 	skillSlots->ChangeSkillSlots();
 }
 
@@ -75,8 +90,10 @@ void UUIManager::CreateLockOn(AActor* target)
 	}
 	
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/LockOn.LockOn_C'"));
+	check(classType != nullptr);
 
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(target, UWidgetComponent::StaticClass(), "LockOn_Widget");
+	check(widgetComponent != nullptr);
 
 	widgetComponent->SetupAttachment(target->GetRootComponent());
 	widgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
@@ -87,7 +104,11 @@ void UUIManager::CreateLockOn(AActor* target)
 	widgetComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
 
 	UUserWidget* widget = widgetComponent->GetUserWidgetObject();
+	check(widget != nullptr);
+	
 	ULockOn* lockOnWidget = Cast<ULockOn>(widget);
+	check(lockOnWidget != nullptr);
+	
 	lockOnWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 
 	addWidgetContainer(TEXT("LockOn"), lockOnWidget, widgetComponent);
@@ -103,16 +124,23 @@ void UUIManager::RenderLockOnToScreen(AActor* target)
 	}
 	
 	UWidgetComponent* widgetComponent = Cast<UWidgetComponent>(m_UIWidgetsWidgetNameKey["LockOn"][0].widgetComponent);
+	check(widgetComponent != nullptr);
+	
 	widgetComponent->AttachToComponent(target->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	
 	ULockOn* lockOnWidget = Cast<ULockOn>(widgetComponent->GetUserWidgetObject());
+	check(lockOnWidget != nullptr);
+	
 	lockOnWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
 void UUIManager::OpenEnvironmentSettings()
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/EnvironmentSettings.EnvironmentSettings_C'"));
+	check(classType != nullptr);
+	
 	UEnvironmentSettings* environmentSettings = Cast<UEnvironmentSettings>(CreateWidget(GetWorld(), classType));
+	check(environmentSettings != nullptr);
 	
 	environmentSettings->AddToViewport();
 	environmentSettings->Open();
@@ -123,7 +151,11 @@ void UUIManager::OpenEnvironmentSettings()
 void UUIManager::CreateComboWidget()
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Combo.Combo_C'"));
+	check(classType != nullptr);
+	
 	UCombo* combo = Cast<UCombo>(CreateWidget(GetWorld(), classType));
+	check(combo != nullptr);
+	
 	combo->AddToViewport();
 	combo->SetVisibility(ESlateVisibility::Collapsed);
 	
@@ -150,12 +182,17 @@ void UUIManager::BindActorToDamageWidget(ACharacterBase* hitActor)
 void UUIManager::RenderDamageToScreen(const FHitInformation& hitInfo)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/System/Damage.Damage_C'"));
+	check(classType != nullptr);
+	
 	UDamage* damageWidget = Cast<UDamage>(CreateWidget(GetWorld(), classType));
+	check(damageWidget != nullptr);
+	
 	damageWidget->AddToViewport();
 	
 	FVector2D screenPosition;
 	GetWorld()->GetFirstPlayerController()->ProjectWorldLocationToScreen(hitInfo.hitActor->GetActorLocation(), screenPosition);
 	screenPosition.Y -= 100.0f;
+	
 	damageWidget->SetPositionInViewport(screenPosition);
 	damageWidget->SetDamage(hitInfo.finalDamage);
 	damageWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -174,9 +211,12 @@ void UUIManager::EmptyMonsterHPBars()
 void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/Monster/NewHealth/BP_MonsterHPBar.BP_MonsterHPBar_C'"));
+	check(classType != nullptr);
 	
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
 		widgetOwner, UWidgetComponent::StaticClass(), "UpperHPBar_Widget");
+	
+	check(widgetComponent != nullptr);
 	
 	widgetComponent->SetupAttachment(widgetOwner->GetMesh());
 	widgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
@@ -186,7 +226,11 @@ void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 	widgetComponent->SetRelativeLocation(FVector(0,0,250.0f));
 	
 	UUserWidget* monsterHPBarWidget = widgetComponent->GetUserWidgetObject();
+	check(monsterHPBarWidget != nullptr);
+	
 	UMonsterHPBar* hpBar = Cast<UMonsterHPBar>(monsterHPBarWidget);
+	check(hpBar != nullptr);
+	
 	hpBar->SetVisibility(ESlateVisibility::Collapsed);
 	hpBar->BindStatComponent(widgetOwner->GetStatComponent());
 
@@ -197,7 +241,7 @@ void UUIManager::CreateMonsterHPBar(ACharacterBase* widgetOwner)
 
 void UUIManager::RegistWhiteBlinkTick(UMonsterHPBar* hpBar)
 {
-	if (hpBar == nullptr || m_WhiteBlinkHPBars.Contains(hpBar))
+	if (IsValid(hpBar)|| m_WhiteBlinkHPBars.Contains(hpBar))
 	{
 		return;
 	}
@@ -245,9 +289,11 @@ void UUIManager::UpdateHPBarWhiteBlink()
 void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float duration) 
 {
 	TSubclassOf<UUserWidget> classType = LoadClass<UUserWidget>(nullptr, TEXT("WidgetBlueprint'/Game/UI/MainPlayer/ChargingGageBar.ChargingGageBar_C'"));
+	check(classType != nullptr);
 	
 	UWidgetComponent* widgetComponent = NewObject<UWidgetComponent>(
 		widgetOwner, UWidgetComponent::StaticClass(), "ChargingGageBar_Widget");
+	check(widgetComponent != nullptr);
 	
 	widgetComponent->SetupAttachment(widgetOwner->GetMesh());
 	widgetComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
@@ -258,7 +304,11 @@ void UUIManager::CreateChargingGageBar(ACharacterBase* widgetOwner, float durati
 	widgetComponent->SetDrawSize(FVector2D(150.0f, 50.0f));
 	
 	UUserWidget* widgetObject = widgetComponent->GetUserWidgetObject();
+	check(widgetObject != nullptr);
+	
 	UChargingGageBar* chargingGageBar = Cast<UChargingGageBar>(widgetObject);
+	check(chargingGageBar != nullptr);
+	
 	chargingGageBar->SetWidgetComponent(widgetComponent);
 	chargingGageBar->StartCharging(duration);
 

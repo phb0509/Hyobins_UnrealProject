@@ -19,6 +19,9 @@ UUpperAttack_OnGround::UUpperAttack_OnGround():
 void UUpperAttack_OnGround::Initialize()
 {
 	Super::Initialize();
+
+	check(m_UpperAttackMontage != nullptr);
+	check(m_UpperAttackToAirMontage != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("UpperAttack_GroundToAir"),
 	[this]()
@@ -36,6 +39,7 @@ void UUpperAttack_OnGround::Execute()
 		m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::NormalStrikeAttack_OnGround))
 	{
 		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+		check(ownerSkillComponent != nullptr);
 		
 		if (ownerSkillComponent->IsStrikeAttackActive())
 		{

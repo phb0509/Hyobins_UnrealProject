@@ -16,5 +16,7 @@ void UBTS_SetMaxWalkSpeed::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, u
 	Super::OnBecomeRelevant(OwnerComp, NodeMemory);
 
 	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
+	check(owner != nullptr);
+	
 	owner->GetCharacterMovement()->MaxWalkSpeed = m_MaxWalkSpeed;
 }

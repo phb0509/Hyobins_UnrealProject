@@ -73,12 +73,7 @@ public:
 	}
 
 protected:
-	FORCEINLINE bool HasSkill(const FName& inputMappingContextName, const FName& skillName) const
-	{
-		return m_SkillList.Contains(inputMappingContextName) &&
-			m_SkillList[inputMappingContextName].skillList.Contains(skillName) &&
-			m_SkillList[inputMappingContextName].skillList[skillName] != nullptr;
-	}
+	bool HasSkill(const FName& inputMappingContextName, const FName& skillName) const;
 
 private:
 	void loadSkills();

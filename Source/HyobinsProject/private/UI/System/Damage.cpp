@@ -10,6 +10,7 @@ void UDamage::NativeConstruct()
 	Super::NativeConstruct();
 
 	m_DamageText = Cast<UTextBlock>(GetWidgetFromName(TEXT("m_DamageText")));
+	check(m_DamageText != nullptr);
 	
 	FWidgetAnimationDynamicEvent endDelegate;
 	endDelegate.BindDynamic(this, &UDamage::Remove);

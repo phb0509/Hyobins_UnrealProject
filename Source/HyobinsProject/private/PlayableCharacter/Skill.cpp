@@ -21,6 +21,7 @@ USkill::USkill() :
 void USkill::Execute()
 {
 	m_bIsCooldownComplete = false;
+	
 	m_Owner->GetWorldTimerManager().SetTimer(
 		m_TimerHandle,
 		[this]()
@@ -61,12 +62,13 @@ bool USkill::CanExecuteSkill() const
 void USkill::SetOwnerInfo(APlayableCharacter* owner)
 {
 	m_Owner = owner;
-
-	if (m_Owner.IsValid())
-	{
-		m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
-		m_OwnerSkillComponent = m_Owner->GetSkillComponent();
-	}
+	check(m_Owner.IsValid())
+	
+	m_OwnerAnimInstance = Cast<UAnimInstanceBase>(m_Owner->GetMesh()->GetAnimInstance());
+	check(m_OwnerAnimInstance.IsValid());
+	
+	m_OwnerSkillComponent = m_Owner->GetSkillComponent();
+	check(m_OwnerSkillComponent.IsValid());
 }
 
 

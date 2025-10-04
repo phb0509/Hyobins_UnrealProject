@@ -16,7 +16,10 @@ EBTNodeResult::Type UBTT_LichKing_NormalAttack::ExecuteTask(UBehaviorTreeCompone
 	EBTNodeResult::Type result = Super::ExecuteTask(OwnerComp, NodeMemory);
 	
 	ACharacterBase* owner = Cast<ACharacterBase>(OwnerComp.GetAIOwner()->GetPawn());
+	check(owner != nullptr);
+	
 	UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
+	check(animInstance != nullptr);
 	
 	animInstance->PlayMontage(TEXT("NormalAttack"));
 	
@@ -35,8 +38,9 @@ void UBTT_LichKing_NormalAttack::InitializeMemory(UBehaviorTreeComponent& OwnerC
 		if (!instanceNode->bHasInit)
 		{
 			instanceNode->bHasInit = true;
-
+			
 			UAnimInstanceBase* animInstance = Cast<UAnimInstanceBase>(owner->GetMesh()->GetAnimInstance());
+			check(animInstance != nullptr);
 		
 			animInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("NormalAttack"),
 		[&]()

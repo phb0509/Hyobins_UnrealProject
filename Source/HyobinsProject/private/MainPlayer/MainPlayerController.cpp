@@ -18,7 +18,10 @@ void AMainPlayerController::BeginPlay()
 	Super::BeginPlay();
 	
 	UUIManager* uiManager = GetWorld()->GetGameInstance()->GetSubsystem<UUIManager>();
+	check(uiManager != nullptr);
+	
 	UBattleManager* battleManager = GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
+	check(battleManager != nullptr);
 	
 	battleManager->OnPlayerAttack.AddUObject(uiManager, &UUIManager::UpdateComboCount);
 }

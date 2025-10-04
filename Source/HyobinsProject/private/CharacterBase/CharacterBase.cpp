@@ -9,13 +9,10 @@
 #include "Component/StatComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
-#include "SubSystems/DataManager.h"
-#include "MotionWarpingComponent.h"
 #include "Component/CrowdControlComponent.h"
 
 
 int32 attackCount = 0; // 로그용 임시값
-const FName ACharacterBase::HitColliderName = "HitCollider";
 const FName ACharacterBase::KnockbackMontageNames[4] = {"Knockback0", "Knockback1", "Knockback2", "Knockback3"};
 const FName ACharacterBase::DeathMontageNames[4] = {"Death0", "Death1", "Death2", "Death3"};
 
@@ -38,12 +35,17 @@ void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	attackCount = 0;
+	attackCount = 0; // 로그출력용.
+
+	check(IsValid(m_StatComponent));
+	check(IsValid(m_CrowdControlComponent));
 	
 	m_AnimInstanceBase = Cast<UAnimInstanceBase>(GetMesh()->GetAnimInstance());
+	check(m_AnimInstanceBase != nullptr);
+	
 	m_AnimInstanceBase->End_Death.AddUObject(this, &ACharacterBase::OnCalledNotify_End_Death); 
 	
-	this->OnTakeDamage.AddUObject(this, &ACharacterBase::PlayOnHitEffect);
+	OnTakeDamage.AddUObject(this, &ACharacterBase::PlayOnHitEffect);
 }
 
 void ACharacterBase::Tick(float DeltaSeconds)
@@ -111,20 +113,15 @@ void ACharacterBase::OnHPIsZero()
 void ACharacterBase::Die()
 {
 	m_bIsDead = true;
+	
 	m_CrowdControlComponent->BreakCrowdControlState();
+	
 	m_StatComponent->StopRecoveryHP();
 	m_StatComponent->StopRecoveryStamina();
-	
-	OnDeath.Broadcast();
+
+	m_HitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	playDeathMontage(m_LastHitDirection);
-
-	
-	UShapeComponent* hitCollider = m_Colliders[HitColliderName].Get();
-	if (hitCollider != nullptr)
-	{
-		hitCollider->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
 }
 
 void ACharacterBase::OnCalledNotify_End_Death() 
@@ -155,8 +152,6 @@ void ACharacterBase::PlayOnHitEffect(const FHitInformation& hitInformation)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, m_HitSound, GetActorLocation());
 	}
-
-	
 }
 
 void ACharacterBase::RotateToTarget(const AActor* target, const FRotator& rotatorOffset)
@@ -204,7 +199,7 @@ bool ACharacterBase::HasEnoughStamina(const float cost) const
 
 UAnimInstanceBase* ACharacterBase::GetAnimInstanceBase() const
 {
-	return m_AnimInstanceBase.Get();
+	return m_AnimInstanceBase.IsValid() ? m_AnimInstanceBase.Get() : nullptr;
 }
 
 UMotionWarpingComponent* ACharacterBase::GetMotionWarpingComponent() const
@@ -239,7 +234,7 @@ void ACharacterBase::RecoveryStamina() const
 
 void ACharacterBase::SetInvincible(const bool bIsInvincible)
 {
-	if (m_HitCollider != nullptr)
+	if (IsValid(m_HitCollider))
 	{
 		if (bIsInvincible)
 		{

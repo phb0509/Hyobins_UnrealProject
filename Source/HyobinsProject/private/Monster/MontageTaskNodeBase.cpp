@@ -7,7 +7,10 @@ UMontageTaskNodeBase::UMontageTaskNodeBase()
 {
 }
 
-uint16 UMontageTaskNodeBase::GetInstanceMemorySize() const
+void UMontageTaskNodeBase::InitializeMemory(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
+	EBTMemoryInit::Type InitType) const
 {
-	return sizeof(FInstanceNode);
+	Super::InitializeMemory(OwnerComp, NodeMemory, InitType);
 }
+
+

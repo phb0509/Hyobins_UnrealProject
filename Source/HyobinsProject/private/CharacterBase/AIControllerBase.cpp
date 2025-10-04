@@ -14,9 +14,14 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 void AAIControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	check(IsValid(m_BehaviorTree));
+	this->RunBehaviorTree(m_BehaviorTree.Get());
 	
-	RunBehaviorTree(m_BehaviorTree.Get()); 
+	check(IsValid(m_BehaviorTreeComponent))
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
+
+	check(IsValid(m_AIPerceptionComponent))
 }
 
 void AAIControllerBase::OnPossess(APawn* pawn)
@@ -24,6 +29,7 @@ void AAIControllerBase::OnPossess(APawn* pawn)
 	Super::OnPossess(pawn);
 
 	m_Owner = Cast<ACharacterBase>(pawn);
+	check(m_Owner != nullptr);
 }
 
 void AAIControllerBase::OnUnPossess()
@@ -31,19 +37,22 @@ void AAIControllerBase::OnUnPossess()
 	Super::OnUnPossess();
 }
 
-void AAIControllerBase::StopBehaviorTree()
-{
-	m_BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
-	StopMovement();
-}
-
 void AAIControllerBase::StartBehaviorTree()
 {
-	RunBehaviorTree(m_BehaviorTree.Get());
+	this->RunBehaviorTree(m_BehaviorTree.Get());
+	
 	m_BehaviorTreeComponent->StartTree(*m_BehaviorTree);
 }
 
-void AAIControllerBase::RestartBehaviorTree()
+void AAIControllerBase::StopBehaviorTree()
+{
+	m_BehaviorTreeComponent->StopTree(EBTStopMode::Safe);
+	
+	this->StopMovement();
+}
+
+
+void AAIControllerBase::RestartBehaviorTree() const
 {
 	m_BehaviorTreeComponent->RestartTree();
 }

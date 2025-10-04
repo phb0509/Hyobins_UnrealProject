@@ -34,8 +34,8 @@ public:
 	virtual void NativeBeginPlay() override;
 	
 	void PlayMontage(const FName& montageName, float inPlayRate = 1.0f);
-	void JumpToMontageSectionByIndex(const FName& montageName, int32 newSection);
-	void JumpToMontageSectionByName(const FName& montageName, FName newSection);
+	void JumpToMontageSectionByIndex(const UAnimMontage* montage, int32 newSection);
+	void JumpToMontageSectionByName(const UAnimMontage* montage, FName newSection);
 	bool IsCurrentMontage(const FName& montageName);
 	FName GetCurrentMontageName() const;
 	
@@ -150,10 +150,10 @@ public:
 	
 private:
 	UFUNCTION()
-	virtual void Exec_OnMontageStarted(UAnimMontage* Montage);
+	virtual void Exec_OnMontageStarted(UAnimMontage* montage);
 	
 	UFUNCTION()
-	virtual void Exec_OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	virtual void Exec_OnMontageEnded(UAnimMontage* montage, bool bInterrupted);
 
 
 private:

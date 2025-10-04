@@ -32,18 +32,16 @@ void UNotifyState_Check_Collision::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	
 	m_Owner = Cast<ACharacterBase>(MeshComp->GetOwner());
 	
-	if (m_Owner.IsValid())
+	if (m_Owner != nullptr)
 	{
 		m_WeaponCollider = m_Owner->GetCollider(m_ColliderName);
-
-		if (m_WeaponCollider != nullptr)
-		{
-			m_PrevColliderLocation = m_WeaponCollider->GetComponentLocation();
+		check(m_WeaponCollider != nullptr);
 		
-			if (m_AttackName != TEXT("Empty"))
-			{
-				m_Owner->EmptyHitActorsByMe(m_AttackName);
-			}
+		m_PrevColliderLocation = m_WeaponCollider->GetComponentLocation();
+
+		if (m_AttackName != TEXT("Empty"))
+		{
+			m_Owner->EmptyHitActorsByMe(m_AttackName);
 		}
 	}
 }
@@ -53,9 +51,11 @@ void UNotifyState_Check_Collision::NotifyTick(USkeletalMeshComponent* MeshComp, 
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
-	if (m_Owner.IsValid() && m_WeaponCollider != nullptr)
+	if (m_Owner.IsValid() && m_WeaponCollider.IsValid())
 	{
 		UBattleManager* battleManager = m_Owner->GetWorld()->GetGameInstance()->GetSubsystem<UBattleManager>();
+		check(battleManager != nullptr);
+		
 		FVector curLocation = m_WeaponCollider->GetComponentLocation();
 		
 		TArray<FHitResult> hitResults;
@@ -120,30 +120,32 @@ void UNotifyState_Check_Collision::playHitEffect(const FVector& overlapLocation)
 	// CameraShake
 	if (m_OnHitCameraShake != nullptr)
 	{
-		m_Owner.Get()->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_OnHitCameraShake);
+		m_Owner->GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(m_OnHitCameraShake);
 	}
 
 
 	// StopMotion
 	UAnimInstanceBase* animInstanceBase = m_Owner->GetAnimInstanceBase();
-	UAnimMontage* curMontage = animInstanceBase->GetCurrentActiveMontage();
-
-	if (curMontage != nullptr)
-	{
-		//const float curMontagePlayRate = animInstanceBase->Montage_GetPlayRate(curMontage);
 	
-		animInstanceBase->Montage_SetPlayRate(curMontage,m_MontagePlayRate);
+	if (animInstanceBase != nullptr)
+	{
+		UAnimMontage* curMontage = animInstanceBase->GetCurrentActiveMontage();
+
+		if (curMontage != nullptr)
+		{
+			animInstanceBase->Montage_SetPlayRate(curMontage,m_MontagePlayRate);
 		
-		FTimerHandle timer;
-		m_Owner->GetWorldTimerManager().SetTimer
-		( 
-			timer,
-			[=]()
-			{
-				animInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
-			},
-			m_MontageDelayTime,
-			false 
-		);
+			FTimerHandle timer;
+			m_Owner->GetWorldTimerManager().SetTimer
+			( 
+				timer,
+				[=]()
+				{
+					animInstanceBase->Montage_SetPlayRate(curMontage,1.0f);
+				},
+				m_MontageDelayTime,
+				false 
+			);
+		}
 	}
 }

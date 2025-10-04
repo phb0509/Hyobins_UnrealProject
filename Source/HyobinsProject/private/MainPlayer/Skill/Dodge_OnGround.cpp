@@ -2,15 +2,14 @@
 
 
 #include "MainPlayer/Skill/Dodge_OnGround.h"
-#include "MainPlayer/MainPlayer.h"
+#include "PlayableCharacter/PlayableCharacter.h"
 #include "CharacterBase/AnimInstanceBase.h"
 #include "Component/MainPlayerSkillComponent.h"
 #include "MotionWarpingComponent.h"
 #include "Utility/EnumTypes.h"
 
 UDodge_OnGround::UDodge_OnGround() :
-	m_TargetingDodgeMontage(nullptr),
-	m_NonTargetingDodgeMontage(nullptr),
+	m_DodgeMontage(nullptr),
 	m_MoveDistance(400.0f),
 	m_InvincibleTime(0.5f)
 {
@@ -20,14 +19,7 @@ void UDodge_OnGround::Initialize()
 {
 	Super::Initialize();
 	
-	// m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Dodge_NonTargeting_OnGround"),
-	// [this]()
-	// {
-	// 	if (m_OwnerSkillComponent->IsCurSkillState(EMainPlayerSkillStates::None))
-	// 	{
-	// 		m_Owner->SetIsSuperArmor(false);
-	// 	}
-	// });
+	check(m_DodgeMontage != nullptr);
 }
 
 void UDodge_OnGround::Execute()
@@ -47,6 +39,7 @@ void UDodge_OnGround::Execute()
 	);
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	check(ownerSkillComponent != nullptr);
 	
 	m_Owner->BreakCrowdControlState();
 	
@@ -61,8 +54,8 @@ void UDodge_OnGround::Execute()
 	const int32 localDirectionIndex = m_Owner->GetLocalDirectionIndex(worldKeyInputDirection);
 	const FString jumpSection = FString::FromInt(localDirectionIndex);
 	
-	m_OwnerAnimInstance->Montage_Play(m_TargetingDodgeMontage,1.0f);
-	m_OwnerAnimInstance->Montage_JumpToSection(*jumpSection, m_TargetingDodgeMontage);
+	m_OwnerAnimInstance->Montage_Play(m_DodgeMontage,1.0f);
+	m_OwnerAnimInstance->Montage_JumpToSection(*jumpSection, m_DodgeMontage);
 
 	FVector targetVerticalVector;
 	FVector targetHorizontalVector;

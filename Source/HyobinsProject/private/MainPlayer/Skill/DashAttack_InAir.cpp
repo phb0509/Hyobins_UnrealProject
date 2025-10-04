@@ -17,6 +17,8 @@ UDashAttack_InAir::UDashAttack_InAir():
 void UDashAttack_InAir::Initialize()
 {
 	Super::Initialize();
+
+	check(m_DashAttackMontage != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageNotInterruptedEnded(TEXT("DashAttack_InAir"),
 	[this]()

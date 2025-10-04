@@ -10,6 +10,7 @@ void UBossStatusBar::NativeConstruct()
 	Super::NativeConstruct();
 	
 	m_HPBar = Cast<UMonsterHPBar>(GetWidgetFromName(TEXT("m_HPBar")));
+	check(m_HPBar != nullptr);
 }
 
 void UBossStatusBar::BindStatComponent(UStatComponent* ownerStatComponent) const

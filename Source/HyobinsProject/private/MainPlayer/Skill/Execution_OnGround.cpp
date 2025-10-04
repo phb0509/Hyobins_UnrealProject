@@ -24,13 +24,15 @@ void UExecution_OnGround::Initialize()
 {
 	Super::Initialize();
 
-	APlayerController* PC = Cast<APlayerController>(m_Owner->GetController());
+	check(m_ExecutionMontage != nullptr);
 	
+	APlayerController* pc = Cast<APlayerController>(m_Owner->GetController());
+	check(pc != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Execution_OnGround"),
 	[=]()
 	{
-		PC->SetViewTargetWithBlend(m_Owner.Get(), 1.0f);
+		pc->SetViewTargetWithBlend(m_Owner.Get(), 1.0f);
 		
 		m_ExecutionCamera->Destroy();
 	});
@@ -45,6 +47,8 @@ void UExecution_OnGround::Execute()
 	if (target != nullptr && target->IsGroggy())
 	{
 		UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+		check(ownerSkillComponent != nullptr);
+		
 		ownerSkillComponent->SetSkillState(EMainPlayerSkillStates::Dodge_NonTargeting_OnGround);
 
 		m_Owner->RotateToTarget(target);
@@ -87,6 +91,7 @@ ACharacterBase* UExecution_OnGround::findTarget() const
 void UExecution_OnGround::playExecutionCamera()
 {
 	APlayerController* pc = Cast<APlayerController>(m_Owner->GetController());
+	check(pc != nullptr);
         
 	// 카메라 위치 셋팅. (플레이어 좌측정면에서 볼 수 있게)
 	const FVector ownerLocation = m_Owner->GetActorLocation();

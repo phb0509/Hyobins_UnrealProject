@@ -10,11 +10,16 @@ void UChargingGageBar::NativeConstruct()
 	Super::NativeConstruct();
 
 	m_ChargingGageBar = Cast<UProgressBar>(GetWidgetFromName(TEXT("m_ChargingGageBar")));
+	check(m_ChargingGageBar != nullptr);
+	
 	m_CompleteText = Cast<UTextBlock>(GetWidgetFromName(TEXT("m_CompleteText")));
+	check(m_CompleteText != nullptr);
+	
 	m_CompleteText->SetVisibility(ESlateVisibility::Collapsed);
 
 	FWidgetAnimationDynamicEvent endDelegate;
 	endDelegate.BindDynamic(this, &UChargingGageBar::Remove);
+	
 	BindToAnimationFinished(m_CompleteTextAnimation, endDelegate);
 }
 

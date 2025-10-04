@@ -15,16 +15,20 @@ UComboDashAttack_OnGround::UComboDashAttack_OnGround() :
 void UComboDashAttack_OnGround::Initialize()
 {
 	Super::Initialize();
+
+	check(m_ComboDashAttackMontage != nullptr);
 	
 	UMainPlayerSkillComponent* ownerSkillComponent = Cast<UMainPlayerSkillComponent>(m_OwnerSkillComponent);
+	check(ownerSkillComponent != nullptr);
 	
 	m_OwnerAnimInstance->BindLambdaFunc_OnMontageAllEnded(TEXT("Charging_ComboDashAttack_OnGround"),
 	[=]()
 	{
-		ownerSkillComponent->SetCanChargingSkill(false);
 		m_Owner->RemoveInputMappingContext(TEXT("Charging_OnGround"));
 		m_Owner->AddInputMappingContext(TEXT("Default_OnGround")); 
 		m_Owner->SetIsSuperArmor(false);
+
+		ownerSkillComponent->SetCanChargingSkill(false);
 	});
 }
 
